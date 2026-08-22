@@ -414,7 +414,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "0.9.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "0.9.3"; // single source of truth for the version tag in the header
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
@@ -1349,13 +1349,14 @@ function buildRecoContext(){
     pacing: buildPacingContext(),
   };
 }
-/* v0.9.2: streak/balance/cooldown are computed per-category, not per-title, so every
-   unwatched movie was getting the exact same points from them and ties were common.
-   This applies a small stable-per-day random multiplier (0.6–1.0) to just those
-   category-wide contributions for movie candidates, so a "+10 to movies" boost lands
-   as +10 for one title and +6 or +7 for another, instead of +10 everywhere. */
-function movieJitter(id){
-  return 0.6 + seededRandom(hashStr("movieJitter:"+id+":"+todayStr())) * 0.4;
+/* v0.9.2/0.9.3: many candidates end up with identical totals — untouched games/shows
+   of similar length in the same category get the same momentum/pressure/pacing/etc,
+   since those factors don't know titles apart. titleJitter gives each title a small,
+   stable-per-day random multiplier (0.6–1.0) applied once to its final total in
+   pickRecommendation, which is mathematically the same as applying it to every factor
+   individually (since it's the same multiplier for all of them) but far simpler. */
+function titleJitter(key){
+  return 0.6 + seededRandom(hashStr("titleJitter:"+key+":"+todayStr())) * 0.4;
 }
 const RECO_FACTORS = [
   { key:"momentum", fn:(c,ctx)=>{
@@ -1382,15 +1383,12 @@ const RECO_FACTORS = [
         pts += mag*fade;
       }
     });
-    if(c.category==="movies") pts *= movieJitter(c.id); // this entire subtotal is category-wide for movies
     return pts;
   }},
   { key:"balance", fn:(c,ctx)=>{
     const b = ctx.categoryBalance[c.category];
     if(b==null) return 0;
-    let pts = Math.max(-16, Math.min(22, b*46));
-    if(c.category==="movies") pts *= movieJitter(c.id);
-    return pts;
+    return Math.max(-16, Math.min(22, b*46));
   }},
   { key:"inactivity", fn:(c,ctx)=>{
     if(!ctx.quietDays) return 0;
@@ -1407,12 +1405,9 @@ const RECO_FACTORS = [
   { key:"cooldown", fn:(c,ctx)=>{
     const age = ctx.abandonCooldown[c.category];
     if(age==null) return 0;
-    let pts;
-    if(age<=5) pts = -24;
-    else if(age>=20) pts = 0;
-    else pts = -24 * (20-age)/15;
-    if(c.category==="movies") pts *= movieJitter(c.id);
-    return pts;
+    if(age<=5) return -24;
+    if(age>=20) return 0;
+    return -24 * (20-age)/15;
   }},
   { key:"pacing", fn:(c,ctx)=>{
     const p = ctx.pacing;
@@ -1487,7 +1482,8 @@ function pickRecommendation(){
   const ctx = buildRecoContext();
   const scored = candidates.map(c=>{
     const factors = RECO_FACTORS.map(f=>({key:f.key, pts:f.fn(c,ctx)}));
-    const total = factors.reduce((a,f)=>a+f.pts,0);
+    const rawTotal = factors.reduce((a,f)=>a+f.pts,0);
+    const total = rawTotal * titleJitter(c.category+":"+c.id);
     return { ...c, total, factors };
   });
   scored.sort((a,b)=>b.total-a.total);
