@@ -362,6 +362,24 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
+<!-- manga modal -->
+<div class="modal" id="mangaModal">
+  <div class="sheet">
+    <h2 class="serif" id="mangaFormTitle">New manga</h2>
+    <div class="hint">Each volume counts as 60 minutes toward your stats.</div>
+    <label>Title</label>
+    <input id="mgname" placeholder="e.g. Berserk">
+    <div class="row2">
+      <div><label>From volume</label><input id="mgfrom" type="number" min="1" inputmode="numeric" placeholder="e.g. 1"></div>
+      <div><label>To volume</label><input id="mgto" type="number" min="1" inputmode="numeric" placeholder="e.g. 15"></div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal('mangaModal')">Cancel</button>
+      <button class="btn brass" onclick="saveManga()">Save manga</button>
+    </div>
+  </div>
+</div>
+
 <!-- episodic modal (tv shows + anime) -->
 <div class="modal" id="epiModal">
   <div class="sheet">
@@ -414,20 +432,23 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "0.9.3"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.0.0"; // single source of truth for the version tag in the header
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
   movies:  {color:"#c1614a", text:"#1c0d09", label:"Movies"},
   tv:      {color:"#6f8fc1", text:"#0b1220", label:"Shows"},
   anime:   {color:"#d9678f", text:"#210812", label:"Anime"},
+  manga:   {color:"#8f7fc4", text:"#140f22", label:"Manga"},
 };
+const ALL_CATS = ["games","movies","tv","anime","manga"]; // single source of truth for "every media category"
 const ICON_SVG = {
   overview: `<path d="M3.5 9.5L10 4l6.5 5.5M5.5 8.7V16h9V8.7"/>`,
   games:    `<rect x="2.3" y="6.7" width="15.4" height="7.6" rx="3.8"/><path d="M6.6 9.3v2M5.6 10.3h2"/><circle cx="14.2" cy="9.4" r=".55" fill="currentColor" stroke="none"/><circle cx="12.6" cy="11" r=".55" fill="currentColor" stroke="none"/>`,
   movies:   `<rect x="2.8" y="7.3" width="14.4" height="9.2" rx="1.3"/><path d="M3.3 7.3l2.3-3.4h2.6L5.9 7.3M9.6 7.3l2.3-3.4h2.6l-2.3 3.4"/>`,
   tv:       `<rect x="3" y="5.3" width="14" height="9.4" rx="1.4"/><path d="M8 17h4M10 14.7V17M7.4 3l2.6 2 2.6-2"/>`,
   anime:    `<path d="M10 3.2l1.5 4L15.5 8.7l-4 1.5L10 14.2l-1.5-4L4.5 8.7l4-1.5L10 3.2z"/>`,
+  manga:    `<path d="M3.2 4.6c2-1 4.6-1 6.3 0v10.8c-1.7-1-4.3-1-6.3 0V4.6z"/><path d="M16.3 4.6c-2-1-4.6-1-6.3 0v10.8c1.7-1 4.3-1 6.3 0V4.6z"/>`,
 };
 function iconBadge(cat){
   return `<svg viewBox="0 0 20 20" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${ICON_SVG[cat]}</svg>`;
@@ -457,6 +478,7 @@ function load(){
     movies: raw.movies || [],
     tv: raw.tv || raw.shows || [],
     anime: raw.anime || [],
+    manga: raw.manga || [],
   };
 }
 let S = load();
@@ -482,9 +504,90 @@ function quarterLabelDedup(startStr){
 }
 function allDlcCleared(g){ const d=g.dlcs||[]; return d.length>0 && d.every(dlcCleared); }
 
-/* Splits any list of items into {completed, carry, abandoned} and tallies finished minutes + name lists.
-   Shared by the live "current season" card and by the actual quarter rollover, so both always agree. */
-function seasonSnapshot(gamesList, moviesList, tvList, animeList){
+/* ---------- v1.0 range-label helpers (used when archiving finished units) ---------- */
+function groupRangeLabel(category, groupType, groups){
+  if(!groups.length) return "";
+  const numbered = category==="tv" || (category==="anime" && groupType!=="arc");
+  const unit = (category==="anime" && groupType==="arc") ? "arc" : "season";
+  const count = groups.length;
+  const plural = unit + (count===1 ? "" : "s");
+  let fromLabel, toLabel;
+  if(numbered){
+    const nums = groups.map(g=>+((/(\d+)/.exec(g.name)||[])[1]||0)).sort((a,b)=>a-b);
+    fromLabel = nums[0]; toLabel = nums[nums.length-1];
+  } else {
+    fromLabel = groups[0].name; toLabel = groups[groups.length-1].name; // preserves the order they were added in
+  }
+  if(String(fromLabel)===String(toLabel)) return `${count} ${plural} (${unit==="arc"?"":"Season "}${fromLabel})`;
+  return `${count} ${plural} (from ${fromLabel} to ${toLabel})`;
+}
+function mangaRangeLabel(fromVol, toVol, count){
+  if(fromVol===toVol) return `${count} volume (Vol ${fromVol})`;
+  return `${count} volume${count===1?"":"s"} (from ${fromVol} to ${toVol})`;
+}
+
+/* Splits a flat (non-divisible) list into {completed, carry, abandoned} — games and movies
+   are all-or-nothing, so this is unchanged from earlier versions. */
+function splitSimple(list, fn){
+  const completed=[], carry=[];
+  list.forEach(x=>{ if(x.abandoned) return; const {goal,played}=fn(x); (goal>0 && played>=goal ? completed : carry).push(x); });
+  return { completed, carry, abandoned: list.filter(x=>x.abandoned) };
+}
+/* Episodic (tv/anime) entries are divisible into seasons/arcs. At rollover, whichever
+   groups are actually finished get archived as their own record and the rest of the
+   entry — same id, just the unfinished groups — carries forward into the new season. */
+function splitEpisodicForRollover(list, category){
+  const completed=[], carry=[], abandoned=[], records=[];
+  let finishedMin = 0;
+  list.forEach(e=>{
+    if(e.abandoned){ abandoned.push(e); return; }
+    const groups = e.groups||[];
+    const finished = groups.filter(g=>g.total>0 && g.watched>=g.total);
+    const unfinished = groups.filter(g=>!(g.total>0 && g.watched>=g.total));
+    if(groups.length>0 && unfinished.length===0){
+      completed.push(e);
+      finishedMin += finished.reduce((a,g)=>a+g.total,0) * e.epLen;
+      records.push({ name:e.name, category, rangeLabel: groupRangeLabel(category, e.groupType, finished), units: finished.length });
+    } else if(finished.length>0){
+      finishedMin += finished.reduce((a,g)=>a+g.total,0) * e.epLen;
+      records.push({ name:e.name, category, rangeLabel: groupRangeLabel(category, e.groupType, finished), units: finished.length });
+      carry.push({ ...e, groups: unfinished });
+    } else {
+      carry.push(e);
+    }
+  });
+  return { completed, carry, abandoned, records, finishedMin };
+}
+/* Manga is divisible into volumes. Whatever's actually been read (a contiguous run from
+   fromVol) gets archived as its own record, and the remaining un-read volumes carry
+   forward as a fresh entry — same id, narrowed range, progress reset to 0. */
+function splitMangaForRollover(list){
+  const completed=[], carry=[], abandoned=[], records=[];
+  let finishedMin = 0;
+  list.forEach(m=>{
+    if(m.abandoned){ abandoned.push(m); return; }
+    const total = Math.max(0, m.toVol - m.fromVol + 1);
+    const read = Math.min(m.volsRead||0, total);
+    if(total>0 && read>=total){
+      completed.push(m);
+      finishedMin += read*60;
+      records.push({ name:m.name, rangeLabel: mangaRangeLabel(m.fromVol, m.toVol, total), units: total });
+    } else if(read>0){
+      const readFrom = m.fromVol, readTo = m.fromVol + read - 1;
+      finishedMin += read*60;
+      records.push({ name:m.name, rangeLabel: mangaRangeLabel(readFrom, readTo, read), units: read });
+      carry.push({ ...m, fromVol: readTo+1, toVol: m.toVol, volsRead: 0 });
+    } else {
+      carry.push(m);
+    }
+  });
+  return { completed, carry, abandoned, records, finishedMin };
+}
+
+/* Builds the full picture of what's finished vs. still in progress across every category.
+   Shared by the live "current season" card and by the actual quarter rollover, so both
+   always agree. */
+function seasonSnapshot(gamesList, moviesList, tvList, animeList, mangaList){
   const completedGames=[], carryGames=[];
   gamesList.forEach(g=>{
     if(g.abandoned) return;
@@ -495,50 +598,46 @@ function seasonSnapshot(gamesList, moviesList, tvList, animeList){
     (fullyDone ? completedGames : carryGames).push(g);
   });
   const abandonedGames = gamesList.filter(g=>g.abandoned);
-  function splitSimple(list, fn){
-    const completed=[], carry=[];
-    list.forEach(x=>{ if(x.abandoned) return; const {goal,played}=fn(x); (goal>0 && played>=goal ? completed : carry).push(x); });
-    return { completed, carry, abandoned: list.filter(x=>x.abandoned) };
-  }
+
   const movieSplit = splitSimple(moviesList, movieMin);
-  const tvSplit = splitSimple(tvList, episodicMin);
-  const animeSplit = splitSimple(animeList, episodicMin);
+  const tvSplit = splitEpisodicForRollover(tvList, "tv");
+  const animeSplit = splitEpisodicForRollover(animeList, "anime");
+  const mangaSplit = splitMangaForRollover(mangaList||[]);
+
   let finishedMin = 0;
   completedGames.forEach(g=>finishedMin+=gameMin(g).played);
   movieSplit.completed.forEach(m=>finishedMin+=movieMin(m).played);
-  tvSplit.completed.forEach(e=>finishedMin+=episodicMin(e).played);
-  animeSplit.completed.forEach(e=>finishedMin+=episodicMin(e).played);
-  const episodicCompletedList = [
-    ...tvSplit.completed.map(e=>({name:e.name, category:"tv", units:(e.groups||[]).length})),
-    ...animeSplit.completed.map(e=>({name:e.name, category:"anime", units:(e.groups||[]).length})),
-  ];
+  finishedMin += tvSplit.finishedMin + animeSplit.finishedMin + mangaSplit.finishedMin;
+
   const abandonedList = [
     ...abandonedGames.map(g=>({name:g.name, category:"games", note:g.abandonNote})),
     ...movieSplit.abandoned.map(m=>({name:m.name, category:"movies", note:m.abandonNote})),
     ...tvSplit.abandoned.map(e=>({name:e.name, category:"tv", note:e.abandonNote})),
     ...animeSplit.abandoned.map(e=>({name:e.name, category:"anime", note:e.abandonNote})),
+    ...mangaSplit.abandoned.map(m=>({name:m.name, category:"manga", note:m.abandonNote})),
   ];
   return {
     finishedMin,
     games: completedGames.map(g=>({name:g.name})),
     movies: movieSplit.completed.map(m=>({name:m.name})),
-    episodic: episodicCompletedList,
+    episodic: [...tvSplit.records, ...animeSplit.records],
+    manga: mangaSplit.records,
     abandoned: abandonedList,
-    carryGames, carryMovies: movieSplit.carry, carryTv: tvSplit.carry, carryAnime: animeSplit.carry,
+    carryGames, carryMovies: movieSplit.carry, carryTv: tvSplit.carry, carryAnime: animeSplit.carry, carryManga: mangaSplit.carry,
   };
 }
 function performRollover(newStartStr){
   const oldStart = S.seasonStart;
   const label = quarterLabelDedup(oldStart);
-  const snap = seasonSnapshot(S.games, S.movies, S.tv, S.anime);
+  const snap = seasonSnapshot(S.games, S.movies, S.tv, S.anime, S.manga);
   const rolloverDate = todayStr();
   const days = Math.max(1, Math.round((new Date(rolloverDate+"T00:00:00")-new Date(oldStart+"T00:00:00"))/86400000)+1);
   S.archive.unshift({
     id: uid(), label, start: oldStart, end: rolloverDate, days,
     finishedHours: Math.round(snap.finishedMin/60*10)/10,
-    games: snap.games, movies: snap.movies, episodic: snap.episodic, abandoned: snap.abandoned,
+    games: snap.games, movies: snap.movies, episodic: snap.episodic, manga: snap.manga, abandoned: snap.abandoned,
   });
-  S.games = snap.carryGames; S.movies = snap.carryMovies; S.tv = snap.carryTv; S.anime = snap.carryAnime;
+  S.games = snap.carryGames; S.movies = snap.carryMovies; S.tv = snap.carryTv; S.anime = snap.carryAnime; S.manga = snap.carryManga;
   S.seasonStart = newStartStr;
   toast(`🎉 "${label}" archived — carrying forward what's still in progress.`);
 }
@@ -587,7 +686,11 @@ function episodicMin(e){
   const played = (e.groups||[]).reduce((a,gr)=>a+gr.watched,0) * e.epLen;
   return { goal, played };
 }
-const MIN_FN = { games:gameMin, movies:movieMin, tv:episodicMin, anime:episodicMin };
+function mangaMin(m){
+  const total = Math.max(0, (m.toVol||0) - (m.fromVol||0) + 1);
+  return { goal: total*60, played: (m.volsRead||0)*60 }; // each volume = 60 minutes
+}
+const MIN_FN = { games:gameMin, movies:movieMin, tv:episodicMin, anime:episodicMin, manga:mangaMin };
 
 function categoryTotals(cat){
   const list = (S[cat] || []).filter(x=>!x.abandoned);
@@ -595,8 +698,7 @@ function categoryTotals(cat){
   return list.reduce((a,item)=>{ const {goal,played}=fn(item); a.goal+=goal; a.played+=played; a.count++; if(played>=goal && goal>0) a.done++; return a; }, {goal:0,played:0,count:0,done:0});
 }
 function combinedTotals(){
-  const cats = ["games","movies","tv","anime"];
-  return cats.reduce((a,c)=>{ const t=categoryTotals(c); a.goal+=t.goal; a.played+=t.played; return a; }, {goal:0,played:0});
+  return ALL_CATS.reduce((a,c)=>{ const t=categoryTotals(c); a.goal+=t.goal; a.played+=t.played; return a; }, {goal:0,played:0});
 }
 
 /* ---------- toast ---------- */
@@ -612,6 +714,10 @@ function toast(msg){
 function describeAbandon(category, item, goalMin, playedMin){
   if(category==="games") return `Abandoned at ${fmtHM(Math.round(playedMin))} of ${fmtN(item.goal)}h`;
   if(category==="movies") return `Abandoned at ${fmtHM(Math.round(playedMin))} of ${fmtHM(item.length)}`;
+  if(category==="manga"){
+    const total = Math.max(0, (item.toVol||0) - (item.fromVol||0) + 1);
+    return `Abandoned at ${item.volsRead||0}/${total} volumes`;
+  }
   const watchedEp = (item.groups||[]).reduce((a,g)=>a+g.watched,0);
   const totalEp = (item.groups||[]).reduce((a,g)=>a+g.total,0);
   return `Abandoned at ${watchedEp}/${totalEp} episodes`;
@@ -636,6 +742,7 @@ function restoreItem(category, id){
 function removeGeneric(category, id){
   if(category==="games") return removeGame(id);
   if(category==="movies") return removeMovie(id);
+  if(category==="manga") return removeManga(id);
   return removeEpisodic(category, id);
 }
 function abandonedCard(category, item){
@@ -646,7 +753,7 @@ function abandonedCard(category, item){
 }
 
 /* ---------- tabs ---------- */
-const TAB_ORDER = ["overview","games","movies","tv","anime"];
+const TAB_ORDER = ["overview","games","movies","tv","anime","manga"];
 function switchTab(t){
   const oldIdx = TAB_ORDER.indexOf(activeTab);
   const newIdx = TAB_ORDER.indexOf(t);
@@ -664,8 +771,7 @@ function playPageTransition(dir){
 }
 
 function renderTabBar(){
-  const order = ["overview","games","movies","tv","anime"];
-  $("tabbar").innerHTML = order.map(t=>{
+  $("tabbar").innerHTML = TAB_ORDER.map(t=>{
     const c = CAT[t];
     return `<button class="tab ${activeTab===t?'on':''}" style="--tabcolor:${c.color}" onclick="switchTab('${t}')">
       <span class="mono-badge">${iconBadge(t)}</span><span>${c.label}</span>
@@ -914,6 +1020,104 @@ function movieCard(m){
   </article>`;
 }
 
+/* ============ MANGA ============ */
+function openMangaModal(id=null){
+  editId = id;
+  if(id){
+    const m = S.manga.find(x=>x.id===id);
+    $("mangaFormTitle").textContent = "Edit manga";
+    $("mgname").value = m.name; $("mgfrom").value = m.fromVol; $("mgto").value = m.toVol;
+  } else {
+    $("mangaFormTitle").textContent = "New manga";
+    $("mgname").value = ""; $("mgfrom").value = ""; $("mgto").value = "";
+  }
+  $("mangaModal").classList.add("show"); $("mgname").focus();
+}
+function saveManga(){
+  const name = $("mgname").value.trim();
+  const fromVol = Math.max(1, +$("mgfrom").value || 0);
+  const toVol = Math.max(fromVol, +$("mgto").value || 0);
+  if(!name || fromVol<=0 || toVol<fromVol) return toast("Give it a title and a valid volume range.");
+  if(editId){
+    const m = S.manga.find(x=>x.id===editId);
+    const total = toVol-fromVol+1;
+    m.name = name; m.fromVol = fromVol; m.toVol = toVol; m.volsRead = Math.min(m.volsRead||0, total);
+  } else {
+    S.manga.push({ id: uid(), name, fromVol, toVol, volsRead:0 });
+  }
+  closeModal("mangaModal"); persist(); toast("Manga saved.");
+}
+function removeManga(id){ if(confirm("Remove this manga?")){ S.manga = S.manga.filter(x=>x.id!==id); persist(); } }
+function stepManga(id, delta){
+  const m = S.manga.find(x=>x.id===id);
+  const total = Math.max(0, m.toVol - m.fromVol + 1);
+  const before = m.volsRead||0;
+  m.volsRead = Math.max(0, Math.min(total, before+delta));
+  if(m.volsRead > before) logAction("manga", m.id, m.name, (m.volsRead-before)*60, "volume");
+  persist();
+}
+function finishManga(id){
+  const m = S.manga.find(x=>x.id===id);
+  const total = Math.max(0, m.toVol - m.fromVol + 1);
+  const before = m.volsRead||0;
+  const delta = total - before;
+  m.volsRead = total;
+  if(delta>0) logAction("manga", m.id, m.name, delta*60, "finished");
+  persist(); toast("Marked finished 📖");
+}
+function mangaCard(m){
+  const total = Math.max(0, m.toVol - m.fromVol + 1);
+  const {goal,played} = mangaMin(m);
+  const pct = goal ? played/goal*100 : 0;
+  const done = pct >= 100 && goal>0;
+  const volsRead = m.volsRead||0;
+  const volsLeftN = Math.max(0, total-volsRead);
+  return `<article class="entry cat-manga${done?" complete":""}" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}">
+    ${done ? `<div class="stamp"><b>✓</b><span>FINISHED</span></div>` : ""}
+    <div class="entry-top">
+      <div><div class="entry-name serif">${esc(m.name)}</div><div class="entry-meta mono">VOL ${m.fromVol}–${m.toVol} · ${total} VOLUME${total===1?"":"S"}</div></div>
+      <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
+    </div>
+    <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
+    <div class="entry-stats">
+      <div><div class="played">${volsRead}<span style="color:var(--muted);font-weight:400"> / ${total} vol</span></div><div class="entry-meta2">${done?"Fully read":"Read so far"}</div></div>
+      <div class="remaining">${done?"Done":volsLeftN+" vol left"}</div>
+    </div>
+    <div class="stepper">
+      <button onclick="stepManga('${m.id}',-1)">−</button>
+      <span>volumes</span>
+      <button onclick="stepManga('${m.id}',1)">+</button>
+    </div>
+    <div class="controls">
+      <button class="btn small" onclick="stepManga('${m.id}',5)">+5 vol</button>
+      <button class="btn accent" onclick="finishManga('${m.id}')">✓ Mark finished</button>
+    </div>
+    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>` : ""}<button onclick="openMangaModal('${m.id}')">Edit</button><button onclick="removeManga('${m.id}')">Remove</button></div></div>
+  </article>`;
+}
+function renderManga(){
+  const totals = categoryTotals("manga");
+  let html = statbar("manga", totals);
+  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}" onclick="openMangaModal()">+ Add Manga</button></div>`;
+  if(!S.manga.length){
+    html += `<div class="empty"><span class="serif">No manga yet</span>Add a title and the volume range you're planning to read this season.</div>`;
+    $("app").innerHTML = html; return;
+  }
+  html += `<div class="list-head"><b>ENTRIES</b>${sortDropdown("manga")}</div>`;
+  const {incomplete, completed} = splitSorted("manga", S.manga, mangaMin);
+  incomplete.forEach(m=> html += mangaCard(m));
+  if(completed.length){
+    html += `<div class="marginalia">finished</div>`;
+    completed.forEach(m=> html += mangaCard(m));
+  }
+  const abandonedManga = S.manga.filter(m=>m.abandoned);
+  if(abandonedManga.length){
+    html += `<div class="marginalia">abandoned</div>`;
+    abandonedManga.forEach(m=> html += abandonedCard("manga", m));
+  }
+  $("app").innerHTML = html;
+}
+
 /* ============ TV + ANIME (episodic) ============ */
 function openEpisodicModal(category, id=null){
   editId = id; epiCategory = category;
@@ -1116,6 +1320,7 @@ function importData(){
           movies:(x.movies||[]).map(m=>({...m,id:m.id||uid()})),
           tv:(x.tv||x.shows||[]).map(s=>({...s,id:s.id||uid(),groups:(s.groups||[]).map(g=>({...g,id:g.id||uid()}))})),
           anime:(x.anime||[]).map(s=>({...s,id:s.id||uid(),groups:(s.groups||[]).map(g=>({...g,id:g.id||uid()}))})),
+          manga:(x.manga||[]).map(m=>({...m,id:m.id||uid()})),
         };
         persist(); toast("Backup restored.");
       }catch(e){ toast("That file doesn't look right."); }
@@ -1202,10 +1407,10 @@ function buildRecoCandidates(){
     if(played>=goal) return;
     list.push({ id:m.id, name:m.name, category:"movies", remainMin:Math.max(0,goal-played), pct: goal?played/goal:0 });
   });
-  ["tv","anime"].forEach(cat=>{
+  ["tv","anime","manga"].forEach(cat=>{
     S[cat].forEach(e=>{
       if(e.abandoned) return;
-      const {goal,played} = episodicMin(e);
+      const {goal,played} = MIN_FN[cat](e);
       if(goal>0 && played>=goal) return;
       list.push({ id:e.id, name:e.name, category:cat, remainMin:Math.max(0,goal-played), pct: goal?played/goal:0 });
     });
@@ -1261,10 +1466,9 @@ function buildStreakEntities(log){
    category is proportionally furthest behind, so one category can't quietly
    finish while another barely moves. */
 function buildCategoryBalance(){
-  const cats = ["games","movies","tv","anime"];
   const pct = {};
-  cats.forEach(cat=>{ const t = categoryTotals(cat); pct[cat] = t.goal>0 ? t.played/t.goal : null; });
-  const active = cats.filter(c=>pct[c]!=null);
+  ALL_CATS.forEach(cat=>{ const t = categoryTotals(cat); pct[cat] = t.goal>0 ? t.played/t.goal : null; });
+  const active = ALL_CATS.filter(c=>pct[c]!=null);
   if(active.length < 2) return {};
   const avg = active.reduce((a,c)=>a+pct[c],0) / active.length;
   const balance = {};
@@ -1279,7 +1483,7 @@ function buildCategoryBalance(){
 function buildAbandonCooldown(){
   const logLen = (S.sessionLog||[]).length;
   const cooldown = {};
-  ["games","movies","tv","anime"].forEach(cat=>{
+  ALL_CATS.forEach(cat=>{
     let minAge = Infinity;
     (S[cat]||[]).forEach(item=>{
       if(item.abandoned && typeof item.abandonLogIndex === "number"){
@@ -1540,8 +1744,8 @@ function renderOverview(){
   const remain = Math.max(0, combined.goal-combined.played);
   const pct = combined.goal>0 ? combined.played/combined.goal*100 : 100;
   const d = daysLeft();
-  const liveSnap = seasonSnapshot(S.games, S.movies, S.tv, S.anime);
-  const abandonedCount = liveSnap.abandoned.length;
+  const liveSnap = seasonSnapshot(S.games, S.movies, S.tv, S.anime, S.manga);
+  const totalMediaCount = ALL_CATS.reduce((a,c)=>a+categoryTotals(c).count, 0);
 
   let html = `<section class="season">
     <div class="eyebrow">${esc(quarterLabel(S.seasonStart))} · This Season</div>
@@ -1551,7 +1755,7 @@ function renderOverview(){
       <div class="stat"><b>${fmtHM(Math.round(remain))}</b><span>Remaining</span></div>
       <div class="stat"><b>${pct.toFixed(1)}%</b><span>Cleared</span></div>
       <div class="stat"><b>${d==null?"—":d<0?"Past due":d+"d"}</b><span>Left in season</span></div>
-      <div class="stat"><b>${abandonedCount}</b><span>Abandoned</span></div>
+      <div class="stat"><b>${totalMediaCount}</b><span>Total media</span></div>
     </div>
     ${paceBoxHtml(combined, d)}
     <div class="season-actions">
@@ -1562,7 +1766,7 @@ function renderOverview(){
   ${recommendationCardHtml()}
   <div class="tiles">`;
 
-  ["games","movies","tv","anime"].forEach(cat=>{
+  ALL_CATS.forEach(cat=>{
     const t = categoryTotals(cat);
     const tp = t.goal>0 ? t.played/t.goal*100 : 100;
     const meta = CAT[cat];
@@ -1604,16 +1808,17 @@ function paceBoxHtml(combined, d){
   </div>`;
 }
 
-function archiveDetailHtml(games, movies, episodic, abandoned){
+function archiveDetailHtml(games, movies, episodic, manga, abandoned){
   const group = (title, items) => items.length ? `<div class="archive-detail-group"><b>${title}</b>${items.map(x=>`<div class="archive-detail-item">${esc(x)}</div>`).join("")}</div>` : "";
   let html = "";
   html += group("Games cleared", games.map(g=>g.name));
   html += group("Movies watched", movies.map(m=>m.name));
-  html += group("Seasons/arcs finished", episodic.map(e=>`${e.name} (${CAT[e.category].label})`));
+  html += group("Seasons/arcs finished", episodic.map(e=>e.rangeLabel ? `${e.name} ${e.rangeLabel}` : `${e.name} (${CAT[e.category].label})`)); // older archives won't have rangeLabel
+  html += group("Manga finished", manga.map(m=>m.rangeLabel ? `${m.name} ${m.rangeLabel}` : m.name));
   if(abandoned.length){
     html += `<div class="archive-detail-group"><b>Abandoned</b>${abandoned.map(x=>`<div class="archive-detail-item muted">${esc(x.name)} — ${esc(x.note||"")}</div>`).join("")}</div>`;
   }
-  if(!games.length && !movies.length && !episodic.length && !abandoned.length){
+  if(!games.length && !movies.length && !episodic.length && !manga.length && !abandoned.length){
     html = `<div class="archive-detail-item muted">Nothing finished yet.</div>`;
   }
   return html;
@@ -1627,6 +1832,7 @@ function currentSeasonCardHtml(snap){
   const daysIn = S.seasonStart ? Math.max(1, Math.round((new Date(todayStr()+"T00:00:00")-new Date(S.seasonStart+"T00:00:00"))/86400000)+1) : 0;
   const finishedH = Math.round(snap.finishedMin/60*10)/10;
   const units = snap.episodic.reduce((a,e)=>a+e.units,0);
+  const mangaUnits = snap.manga.reduce((a,e)=>a+e.units,0);
   const expandId = "cur-season-expand";
   return `<div class="archive-card live" onclick="toggleArchiveExpand('${expandId}')">
     <div class="archive-top"><span class="archive-label serif">${esc(label)}</span><span class="archive-days mono">${daysIn}d so far</span></div>
@@ -1634,23 +1840,28 @@ function currentSeasonCardHtml(snap){
       <span>${snap.games.length} game${snap.games.length===1?"":"s"}</span>
       <span>${snap.movies.length} movie${snap.movies.length===1?"":"s"}</span>
       <span>${units} season/arc${units===1?"":"s"}</span>
+      <span>${mangaUnits} volume${mangaUnits===1?"":"s"}</span>
       <span>${fmtN(finishedH)}h finished</span>
     </div>
-    <div class="archive-expand" id="${expandId}">${archiveDetailHtml(snap.games, snap.movies, snap.episodic, snap.abandoned)}</div>
+    <div class="archive-expand" id="${expandId}">${archiveDetailHtml(snap.games, snap.movies, snap.episodic, snap.manga, snap.abandoned)}</div>
   </div>`;
 }
 function archiveCardHtml(a){
   const expandId = "arc-"+a.id;
-  const units = a.episodic.reduce((s,e)=>s+e.units,0);
+  const episodic = a.episodic || [];
+  const manga = a.manga || []; // older archives (pre-v1.0) won't have this field
+  const units = episodic.reduce((s,e)=>s+e.units,0);
+  const mangaUnits = manga.reduce((s,e)=>s+e.units,0);
   return `<div class="archive-card" onclick="toggleArchiveExpand('${expandId}')">
     <div class="archive-top"><span class="archive-label serif">${esc(a.label)}</span><span class="archive-days mono">${a.days}d</span></div>
     <div class="archive-stats">
       <span>${a.games.length} game${a.games.length===1?"":"s"}</span>
       <span>${a.movies.length} movie${a.movies.length===1?"":"s"}</span>
       <span>${units} season/arc${units===1?"":"s"}</span>
+      <span>${mangaUnits} volume${mangaUnits===1?"":"s"}</span>
       <span>${fmtN(a.finishedHours)}h finished</span>
     </div>
-    <div class="archive-expand" id="${expandId}">${archiveDetailHtml(a.games, a.movies, a.episodic, a.abandoned)}</div>
+    <div class="archive-expand" id="${expandId}">${archiveDetailHtml(a.games, a.movies, episodic, manga, a.abandoned)}</div>
   </div>`;
 }
 
@@ -1764,6 +1975,7 @@ function render(){
   if(activeTab==="overview") renderOverview();
   else if(activeTab==="games") renderGames();
   else if(activeTab==="movies") renderMovies();
+  else if(activeTab==="manga") renderManga();
   else renderEpisodicTab(activeTab);
 }
 
