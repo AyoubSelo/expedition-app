@@ -432,7 +432,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.0.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.1.0"; // single source of truth for the version tag in the header
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
@@ -662,6 +662,7 @@ function logAction(category, id, name, minutes, action){
   if(minutes<=0) return;
   S.sessionLog.push({ ts: Date.now(), category, id, name, minutes: Math.round(minutes), action });
   if(S.sessionLog.length > 60) S.sessionLog = S.sessionLog.slice(-60);
+  applyRecoScoring(category);
 }
 function closeModal(id){ $(id).classList.remove("show"); }
 
@@ -1417,212 +1418,72 @@ function buildRecoCandidates(){
   });
   return list;
 }
-/* ---------- v0.8 streak model ----------
-   Streak "entities" are derived fresh from the session log every time — no extra
-   persisted state needed. An entity is either a specific title (games/tv/anime,
-   keyed by category+id) or the whole "movies" category (movies boost as a group
-   since a single movie is finished in one sitting).
-   Each entity has:
-     repeatCount — how many times it was touched within the recent scan window
-     age         — actions since it was LAST touched (0 = just touched)
-   Touching an entity resets its age to 0 (full strength) even mid-fade, but
-   repeatCount (and therefore the diminishing-returns math) keeps accumulating. */
-const STREAK_SCAN_WINDOW = 20;   // only look at the last N actions for entity counting
-const STREAK_WAIT_ACTIONS = 3;   // full strength held for this many actions after a touch
-const STREAK_FADE_ACTIONS = 5;   // then linearly fades to 0 over this many more actions
-const STREAK_PRIMARY_START = 28, STREAK_PRIMARY_FLOOR = 8;
-const STREAK_OTHER_START = 5, STREAK_OTHER_CAP = 22;
-const STREAK_STEP = 6; // per-repeat shift: primary shrinks by this, other-categories grow by this
+/* ---------- v1.1.0 recommendation engine ----------
+   Replaces the old momentum/streak/balance/inactivity/pressure/cooldown/pacing
+   engine (v0.8–v0.9.x), which recalculated everything fresh on every render and
+   had grown hard to tune. This version instead keeps a persistent, compounding
+   score per item (item.recoPoints) that only updates when you actually log
+   something — "Up Next" just reads whatever's currently on top.
 
-function streakFade(age){
-  if(age <= STREAK_WAIT_ACTIONS) return 1;
-  const decayed = age - STREAK_WAIT_ACTIONS;
-  if(decayed >= STREAK_FADE_ACTIONS) return 0;
-  return 1 - decayed/STREAK_FADE_ACTIONS;
+   Every active (unfinished, non-abandoned) item starts at RECO_BASE_POINTS and
+   can never drop below it. Each time ANY log action happens, every active item's
+   points are multiplied by a fresh multiplier built from five additive factors:
+
+     1. Log bonus     — flat, given to every active item (not just the one you
+                         logged), sized by which category you just logged in.
+                         Same for everyone — no self/other split — so it never
+                         double-counts with the progression factor below.
+     2. Progression   — the item's own % complete (e.g. 28% done = +0.28).
+     3. Randomness    — 0.8–1.0 jitter per item, so otherwise-identical items
+                         don't move in lockstep.
+     4. Category drag — subtracts that category's overall % progress this season,
+                         so a category that's pulling ahead gets throttled and a
+                         neglected one catches up on its own. Movies get this
+                         halved (RECO_CATEGORY_DRAG_SCALE), since they rarely
+                         benefit much from factor 2 (mostly one-sitting completes).
+     5. Season days   — +0.01 per day elapsed this season, a slow universal rise
+                         so early-season low percentages don't get punished by
+                         factor 4 before there's been time to build any.
+
+   Finished and abandoned items are skipped entirely — they don't get scored,
+   and since they're archived out (or already excluded) they never carry a
+   stale score forward. */
+const RECO_BASE_POINTS = 10;
+const RECO_LOG_BONUS = { games:0.3, movies:0.3, tv:0.2, anime:0.1, manga:0.3 };
+const RECO_CATEGORY_DRAG_SCALE = { movies:0.5 }; // default 1 for everything else
+
+function categoryProgressPct(cat){
+  const t = categoryTotals(cat);
+  return t.goal>0 ? t.played/t.goal : 0;
 }
-function buildStreakEntities(log){
-  const recentLog = log.slice(-STREAK_SCAN_WINDOW);
-  const map = {};
-  recentLog.forEach((e,i)=>{
-    const isMovie = e.category==="movies";
-    const key = isMovie ? "movies" : e.category+":"+e.id;
-    if(!map[key]) map[key] = { category:e.category, itemId: isMovie ? null : e.id, count:0, lastIndex:-1 };
-    map[key].count++;
-    map[key].lastIndex = i;
+function seasonDaysElapsed(){
+  const len = seasonLengthDays();
+  const left = daysLeft();
+  if(left==null) return 0;
+  return Math.max(0, len-left);
+}
+function findRecoItem(category, id){
+  return (S[category]||[]).find(x=>x.id===id);
+}
+/* Called from logAction() every time anything is logged — recomputes every
+   active item's points in one pass. actionCategory is whichever category the
+   log came from (games/movies/tv/anime/manga), which sets the flat log bonus
+   everyone receives this round. */
+function applyRecoScoring(actionCategory){
+  const bonus = RECO_LOG_BONUS[actionCategory];
+  if(bonus==null) return;
+  const daysBonus = seasonDaysElapsed() * 0.01;
+  buildRecoCandidates().forEach(c=>{
+    const item = findRecoItem(c.category, c.id);
+    if(!item) return;
+    const dragScale = RECO_CATEGORY_DRAG_SCALE[c.category] ?? 1;
+    const drag = categoryProgressPct(c.category) * dragScale;
+    const rand = 0.8 + Math.random()*0.2;
+    const multiplier = bonus + c.pct + rand - drag + daysBonus;
+    const current = item.recoPoints || RECO_BASE_POINTS;
+    item.recoPoints = Math.max(RECO_BASE_POINTS, current * multiplier);
   });
-  const lastIdx = recentLog.length - 1;
-  const entities = [];
-  Object.values(map).forEach(v=>{
-    const age = lastIdx - v.lastIndex;
-    if(streakFade(age) <= 0) return; // fully decayed, drop it
-    entities.push({ category:v.category, itemId:v.itemId, repeatCount:v.count, age });
-  });
-  return entities;
 }
-
-/* ---------- v0.8 category balance ----------
-   Looks at total goal minutes vs. played minutes per category (across the whole
-   active season list, not just candidates) and nudges points toward whichever
-   category is proportionally furthest behind, so one category can't quietly
-   finish while another barely moves. */
-function buildCategoryBalance(){
-  const pct = {};
-  ALL_CATS.forEach(cat=>{ const t = categoryTotals(cat); pct[cat] = t.goal>0 ? t.played/t.goal : null; });
-  const active = ALL_CATS.filter(c=>pct[c]!=null);
-  if(active.length < 2) return {};
-  const avg = active.reduce((a,c)=>a+pct[c],0) / active.length;
-  const balance = {};
-  active.forEach(c=>{ balance[c] = avg - pct[c]; }); // positive = behind average = needs a boost
-  return balance;
-}
-
-/* ---------- v0.8 abandon cooldown ----------
-   Recently abandoning something in a category strongly discourages recommending
-   that category again for a while, fading out over the following actions rather
-   than being permanent. */
-function buildAbandonCooldown(){
-  const logLen = (S.sessionLog||[]).length;
-  const cooldown = {};
-  ALL_CATS.forEach(cat=>{
-    let minAge = Infinity;
-    (S[cat]||[]).forEach(item=>{
-      if(item.abandoned && typeof item.abandonLogIndex === "number"){
-        const age = logLen - item.abandonLogIndex;
-        if(age < minAge) minAge = age;
-      }
-    });
-    if(minAge !== Infinity) cooldown[cat] = minAge;
-  });
-  return cooldown;
-}
-
-/* ---------- v0.9.1 pacing ----------
-   Small, secondary nudges based on recent session shape and overall season pace —
-   never meant to be a dominant factor, just enough to break ties between
-   same-length items. Four signals, each kept deliberately weak:
-     appetite      — lots of minutes logged in one sitting recently = appetite for
-                      something long; the same minutes spread across several
-                      different titles = short-session mood instead. Movies only.
-     behindPace    — cumulative played-so-far vs. what's needed to clear the
-                      season on schedule; if behind, nudge toward longer items
-                      (bigger dent per sitting). Applies to everything.
-     daysLeftSignal— early-to-mid season (lots of runway left) gently favors
-                      starting long commitments like games/shows. Fades out by
-                      the final ~30% of the season so it never fights the
-                      end-of-season pressure factor.
-*/
-function buildPacingContext(){
-  const log = S.sessionLog || [];
-  const now = Date.now();
-  const WINDOW = 30*3600*1000; // last ~day (with a little slack for late-night logging)
-  const recent = log.filter(e => now - e.ts <= WINDOW);
-  const recentMinutes = recent.reduce((a,e)=>a+(e.minutes||0), 0);
-  const distinctTouched = new Set(recent.map(e=>e.category+":"+e.id)).size;
-
-  let appetite = Math.max(-1, Math.min(1, (recentMinutes-120)/150));
-  if(distinctTouched >= 2) appetite = Math.max(-1, appetite - 0.5); // fragmented = short-session mood
-
-  const totals = combinedTotals();
-  const remainingActive = Math.max(0, totals.goal - totals.played);
-  const dLeft = daysLeft();
-  const sLen = seasonLengthDays();
-  const elapsed = Math.max(1, sLen - (dLeft==null ? sLen : dLeft));
-  const neededPace = (dLeft && dLeft>0) ? remainingActive/dLeft : 0;
-  const actualPace = totals.played/elapsed;
-  const behindPace = neededPace>0 ? Math.max(0, Math.min(1, (neededPace-actualPace)/neededPace)) : 0;
-
-  const daysLeftFraction = (dLeft!=null && sLen>0) ? dLeft/sLen : 0;
-  const daysLeftSignal = Math.max(0, Math.min(1, (daysLeftFraction-0.3)/0.7));
-
-  return { appetite, behindPace, daysLeftSignal };
-}
-function pacingSizeSignal(remainMin){
-  return Math.max(-1, Math.min(1.3, (remainMin-110)/110));
-}
-
-function buildRecoContext(){
-  const log = S.sessionLog || [];
-  const last = log.length ? log[log.length-1] : null;
-  const quietDays = !log.length || (Date.now() - log[log.length-1].ts > 36*3600*1000);
-  return {
-    last, quietDays,
-    daysLeftInSeason: daysLeft(),
-    streakEntities: buildStreakEntities(log),
-    categoryBalance: buildCategoryBalance(),
-    abandonCooldown: buildAbandonCooldown(),
-    pacing: buildPacingContext(),
-  };
-}
-/* v0.9.2/0.9.3: many candidates end up with identical totals — untouched games/shows
-   of similar length in the same category get the same momentum/pressure/pacing/etc,
-   since those factors don't know titles apart. titleJitter gives each title a small,
-   stable-per-day random multiplier (0.6–1.0) applied once to its final total in
-   pickRecommendation, which is mathematically the same as applying it to every factor
-   individually (since it's the same multiplier for all of them) but far simpler. */
-function titleJitter(key){
-  return 0.6 + seededRandom(hashStr("titleJitter:"+key+":"+todayStr())) * 0.4;
-}
-const RECO_FACTORS = [
-  { key:"momentum", fn:(c,ctx)=>{
-    let pts = c.pct*10;
-    if(c.pct>=0.7) pts += 8;
-    if(ctx.last && ctx.last.id===c.id && ctx.last.category===c.category) pts += 6;
-    return pts;
-  }},
-  { key:"streak", fn:(c,ctx)=>{
-    if(!ctx.streakEntities.length) return 0;
-    let pts = 0;
-    ctx.streakEntities.forEach(ent=>{
-      const fade = streakFade(ent.age);
-      if(fade<=0) return;
-      const isMovieEntity = ent.category==="movies";
-      const matchesExact = isMovieEntity ? c.category==="movies" : (c.category===ent.category && c.id===ent.itemId);
-      if(matchesExact){
-        const mag = Math.max(STREAK_PRIMARY_FLOOR, STREAK_PRIMARY_START - STREAK_STEP*(ent.repeatCount-1));
-        pts += mag*fade;
-      } else if(!isMovieEntity && c.category===ent.category){
-        // same category, different specific title — no boost, that's the point of "streak"
-      } else {
-        const mag = Math.min(STREAK_OTHER_CAP, STREAK_OTHER_START + STREAK_STEP*(ent.repeatCount-1));
-        pts += mag*fade;
-      }
-    });
-    return pts;
-  }},
-  { key:"balance", fn:(c,ctx)=>{
-    const b = ctx.categoryBalance[c.category];
-    if(b==null) return 0;
-    return Math.max(-16, Math.min(22, b*46));
-  }},
-  { key:"inactivity", fn:(c,ctx)=>{
-    if(!ctx.quietDays) return 0;
-    return Math.max(0, 6 - (c.remainMin/60)*1.2);
-  }},
-  { key:"pressure", fn:(c,ctx)=>{
-    const d = ctx.daysLeftInSeason;
-    if(d==null || d>20 || d<0) return 0;
-    let urgency = Math.pow((20-d)/20, 1.5);
-    if(d<=7) urgency *= 1 + (7-d)*0.35; // last week ramps up hard
-    const remainHours = Math.max(0.1, c.remainMin/60);
-    return urgency * 22 * (1/(1+remainHours/5));
-  }},
-  { key:"cooldown", fn:(c,ctx)=>{
-    const age = ctx.abandonCooldown[c.category];
-    if(age==null) return 0;
-    if(age<=5) return -24;
-    if(age>=20) return 0;
-    return -24 * (20-age)/15;
-  }},
-  { key:"pacing", fn:(c,ctx)=>{
-    const p = ctx.pacing;
-    const size = pacingSizeSignal(c.remainMin);
-    let pts = 0;
-    if(c.category==="movies") pts += p.appetite * size * 6;      // recent-session mood, movies only
-    pts += p.behindPace * size * 5;                               // catch-up nudge, all categories
-    if(c.category!=="movies") pts += p.daysLeftSignal * size * 4; // early-season runway, longer commitments
-    return Math.max(-9, Math.min(9, pts));
-  }},
-];
 const RECO_MESSAGES = {
   momentum: [
     "Ready to dive back in? {name} is right where you left it.",
@@ -1633,38 +1494,11 @@ const RECO_MESSAGES = {
     "Don't lose the thread — {name} is waiting mid-story.",
     "{name} was going well. Back in?",
   ],
-  streak: [
-    "Still feeling it? {name} fits the mood you've been in.",
-    "Keep it going with {name}.",
-    "You've been on a roll with {catLabel} — {name} keeps it going.",
-    "In the zone — {name} is the natural next move.",
-    "Riding the {catLabel} wave? {name} fits right in.",
-    "Since you're already in it, {name} keeps the momentum.",
-  ],
   balance: [
     "Your {catLabel} list has been sitting a while — {name} could use some attention.",
     "{catLabel} is falling behind the rest of your season. Give {name} a shot?",
     "It's been mostly other things lately — {name} would balance things out.",
     "Don't let {catLabel} stall out — {name} is right there.",
-  ],
-  inactivity: [
-    "Something light to ease back in: {name} ({remain} left).",
-    "Quick win incoming — {name} only needs {remain}.",
-    "Been a couple days — {name} is a short one to get moving again.",
-    "Easing back in? {name} is a low-commitment start.",
-  ],
-  pressure: [
-    "The season's winding down — why not finish {name}?",
-    "Only {daysLeft} days left in the season. {name} could be a quick clear.",
-    "{name} is finishable before the season ends — {remain} to go.",
-    "Crunch time: {name} is one of the few you can actually still close out.",
-    "{daysLeft} days on the clock — {name} is worth the push.",
-  ],
-  pacing: [
-    "You've had the time for something meatier lately — {name} fits.",
-    "Something shorter fits better right now — {name} won't overstay its welcome.",
-    "Keeping pace with the season — {name} helps close the gap.",
-    "Plenty of runway left this season — a good time to start {name}.",
   ],
   default: [
     "How about {name}?",
@@ -1683,17 +1517,15 @@ function fillTemplate(tpl, c){
 function pickRecommendation(){
   const candidates = buildRecoCandidates();
   if(!candidates.length) return null;
-  const ctx = buildRecoContext();
   const scored = candidates.map(c=>{
-    const factors = RECO_FACTORS.map(f=>({key:f.key, pts:f.fn(c,ctx)}));
-    const rawTotal = factors.reduce((a,f)=>a+f.pts,0);
-    const total = rawTotal * titleJitter(c.category+":"+c.id);
-    return { ...c, total, factors };
+    const item = findRecoItem(c.category, c.id);
+    const total = (item && item.recoPoints) || RECO_BASE_POINTS;
+    return { ...c, total };
   });
   scored.sort((a,b)=>b.total-a.total);
   const chosen = scored[0];
   const baseSeed = hashStr(S.sessionLog.length + "|" + todayStr());
-  const dominant = chosen.factors.reduce((best,f)=> f.pts>best.pts?f:best, {key:"default",pts:-Infinity}).key;
+  const dominant = chosen.pct>=0.7 ? "momentum" : (categoryProgressPct(chosen.category)<0.3 ? "balance" : "default");
   const pool = RECO_MESSAGES[dominant] && RECO_MESSAGES[dominant].length ? RECO_MESSAGES[dominant] : RECO_MESSAGES.default;
   const msgIdx = Math.min(pool.length-1, Math.floor(seededRandom(baseSeed)*pool.length));
   return { chosen, message: fillTemplate(pool[msgIdx], chosen), top5: scored.slice(0,5) };
