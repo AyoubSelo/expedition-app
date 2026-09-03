@@ -99,6 +99,8 @@ h1{margin:0;font-size:27px;font-weight:700;letter-spacing:.2px}
 .pace-status.good{color:var(--moss)}
 .pace-status.behind{color:var(--rust)}
 .season-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.cloud-box{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
+.cloud-box .entry-meta2{font-size:11.5px}
 @media(min-width:560px){.season-grid{grid-template-columns:repeat(6,1fr)}}
 
 /* overview category tiles */
@@ -199,6 +201,7 @@ select{
 .complete .remaining{color:var(--moss)}
 
 .controls{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:13px}
+.controls.controls-3{grid-template-columns:1fr 1fr 1fr}
 .entry-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
 .dlc-tag{font-size:11px;color:var(--accent)}
 .foot-links{display:flex;gap:14px}
@@ -432,7 +435,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.1.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.2.0"; // single source of truth for the version tag in the header
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
@@ -457,6 +460,17 @@ function iconBadge(cat){
 const $ = id => document.getElementById(id);
 const uid = () => Math.random().toString(36).slice(2,9);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+// v1.2.0: when a "cleared"-type stamp (and, for games, the extra DLC stamp) is
+// showing, the title needs to stay clear of it instead of running underneath.
+// Active items with no stamp yet are untouched — they still wrap normally.
+function nameBoxStyle(done, dlcStamp){
+  if(!done) return "";
+  const pad = dlcStamp ? 108 : 58;
+  return ` style="flex:1;min-width:0;padding-right:${pad}px"`;
+}
+function nameTextStyle(done){
+  return done ? ' style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"' : "";
+}
 const fmtN = n => Number.isInteger(n) ? String(n) : n.toFixed(1);
 const fmtHM = mins => Math.floor(mins/60) + "h " + Math.round(mins%60) + "m";
 const fmtElapsed = ms => {
@@ -464,9 +478,7 @@ const fmtElapsed = ms => {
   return (h ? h+"h " : "") + String(m).padStart(2,"0") + "m " + String(s).padStart(2,"0") + "s";
 };
 
-function load(){
-  let raw = null;
-  try{ raw = JSON.parse(localStorage.getItem(KEY) || "null"); }catch(e){}
+function normalizeState(raw){
   raw = raw || {};
   return {
     version: 2,
@@ -479,7 +491,13 @@ function load(){
     tv: raw.tv || raw.shows || [],
     anime: raw.anime || [],
     manga: raw.manga || [],
+    updatedAt: raw.updatedAt || 0,
   };
+}
+function load(){
+  let raw = null;
+  try{ raw = JSON.parse(localStorage.getItem(KEY) || "null"); }catch(e){}
+  return normalizeState(raw);
 }
 let S = load();
 ensureSeason();
@@ -654,7 +672,9 @@ function ensureSeason(){
 }
 function persist(){
   ensureSeason();
+  S.updatedAt = Date.now();
   localStorage.setItem(KEY, JSON.stringify(S));
+  if(cloudUser) pushToCloud();
   render();
 }
 function logAction(category, id, name, minutes, action){
@@ -852,6 +872,16 @@ function finishGameEarly(id){
   g.lastPlayed = false;
   persist(); toast(`Marked finished — target set to ${fmtN(g.goal)}h.`);
 }
+// v1.2.0: games use an *estimated* target, unlike other media's fixed runtime/
+// episode counts, so playing past it shouldn't silently finish the game —
+// only the "Finished" button should. If logged time pushes played past the
+// current goal, stretch the goal by 2h increments instead of capping played.
+function expandGoalIfNeeded(g){
+  if(!(g.goal>0) || g.played<g.goal) return null;
+  let added = 0;
+  while(g.played >= g.goal){ g.goal = Math.round((g.goal+2)*10)/10; added += 2; }
+  return `Play time exceeded the target, ${added} hour${added===1?"":"s"} added.`;
+}
 function finishDlcEarly(gameId, dlcId){
   const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
   d.goal = Math.max(0.1, Math.round((d.played||0)*10)/10);
@@ -881,13 +911,14 @@ function stopTimer(id){
   if(!g.timerStart) return;
   const elapsedMin = (Date.now()-g.timerStart)/60000;
   const trimmed = elapsedMin*0.9;
-  g.played = Math.min(g.goal, g.played + trimmed/60);
+  g.played = g.played + trimmed/60;
   g.timerStart = null;
   S.games.forEach(x=>x.lastPlayed=false); g.lastPlayed = true;
+  const expandNote = expandGoalIfNeeded(g);
   checkAutoComplete(g);
   logAction("games", g.id, g.name, trimmed, "timer");
   persist();
-  toast(`Logged ${fmtHM(Math.round(trimmed))} (10% trimmed for interruptions 😉)`);
+  toast(`Logged ${fmtHM(Math.round(trimmed))} (10% trimmed for interruptions 😉)` + (expandNote ? ` — ${expandNote}` : ""));
 }
 setInterval(()=>{
   S.games.forEach(g=>{
@@ -935,9 +966,10 @@ function gameCard(g){
   const controls = timing
     ? `<div class="timer-box"><span class="timer-dot"></span><span class="timer-time mono" id="timerDisplay-${g.id}">${fmtElapsed(Date.now()-g.timerStart)}</span></div>
        <button class="btn accent wide" style="margin-top:8px;--accent:#c1614a;--accent-text:#fff" onclick="stopTimer('${g.id}')">■ Finished playing</button>`
-    : `<div class="controls">
+    : `<div class="controls${!done?" controls-3":""}">
         <button class="btn accent" onclick="startTimer('${g.id}')">▶ Start playing</button>
         <button class="btn" onclick="openSessionModal('games','${g.id}')">Log session</button>
+        ${!done ? `<button class="btn" onclick="finishGameEarly('${g.id}')">Finished</button>` : ""}
       </div>`;
 
   let stampsHtml = "";
@@ -949,7 +981,7 @@ function gameCard(g){
   return `<article class="${cls}" style="--accent:${CAT.games.color};--accent-text:${CAT.games.text}">
     ${stampsHtml}
     <div class="entry-top">
-      <div><div class="entry-name serif">${esc(g.name)}</div><div class="entry-meta mono">TARGET ${fmtN(g.goal)}H</div></div>
+      <div${nameBoxStyle(done, done&&dlcAllCleared)}><div class="entry-name serif"${nameTextStyle(done)}>${esc(g.name)}</div><div class="entry-meta mono">TARGET ${fmtN(g.goal)}H</div></div>
       <div class="entry-pct">${done?"✓":pct.toFixed(1)+"%"}</div>
     </div>
     <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
@@ -960,7 +992,7 @@ function gameCard(g){
     ${combinedLine}
     ${dlcPendingNote}
     ${controls}
-    ${!timing ? `<div class="entry-foot">${dlcTag}<div class="foot-links">${!finalComplete ? `<button onclick="abandonItem('games','${g.id}')">Abandon</button>` : ""}${!done ? `<button onclick="finishGameEarly('${g.id}')">Finished early</button>` : ""}<button onclick="openGameModal('${g.id}')">Edit</button><button onclick="removeGame('${g.id}')">Remove</button></div></div>` : ""}
+    ${!timing ? `<div class="entry-foot">${dlcTag}<div class="foot-links">${!finalComplete ? `<button onclick="abandonItem('games','${g.id}')">Abandon</button>` : ""}<button onclick="openGameModal('${g.id}')">Edit</button><button onclick="removeGame('${g.id}')">Remove</button></div></div>` : ""}
     ${dlcHtml}
   </article>`;
 }
@@ -1005,7 +1037,7 @@ function movieCard(m){
   return `<article class="entry cat-movies${done?" complete":""}" style="--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}">
     ${done ? `<div class="stamp"><b>✓</b><span>WATCHED</span></div>` : ""}
     <div class="entry-top">
-      <div><div class="entry-name serif">${esc(m.name)}</div><div class="entry-meta mono">RUNTIME ${fmtHM(m.length)}</div></div>
+      <div${nameBoxStyle(done, false)}><div class="entry-name serif"${nameTextStyle(done)}>${esc(m.name)}</div><div class="entry-meta mono">RUNTIME ${fmtHM(m.length)}</div></div>
       <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
     </div>
     <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
@@ -1076,7 +1108,7 @@ function mangaCard(m){
   return `<article class="entry cat-manga${done?" complete":""}" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}">
     ${done ? `<div class="stamp"><b>✓</b><span>FINISHED</span></div>` : ""}
     <div class="entry-top">
-      <div><div class="entry-name serif">${esc(m.name)}</div><div class="entry-meta mono">VOL ${m.fromVol}–${m.toVol} · ${total} VOLUME${total===1?"":"S"}</div></div>
+      <div${nameBoxStyle(done, false)}><div class="entry-name serif"${nameTextStyle(done)}>${esc(m.name)}</div><div class="entry-meta mono">VOL ${m.fromVol}–${m.toVol} · ${total} VOLUME${total===1?"":"S"}</div></div>
       <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
     </div>
     <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
@@ -1241,7 +1273,7 @@ function episodicCard(category, e){
   return `<article class="entry cat-${category}${done?" complete":""}" style="--accent:${meta.color};--accent-text:${meta.text}">
     ${done ? `<div class="stamp"><b>✓</b><span>CLEARED</span></div>` : ""}
     <div class="entry-top">
-      <div><div class="entry-name serif">${esc(e.name)}</div><div class="entry-meta mono">${e.epLen}m / EPISODE</div></div>
+      <div${nameBoxStyle(done, false)}><div class="entry-name serif"${nameTextStyle(done)}>${esc(e.name)}</div><div class="entry-meta mono">${e.epLen}m / EPISODE</div></div>
       <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
     </div>
     <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
@@ -1274,10 +1306,12 @@ function setQuickMinutes(mins){ $("sh").value = Math.floor(mins/60); $("sm").val
 function addSession(){
   const mins = (+$("sh").value||0)*60 + (+$("sm").value||0);
   if(!mins) return toast("Enter some time first.");
+  let expandNote = null;
   if(sessionCtx.category === "games"){
     const g = S.games.find(x=>x.id===sessionCtx.id);
-    g.played = Math.min(g.goal, g.played + mins/60);
+    g.played = g.played + mins/60;
     S.games.forEach(x=>x.lastPlayed=false); g.lastPlayed = true;
+    expandNote = expandGoalIfNeeded(g);
     checkAutoComplete(g);
     logAction("games", g.id, g.name, mins, "session");
   } else if(sessionCtx.category === "dlc"){
@@ -1290,7 +1324,8 @@ function addSession(){
     m.watched = Math.min(m.length, m.watched + mins);
     logAction("movies", m.id, m.name, mins, "session");
   }
-  closeModal("sessionModal"); persist(); toast("Logged " + fmtHM(mins) + ".");
+  closeModal("sessionModal"); persist();
+  toast("Logged " + fmtHM(mins) + "." + (expandNote ? ` ${expandNote}` : ""));
 }
 
 /* ---------- season ---------- */
@@ -1329,6 +1364,102 @@ function importData(){
     r.readAsText(inp.files[0]);
   };
   inp.click();
+}
+
+/* ---------- v1.2.0 cloud sync ----------
+   Firebase (auth + Firestore) lives in a separate module script block near
+   the end of the document, since it needs ES module imports. This app's main
+   script stays a classic script (inline onclick="..." handlers need real
+   globals), so the two talk to each other only through a handful of
+   window.__cloud* functions/callbacks — a thin bridge, not a rewrite.
+   Offline-first is preserved: localStorage is always written first and is
+   the only thing anything actually reads from; the cloud push is a
+   best-effort side effect, and if Firebase fails to load entirely the app
+   just runs local-only, same as before this update. */
+let cloudUser = null;               // {uid,email,displayName} | null
+let cloudSyncState = "offline";     // offline | syncing | synced | error
+let cloudLastSyncedAt = null;
+
+function applyCloudData(remote){
+  S = normalizeState(remote);
+  localStorage.setItem(KEY, JSON.stringify(S));
+  ensureSeason();
+}
+function pushToCloud(){
+  if(!cloudUser || !window.__cloudPush) return;
+  cloudSyncState = "syncing";
+  window.__cloudPush(S);
+}
+function cloudSignIn(){
+  if(!window.__cloudSignIn) return toast("Cloud sync isn't available right now.");
+  window.__cloudSignIn().catch(err=>{ console.error(err); toast("Sign-in didn't go through — try again?"); });
+}
+function cloudSignOut(){
+  if(window.__cloudSignOut) window.__cloudSignOut();
+}
+async function resolveCloudSync(){
+  try{
+    const cloudData = window.__cloudPullOnce ? await window.__cloudPullOnce() : null;
+    const seededKey = "expedition-cloud-seeded-"+cloudUser.uid;
+    const alreadySeeded = localStorage.getItem(seededKey);
+    if(!cloudData){
+      pushToCloud();
+    } else if(!alreadySeeded){
+      const localHasData = ALL_CATS.some(c=>(S[c]||[]).length>0) || (S.archive||[]).length>0;
+      const differs = JSON.stringify({...S,updatedAt:0}) !== JSON.stringify({...normalizeState(cloudData),updatedAt:0});
+      if(localHasData && differs){
+        const useCloud = confirm("This Google account already has Expedition data saved in the cloud, and it's different from what's on this device.\n\nPress OK to use the cloud data (recommended).\nPress Cancel to keep this device's data — the cloud copy will be overwritten with it.");
+        if(useCloud) applyCloudData(cloudData); else pushToCloud();
+      } else {
+        applyCloudData(cloudData);
+      }
+    } else {
+      applyCloudData(cloudData);
+    }
+    localStorage.setItem(seededKey, "1");
+    cloudSyncState = "synced"; cloudLastSyncedAt = Date.now();
+  }catch(e){
+    console.error("Cloud sync error", e);
+    cloudSyncState = "error";
+  }
+  render();
+}
+window.__cloudOnAuthChange = function(user){
+  cloudUser = user;
+  cloudSyncState = user ? "syncing" : "offline";
+  render();
+  if(user) resolveCloudSync();
+};
+window.__cloudOnRemoteUpdate = function(remoteData){
+  applyCloudData(remoteData);
+  cloudSyncState = "synced"; cloudLastSyncedAt = Date.now();
+  render();
+};
+window.__cloudOnPushComplete = function(ok){
+  cloudSyncState = ok ? "synced" : "error";
+  if(ok) cloudLastSyncedAt = Date.now();
+  render();
+};
+function timeAgo(ts){
+  const s = Math.floor((Date.now()-ts)/1000);
+  if(s<10) return "just now";
+  if(s<60) return s+"s ago";
+  const m = Math.floor(s/60); if(m<60) return m+"m ago";
+  const h = Math.floor(m/60); if(h<24) return h+"h ago";
+  return Math.floor(h/24)+"d ago";
+}
+function cloudStatusHtml(){
+  if(window.__cloudReady === false){
+    return `<div class="cloud-box"><span class="entry-meta2">☁ Cloud sync unavailable right now — running locally.</span></div>`;
+  }
+  if(!cloudUser){
+    return `<div class="cloud-box"><span class="entry-meta2">Sign in to back up and sync across devices.</span><button class="btn small ghost" onclick="cloudSignIn()">☁ Sign in with Google</button></div>`;
+  }
+  const label = cloudSyncState==="syncing" ? "Syncing…"
+    : cloudSyncState==="error" ? "Sync error — will retry"
+    : cloudLastSyncedAt ? "Synced "+timeAgo(cloudLastSyncedAt)
+    : "Signed in";
+  return `<div class="cloud-box"><span class="entry-meta2">☁ ${esc(cloudUser.email||cloudUser.displayName||"Signed in")} · ${label}</span><button class="btn small ghost" onclick="cloudSignOut()">Sign out</button></div>`;
 }
 
 /* ---------- sort ---------- */
@@ -1478,7 +1609,7 @@ function applyRecoScoring(actionCategory){
     if(!item) return;
     const dragScale = RECO_CATEGORY_DRAG_SCALE[c.category] ?? 1;
     const drag = categoryProgressPct(c.category) * dragScale;
-    const rand = 0.8 + Math.random()*0.2;
+    const rand = 0.6 + Math.random()*0.4;
     const multiplier = bonus + c.pct + rand - drag + daysBonus;
     const current = item.recoPoints || RECO_BASE_POINTS;
     item.recoPoints = Math.max(RECO_BASE_POINTS, current * multiplier);
@@ -1590,6 +1721,7 @@ function renderOverview(){
       <div class="stat"><b>${totalMediaCount}</b><span>Total media</span></div>
     </div>
     ${paceBoxHtml(combined, d)}
+    ${cloudStatusHtml()}
     <div class="season-actions">
       <button class="btn small ghost" onclick="exportData()">Export backup</button>
       <button class="btn small ghost" onclick="importData()">Import backup</button>
@@ -1855,6 +1987,101 @@ if("serviceWorker" in navigator){
 
 $("verTag").textContent = "v" + APP_VERSION;
 render();
+</script>
+
+<!-- v1.2.0 cloud sync — Firebase needs ES module imports, so it lives in its
+     own module script and talks to the app above only via window.__cloud*
+     functions/callbacks (see the "cloud sync" section in the main script). -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  getRedirectResult, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDCpsqfNUzlmkMA2UgK3UldY9S-ChBxzTQ",
+  authDomain: "expedition-id.firebaseapp.com",
+  projectId: "expedition-id",
+  storageBucket: "expedition-id.firebasestorage.app",
+  messagingSenderId: "1013142560008",
+  appId: "1:1013142560008:web:e1140057ebe4cb6d0420bd"
+};
+
+let auth, db, unsubSnapshot = null, lastKnownUpdatedAt = 0, pushTimer = null;
+
+try{
+  const app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  window.__cloudReady = true;
+}catch(e){
+  console.error("Firebase init failed", e);
+  window.__cloudReady = false;
+}
+
+function docRefFor(uid){ return doc(db, "users", uid, "state", "main"); }
+
+function watchRemote(uid){
+  if(unsubSnapshot) unsubSnapshot();
+  unsubSnapshot = onSnapshot(docRefFor(uid), snap => {
+    if(!snap.exists()) return;
+    if(snap.metadata.hasPendingWrites) return; // our own write, not yet server-confirmed — skip the echo
+    const data = snap.data();
+    if((data.updatedAt||0) <= lastKnownUpdatedAt) return; // nothing newer than what we already have
+    lastKnownUpdatedAt = data.updatedAt||0;
+    if(typeof window.__cloudOnRemoteUpdate === "function") window.__cloudOnRemoteUpdate(data);
+  }, err => console.error("Cloud listener error", err));
+}
+
+if(auth){
+  onAuthStateChanged(auth, user => {
+    if(user) watchRemote(user.uid);
+    else if(unsubSnapshot){ unsubSnapshot(); unsubSnapshot = null; }
+    if(typeof window.__cloudOnAuthChange === "function"){
+      window.__cloudOnAuthChange(user ? {uid:user.uid, email:user.email, displayName:user.displayName} : null);
+    }
+  });
+  // Picks up the result of a signInWithRedirect() fall-back (see below) after
+  // the page bounces back — onAuthStateChanged above will also fire from this.
+  getRedirectResult(auth).catch(e => console.error("Redirect sign-in error", e));
+}
+
+window.__cloudSignIn = async function(){
+  const provider = new GoogleAuthProvider();
+  try{
+    await signInWithPopup(auth, provider);
+  }catch(e){
+    // Popups can be blocked or unsupported inside an installed/standalone PWA
+    // (common on iOS home-screen apps) — fall back to a full-page redirect.
+    const popupIssues = ["auth/popup-blocked","auth/popup-closed-by-user","auth/cancelled-popup-request","auth/operation-not-supported-in-this-environment"];
+    if(e && popupIssues.includes(e.code)) return signInWithRedirect(auth, provider);
+    throw e;
+  }
+};
+window.__cloudSignOut = function(){ return signOut(auth); };
+window.__cloudPullOnce = async function(){
+  if(!auth || !auth.currentUser) return null;
+  const snap = await getDoc(docRefFor(auth.currentUser.uid));
+  return snap.exists() ? snap.data() : null;
+};
+window.__cloudPush = function(data){
+  if(!auth || !auth.currentUser) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(async ()=>{
+    try{
+      lastKnownUpdatedAt = data.updatedAt || Date.now();
+      await setDoc(docRefFor(auth.currentUser.uid), data);
+      if(typeof window.__cloudOnPushComplete === "function") window.__cloudOnPushComplete(true);
+    }catch(e){
+      console.error("Cloud push failed", e);
+      if(typeof window.__cloudOnPushComplete === "function") window.__cloudOnPushComplete(false);
+    }
+  }, 1500); // debounced — collapses rapid-fire local edits into one write
+};
 </script>
 </body>
 </html>
