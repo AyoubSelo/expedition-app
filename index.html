@@ -435,7 +435,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.2.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.2.1"; // single source of truth for the version tag in the header
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
@@ -460,16 +460,20 @@ function iconBadge(cat){
 const $ = id => document.getElementById(id);
 const uid = () => Math.random().toString(36).slice(2,9);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-// v1.2.0: when a "cleared"-type stamp (and, for games, the extra DLC stamp) is
-// showing, the title needs to stay clear of it instead of running underneath.
-// Active items with no stamp yet are untouched — they still wrap normally.
-function nameBoxStyle(done, dlcStamp){
+// v1.2.1: v1.2.0 truncated long titles with "…" once a stamp was showing —
+// turns out that hides too much of the name. Instead, float an invisible
+// spacer the size of the stamp(s) at the start of the title text; normal CSS
+// float-wrap makes the text flow around it for the first line or so, then use
+// the full width once it clears the stamp's height. display:flow-root on the
+// title keeps that float from bleeding into the meta line underneath it.
+// Active items with no stamp yet are untouched — plain full-width wrapping.
+function nameClipSpacer(done, dlcStamp){
   if(!done) return "";
-  const pad = dlcStamp ? 108 : 58;
-  return ` style="flex:1;min-width:0;padding-right:${pad}px"`;
+  const w = dlcStamp ? 108 : 58;
+  return `<span style="float:right;width:${w}px;height:32px"></span>`;
 }
-function nameTextStyle(done){
-  return done ? ' style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"' : "";
+function nameFlowRoot(done){
+  return done ? ' style="display:flow-root"' : "";
 }
 const fmtN = n => Number.isInteger(n) ? String(n) : n.toFixed(1);
 const fmtHM = mins => Math.floor(mins/60) + "h " + Math.round(mins%60) + "m";
@@ -966,11 +970,11 @@ function gameCard(g){
   const controls = timing
     ? `<div class="timer-box"><span class="timer-dot"></span><span class="timer-time mono" id="timerDisplay-${g.id}">${fmtElapsed(Date.now()-g.timerStart)}</span></div>
        <button class="btn accent wide" style="margin-top:8px;--accent:#c1614a;--accent-text:#fff" onclick="stopTimer('${g.id}')">■ Finished playing</button>`
-    : `<div class="controls${!done?" controls-3":""}">
-        <button class="btn accent" onclick="startTimer('${g.id}')">▶ Start playing</button>
+    : (done ? "" : `<div class="controls controls-3">
+        <button class="btn accent" onclick="startTimer('${g.id}')">▶ Play</button>
         <button class="btn" onclick="openSessionModal('games','${g.id}')">Log session</button>
-        ${!done ? `<button class="btn" onclick="finishGameEarly('${g.id}')">Finished</button>` : ""}
-      </div>`;
+        <button class="btn" onclick="finishGameEarly('${g.id}')">Finished</button>
+      </div>`);
 
   let stampsHtml = "";
   if(done){
@@ -981,7 +985,7 @@ function gameCard(g){
   return `<article class="${cls}" style="--accent:${CAT.games.color};--accent-text:${CAT.games.text}">
     ${stampsHtml}
     <div class="entry-top">
-      <div${nameBoxStyle(done, done&&dlcAllCleared)}><div class="entry-name serif"${nameTextStyle(done)}>${esc(g.name)}</div><div class="entry-meta mono">TARGET ${fmtN(g.goal)}H</div></div>
+      <div><div class="entry-name serif"${nameFlowRoot(done)}>${nameClipSpacer(done, done&&dlcAllCleared)}${esc(g.name)}</div><div class="entry-meta mono">TARGET ${fmtN(g.goal)}H</div></div>
       <div class="entry-pct">${done?"✓":pct.toFixed(1)+"%"}</div>
     </div>
     <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
@@ -1037,7 +1041,7 @@ function movieCard(m){
   return `<article class="entry cat-movies${done?" complete":""}" style="--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}">
     ${done ? `<div class="stamp"><b>✓</b><span>WATCHED</span></div>` : ""}
     <div class="entry-top">
-      <div${nameBoxStyle(done, false)}><div class="entry-name serif"${nameTextStyle(done)}>${esc(m.name)}</div><div class="entry-meta mono">RUNTIME ${fmtHM(m.length)}</div></div>
+      <div><div class="entry-name serif"${nameFlowRoot(done)}>${nameClipSpacer(done, false)}${esc(m.name)}</div><div class="entry-meta mono">RUNTIME ${fmtHM(m.length)}</div></div>
       <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
     </div>
     <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
@@ -1045,10 +1049,10 @@ function movieCard(m){
       <div><div class="played">${fmtHM(m.watched)}<span style="color:var(--muted);font-weight:400"> / ${fmtHM(m.length)}</span></div><div class="entry-meta2">${done?"Fully watched":"Watched so far"}</div></div>
       <div class="remaining">${done?"Done":fmtHM(m.length-m.watched)+" left"}</div>
     </div>
-    <div class="controls">
+    ${!done ? `<div class="controls">
       <button class="btn accent" onclick="markWatched('${m.id}')">✓ Mark watched</button>
       <button class="btn" onclick="openSessionModal('movies','${m.id}')">Log session</button>
-    </div>
+    </div>` : ""}
     <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('movies','${m.id}')">Abandon</button>` : ""}<button onclick="openMovieModal('${m.id}')">Edit</button><button onclick="removeMovie('${m.id}')">Remove</button></div></div>
   </article>`;
 }
@@ -1108,7 +1112,7 @@ function mangaCard(m){
   return `<article class="entry cat-manga${done?" complete":""}" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}">
     ${done ? `<div class="stamp"><b>✓</b><span>FINISHED</span></div>` : ""}
     <div class="entry-top">
-      <div${nameBoxStyle(done, false)}><div class="entry-name serif"${nameTextStyle(done)}>${esc(m.name)}</div><div class="entry-meta mono">VOL ${m.fromVol}–${m.toVol} · ${total} VOLUME${total===1?"":"S"}</div></div>
+      <div><div class="entry-name serif"${nameFlowRoot(done)}>${nameClipSpacer(done, false)}${esc(m.name)}</div><div class="entry-meta mono">VOL ${m.fromVol}–${m.toVol} · ${total} VOLUME${total===1?"":"S"}</div></div>
       <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
     </div>
     <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
@@ -1116,7 +1120,7 @@ function mangaCard(m){
       <div><div class="played">${volsRead}<span style="color:var(--muted);font-weight:400"> / ${total} vol</span></div><div class="entry-meta2">${done?"Fully read":"Read so far"}</div></div>
       <div class="remaining">${done?"Done":volsLeftN+" vol left"}</div>
     </div>
-    <div class="stepper">
+    ${!done ? `<div class="stepper">
       <button onclick="stepManga('${m.id}',-1)">−</button>
       <span>volumes</span>
       <button onclick="stepManga('${m.id}',1)">+</button>
@@ -1124,7 +1128,7 @@ function mangaCard(m){
     <div class="controls">
       <button class="btn small" onclick="stepManga('${m.id}',5)">+5 vol</button>
       <button class="btn accent" onclick="finishManga('${m.id}')">✓ Mark finished</button>
-    </div>
+    </div>` : ""}
     <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>` : ""}<button onclick="openMangaModal('${m.id}')">Edit</button><button onclick="removeManga('${m.id}')">Remove</button></div></div>
   </article>`;
 }
@@ -1262,18 +1266,18 @@ function episodicCard(category, e){
     return `<div class="group-row">
       <div class="group-top"><span class="group-name">${esc(g.name)}</span><span class="group-count">${g.watched} / ${g.total}</span></div>
       <div class="group-bar"><div class="group-fill" style="width:${gp}%"></div></div>
-      <div class="stepper">
+      ${!done ? `<div class="stepper">
         <button onclick="stepGroup('${category}','${e.id}','${g.id}',-1)">−</button>
         <span>episodes</span>
         <button onclick="stepGroup('${category}','${e.id}','${g.id}',1)">+</button>
-      </div>
+      </div>` : ""}
     </div>`;
   }).join("") || `<div class="entry-meta2" style="padding:6px 0">No ${label.toLowerCase()}s added yet — edit this entry to add one.</div>`;
 
   return `<article class="entry cat-${category}${done?" complete":""}" style="--accent:${meta.color};--accent-text:${meta.text}">
     ${done ? `<div class="stamp"><b>✓</b><span>CLEARED</span></div>` : ""}
     <div class="entry-top">
-      <div${nameBoxStyle(done, false)}><div class="entry-name serif"${nameTextStyle(done)}>${esc(e.name)}</div><div class="entry-meta mono">${e.epLen}m / EPISODE</div></div>
+      <div><div class="entry-name serif"${nameFlowRoot(done)}>${nameClipSpacer(done, false)}${esc(e.name)}</div><div class="entry-meta mono">${e.epLen}m / EPISODE</div></div>
       <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
     </div>
     <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
@@ -1392,7 +1396,12 @@ function pushToCloud(){
 }
 function cloudSignIn(){
   if(!window.__cloudSignIn) return toast("Cloud sync isn't available right now.");
-  window.__cloudSignIn().catch(err=>{ console.error(err); toast("Sign-in didn't go through — try again?"); });
+  window.__cloudSignIn().catch(err=>{
+    console.error(err);
+    const code = (err && err.code) || "";
+    if(code === "auth/unauthorized-domain") toast("This site isn't authorized for sign-in yet in Firebase (Authentication → Settings → Authorized domains).");
+    else toast("Sign-in didn't go through" + (code ? ` (${code})` : "") + " — try again?");
+  });
 }
 function cloudSignOut(){
   if(window.__cloudSignOut) window.__cloudSignOut();
