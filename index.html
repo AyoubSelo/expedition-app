@@ -283,6 +283,41 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .dlc-section.open{display:block}
 .dlc-section > b{font-size:13px}
 .check{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--ink);text-transform:none;font-weight:500}
+
+/* v1.3.0 — release date + hype fields (shared by all add/edit modals) */
+.field-row{margin-top:14px}
+.field-row > label{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.release-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.release-field{display:flex;flex-direction:column;gap:4px}
+.release-field input{width:100%;text-align:center}
+.release-field span{font-size:9.5px;color:var(--muted-dim);text-align:center}
+.hype-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.hype-dot{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted-dim);font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:14px;cursor:pointer}
+.hype-dot.on{background:var(--brass);color:#1a1006;border-color:var(--brass)}
+.hype-label{font-size:11.5px;color:var(--muted);margin-left:4px}
+
+/* v1.3.0 — Season/Library mode toggle */
+.mode-toggle{display:flex;gap:6px;margin-top:12px}
+.mode-btn{flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit}
+.mode-btn.on{background:var(--brass);color:#1a1006;border-color:var(--brass)}
+
+/* v1.3.0 — Library book */
+.lib-head{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);margin-bottom:10px}
+.lib-head b{color:var(--ink)}
+.lib-search{width:100%;margin-bottom:12px}
+.lib-list{display:flex;flex-direction:column;gap:8px}
+.lib-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+.lib-row-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--panel2);color:var(--accent)}
+.lib-row-main{flex:1;min-width:0}
+.lib-row-name{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center}
+.lib-row-sub{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-warn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:#c1614a;color:#fff;font-size:10px;font-weight:800;margin-right:5px;flex-shrink:0}
+.lib-hype{font-size:11px;letter-spacing:1px;color:var(--brass);white-space:nowrap;flex-shrink:0}
+.lib-hype-empty{color:var(--line)}
+.lib-hype-unset{color:var(--line)}
+.lib-row-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.lib-row-actions button{background:none;border:none;color:var(--muted);font-size:10.5px;cursor:pointer;padding:1px 0;text-align:right;font-family:inherit}
+.lib-row-actions button:hover{color:var(--brass)}
 .check input{width:auto}
 .dlc-edit{display:grid;grid-template-columns:1.3fr .8fr .7fr auto;gap:6px;margin:8px 0}
 .group-edit{display:grid;gap:6px;margin:6px 0;align-items:center}
@@ -319,6 +354,10 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   <header>
     <h1 class="serif">Expedition<span class="version-tag mono" id="verTag"></span></h1>
     <div class="tagline">Log the hours. Clear the backlog.</div>
+    <div class="mode-toggle" id="modeToggle">
+      <button class="mode-btn" id="modeBtnSeason" onclick="switchMode('season')">🗓 Season</button>
+      <button class="mode-btn" id="modeBtnLibrary" onclick="switchMode('library')">📚 Library</button>
+    </div>
   </header>
   <main id="app"></main>
 </div>
@@ -342,6 +381,26 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <div id="dlcRows"></div>
       <button class="btn small" style="margin-top:6px" onclick="addDlcRow()">+ Add DLC</button>
     </div>
+    <div class="field-row">
+      <label>Release date</label>
+      <div class="release-row">
+        <div class="release-field"><input id="g_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
+        <div class="release-field"><input id="g_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
+        <div class="release-field"><input id="g_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
+      </div>
+    </div>
+    <div class="field-row">
+      <label>Hype level</label>
+      <div class="hype-row">
+        <button type="button" class="hype-dot" data-prefix="g" data-val="1" onclick="setHype('g',1)">★</button>
+        <button type="button" class="hype-dot" data-prefix="g" data-val="2" onclick="setHype('g',2)">★</button>
+        <button type="button" class="hype-dot" data-prefix="g" data-val="3" onclick="setHype('g',3)">★</button>
+        <button type="button" class="hype-dot" data-prefix="g" data-val="4" onclick="setHype('g',4)">★</button>
+        <button type="button" class="hype-dot" data-prefix="g" data-val="5" onclick="setHype('g',5)">★</button>
+        <span class="hype-label" id="g_hypeLabel">Not set</span>
+      </div>
+      <input type="hidden" id="g_hype" value="0">
+    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('gameModal')">Cancel</button>
       <button class="btn brass" onclick="saveGame()">Save entry</button>
@@ -358,6 +417,26 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <input id="mname" placeholder="e.g. Blade Runner 2049">
     <label>Length (minutes)</label>
     <input id="mlength" type="number" min="1" inputmode="numeric" placeholder="e.g. 107">
+    <div class="field-row">
+      <label>Release date</label>
+      <div class="release-row">
+        <div class="release-field"><input id="mv_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
+        <div class="release-field"><input id="mv_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
+        <div class="release-field"><input id="mv_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
+      </div>
+    </div>
+    <div class="field-row">
+      <label>Hype level</label>
+      <div class="hype-row">
+        <button type="button" class="hype-dot" data-prefix="mv" data-val="1" onclick="setHype('mv',1)">★</button>
+        <button type="button" class="hype-dot" data-prefix="mv" data-val="2" onclick="setHype('mv',2)">★</button>
+        <button type="button" class="hype-dot" data-prefix="mv" data-val="3" onclick="setHype('mv',3)">★</button>
+        <button type="button" class="hype-dot" data-prefix="mv" data-val="4" onclick="setHype('mv',4)">★</button>
+        <button type="button" class="hype-dot" data-prefix="mv" data-val="5" onclick="setHype('mv',5)">★</button>
+        <span class="hype-label" id="mv_hypeLabel">Not set</span>
+      </div>
+      <input type="hidden" id="mv_hype" value="0">
+    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('movieModal')">Cancel</button>
       <button class="btn brass" onclick="saveMovie()">Save movie</button>
@@ -375,6 +454,26 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="row2">
       <div><label>From volume</label><input id="mgfrom" type="number" min="1" inputmode="numeric" placeholder="e.g. 1"></div>
       <div><label>To volume</label><input id="mgto" type="number" min="1" inputmode="numeric" placeholder="e.g. 15"></div>
+    </div>
+    <div class="field-row">
+      <label>Release date</label>
+      <div class="release-row">
+        <div class="release-field"><input id="mg_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
+        <div class="release-field"><input id="mg_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
+        <div class="release-field"><input id="mg_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
+      </div>
+    </div>
+    <div class="field-row">
+      <label>Hype level</label>
+      <div class="hype-row">
+        <button type="button" class="hype-dot" data-prefix="mg" data-val="1" onclick="setHype('mg',1)">★</button>
+        <button type="button" class="hype-dot" data-prefix="mg" data-val="2" onclick="setHype('mg',2)">★</button>
+        <button type="button" class="hype-dot" data-prefix="mg" data-val="3" onclick="setHype('mg',3)">★</button>
+        <button type="button" class="hype-dot" data-prefix="mg" data-val="4" onclick="setHype('mg',4)">★</button>
+        <button type="button" class="hype-dot" data-prefix="mg" data-val="5" onclick="setHype('mg',5)">★</button>
+        <span class="hype-label" id="mg_hypeLabel">Not set</span>
+      </div>
+      <input type="hidden" id="mg_hype" value="0">
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('mangaModal')">Cancel</button>
@@ -403,6 +502,26 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div id="groupHeader" class="group-edit-head"></div>
     <div id="groupRows"></div>
     <button class="btn small" style="margin-top:6px" id="addGroupBtn" onclick="addGroupRow()">+ Add season</button>
+    <div class="field-row">
+      <label>Release date</label>
+      <div class="release-row">
+        <div class="release-field"><input id="epi_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
+        <div class="release-field"><input id="epi_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
+        <div class="release-field"><input id="epi_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
+      </div>
+    </div>
+    <div class="field-row">
+      <label>Hype level</label>
+      <div class="hype-row">
+        <button type="button" class="hype-dot" data-prefix="epi" data-val="1" onclick="setHype('epi',1)">★</button>
+        <button type="button" class="hype-dot" data-prefix="epi" data-val="2" onclick="setHype('epi',2)">★</button>
+        <button type="button" class="hype-dot" data-prefix="epi" data-val="3" onclick="setHype('epi',3)">★</button>
+        <button type="button" class="hype-dot" data-prefix="epi" data-val="4" onclick="setHype('epi',4)">★</button>
+        <button type="button" class="hype-dot" data-prefix="epi" data-val="5" onclick="setHype('epi',5)">★</button>
+        <span class="hype-label" id="epi_hypeLabel">Not set</span>
+      </div>
+      <input type="hidden" id="epi_hype" value="0">
+    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('epiModal')">Cancel</button>
       <button class="btn brass" onclick="saveEpisodic()">Save</button>
@@ -435,7 +554,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.2.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.3.0"; // single source of truth for the version tag in the header
+const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Must-Play"];
+const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
@@ -482,19 +603,35 @@ const fmtElapsed = ms => {
   return (h ? h+"h " : "") + String(m).padStart(2,"0") + "m " + String(s).padStart(2,"0") + "s";
 };
 
+// v1.3.0: every item, in both the Season book and the new Library book, gets
+// two extra optional fields — releaseDate ({y,m,d}, all strings, any/all can
+// be blank) and hype (0-5, 0 = not set). normGames/normSimple below apply
+// those defaults uniformly so items can move between Season and Library
+// (moveItem) without ever hitting a missing field.
 function normalizeState(raw){
   raw = raw || {};
+  const withExtras = x => ({ releaseDate: x.releaseDate || {y:"",m:"",d:""}, hype: x.hype||0 });
+  const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
+    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid()})), ...withExtras(g)}));
+  const normSimple = list => (list||[]).map(x => ({...x, id:x.id||uid(), ...withExtras(x)}));
+  const rawLib = raw.library || {};
   return {
-    version: 2,
+    version: 3,
     seasonStart: raw.seasonStart || "",
     archive: raw.archive || [],
     sessionLog: raw.sessionLog || [],
-    games: (raw.games||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
-      dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid()}))})),
-    movies: raw.movies || [],
-    tv: raw.tv || raw.shows || [],
-    anime: raw.anime || [],
-    manga: raw.manga || [],
+    games: normGames(raw.games),
+    movies: normSimple(raw.movies),
+    tv: normSimple(raw.tv || raw.shows),
+    anime: normSimple(raw.anime),
+    manga: normSimple(raw.manga),
+    library: {
+      games: normGames(rawLib.games),
+      movies: normSimple(rawLib.movies),
+      tv: normSimple(rawLib.tv),
+      anime: normSimple(rawLib.anime),
+      manga: normSimple(rawLib.manga),
+    },
     updatedAt: raw.updatedAt || 0,
   };
 }
@@ -508,6 +645,49 @@ ensureSeason();
 localStorage.setItem(KEY, JSON.stringify(S));
 let activeTab = localStorage.getItem("expedition-tab") || "overview";
 let editId = null, sessionCtx = null, epiCategory = null, groupTypeSel = "season", epiInitializing = false;
+// v1.3.0 — Library book: a second, standalone backlog alongside the season one.
+let mode = localStorage.getItem("expedition-mode") || "season"; // "season" | "library"
+let libTab = localStorage.getItem("expedition-libtab") || "games";
+let modalTarget = "season"; // which book the currently-open modal reads/writes: "season" | "library"
+let epiTarget = "season";
+let libSearchQ = "";
+function arrFor(cat, target){ return target==="library" ? S.library[cat] : S[cat]; }
+function hasReleaseDate(rd){ return !!(rd && (rd.y||rd.m||rd.d)); }
+function fmtReleaseDate(rd){
+  if(!hasReleaseDate(rd)) return "";
+  return [rd.d, rd.m, rd.y].filter(Boolean).join("/");
+}
+/* ---------- shared release-date / hype field helpers (all add/edit modals) ---------- */
+function setHype(prefix, val){
+  const hidden = $(prefix+"_hype");
+  const next = (+hidden.value||0)===val ? 0 : val;
+  hidden.value = next;
+  paintHype(prefix, next);
+}
+function paintHype(prefix, val){
+  document.querySelectorAll('.hype-dot[data-prefix="'+prefix+'"]').forEach(d=>{
+    d.classList.toggle("on", +d.dataset.val <= val && val>0);
+  });
+  const lbl = $(prefix+"_hypeLabel");
+  if(lbl) lbl.textContent = val>0 ? HYPE_LABELS[val-1] : "Not set";
+}
+function fillHype(prefix, val){
+  val = val||0;
+  $(prefix+"_hype").value = val;
+  paintHype(prefix, val);
+}
+function readHype(prefix){ return +($(prefix+"_hype").value) || 0; }
+function fillRelease(prefix, rd){
+  rd = rd || {};
+  $(prefix+"_ry").value = rd.y||""; $(prefix+"_rm").value = rd.m||""; $(prefix+"_rd").value = rd.d||"";
+}
+function readRelease(prefix){
+  return {
+    y: ($(prefix+"_ry").value||"").trim().slice(0,4),
+    m: ($(prefix+"_rm").value||"").trim().slice(0,2),
+    d: ($(prefix+"_rd").value||"").trim().slice(0,2),
+  };
+}
 
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function toISODate(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -764,6 +944,20 @@ function restoreItem(category, id){
   delete item.abandonLogIndex;
   persist(); toast("Restored — back in the mix.");
 }
+// v1.3.0 — move an item between the Season book and the Library book. Same
+// object shape either way (normalizeState guarantees releaseDate/hype on both),
+// so this is just a splice from one array to the other.
+function moveItem(category, id, fromMode, toMode){
+  const fromArr = fromMode==="library" ? S.library[category] : S[category];
+  const idx = fromArr.findIndex(x=>x.id===id);
+  if(idx<0) return;
+  const [item] = fromArr.splice(idx,1);
+  if(category==="games") item.timerStart = null; // never carry a running timer across books
+  const toArr = toMode==="library" ? S.library[category] : S[category];
+  toArr.push(item);
+  persist();
+  toast(toMode==="library" ? "Moved to Library." : "Moved to Season.");
+}
 function removeGeneric(category, id){
   if(category==="games") return removeGame(id);
   if(category==="movies") return removeMovie(id);
@@ -795,7 +989,36 @@ function playPageTransition(dir){
   el.classList.add(dir==="right" ? "page-enter-right" : "page-enter-left");
 }
 
+/* v1.3.0 — Library book: its own mode + its own tab bar (categories only, no Overview) */
+function switchMode(m){
+  if(mode===m) return;
+  mode = m;
+  localStorage.setItem("expedition-mode", m);
+  libSearchQ = "";
+  render();
+  window.scrollTo(0,0);
+}
+function switchLibTab(t){
+  libTab = t;
+  localStorage.setItem("expedition-libtab", t);
+  libSearchQ = "";
+  render();
+  window.scrollTo(0,0);
+}
+function renderModeToggle(){
+  $("modeBtnSeason").classList.toggle("on", mode==="season");
+  $("modeBtnLibrary").classList.toggle("on", mode==="library");
+}
 function renderTabBar(){
+  if(mode==="library"){
+    $("tabbar").innerHTML = LIB_CATS.map(t=>{
+      const c = CAT[t];
+      return `<button class="tab ${libTab===t?'on':''}" style="--tabcolor:${c.color}" onclick="switchLibTab('${t}')">
+        <span class="mono-badge">${iconBadge(t)}</span><span>${c.label}</span>
+      </button>`;
+    }).join("");
+    return;
+  }
   $("tabbar").innerHTML = TAB_ORDER.map(t=>{
     const c = CAT[t];
     return `<button class="tab ${activeTab===t?'on':''}" style="--tabcolor:${c.color}" onclick="switchTab('${t}')">
@@ -805,19 +1028,21 @@ function renderTabBar(){
 }
 
 /* ============ GAMES ============ */
-function openGameModal(id=null){
-  editId = id;
+function openGameModal(id=null, target="season"){
+  editId = id; modalTarget = target;
   $("dlcRows").innerHTML = "";
   if(id){
-    const g = S.games.find(x=>x.id===id);
+    const g = arrFor("games",target).find(x=>x.id===id);
     $("formTitle").textContent = "Edit entry";
     $("gname").value = g.name; $("goal").value = g.goal; $("played").value = g.played;
     $("hasDlc").checked = !!g.hasDlc;
     (g.dlcs||[]).forEach(addDlcRow);
+    fillRelease("g", g.releaseDate); fillHype("g", g.hype);
   } else {
     $("formTitle").textContent = "New entry";
     $("gname").value = ""; $("goal").value = ""; $("played").value = 0;
     $("hasDlc").checked = false;
+    fillRelease("g", null); fillHype("g", 0);
   }
   toggleDlcSection();
   $("gameModal").classList.add("show"); $("gname").focus();
@@ -842,6 +1067,8 @@ function saveGame(){
   if(!name || goal <= 0) return toast("Give it a name and a target above 0.");
   const played = Math.min(goal, Math.max(0, +$("played").value || 0));
   const hasDlc = $("hasDlc").checked;
+  const releaseDate = readRelease("g");
+  const hype = readHype("g");
   const dlcs = [];
   if(hasDlc){
     document.querySelectorAll(".dlc-edit").forEach(r=>{
@@ -851,9 +1078,10 @@ function saveGame(){
       dlcs.push({ id: r.dataset.id || uid(), name:n, type, goal: type==="time" ? Math.max(0, +r.querySelector(".dg").value || 0) : 0, played:0, done:false });
     });
   }
-  S.games.forEach(g => g.lastPlayed = false);
+  const arr = arrFor("games", modalTarget);
+  if(modalTarget==="season") arr.forEach(g => g.lastPlayed = false);
   if(editId){
-    const g = S.games.find(x=>x.id===editId);
+    const g = arr.find(x=>x.id===editId);
     const oldDlcs = g.dlcs || [];
     const mergedDlcs = dlcs.map(nd=>{
       const match = oldDlcs.find(od=>od.id===nd.id);
@@ -861,10 +1089,10 @@ function saveGame(){
       const playedVal = nd.type==="time" ? Math.min(match.played||0, nd.goal||match.played||0) : 0;
       return { ...nd, played: playedVal, done: match.done||false };
     });
-    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, lastPlayed: played<goal });
+    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, hype, lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
     checkAutoComplete(g);
   } else {
-    S.games.push({ id: uid(), name, goal, played, hasDlc, dlcs, lastPlayed: played<goal, timerStart:null });
+    arr.push({ id: uid(), name, goal, played, hasDlc, dlcs, releaseDate, hype, lastPlayed: modalTarget==="season" && played<goal, timerStart:null });
   }
   closeModal("gameModal"); persist(); toast("Entry saved.");
 }
@@ -892,8 +1120,12 @@ function finishDlcEarly(gameId, dlcId){
   d.played = d.goal;
   persist(); toast("DLC marked finished.");
 }
-function removeGame(id){
-  if(confirm("Remove this entry? This can't be undone.")){ S.games = S.games.filter(g=>g.id!==id); persist(); }
+function removeGame(id, target="season"){
+  if(confirm("Remove this entry? This can't be undone.")){
+    if(target==="library") S.library.games = S.library.games.filter(g=>g.id!==id);
+    else S.games = S.games.filter(g=>g.id!==id);
+    persist();
+  }
 }
 function toggleDlcDone(gameId, dlcId){
   const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
@@ -996,21 +1228,23 @@ function gameCard(g){
     ${combinedLine}
     ${dlcPendingNote}
     ${controls}
-    ${!timing ? `<div class="entry-foot">${dlcTag}<div class="foot-links">${!finalComplete ? `<button onclick="abandonItem('games','${g.id}')">Abandon</button>` : ""}<button onclick="openGameModal('${g.id}')">Edit</button><button onclick="removeGame('${g.id}')">Remove</button></div></div>` : ""}
+    ${!timing ? `<div class="entry-foot">${dlcTag}<div class="foot-links">${!finalComplete ? `<button onclick="abandonItem('games','${g.id}')">Abandon</button>` : ""}<button onclick="moveItem('games','${g.id}','season','library')">To Library</button><button onclick="openGameModal('${g.id}')">Edit</button><button onclick="removeGame('${g.id}')">Remove</button></div></div>` : ""}
     ${dlcHtml}
   </article>`;
 }
 
 /* ============ MOVIES ============ */
-function openMovieModal(id=null){
-  editId = id;
+function openMovieModal(id=null, target="season"){
+  editId = id; modalTarget = target;
   if(id){
-    const m = S.movies.find(x=>x.id===id);
+    const m = arrFor("movies",target).find(x=>x.id===id);
     $("movieFormTitle").textContent = "Edit movie";
     $("mname").value = m.name; $("mlength").value = m.length;
+    fillRelease("mv", m.releaseDate); fillHype("mv", m.hype);
   } else {
     $("movieFormTitle").textContent = "New movie";
     $("mname").value = ""; $("mlength").value = "";
+    fillRelease("mv", null); fillHype("mv", 0);
   }
   $("movieModal").classList.add("show"); $("mname").focus();
 }
@@ -1018,15 +1252,23 @@ function saveMovie(){
   const name = $("mname").value.trim();
   const length = +$("mlength").value;
   if(!name || length <= 0) return toast("Give it a title and a length.");
+  const releaseDate = readRelease("mv"); const hype = readHype("mv");
+  const arr = arrFor("movies", modalTarget);
   if(editId){
-    const m = S.movies.find(x=>x.id===editId);
-    m.name = name; m.length = length; m.watched = Math.min(m.watched, length);
+    const m = arr.find(x=>x.id===editId);
+    m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.hype = hype;
   } else {
-    S.movies.push({ id: uid(), name, length, watched:0 });
+    arr.push({ id: uid(), name, length, watched:0, releaseDate, hype });
   }
   closeModal("movieModal"); persist(); toast("Movie saved.");
 }
-function removeMovie(id){ if(confirm("Remove this movie?")){ S.movies = S.movies.filter(x=>x.id!==id); persist(); } }
+function removeMovie(id, target="season"){
+  if(confirm("Remove this movie?")){
+    if(target==="library") S.library.movies = S.library.movies.filter(x=>x.id!==id);
+    else S.movies = S.movies.filter(x=>x.id!==id);
+    persist();
+  }
+}
 function markWatched(id){
   const m = S.movies.find(x=>x.id===id);
   const delta = m.length - m.watched;
@@ -1053,20 +1295,22 @@ function movieCard(m){
       <button class="btn accent" onclick="markWatched('${m.id}')">✓ Mark watched</button>
       <button class="btn" onclick="openSessionModal('movies','${m.id}')">Log session</button>
     </div>` : ""}
-    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('movies','${m.id}')">Abandon</button>` : ""}<button onclick="openMovieModal('${m.id}')">Edit</button><button onclick="removeMovie('${m.id}')">Remove</button></div></div>
+    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('movies','${m.id}')">Abandon</button>` : ""}<button onclick="moveItem('movies','${m.id}','season','library')">To Library</button><button onclick="openMovieModal('${m.id}')">Edit</button><button onclick="removeMovie('${m.id}')">Remove</button></div></div>
   </article>`;
 }
 
 /* ============ MANGA ============ */
-function openMangaModal(id=null){
-  editId = id;
+function openMangaModal(id=null, target="season"){
+  editId = id; modalTarget = target;
   if(id){
-    const m = S.manga.find(x=>x.id===id);
+    const m = arrFor("manga",target).find(x=>x.id===id);
     $("mangaFormTitle").textContent = "Edit manga";
     $("mgname").value = m.name; $("mgfrom").value = m.fromVol; $("mgto").value = m.toVol;
+    fillRelease("mg", m.releaseDate); fillHype("mg", m.hype);
   } else {
     $("mangaFormTitle").textContent = "New manga";
     $("mgname").value = ""; $("mgfrom").value = ""; $("mgto").value = "";
+    fillRelease("mg", null); fillHype("mg", 0);
   }
   $("mangaModal").classList.add("show"); $("mgname").focus();
 }
@@ -1075,16 +1319,25 @@ function saveManga(){
   const fromVol = Math.max(1, +$("mgfrom").value || 0);
   const toVol = Math.max(fromVol, +$("mgto").value || 0);
   if(!name || fromVol<=0 || toVol<fromVol) return toast("Give it a title and a valid volume range.");
+  const releaseDate = readRelease("mg"); const hype = readHype("mg");
+  const arr = arrFor("manga", modalTarget);
   if(editId){
-    const m = S.manga.find(x=>x.id===editId);
+    const m = arr.find(x=>x.id===editId);
     const total = toVol-fromVol+1;
     m.name = name; m.fromVol = fromVol; m.toVol = toVol; m.volsRead = Math.min(m.volsRead||0, total);
+    m.releaseDate = releaseDate; m.hype = hype;
   } else {
-    S.manga.push({ id: uid(), name, fromVol, toVol, volsRead:0 });
+    arr.push({ id: uid(), name, fromVol, toVol, volsRead:0, releaseDate, hype });
   }
   closeModal("mangaModal"); persist(); toast("Manga saved.");
 }
-function removeManga(id){ if(confirm("Remove this manga?")){ S.manga = S.manga.filter(x=>x.id!==id); persist(); } }
+function removeManga(id, target="season"){
+  if(confirm("Remove this manga?")){
+    if(target==="library") S.library.manga = S.library.manga.filter(x=>x.id!==id);
+    else S.manga = S.manga.filter(x=>x.id!==id);
+    persist();
+  }
+}
 function stepManga(id, delta){
   const m = S.manga.find(x=>x.id===id);
   const total = Math.max(0, m.toVol - m.fromVol + 1);
@@ -1129,7 +1382,7 @@ function mangaCard(m){
       <button class="btn small" onclick="stepManga('${m.id}',5)">+5 vol</button>
       <button class="btn accent" onclick="finishManga('${m.id}')">✓ Mark finished</button>
     </div>` : ""}
-    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>` : ""}<button onclick="openMangaModal('${m.id}')">Edit</button><button onclick="removeManga('${m.id}')">Remove</button></div></div>
+    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>` : ""}<button onclick="moveItem('manga','${m.id}','season','library')">To Library</button><button onclick="openMangaModal('${m.id}')">Edit</button><button onclick="removeManga('${m.id}')">Remove</button></div></div>
   </article>`;
 }
 function renderManga(){
@@ -1156,23 +1409,25 @@ function renderManga(){
 }
 
 /* ============ TV + ANIME (episodic) ============ */
-function openEpisodicModal(category, id=null){
-  editId = id; epiCategory = category;
+function openEpisodicModal(category, id=null, target="season"){
+  editId = id; epiCategory = category; epiTarget = target; modalTarget = target;
   epiInitializing = true;
   $("groupRows").innerHTML = "";
   const isAnime = category === "anime";
   $("groupTypeRow").style.display = isAnime ? "block" : "none";
   $("epiHint").textContent = isAnime ? "Track by season or by arc — your call." : "Each season gets its own episode count, just like DLC for games.";
   if(id){
-    const e = S[category].find(x=>x.id===id);
+    const e = arrFor(category,target).find(x=>x.id===id);
     $("epiFormTitle").textContent = "Edit " + (isAnime ? "anime" : "show");
     $("epiname").value = e.name; $("epilen").value = e.epLen;
     groupTypeSel = e.groupType || "season";
     (e.groups||[]).forEach(g=>addGroupRow(g));
+    fillRelease("epi", e.releaseDate); fillHype("epi", e.hype);
   } else {
     $("epiFormTitle").textContent = "New " + (isAnime ? "anime" : "show");
     $("epiname").value = ""; $("epilen").value = "";
     groupTypeSel = "season";
+    fillRelease("epi", null); fillHype("epi", 0);
   }
   setGroupType(groupTypeSel);
   epiInitializing = false;
@@ -1232,19 +1487,24 @@ function saveEpisodic(){
     const finalName = numbered ? ("Season " + rawName) : rawName;
     groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched });
   });
-  const list = S[epiCategory];
+  const releaseDate = readRelease("epi"); const hype = readHype("epi");
+  const list = arrFor(epiCategory, epiTarget);
   if(editId){
     const e = list.find(x=>x.id===editId);
-    Object.assign(e, { name, epLen, groups, ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
+    Object.assign(e, { name, epLen, groups, releaseDate, hype, ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
   } else {
-    const entry = { id: uid(), name, epLen, groups };
+    const entry = { id: uid(), name, epLen, groups, releaseDate, hype };
     if(epiCategory === "anime") entry.groupType = groupTypeSel;
     list.push(entry);
   }
   closeModal("epiModal"); persist(); toast("Saved.");
 }
-function removeEpisodic(category, id){
-  if(confirm("Remove this entry?")){ S[category] = S[category].filter(x=>x.id!==id); persist(); }
+function removeEpisodic(category, id, target="season"){
+  if(confirm("Remove this entry?")){
+    if(target==="library") S.library[category] = S.library[category].filter(x=>x.id!==id);
+    else S[category] = S[category].filter(x=>x.id!==id);
+    persist();
+  }
 }
 function stepGroup(category, entryId, groupId, delta){
   const e = S[category].find(x=>x.id===entryId);
@@ -1286,7 +1546,7 @@ function episodicCard(category, e){
       <div class="remaining">${done?"Done":fmtHM(goal-played)+" left"}</div>
     </div>
     <div class="groups">${groupsHtml}</div>
-    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('${category}','${e.id}')">Abandon</button>` : ""}<button onclick="openEpisodicModal('${category}','${e.id}')">Edit</button><button onclick="removeEpisodic('${category}','${e.id}')">Remove</button></div></div>
+    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('${category}','${e.id}')">Abandon</button>` : ""}<button onclick="moveItem('${category}','${e.id}','season','library')">To Library</button><button onclick="openEpisodicModal('${category}','${e.id}')">Edit</button><button onclick="removeEpisodic('${category}','${e.id}')">Remove</button></div></div>
   </article>`;
 }
 
@@ -1350,18 +1610,8 @@ function importData(){
     r.onload = () => {
       try{
         const x = JSON.parse(r.result);
-        if(!Array.isArray(x.games) && !Array.isArray(x.movies)) throw 0;
-        S = {
-          version:2,
-          seasonStart: x.seasonStart || "",
-          archive: x.archive || [],
-          sessionLog: x.sessionLog || [],
-          games:(x.games||[]).map(g=>({...g,id:g.id||uid(),timerStart:null,dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid()}))})),
-          movies:(x.movies||[]).map(m=>({...m,id:m.id||uid()})),
-          tv:(x.tv||x.shows||[]).map(s=>({...s,id:s.id||uid(),groups:(s.groups||[]).map(g=>({...g,id:g.id||uid()}))})),
-          anime:(x.anime||[]).map(s=>({...s,id:s.id||uid(),groups:(s.groups||[]).map(g=>({...g,id:g.id||uid()}))})),
-          manga:(x.manga||[]).map(m=>({...m,id:m.id||uid()})),
-        };
+        if(!Array.isArray(x.games) && !Array.isArray(x.movies) && !x.library) throw 0;
+        S = normalizeState(x); // v1.3.0: routes through the same normalizer as load(), so Library + releaseDate/hype come along for the ride
         persist(); toast("Backup restored.");
       }catch(e){ toast("That file doesn't look right."); }
     };
@@ -1946,12 +2196,107 @@ function renderEpisodicTab(category){
 }
 
 function render(){
+  renderModeToggle();
   renderTabBar();
+  if(mode==="library"){ renderLibraryTab(libTab); return; }
   if(activeTab==="overview") renderOverview();
   else if(activeTab==="games") renderGames();
   else if(activeTab==="movies") renderMovies();
   else if(activeTab==="manga") renderManga();
   else renderEpisodicTab(activeTab);
+}
+
+/* ============ LIBRARY BOOK (v1.3.0) ============
+   A standalone backlog, separate from the season's active tracking. Same item
+   shape as the season lists (openGameModal etc. write into either, based on
+   the 'target' argument) but a much lighter, list-style card meant to stay
+   usable at hundreds/thousands of entries — no timers, gauges, or session
+   logging clutter here, just identity, a quick status line, hype, and the
+   controls needed to manage the backlog (edit, move to Season, remove). */
+function libSubLine(category, item){
+  if(category==="games") return `${fmtN(item.goal)}h target` + (item.played ? ` · ${fmtN(item.played)}h played` : "");
+  if(category==="movies") return fmtHM(item.length);
+  if(category==="manga") return `Vol ${item.fromVol}–${item.toVol}`;
+  const eps = (item.groups||[]).reduce((a,g)=>a+g.total,0);
+  return eps ? `${eps} episode${eps===1?"":"s"}` : "No episodes added yet";
+}
+// v1.3.1: the "!" flags ANY missing info, not just release date — release
+// date and hype apply to every category, plus whatever else that category
+// treats as its own "core" detail (episodic groups can be saved empty, since
+// saveEpisodic doesn't require any; games/movies/manga always have their
+// numeric core set at save time, so there's nothing further to check there).
+function libraryMissingFields(category, item){
+  const missing = [];
+  if(!hasReleaseDate(item.releaseDate)) missing.push("release date");
+  if(!item.hype) missing.push("hype level");
+  if((category==="tv"||category==="anime") && !(item.groups && item.groups.length)) missing.push("episode count");
+  return missing;
+}
+function libraryOpenFn(category, id){
+  if(category==="games") return `openGameModal(${id?`'${id}'`:"null"},'library')`;
+  if(category==="movies") return `openMovieModal(${id?`'${id}'`:"null"},'library')`;
+  if(category==="manga") return `openMangaModal(${id?`'${id}'`:"null"},'library')`;
+  return `openEpisodicModal('${category}',${id?`'${id}'`:"null"},'library')`;
+}
+function libraryRemoveFn(category, id){
+  if(category==="games") return `removeGame('${id}','library')`;
+  if(category==="movies") return `removeMovie('${id}','library')`;
+  if(category==="manga") return `removeManga('${id}','library')`;
+  return `removeEpisodic('${category}','${id}','library')`;
+}
+function libraryRow(category, item){
+  const meta = CAT[category];
+  const hasRd = hasReleaseDate(item.releaseDate);
+  const dateStr = fmtReleaseDate(item.releaseDate);
+  const hype = item.hype||0;
+  const missing = libraryMissingFields(category, item);
+  const hypeHtml = hype>0
+    ? `<span class="lib-hype" title="${HYPE_LABELS[hype-1]}">${"★".repeat(hype)}<span class="lib-hype-empty">${"★".repeat(5-hype)}</span></span>`
+    : `<span class="lib-hype lib-hype-unset">★★★★★</span>`;
+  return `<div class="lib-row">
+    <div class="lib-row-icon" style="--accent:${meta.color}">${iconBadge(category)}</div>
+    <div class="lib-row-main">
+      <div class="lib-row-name serif">${missing.length ? `<span class="lib-warn" title="Missing: ${esc(missing.join(", "))}">!</span>` : ""}${esc(item.name)}</div>
+      <div class="lib-row-sub">${libSubLine(category,item)}${hasRd ? ` · ${esc(dateStr)}` : ""}</div>
+    </div>
+    ${hypeHtml}
+    <div class="lib-row-actions">
+      <button onclick="${libraryOpenFn(category,item.id)}">Edit</button>
+      <button onclick="moveItem('${category}','${item.id}','library','season')">To Season</button>
+      <button onclick="${libraryRemoveFn(category,item.id)}">Remove</button>
+    </div>
+  </div>`;
+}
+function renderLibraryTab(category){
+  const meta = CAT[category];
+  const list = S.library[category];
+  const prevSearch = $("libSearch");
+  const wasFocused = !!prevSearch && document.activeElement===prevSearch;
+  const caret = wasFocused ? prevSearch.selectionStart : null;
+  const addLabels = { games:"+ Add Game", movies:"+ Add Movie", manga:"+ Add Manga", anime:"+ Add Anime", tv:"+ Add Show" };
+
+  let html = `<div class="lib-head"><b>${list.length}</b> title${list.length===1?"":"s"} filed in ${meta.label}</div>`;
+  html += `<div class="btn-row" style="margin-bottom:12px"><button class="btn accent wide" style="--accent:${meta.color};--accent-text:${meta.text}" onclick="${libraryOpenFn(category,null)}">${addLabels[category]}</button></div>`;
+
+  if(!list.length){
+    html += `<div class="empty"><span class="serif">Nothing filed yet</span>Add titles here as you find things you want to eventually play or watch — no rush, no season deadline.</div>`;
+    $("app").innerHTML = html;
+    return;
+  }
+
+  html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
+  const q = libSearchQ.trim().toLowerCase();
+  const filtered = q ? list.filter(x=>(x.name||"").toLowerCase().includes(q)) : list;
+  const sorted = [...filtered].sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+  html += filtered.length
+    ? `<div class="lib-list">${sorted.map(x=>libraryRow(category,x)).join("")}</div>`
+    : `<div class="empty"><span class="serif">No matches</span>Nothing in ${meta.label} matches "${esc(libSearchQ)}".</div>`;
+
+  $("app").innerHTML = html;
+  if(wasFocused){
+    const ns = $("libSearch");
+    if(ns){ ns.focus(); try{ ns.setSelectionRange(caret, caret); }catch(e){} }
+  }
 }
 
 /* ---------- v0.9 swipe navigation ----------
@@ -1975,6 +2320,12 @@ function render(){
     const t = e.changedTouches[0];
     const dx = t.clientX - sx, dy = t.clientY - sy;
     if(Math.abs(dx) < MIN_DIST || Math.abs(dy) > Math.abs(dx)*MAX_SLOPE) return;
+    if(mode==="library"){
+      const idx = LIB_CATS.indexOf(libTab);
+      if(dx < 0 && idx < LIB_CATS.length-1) switchLibTab(LIB_CATS[idx+1]);
+      else if(dx > 0 && idx > 0) switchLibTab(LIB_CATS[idx-1]);
+      return;
+    }
     const idx = TAB_ORDER.indexOf(activeTab);
     if(dx < 0 && idx < TAB_ORDER.length-1) switchTab(TAB_ORDER[idx+1]);
     else if(dx > 0 && idx > 0) switchTab(TAB_ORDER[idx-1]);
