@@ -435,7 +435,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.2.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.2.2"; // single source of truth for the version tag in the header
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
@@ -1406,6 +1406,7 @@ function cloudSignIn(){
 function cloudSignOut(){
   if(window.__cloudSignOut) window.__cloudSignOut();
 }
+let cloudSyncErrorCode = null;
 async function resolveCloudSync(){
   try{
     const cloudData = window.__cloudPullOnce ? await window.__cloudPullOnce() : null;
@@ -1426,10 +1427,10 @@ async function resolveCloudSync(){
       applyCloudData(cloudData);
     }
     localStorage.setItem(seededKey, "1");
-    cloudSyncState = "synced"; cloudLastSyncedAt = Date.now();
+    cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); cloudSyncErrorCode = null;
   }catch(e){
     console.error("Cloud sync error", e);
-    cloudSyncState = "error";
+    cloudSyncState = "error"; cloudSyncErrorCode = e && e.code;
   }
   render();
 }
@@ -1441,11 +1442,12 @@ window.__cloudOnAuthChange = function(user){
 };
 window.__cloudOnRemoteUpdate = function(remoteData){
   applyCloudData(remoteData);
-  cloudSyncState = "synced"; cloudLastSyncedAt = Date.now();
+  cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); cloudSyncErrorCode = null;
   render();
 };
-window.__cloudOnPushComplete = function(ok){
+window.__cloudOnPushComplete = function(ok, errCode){
   cloudSyncState = ok ? "synced" : "error";
+  cloudSyncErrorCode = ok ? null : (errCode||null);
   if(ok) cloudLastSyncedAt = Date.now();
   render();
 };
@@ -1465,7 +1467,7 @@ function cloudStatusHtml(){
     return `<div class="cloud-box"><span class="entry-meta2">Sign in to back up and sync across devices.</span><button class="btn small ghost" onclick="cloudSignIn()">☁ Sign in with Google</button></div>`;
   }
   const label = cloudSyncState==="syncing" ? "Syncing…"
-    : cloudSyncState==="error" ? "Sync error — will retry"
+    : cloudSyncState==="error" ? "Sync error" + (cloudSyncErrorCode?` (${cloudSyncErrorCode})`:"") + " — will retry"
     : cloudLastSyncedAt ? "Synced "+timeAgo(cloudLastSyncedAt)
     : "Signed in";
   return `<div class="cloud-box"><span class="entry-meta2">☁ ${esc(cloudUser.email||cloudUser.displayName||"Signed in")} · ${label}</span><button class="btn small ghost" onclick="cloudSignOut()">Sign out</button></div>`;
@@ -2087,7 +2089,7 @@ window.__cloudPush = function(data){
       if(typeof window.__cloudOnPushComplete === "function") window.__cloudOnPushComplete(true);
     }catch(e){
       console.error("Cloud push failed", e);
-      if(typeof window.__cloudOnPushComplete === "function") window.__cloudOnPushComplete(false);
+      if(typeof window.__cloudOnPushComplete === "function") window.__cloudOnPushComplete(false, e && e.code);
     }
   }, 1500); // debounced — collapses rapid-fire local edits into one write
 };
