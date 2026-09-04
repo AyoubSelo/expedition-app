@@ -288,6 +288,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .field-row{margin-top:14px}
 .field-row > label{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .release-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.release-row-solo{grid-template-columns:1fr;max-width:120px}
 .release-field{display:flex;flex-direction:column;gap:4px}
 .release-field input{width:100%;text-align:center}
 .release-field span{font-size:9.5px;color:var(--muted-dim);text-align:center}
@@ -296,26 +297,44 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .hype-dot.on{background:var(--brass);color:#1a1006;border-color:var(--brass)}
 .hype-label{font-size:11.5px;color:var(--muted);margin-left:4px}
 
-/* v1.3.0 — Season/Library mode toggle */
+/* v1.3.0 — Season/Library mode toggle. v1.4.0: icons instead of emoji, plus header-top row for the account button */
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mode-toggle{display:flex;gap:6px;margin-top:12px}
-.mode-btn{flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit}
+.mode-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit}
 .mode-btn.on{background:var(--brass);color:#1a1006;border-color:var(--brass)}
+.mode-icon{display:inline-flex;flex-shrink:0}
 
-/* v1.3.0 — Library book */
+/* v1.4.0 — account button (header) + account modal */
+.account-btn{flex-shrink:0;border:1px solid var(--line);background:var(--panel2);color:var(--muted);cursor:pointer;font-family:inherit;font-weight:700;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0}
+.account-btn.signed-out{width:auto;height:34px;padding:0 14px;border-radius:17px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.account-btn.signed-in{width:34px;height:34px;border-radius:50%;font-size:14px;background:var(--brass);color:#1a1006;border-color:var(--brass)}
+.account-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.account-modal-body .cloud-box{margin-bottom:14px}
+.account-row{display:flex;gap:8px;margin-top:10px}
+.account-row .btn{flex:1}
+
+/* v1.3.0 — Library book. v1.4.0: sort/group controls, 2-line titles, compact hype line */
 .lib-head{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);margin-bottom:10px}
 .lib-head b{color:var(--ink)}
+.lib-controls{display:flex;gap:10px;margin-bottom:12px}
+.lib-control{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.lib-control select{flex:1;min-width:0}
+.lib-dir-btn{width:32px;height:32px;flex-shrink:0;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit}
+.lib-dir-btn:disabled{opacity:.4;cursor:default}
+.lib-group{margin-bottom:16px}
+.lib-group-head{display:flex;justify-content:space-between;align-items:baseline;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.lib-group-count{color:var(--muted-dim)}
 .lib-search{width:100%;margin-bottom:12px}
 .lib-list{display:flex;flex-direction:column;gap:8px}
-.lib-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 11px}
-.lib-row-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--panel2);color:var(--accent)}
+.lib-row{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 11px}
+.lib-row-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--panel2);color:var(--accent);margin-top:1px}
 .lib-row-main{flex:1;min-width:0}
-.lib-row-name{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center}
-.lib-row-sub{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-row-name{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:14px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.28}
+.lib-row-sub{font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lib-warn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:#c1614a;color:#fff;font-size:10px;font-weight:800;margin-right:5px;flex-shrink:0}
-.lib-hype{font-size:11px;letter-spacing:1px;color:var(--brass);white-space:nowrap;flex-shrink:0}
-.lib-hype-empty{color:var(--line)}
-.lib-hype-unset{color:var(--line)}
-.lib-row-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.lib-hype{display:inline-block;font-size:11px;color:var(--brass);white-space:nowrap;margin-top:4px}
+.lib-hype-unset{color:var(--muted-dim)}
+.lib-row-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-top:1px}
 .lib-row-actions button{background:none;border:none;color:var(--muted);font-size:10.5px;cursor:pointer;padding:1px 0;text-align:right;font-family:inherit}
 .lib-row-actions button:hover{color:var(--brass)}
 .check input{width:auto}
@@ -352,11 +371,18 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 <body>
 <div class="wrap">
   <header>
-    <h1 class="serif">Expedition<span class="version-tag mono" id="verTag"></span></h1>
+    <div class="header-top">
+      <h1 class="serif">Expedition<span class="version-tag mono" id="verTag"></span></h1>
+      <button class="account-btn" id="accountBtn" onclick="openAccountModal()">Sign in</button>
+    </div>
     <div class="tagline">Log the hours. Clear the backlog.</div>
     <div class="mode-toggle" id="modeToggle">
-      <button class="mode-btn" id="modeBtnSeason" onclick="switchMode('season')">🗓 Season</button>
-      <button class="mode-btn" id="modeBtnLibrary" onclick="switchMode('library')">📚 Library</button>
+      <button class="mode-btn" id="modeBtnSeason" onclick="switchMode('season')">
+        <span class="mode-icon" style="color:#d9a256"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.3" width="14" height="12.4" rx="1.7"/><path d="M3 8.2h14M6.8 2.6v3.2M13.2 2.6v3.2"/></svg></span>Season
+      </button>
+      <button class="mode-btn" id="modeBtnLibrary" onclick="switchMode('library')">
+        <span class="mode-icon" style="color:#8f7fc4"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M3.3 4.2h2.8v12.6H3.3zM7.3 3h2.8v13.8H7.3zM11.3 5.4h2.8v11.4h-2.8zM15.3 3.8h2.8v13H15.3z"/></svg></span>Library
+      </button>
     </div>
   </header>
   <main id="app"></main>
@@ -418,11 +444,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <label>Length (minutes)</label>
     <input id="mlength" type="number" min="1" inputmode="numeric" placeholder="e.g. 107">
     <div class="field-row">
-      <label>Release date</label>
-      <div class="release-row">
-        <div class="release-field"><input id="mv_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
-        <div class="release-field"><input id="mv_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
-        <div class="release-field"><input id="mv_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
+      <label>Release year</label>
+      <div class="release-row release-row-solo">
+        <div class="release-field"><input id="mv_ry" type="number" inputmode="numeric" placeholder="YYYY"></div>
       </div>
     </div>
     <div class="field-row">
@@ -456,11 +480,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <div><label>To volume</label><input id="mgto" type="number" min="1" inputmode="numeric" placeholder="e.g. 15"></div>
     </div>
     <div class="field-row">
-      <label>Release date</label>
-      <div class="release-row">
-        <div class="release-field"><input id="mg_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
-        <div class="release-field"><input id="mg_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
-        <div class="release-field"><input id="mg_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
+      <label>Release year</label>
+      <div class="release-row release-row-solo">
+        <div class="release-field"><input id="mg_ry" type="number" inputmode="numeric" placeholder="YYYY"></div>
       </div>
     </div>
     <div class="field-row">
@@ -503,11 +525,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div id="groupRows"></div>
     <button class="btn small" style="margin-top:6px" id="addGroupBtn" onclick="addGroupRow()">+ Add season</button>
     <div class="field-row">
-      <label>Release date</label>
-      <div class="release-row">
-        <div class="release-field"><input id="epi_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
-        <div class="release-field"><input id="epi_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
-        <div class="release-field"><input id="epi_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
+      <label>Release year</label>
+      <div class="release-row release-row-solo">
+        <div class="release-field"><input id="epi_ry" type="number" inputmode="numeric" placeholder="YYYY"></div>
       </div>
     </div>
     <div class="field-row">
@@ -550,11 +570,26 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
+<!-- account modal (v1.4.0) — sign-in/out, sync status, backup -->
+<div class="modal" id="accountModal">
+  <div class="sheet">
+    <h2 class="serif">Account &amp; backup</h2>
+    <div class="account-modal-body" id="accountModalBody"></div>
+    <div class="account-row">
+      <button class="btn small ghost" onclick="exportData()">Export backup</button>
+      <button class="btn small ghost" onclick="importData()">Import backup</button>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal('accountModal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.3.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.4.0"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Must-Play"];
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const CAT = {
@@ -573,6 +608,8 @@ const ICON_SVG = {
   tv:       `<rect x="3" y="5.3" width="14" height="9.4" rx="1.4"/><path d="M8 17h4M10 14.7V17M7.4 3l2.6 2 2.6-2"/>`,
   anime:    `<path d="M10 3.2l1.5 4L15.5 8.7l-4 1.5L10 14.2l-1.5-4L4.5 8.7l4-1.5L10 3.2z"/>`,
   manga:    `<path d="M3.2 4.6c2-1 4.6-1 6.3 0v10.8c-1.7-1-4.3-1-6.3 0V4.6z"/><path d="M16.3 4.6c-2-1-4.6-1-6.3 0v10.8c1.7-1 4.3-1 6.3 0V4.6z"/>`,
+  season:   `<rect x="3" y="4.3" width="14" height="12.4" rx="1.7"/><path d="M3 8.2h14M6.8 2.6v3.2M13.2 2.6v3.2"/>`,
+  library:  `<path d="M3.3 4.2h2.8v12.6H3.3zM7.3 3h2.8v13.8H7.3zM11.3 5.4h2.8v11.4h-2.8zM15.3 3.8h2.8v13H15.3z"/>`,
 };
 function iconBadge(cat){
   return `<svg viewBox="0 0 20 20" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${ICON_SVG[cat]}</svg>`;
@@ -652,9 +689,17 @@ let modalTarget = "season"; // which book the currently-open modal reads/writes:
 let epiTarget = "season";
 let libSearchQ = "";
 function arrFor(cat, target){ return target==="library" ? S.library[cat] : S[cat]; }
-function hasReleaseDate(rd){ return !!(rd && (rd.y||rd.m||rd.d)); }
-function fmtReleaseDate(rd){
-  if(!hasReleaseDate(rd)) return "";
+// v1.4.0: only Games keep the full Y/M/D release date — every other category
+// only ever collects the year now (the month/day inputs were removed from
+// those modals), so these two helpers take the category into account.
+function hasReleaseDate(rd, category){
+  if(!rd) return false;
+  if(category && category!=="games") return !!rd.y;
+  return !!(rd.y||rd.m||rd.d);
+}
+function fmtReleaseDate(rd, category){
+  if(!hasReleaseDate(rd, category)) return "";
+  if(category && category!=="games") return rd.y;
   return [rd.d, rd.m, rd.y].filter(Boolean).join("/");
 }
 /* ---------- shared release-date / hype field helpers (all add/edit modals) ---------- */
@@ -679,13 +724,17 @@ function fillHype(prefix, val){
 function readHype(prefix){ return +($(prefix+"_hype").value) || 0; }
 function fillRelease(prefix, rd){
   rd = rd || {};
-  $(prefix+"_ry").value = rd.y||""; $(prefix+"_rm").value = rd.m||""; $(prefix+"_rd").value = rd.d||"";
+  $(prefix+"_ry").value = rd.y||"";
+  const rm = $(prefix+"_rm"), rdEl = $(prefix+"_rd");
+  if(rm) rm.value = rd.m||"";
+  if(rdEl) rdEl.value = rd.d||"";
 }
 function readRelease(prefix){
+  const rm = $(prefix+"_rm"), rdEl = $(prefix+"_rd");
   return {
     y: ($(prefix+"_ry").value||"").trim().slice(0,4),
-    m: ($(prefix+"_rm").value||"").trim().slice(0,2),
-    d: ($(prefix+"_rd").value||"").trim().slice(0,2),
+    m: rm ? (rm.value||"").trim().slice(0,2) : "",
+    d: rdEl ? (rdEl.value||"").trim().slice(0,2) : "",
   };
 }
 
@@ -999,11 +1048,14 @@ function switchMode(m){
   window.scrollTo(0,0);
 }
 function switchLibTab(t){
+  const oldIdx = LIB_CATS.indexOf(libTab);
+  const newIdx = LIB_CATS.indexOf(t);
   libTab = t;
   localStorage.setItem("expedition-libtab", t);
   libSearchQ = "";
   render();
   window.scrollTo(0,0);
+  if(oldIdx!==-1 && newIdx!==-1 && oldIdx!==newIdx) playPageTransition(newIdx>oldIdx ? "right" : "left");
 }
 function renderModeToggle(){
   $("modeBtnSeason").classList.toggle("on", mode==="season");
@@ -1722,6 +1774,30 @@ function cloudStatusHtml(){
     : "Signed in";
   return `<div class="cloud-box"><span class="entry-meta2">☁ ${esc(cloudUser.email||cloudUser.displayName||"Signed in")} · ${label}</span><button class="btn small ghost" onclick="cloudSignOut()">Sign out</button></div>`;
 }
+// v1.4.0 — account button lives in the header now (top-right, same line as the
+// title): a circle with the Google profile photo (or the first letter of the
+// name/email if the photo can't load) when signed in, a wider "Sign in" pill
+// otherwise. Clicking it either opens the account modal or starts sign-in.
+function renderAccountBtn(){
+  const btn = $("accountBtn");
+  if(!btn) return;
+  if(cloudUser){
+    btn.classList.remove("signed-out"); btn.classList.add("signed-in");
+    btn.onclick = openAccountModal;
+    const letter = (cloudUser.displayName || cloudUser.email || "?").trim().charAt(0).toUpperCase();
+    btn.innerHTML = cloudUser.photoURL
+      ? `<img src="${esc(cloudUser.photoURL)}" alt="" onerror="this.parentNode.textContent='${letter}';">`
+      : letter;
+  } else {
+    btn.classList.remove("signed-in"); btn.classList.add("signed-out");
+    btn.textContent = "Sign in";
+    btn.onclick = cloudSignIn;
+  }
+}
+function openAccountModal(){
+  $("accountModalBody").innerHTML = cloudStatusHtml();
+  $("accountModal").classList.add("show");
+}
 
 /* ---------- sort ---------- */
 function setSort(cat, v){ localStorage.setItem("expedition-sort-"+cat, v); render(); }
@@ -1982,11 +2058,6 @@ function renderOverview(){
       <div class="stat"><b>${totalMediaCount}</b><span>Total media</span></div>
     </div>
     ${paceBoxHtml(combined, d)}
-    ${cloudStatusHtml()}
-    <div class="season-actions">
-      <button class="btn small ghost" onclick="exportData()">Export backup</button>
-      <button class="btn small ghost" onclick="importData()">Import backup</button>
-    </div>
   </section>
   ${recommendationCardHtml()}
   <div class="tiles">`;
@@ -2197,6 +2268,8 @@ function renderEpisodicTab(category){
 
 function render(){
   renderModeToggle();
+  renderAccountBtn();
+  if($("accountModal").classList.contains("show")) $("accountModalBody").innerHTML = cloudStatusHtml();
   renderTabBar();
   if(mode==="library"){ renderLibraryTab(libTab); return; }
   if(activeTab==="overview") renderOverview();
@@ -2213,21 +2286,34 @@ function render(){
    usable at hundreds/thousands of entries — no timers, gauges, or session
    logging clutter here, just identity, a quick status line, hype, and the
    controls needed to manage the backlog (edit, move to Season, remove). */
-function libSubLine(category, item){
-  if(category==="games") return `${fmtN(item.goal)}h target` + (item.played ? ` · ${fmtN(item.played)}h played` : "");
-  if(category==="movies") return fmtHM(item.length);
-  if(category==="manga") return `Vol ${item.fromVol}–${item.toVol}`;
-  const eps = (item.groups||[]).reduce((a,g)=>a+g.total,0);
-  return eps ? `${eps} episode${eps===1?"":"s"}` : "No episodes added yet";
+// Every item's "length" is normalized to minutes so games/movies/tv/anime/manga
+// can all be sorted, grouped, and displayed on one common hour-based scale —
+// same convention the season side already uses for its own unified stats.
+function itemMinutes(category, item){
+  if(category==="games") return { total:(item.goal||0)*60, played:(item.played||0)*60 };
+  if(category==="movies") return { total:item.length||0, played:item.watched||0 };
+  if(category==="manga"){
+    const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
+    return { total: total*60, played:(item.volsRead||0)*60 };
+  }
+  const total = (item.groups||[]).reduce((a,g)=>a+(g.total||0),0) * (item.epLen||0);
+  const played = (item.groups||[]).reduce((a,g)=>a+(g.watched||0),0) * (item.epLen||0);
+  return { total, played };
 }
-// v1.3.1: the "!" flags ANY missing info, not just release date — release
-// date and hype apply to every category, plus whatever else that category
-// treats as its own "core" detail (episodic groups can be saved empty, since
+function libSubLine(category, item){
+  const {total, played} = itemMinutes(category, item);
+  if(total<=0) return "No length set";
+  const hrs = m => fmtN(Math.round(m/6)/10);
+  return played>0 ? `${hrs(Math.max(0,total-played))}H remaining` : `${hrs(total)}H target`;
+}
+// The "!" flags ANY missing info, not just release date — release date and
+// hype apply to every category, plus whatever else that category treats as
+// its own "core" detail (episodic groups can be saved empty, since
 // saveEpisodic doesn't require any; games/movies/manga always have their
 // numeric core set at save time, so there's nothing further to check there).
 function libraryMissingFields(category, item){
   const missing = [];
-  if(!hasReleaseDate(item.releaseDate)) missing.push("release date");
+  if(!hasReleaseDate(item.releaseDate, category)) missing.push(category==="games" ? "release date" : "release year");
   if(!item.hype) missing.push("hype level");
   if((category==="tv"||category==="anime") && !(item.groups && item.groups.length)) missing.push("episode count");
   return missing;
@@ -2246,26 +2332,93 @@ function libraryRemoveFn(category, id){
 }
 function libraryRow(category, item){
   const meta = CAT[category];
-  const hasRd = hasReleaseDate(item.releaseDate);
-  const dateStr = fmtReleaseDate(item.releaseDate);
+  const dateStr = fmtReleaseDate(item.releaseDate, category);
   const hype = item.hype||0;
   const missing = libraryMissingFields(category, item);
-  const hypeHtml = hype>0
-    ? `<span class="lib-hype" title="${HYPE_LABELS[hype-1]}">${"★".repeat(hype)}<span class="lib-hype-empty">${"★".repeat(5-hype)}</span></span>`
-    : `<span class="lib-hype lib-hype-unset">★★★★★</span>`;
+  const hypeLine = hype>0
+    ? `<span class="lib-hype" title="${HYPE_LABELS[hype-1]}">⭐ ${hype}</span>`
+    : `<span class="lib-hype lib-hype-unset" title="Not rated">☆ –</span>`;
   return `<div class="lib-row">
     <div class="lib-row-icon" style="--accent:${meta.color}">${iconBadge(category)}</div>
     <div class="lib-row-main">
       <div class="lib-row-name serif">${missing.length ? `<span class="lib-warn" title="Missing: ${esc(missing.join(", "))}">!</span>` : ""}${esc(item.name)}</div>
-      <div class="lib-row-sub">${libSubLine(category,item)}${hasRd ? ` · ${esc(dateStr)}` : ""}</div>
+      <div class="lib-row-sub">${libSubLine(category,item)}</div>
+      ${dateStr ? `<div class="lib-row-sub">${esc(dateStr)}</div>` : ""}
+      ${hypeLine}
     </div>
-    ${hypeHtml}
     <div class="lib-row-actions">
       <button onclick="${libraryOpenFn(category,item.id)}">Edit</button>
       <button onclick="moveItem('${category}','${item.id}','library','season')">To Season</button>
       <button onclick="${libraryRemoveFn(category,item.id)}">Remove</button>
     </div>
   </div>`;
+}
+
+/* ---------- library sort + group controls (v1.4.0) ----------
+   Shared across every category page rather than per-category — simplest
+   mental model ("however I last set it, that's how every page looks") and
+   avoids five separate persisted settings for what's really one preference. */
+let libSort = localStorage.getItem("expedition-libsort") || "name";       // name | date | hype | length
+let libSortDir = localStorage.getItem("expedition-libsortdir") || "asc";  // asc | desc — order of items
+let libGroup = localStorage.getItem("expedition-libgroup") || "none";     // none | length | hype | year
+let libGroupDir = localStorage.getItem("expedition-libgroupdir") || "asc";// asc | desc — order of the groups themselves
+function setLibSort(v){ libSort=v; localStorage.setItem("expedition-libsort",v); renderLibraryTab(libTab); }
+function toggleLibSortDir(){ libSortDir = libSortDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libsortdir",libSortDir); renderLibraryTab(libTab); }
+function setLibGroup(v){ libGroup=v; localStorage.setItem("expedition-libgroup",v); renderLibraryTab(libTab); }
+function toggleLibGroupDir(){ libGroupDir = libGroupDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libgroupdir",libGroupDir); renderLibraryTab(libTab); }
+function libSortValue(category, item, key){
+  if(key==="hype") return item.hype||0;
+  if(key==="length") return itemMinutes(category,item).total;
+  if(key==="date"){
+    const rd = item.releaseDate||{};
+    return (rd.y||"0000") + String(rd.m||"00").padStart(2,"0") + String(rd.d||"00").padStart(2,"0");
+  }
+  return (item.name||"").toLowerCase();
+}
+function libCompare(category, a, b, key, dir){
+  const va = libSortValue(category,a,key), vb = libSortValue(category,b,key);
+  const cmp = typeof va==="string" ? va.localeCompare(vb) : va-vb;
+  return dir==="desc" ? -cmp : cmp;
+}
+const LENGTH_GROUP_ORDER = ["Short (under 10h)","Medium (10–25h)","Long (25–50h)","Gigantic (50h+)"];
+function libGroupKey(category, item, groupBy){
+  if(groupBy==="length"){
+    const hrs = itemMinutes(category,item).total/60;
+    if(hrs<=0) return "No length set";
+    if(hrs<10) return "Short (under 10h)";
+    if(hrs<25) return "Medium (10–25h)";
+    if(hrs<50) return "Long (25–50h)";
+    return "Gigantic (50h+)";
+  }
+  if(groupBy==="hype") return item.hype>0 ? `${HYPE_LABELS[item.hype-1]} (${item.hype})` : "Not rated";
+  if(groupBy==="year") return (item.releaseDate && item.releaseDate.y) ? item.releaseDate.y : "No year set";
+  return null;
+}
+// Groups get their own sensible order (size for length, 1-5 for hype,
+// chronological for year) rather than alphabetical — the group-order arrow
+// flips that order, but the "nothing set" bucket always stays last so it
+// doesn't jump to the top on every toggle.
+function libGroupOrderKeys(groupBy, dir, presentKeys){
+  const present = new Set(presentKeys);
+  if(groupBy==="length"){
+    let order = LENGTH_GROUP_ORDER.filter(k=>present.has(k));
+    if(dir==="desc") order.reverse();
+    if(present.has("No length set")) order.push("No length set");
+    return order;
+  }
+  if(groupBy==="hype"){
+    let order = [1,2,3,4,5].map(n=>`${HYPE_LABELS[n-1]} (${n})`).filter(k=>present.has(k));
+    if(dir==="desc") order.reverse();
+    if(present.has("Not rated")) order.push("Not rated");
+    return order;
+  }
+  if(groupBy==="year"){
+    let years = [...present].filter(k=>k!=="No year set").sort((a,b)=>a-b);
+    if(dir==="desc") years.reverse();
+    if(present.has("No year set")) years.push("No year set");
+    return years;
+  }
+  return [...presentKeys];
 }
 function renderLibraryTab(category){
   const meta = CAT[category];
@@ -2284,13 +2437,50 @@ function renderLibraryTab(category){
     return;
   }
 
+  html += `<div class="lib-controls">
+    <div class="lib-control">
+      <select onchange="setLibSort(this.value)">
+        <option value="name" ${libSort==="name"?"selected":""}>Sort: Name</option>
+        <option value="date" ${libSort==="date"?"selected":""}>Sort: Release date</option>
+        <option value="hype" ${libSort==="hype"?"selected":""}>Sort: Hype</option>
+        <option value="length" ${libSort==="length"?"selected":""}>Sort: Length</option>
+      </select>
+      <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
+    </div>
+    <div class="lib-control">
+      <select onchange="setLibGroup(this.value)">
+        <option value="none" ${libGroup==="none"?"selected":""}>Group: None</option>
+        <option value="length" ${libGroup==="length"?"selected":""}>Group: Length</option>
+        <option value="hype" ${libGroup==="hype"?"selected":""}>Group: Hype</option>
+        <option value="year" ${libGroup==="year"?"selected":""}>Group: Year</option>
+      </select>
+      <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
+    </div>
+  </div>`;
+
   html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
   const q = libSearchQ.trim().toLowerCase();
   const filtered = q ? list.filter(x=>(x.name||"").toLowerCase().includes(q)) : list;
-  const sorted = [...filtered].sort((a,b)=>(a.name||"").localeCompare(b.name||""));
-  html += filtered.length
-    ? `<div class="lib-list">${sorted.map(x=>libraryRow(category,x)).join("")}</div>`
-    : `<div class="empty"><span class="serif">No matches</span>Nothing in ${meta.label} matches "${esc(libSearchQ)}".</div>`;
+  const sorted = [...filtered].sort((a,b)=>libCompare(category,a,b,libSort,libSortDir));
+
+  if(!filtered.length){
+    html += `<div class="empty"><span class="serif">No matches</span>Nothing in ${meta.label} matches "${esc(libSearchQ)}".</div>`;
+  } else if(libGroup==="none"){
+    html += `<div class="lib-list">${sorted.map(x=>libraryRow(category,x)).join("")}</div>`;
+  } else {
+    const buckets = {};
+    sorted.forEach(item=>{
+      const key = libGroupKey(category, item, libGroup);
+      (buckets[key] = buckets[key]||[]).push(item);
+    });
+    const orderedKeys = libGroupOrderKeys(libGroup, libGroupDir, Object.keys(buckets));
+    html += orderedKeys.map(key => `
+      <div class="lib-group">
+        <div class="lib-group-head">${esc(key)}<span class="lib-group-count">${buckets[key].length}</span></div>
+        <div class="lib-list">${buckets[key].map(x=>libraryRow(category,x)).join("")}</div>
+      </div>
+    `).join("");
+  }
 
   $("app").innerHTML = html;
   if(wasFocused){
@@ -2404,7 +2594,7 @@ if(auth){
     if(user) watchRemote(user.uid);
     else if(unsubSnapshot){ unsubSnapshot(); unsubSnapshot = null; }
     if(typeof window.__cloudOnAuthChange === "function"){
-      window.__cloudOnAuthChange(user ? {uid:user.uid, email:user.email, displayName:user.displayName} : null);
+      window.__cloudOnAuthChange(user ? {uid:user.uid, email:user.email, displayName:user.displayName, photoURL:user.photoURL} : null);
     }
   });
   // Picks up the result of a signInWithRedirect() fall-back (see below) after
