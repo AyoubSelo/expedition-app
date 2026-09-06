@@ -107,6 +107,9 @@ h1{margin:0;font-size:27px;font-weight:700;letter-spacing:.2px}
 .reco-card{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1.5px solid var(--accent);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px}
 .reco-clickzone{cursor:pointer}
 .reco-top-row{display:flex;align-items:center;justify-content:space-between}
+.reco-top-row-right{display:flex;align-items:center;gap:10px}
+.reco-reset-btn{background:none;border:none;color:var(--muted-dim);font-size:10.5px;cursor:pointer;font-family:inherit;padding:0}
+.reco-reset-btn:hover{color:var(--rust)}
 .reco-chevron-wrap{color:var(--muted-dim);font-size:11px}
 .reco-chevron{display:inline-block;font-size:16px;line-height:1;vertical-align:middle;transition:transform .2s ease}
 .reco-card:has(.archive-expand.open) .reco-chevron{transform:rotate(180deg)}
@@ -640,7 +643,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.5.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.6.0"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
@@ -701,7 +704,7 @@ function normalizeState(raw){
   raw = raw || {};
   const withExtras = x => ({ releaseDate: x.releaseDate || {y:"",m:"",d:""}, hype: x.hype||0, tags: Array.isArray(x.tags) ? x.tags : [] });
   const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
-    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid()})), ...withExtras(g)}));
+    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g)}));
   const normSimple = list => (list||[]).map(x => ({...x, id:x.id||uid(), ...withExtras(x)}));
   const rawLib = raw.library || {};
   return {
@@ -1055,6 +1058,17 @@ function seasonLengthDays(){
 
 /* ---------- minute helpers per category ---------- */
 function gameMin(g){ return { goal:g.goal*60, played:g.played*60 }; }
+// v1.6.0 — timed-DLC minutes only (checklist DLCs have no length), used to fold
+// DLC time into the season-wide games totals/stat-bar without touching the
+// per-card gauge, which stays main-game-only so the existing "main cleared,
+// DLC pending" flow keeps working exactly as it did before.
+function dlcMin(g){
+  let goal=0, played=0;
+  if(g.hasDlc && g.dlcs && g.dlcs.length){
+    g.dlcs.forEach(d=>{ if(d.type==="time"){ goal += (d.goal||0)*60; played += (d.played||0)*60; } });
+  }
+  return { goal, played };
+}
 function movieMin(m){ return { goal:m.length, played:m.watched }; }
 function episodicMin(e){
   const goal = (e.groups||[]).reduce((a,gr)=>a+gr.total,0) * e.epLen;
@@ -1070,7 +1084,13 @@ const MIN_FN = { games:gameMin, movies:movieMin, tv:episodicMin, anime:episodicM
 function categoryTotals(cat){
   const list = (S[cat] || []).filter(x=>!x.abandoned);
   const fn = MIN_FN[cat];
-  return list.reduce((a,item)=>{ const {goal,played}=fn(item); a.goal+=goal; a.played+=played; a.count++; if(played>=goal && goal>0) a.done++; return a; }, {goal:0,played:0,count:0,done:0});
+  return list.reduce((a,item)=>{
+    const {goal,played}=fn(item);
+    a.goal+=goal; a.played+=played;
+    if(cat==="games"){ const dt=dlcMin(item); a.goal+=dt.goal; a.played+=dt.played; }
+    a.count++; if(played>=goal && goal>0) a.done++;
+    return a;
+  }, {goal:0,played:0,count:0,done:0});
 }
 function combinedTotals(){
   return ALL_CATS.reduce((a,c)=>{ const t=categoryTotals(c); a.goal+=t.goal; a.played+=t.played; return a; }, {goal:0,played:0});
@@ -1122,7 +1142,7 @@ function moveItem(category, id, fromMode, toMode){
   const idx = fromArr.findIndex(x=>x.id===id);
   if(idx<0) return;
   const [item] = fromArr.splice(idx,1);
-  if(category==="games") item.timerStart = null; // never carry a running timer across books
+  if(category==="games"){ item.timerStart = null; (item.dlcs||[]).forEach(d=>{ d.timerStart = null; }); } // never carry a running timer across books
   const toArr = toMode==="library" ? S.library[category] : S[category];
   toArr.push(item);
   persist();
@@ -1229,12 +1249,13 @@ function addDlcRow(d={id:"",name:"",type:"time",goal:0}){
   const row = document.createElement("div");
   row.className = "dlc-edit";
   row.dataset.id = d.id || "";
+  const isCheck = d.type==="check";
   row.innerHTML = `<input class="dn" placeholder="DLC name" value="${esc(d.name)}">
-    <select class="dt" onchange="this.closest('.dlc-edit').querySelector('.dg').disabled = this.value==='check'">
-      <option value="time" ${d.type!=="check"?"selected":""}>Timed</option>
-      <option value="check" ${d.type==="check"?"selected":""}>Checklist</option>
+    <select class="dt" onchange="const dg=this.closest('.dlc-edit').querySelector('.dg'); const c=this.value==='check'; dg.disabled=c; dg.style.display=c?'none':'';">
+      <option value="time" ${!isCheck?"selected":""}>Timed</option>
+      <option value="check" ${isCheck?"selected":""}>Checklist</option>
     </select>
-    <input class="dg" type="number" min="0" step=".1" placeholder="Hours" value="${d.goal||""}" ${d.type==="check"?"disabled":""}>
+    <input class="dg" type="number" min="0" step=".1" placeholder="Hours" value="${d.goal||""}" ${isCheck?"disabled":""} style="${isCheck?"display:none":""}">
     <button class="btn small" onclick="this.parentNode.remove()">×</button>`;
   $("dlcRows").appendChild(row);
 }
@@ -1252,7 +1273,7 @@ function saveGame(){
       const n = r.querySelector(".dn").value.trim();
       const type = r.querySelector(".dt").value;
       if(!n) return;
-      dlcs.push({ id: r.dataset.id || uid(), name:n, type, goal: type==="time" ? Math.max(0, +r.querySelector(".dg").value || 0) : 0, played:0, done:false });
+      dlcs.push({ id: r.dataset.id || uid(), name:n, type, goal: type==="time" ? Math.max(0, +r.querySelector(".dg").value || 0) : 0, played:0, done:false, timerStart:null });
     });
   }
   const arr = arrFor("games", modalTarget);
@@ -1264,7 +1285,7 @@ function saveGame(){
       const match = oldDlcs.find(od=>od.id===nd.id);
       if(!match) return nd;
       const playedVal = nd.type==="time" ? Math.min(match.played||0, nd.goal||match.played||0) : 0;
-      return { ...nd, played: playedVal, done: match.done||false };
+      return { ...nd, played: playedVal, done: match.done||false, timerStart: match.timerStart||null };
     });
     Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, hype, tags: currentModalTags.slice(), lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
     checkAutoComplete(g);
@@ -1311,10 +1332,21 @@ function toggleDlcDone(gameId, dlcId){
 function toggleDlcsVisible(id){ $("dlcs-"+id).classList.toggle("open"); }
 
 /* timer */
-function anyTimerRunning(){ return S.games.find(g=>g.timerStart); }
+// v1.6.0 — timers can now run on a main game OR one of its timed DLCs, but
+// still only one at a time app-wide (same rule as before, just widened to
+// cover DLCs too).
+function getRunningTimer(){
+  for(const g of S.games){
+    if(g.timerStart) return { kind:"game", gameId:g.id, name:g.name, startTime:g.timerStart };
+    for(const d of (g.dlcs||[])){
+      if(d.timerStart) return { kind:"dlc", gameId:g.id, dlcId:d.id, name:g.name+" — "+d.name, startTime:d.timerStart };
+    }
+  }
+  return null;
+}
 function startTimer(id){
-  const running = anyTimerRunning();
-  if(running && running.id !== id) return toast(`Finish "${running.name}" first.`);
+  const running = getRunningTimer();
+  if(running && !(running.kind==="game" && running.gameId===id)) return toast(`Finish "${running.name}" first.`);
   const g = S.games.find(x=>x.id===id);
   g.timerStart = Date.now();
   persist();
@@ -1333,12 +1365,36 @@ function stopTimer(id){
   persist();
   toast(`Logged ${fmtHM(Math.round(trimmed))} (10% trimmed for interruptions 😉)` + (expandNote ? ` — ${expandNote}` : ""));
 }
+function startDlcTimer(gameId, dlcId){
+  const running = getRunningTimer();
+  if(running && !(running.kind==="dlc" && running.gameId===gameId && running.dlcId===dlcId)) return toast(`Finish "${running.name}" first.`);
+  const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
+  d.timerStart = Date.now();
+  persist();
+}
+function stopDlcTimer(gameId, dlcId){
+  const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
+  if(!d.timerStart) return;
+  const elapsedMin = (Date.now()-d.timerStart)/60000;
+  const trimmed = elapsedMin*0.9;
+  d.played = (d.played||0) + trimmed/60;
+  d.timerStart = null;
+  logAction("games", g.id, `${d.name} (DLC of ${g.name})`, trimmed, "timer");
+  persist();
+  toast(`Logged ${fmtHM(Math.round(trimmed))} on ${d.name} (10% trimmed for interruptions 😉)`);
+}
 setInterval(()=>{
   S.games.forEach(g=>{
     if(g.timerStart){
       const el = document.getElementById("timerDisplay-"+g.id);
       if(el) el.textContent = fmtElapsed(Date.now()-g.timerStart);
     }
+    (g.dlcs||[]).forEach(d=>{
+      if(d.timerStart){
+        const el = document.getElementById("dlcTimerDisplay-"+d.id);
+        if(el) el.textContent = fmtElapsed(Date.now()-d.timerStart);
+      }
+    });
   });
 }, 1000);
 
@@ -1346,10 +1402,11 @@ function dlcCleared(d){ return d.type==="check" ? !!d.done : (d.goal>0 && d.play
 function combinedGamePct(g){
   const dlcs = g.dlcs||[];
   if(!dlcs.length) return null;
-  const baseFrac = g.goal ? Math.min(1, g.played/g.goal) : 0;
-  const dlcFracs = dlcs.map(d => d.type==="check" ? (d.done?1:0) : (d.goal ? Math.min(1, d.played/d.goal) : 0));
-  const all = [baseFrac, ...dlcFracs];
-  return all.reduce((a,b)=>a+b,0) / all.length * 100;
+  const timedDlcs = dlcs.filter(d=>d.type==="time");
+  let totalGoal = g.goal||0, totalPlayed = Math.min(g.goal||0, g.played||0);
+  timedDlcs.forEach(d=>{ totalGoal += d.goal||0; totalPlayed += Math.min(d.goal||0, d.played||0); });
+  if(totalGoal<=0) return null;
+  return Math.min(100, totalPlayed/totalGoal*100);
 }
 function gameCard(g){
   const {goal,played} = gameMin(g);
@@ -1370,10 +1427,15 @@ function gameCard(g){
   const dlcHtml = g.hasDlc ? `<div class="dlcs" id="dlcs-${g.id}">${dlcs.map(d=>{
       const cleared = dlcCleared(d);
       if(d.type==="check"){
-        return `<div class="dlc-row"><div class="dlc-top"><span class="dlc-name">${esc(d.name)}</span><span class="dlc-val">${cleared?"✓ Cleared":"Not cleared"}</span></div><button class="btn small" style="margin-top:8px" onclick="toggleDlcDone('${g.id}','${d.id}')">${cleared?"Mark open":"Mark cleared"}</button></div>`;
+        return `<div class="dlc-row"><div class="dlc-top"><span class="dlc-name">${esc(d.name)}</span><span class="dlc-val">${cleared?"✓ Cleared":"Not cleared"}</span></div>${!cleared ? `<button class="btn small" style="margin-top:8px" onclick="toggleDlcDone('${g.id}','${d.id}')">Finished</button>` : ""}</div>`;
       }
       const dp = d.goal ? Math.min(100, d.played/d.goal*100) : 0;
-      return `<div class="dlc-row"><div class="dlc-top"><span class="dlc-name">${esc(d.name)}</span><span class="dlc-val">${cleared?"✓ ":""}${fmtN(d.played)}h / ${fmtN(d.goal)}h</span></div><div class="dlc-bar"><div class="dlc-fill" style="width:${dp}%"></div></div><div class="btn-row" style="margin-top:8px"><button class="btn small" onclick="openDlcSession('${g.id}','${d.id}')">Log time</button>${!cleared ? `<button class="btn small" onclick="finishDlcEarly('${g.id}','${d.id}')">Mark finished</button>` : ""}</div></div>`;
+      const dTiming = !!d.timerStart;
+      const dControls = dTiming
+        ? `<div class="timer-box" style="margin-top:8px"><span class="timer-dot"></span><span class="timer-time mono" id="dlcTimerDisplay-${d.id}">${fmtElapsed(Date.now()-d.timerStart)}</span></div>
+           <button class="btn accent wide" style="margin-top:8px;--accent:#c1614a;--accent-text:#fff" onclick="stopDlcTimer('${g.id}','${d.id}')">■ Finished playing</button>`
+        : `<div class="btn-row" style="margin-top:8px"><button class="btn accent" onclick="startDlcTimer('${g.id}','${d.id}')">▶ Play</button><button class="btn small" onclick="openDlcSession('${g.id}','${d.id}')">Log time</button>${!cleared ? `<button class="btn small" onclick="finishDlcEarly('${g.id}','${d.id}')">Mark finished</button>` : ""}</div>`;
+      return `<div class="dlc-row"><div class="dlc-top"><span class="dlc-name">${esc(d.name)}</span><span class="dlc-val">${cleared?"✓ ":""}${fmtN(d.played)}h / ${fmtN(d.goal)}h</span></div><div class="dlc-bar"><div class="dlc-fill" style="width:${dp}%"></div></div>${dControls}</div>`;
     }).join("")}</div>` : "";
 
   const controls = timing
@@ -1570,7 +1632,7 @@ function mangaCard(m){
 }
 function renderManga(){
   const totals = categoryTotals("manga");
-  let html = statbar("manga", totals);
+  let html = statbar("manga", totals, {label:"volumes", value:activeVolumeCount()});
   html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}" onclick="openMangaModal()">+ Add Manga</button></div>`;
   if(!S.manga.length){
     html += `<div class="empty"><span class="serif">No manga yet</span>Add a title and the volume range you're planning to read this season.</div>`;
@@ -1963,12 +2025,26 @@ function sortDropdown(cat){
 }
 
 /* ---------- tab renderers ---------- */
-function statbar(cat, totals){
+function statbar(cat, totals, extra){
   const remain = Math.max(0, totals.goal-totals.played);
   const pct = totals.goal>0 ? totals.played/totals.goal*100 : 100;
+  const extraHtml = extra ? ` <span class="dot">·</span> <b>${extra.value}</b> ${extra.label}` : "";
   return `<div class="statbar" style="--accent:${CAT[cat].color}">
-    <span><b>${totals.count-totals.done}</b> active <span class="dot">·</span> <b>${fmtHM(Math.round(remain))}</b> left <span class="dot">·</span> <b>${pct.toFixed(0)}%</b> cleared</span>
+    <span><b>${totals.count-totals.done}</b> active${extraHtml} <span class="dot">·</span> <b>${fmtHM(Math.round(remain))}</b> left <span class="dot">·</span> <b>${pct.toFixed(0)}%</b> cleared</span>
   </div>`;
+}
+// v1.6.0 — the small counts shown in each stat bar next to "active"
+function activeDlcCount(){
+  return (S.games||[]).filter(g=>!g.abandoned).reduce((a,g)=> a + (g.dlcs||[]).filter(d=>!dlcCleared(d)).length, 0);
+}
+function activeSeasonCount(cat){
+  return (S[cat]||[]).filter(e=>!e.abandoned).reduce((a,e)=> a + (e.groups||[]).filter(g=>(g.watched||0) < (g.total||0)).length, 0);
+}
+function activeVolumeCount(){
+  return (S.manga||[]).filter(m=>!m.abandoned).reduce((a,m)=>{
+    const total = Math.max(0, (m.toVol||0)-(m.fromVol||0)+1);
+    return a + Math.max(0, total-(m.volsRead||0));
+  }, 0);
 }
 
 /* ============ Smart recommendation engine ============
@@ -2029,7 +2105,11 @@ function buildRecoCandidates(){
 
    Every active (unfinished, non-abandoned) item starts at RECO_BASE_POINTS and
    can never drop below it. Each time ANY log action happens, every active item's
-   points are multiplied by a fresh multiplier built from five additive factors:
+   points shift by a delta built from five additive factors that sum to a
+   multiplier, then converted to points: a multiplier of 1.0 shifts nothing,
+   each 0.1 above 1.0 adds 1 point, each 0.1 below subtracts 1 point (v1.6.0 —
+   was a straight multiply, which could blow scores up fast and unevenly; this
+   keeps growth linear and the gap between titles fair):
 
      1. Log bonus     — flat, given to every active item (not just the one you
                          logged), sized by which category you just logged in.
@@ -2050,7 +2130,7 @@ function buildRecoCandidates(){
    Finished and abandoned items are skipped entirely — they don't get scored,
    and since they're archived out (or already excluded) they never carry a
    stale score forward. */
-const RECO_BASE_POINTS = 10;
+const RECO_BASE_POINTS = 0;
 const RECO_LOG_BONUS = { games:0.3, movies:0.3, tv:0.2, anime:0.1, manga:0.3 };
 const RECO_CATEGORY_DRAG_SCALE = { movies:0.5 }; // default 1 for everything else
 
@@ -2083,8 +2163,19 @@ function applyRecoScoring(actionCategory){
     const rand = 0.6 + Math.random()*0.4;
     const multiplier = bonus + c.pct + rand - drag + daysBonus;
     const current = item.recoPoints || RECO_BASE_POINTS;
-    item.recoPoints = Math.max(RECO_BASE_POINTS, current * multiplier);
+    const delta = (multiplier - 1) * 10;
+    item.recoPoints = Math.max(RECO_BASE_POINTS, current + delta);
   });
+}
+// v1.6.0 — reset every active item's score back to the new baseline (0).
+// Confirmed first since it touches every title at once and can't be undone.
+function resetRecoScores(){
+  if(!confirm("Reset every title's recommendation score back to zero? This can't be undone.")) return;
+  ["games","movies","tv","anime","manga"].forEach(cat=>{
+    (S[cat]||[]).forEach(item => { item.recoPoints = RECO_BASE_POINTS; });
+  });
+  persist();
+  toast("Recommendation scores reset.");
 }
 const RECO_MESSAGES = {
   momentum: [
@@ -2156,7 +2247,10 @@ function recommendationCardHtml(){
     <div class="reco-clickzone" onclick="toggleArchiveExpand('${expandId}')">
       <div class="reco-top-row">
         <div class="eyebrow" style="color:${meta.color}">Up Next</div>
-        <span class="reco-chevron-wrap mono"><span class="reco-chevron">▾</span> Top 5</span>
+        <div class="reco-top-row-right">
+          <button class="reco-reset-btn" onclick="event.stopPropagation(); resetRecoScores()" title="Reset all scores to 0">↺ Reset</button>
+          <span class="reco-chevron-wrap mono"><span class="reco-chevron">▾</span> Top 5</span>
+        </div>
       </div>
       <div class="reco-top">
         <span class="mono-badge" style="--accent:${meta.color}">${iconBadge(reco.chosen.category)}</span>
@@ -2325,7 +2419,7 @@ function buildGameGroups(){
 }
 function renderGames(){
   const totals = categoryTotals("games");
-  let html = statbar("games", totals);
+  let html = statbar("games", totals, {label:"DLCs", value:activeDlcCount()});
   html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT.games.color};--accent-text:${CAT.games.text}" onclick="openGameModal()">+ New Entry</button></div>`;
   if(!S.games.length){
     html += `<div class="empty"><span class="serif">This ledger is empty</span>Add the game you're playing right now to start the season.</div>`;
@@ -2378,7 +2472,7 @@ function renderEpisodicTab(category){
   const totals = categoryTotals(category);
   const meta = CAT[category];
   const addLabel = category==="anime" ? "+ Add Anime" : "+ Add Show";
-  let html = statbar(category, totals);
+  let html = statbar(category, totals, {label:"seasons", value:activeSeasonCount(category)});
   html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${meta.color};--accent-text:${meta.text}" onclick="openEpisodicModal('${category}')">${addLabel}</button></div>`;
   const list = S[category];
   if(!list.length){
@@ -2434,9 +2528,20 @@ function itemMinutes(category, item){
   return { total, played };
 }
 function fmtHrs(mins){ return fmtN(Math.round(mins/6)/10); }
+// v1.6.0 — movies show "2H 25M" instead of a decimal like "2.4H"; games/manga
+// keep the decimal-hour style since that's what was actually asked for.
+function fmtHrMin(mins){
+  const h = Math.floor(mins/60), m = Math.round(mins%60);
+  if(h<=0) return `${m}M`;
+  if(m<=0) return `${h}H`;
+  return `${h}H ${m}M`;
+}
 function libSubLine(category, item){
   const {total, played} = itemMinutes(category, item);
   if(total<=0) return "No length set";
+  if(category==="movies"){
+    return played>0 ? `${fmtHrMin(Math.max(0,total-played))} remaining` : `${fmtHrMin(total)} target`;
+  }
   return played>0 ? `${fmtHrs(Math.max(0,total-played))}H remaining` : `${fmtHrs(total)}H target`;
 }
 // The "!" flags ANY missing info, not just release date — release date and
@@ -2545,7 +2650,7 @@ function libraryRow(category, item){
   const meta = CAT[category];
   const missing = libraryMissingFields(category, item);
   const expanded = libExpandedItems.has(item.id);
-  const segLine = libSegments(category, item).join(` <span class="lib-seg-div">|</span> `);
+  const segLine = libSegments(category, item).join(` <span class="lib-seg-div">·</span> `);
   return `<div class="lib-row ${expanded?'expanded':''}" ${expanded?`style="border-color:${meta.color}"`:""} onclick="toggleLibItem('${item.id}')">
     <div class="lib-row-icon" style="--accent:${meta.color}">${iconBadge(category)}</div>
     <div class="lib-row-main">
