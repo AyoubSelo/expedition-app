@@ -306,6 +306,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .tag-chip.on{background:var(--teal);color:#0d1310;border-color:var(--teal)}
 .tag-empty{font-size:12px;color:var(--muted-dim)}
 .tag-manage-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.move-group-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:40vh;overflow-y:auto}
 .tag-manage-row input{flex:1}
 .tag-chip-static{display:inline-block;padding:3px 9px;border-radius:10px;background:var(--panel2);color:var(--muted);font-size:10.5px;margin:0 5px 5px 0}
 
@@ -453,6 +454,15 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <label>Tags</label>
       <div class="tag-picker" id="g_tagsRow"></div>
     </div>
+    <div class="field-row">
+      <label class="check" style="text-transform:none"><input id="g_hasSeries" type="checkbox" onchange="toggleSeriesSection('g')"> This game is part of a series</label>
+      <div id="g_seriesSection" style="display:none;margin-top:10px">
+        <div class="row2">
+          <div><label>Series</label><select id="g_seriesId"></select></div>
+          <div><label>Order #</label><input id="g_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
+        </div>
+      </div>
+    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('gameModal')">Cancel</button>
       <button class="btn brass" onclick="saveGame()">Save entry</button>
@@ -490,6 +500,15 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="field-row">
       <label>Tags</label>
       <div class="tag-picker" id="mv_tagsRow"></div>
+    </div>
+    <div class="field-row">
+      <label class="check" style="text-transform:none"><input id="mv_hasSeries" type="checkbox" onchange="toggleSeriesSection('mv')"> This movie is part of a series</label>
+      <div id="mv_seriesSection" style="display:none;margin-top:10px">
+        <div class="row2">
+          <div><label>Series</label><select id="mv_seriesId"></select></div>
+          <div><label>Order #</label><input id="mv_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
+        </div>
+      </div>
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('movieModal')">Cancel</button>
@@ -530,6 +549,15 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="field-row">
       <label>Tags</label>
       <div class="tag-picker" id="mg_tagsRow"></div>
+    </div>
+    <div class="field-row">
+      <label class="check" style="text-transform:none"><input id="mg_hasSeries" type="checkbox" onchange="toggleSeriesSection('mg')"> This manga is part of a series</label>
+      <div id="mg_seriesSection" style="display:none;margin-top:10px">
+        <div class="row2">
+          <div><label>Series</label><select id="mg_seriesId"></select></div>
+          <div><label>Order #</label><input id="mg_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
+        </div>
+      </div>
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('mangaModal')">Cancel</button>
@@ -580,6 +608,15 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <label>Tags</label>
       <div class="tag-picker" id="epi_tagsRow"></div>
     </div>
+    <div class="field-row">
+      <label class="check" style="text-transform:none"><input id="epi_hasSeries" type="checkbox" onchange="toggleSeriesSection('epi')"> <span id="epi_seriesLabel">This show is part of a series</span></label>
+      <div id="epi_seriesSection" style="display:none;margin-top:10px">
+        <div class="row2">
+          <div><label>Series</label><select id="epi_seriesId"></select></div>
+          <div><label>Order #</label><input id="epi_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
+        </div>
+      </div>
+    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('epiModal')">Cancel</button>
       <button class="btn brass" onclick="saveEpisodic()">Save</button>
@@ -623,11 +660,11 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
-<!-- tags modal (v1.5.0) — one shared tag list used across every category and both books -->
+<!-- tags modal (v1.5.0) — v1.7.0: one list per category now, not shared -->
 <div class="modal" id="tagsModal">
   <div class="sheet">
     <h2 class="serif">Tags</h2>
-    <div class="hint">Create tags here, then mark titles with them from each title's Edit menu. Handy later for the Season Picker.</div>
+    <div class="hint">Create tags for this category, then mark titles with them from each title's Edit menu. Handy later for the Season Picker.</div>
     <div id="tagsModalBody"></div>
     <div class="row2" style="margin-top:12px">
       <input id="newTagName" placeholder="New tag name" onkeydown="if(event.key==='Enter') addTag()">
@@ -639,11 +676,39 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
+<!-- series modal (v1.7.0) — one named list per category, mirrors Tags -->
+<div class="modal" id="seriesModal">
+  <div class="sheet">
+    <h2 class="serif">Series</h2>
+    <div class="hint">Create named series here (e.g. "Life is Strange"), then mark titles as part of one from their Edit menu with an order number.</div>
+    <div id="seriesModalBody"></div>
+    <div class="row2" style="margin-top:12px">
+      <input id="newSeriesName" placeholder="New series name" onkeydown="if(event.key==='Enter') addSeries()">
+      <button class="btn brass" onclick="addSeries()">Add</button>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal('seriesModal')">Done</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+
+<!-- move modal (v1.7.0) — partial move of seasons/arcs/volumes between books -->
+<div class="modal" id="moveModal">
+  <div class="sheet">
+    <h2 class="serif" id="moveModalTitle">Move</h2>
+    <div id="moveModalBody"></div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal('moveModal')">Cancel</button>
+      <button class="btn brass" onclick="confirmMove()">Move</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.6.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.7.0"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
@@ -700,19 +765,38 @@ const fmtElapsed = ms => {
 // be blank) and hype (0-5, 0 = not set). normGames/normSimple below apply
 // those defaults uniformly so items can move between Season and Library
 // (moveItem) without ever hitting a missing field.
+const NAMED_LIST_CATS = ["games","movies","tv","anime","manga"];
+function normalizeNamedList(raw){
+  const out = {};
+  raw = raw || {};
+  NAMED_LIST_CATS.forEach(c=>{ out[c] = Array.isArray(raw[c]) ? raw[c].map(t=>({id:t.id||uid(),name:t.name||""})) : []; });
+  return out;
+}
+// v1.7.0: tags used to be one shared list across every category. Splitting them
+// per-category, per the request — and since the only tags that existed so far
+// were made while editing games, the whole old list migrates straight into
+// "games" rather than being lost or scattered.
+function normalizeTags(raw){
+  if(Array.isArray(raw)) return { games: raw.map(t=>({id:t.id||uid(),name:t.name||""})), movies:[], tv:[], anime:[], manga:[] };
+  return normalizeNamedList(raw);
+}
 function normalizeState(raw){
   raw = raw || {};
-  const withExtras = x => ({ releaseDate: x.releaseDate || {y:"",m:"",d:""}, hype: x.hype||0, tags: Array.isArray(x.tags) ? x.tags : [] });
+  const withExtras = x => ({
+    releaseDate: x.releaseDate || {y:"",m:"",d:""}, hype: x.hype||0, tags: Array.isArray(x.tags) ? x.tags : [],
+    partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null,
+  });
   const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
     dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g)}));
-  const normSimple = list => (list||[]).map(x => ({...x, id:x.id||uid(), ...withExtras(x)}));
+  const normSimple = list => (list||[]).map(x => ({...x, id:x.id||uid(), originGroupId:x.originGroupId||null, ...withExtras(x)}));
   const rawLib = raw.library || {};
   return {
-    version: 4,
+    version: 5,
     seasonStart: raw.seasonStart || "",
     archive: raw.archive || [],
     sessionLog: raw.sessionLog || [],
-    tags: Array.isArray(raw.tags) ? raw.tags.map(t=>({id:t.id||uid(), name:t.name||""})) : [],
+    tags: normalizeTags(raw.tags),
+    series: normalizeNamedList(raw.series),
     games: normGames(raw.games),
     movies: normSimple(raw.movies),
     tv: normSimple(raw.tv || raw.shows),
@@ -794,13 +878,14 @@ function readRelease(prefix){
   };
 }
 
-/* ---------- v1.5.0 — Tags ----------
-   S.tags is one flat, shared list ({id,name}) — tags aren't per-category or
-   per-book, so a "dark" tag made while editing a game also shows up on a
-   movie, and works the same in Season or Library. Items just carry an array
-   of tag ids in item.tags. Deleting a tag scrubs its id out of every item
-   everywhere so nothing is left pointing at a tag that no longer exists. */
-let currentModalTags = []; // tag ids selected in whichever add/edit modal is currently open
+/* ---------- v1.5.0 — Tags. v1.7.0: per-category ----------
+   S.tags[category] is its own list ({id,name}) — a "dark" tag made while
+   editing a game only shows up for games, not movies. Items just carry an
+   array of tag ids in item.tags, scoped to their own category's list.
+   Deleting a tag scrubs its id out of every item (Season + Library) in that
+   category so nothing is left pointing at a tag that no longer exists. */
+let currentModalTags = [];        // tag ids selected in whichever add/edit modal is currently open
+let currentModalCategory = "games"; // which category's tag/series lists the open modal should read from
 function toggleModalTag(prefix, tagId){
   const idx = currentModalTags.indexOf(tagId);
   if(idx>=0) currentModalTags.splice(idx,1); else currentModalTags.push(tagId);
@@ -809,26 +894,31 @@ function toggleModalTag(prefix, tagId){
 function renderTagPicker(prefix){
   const el = $(prefix+"_tagsRow");
   if(!el) return;
-  if(!S.tags.length){
-    el.innerHTML = `<div class="tag-empty">No tags yet — add some from the "Tags" button on any Library page.</div>`;
+  const tags = S.tags[currentModalCategory] || [];
+  if(!tags.length){
+    el.innerHTML = `<div class="tag-empty">No tags yet — add some from the "Tags" button on this category's Library page.</div>`;
     return;
   }
-  el.innerHTML = S.tags.map(t=>`<button type="button" class="tag-chip ${currentModalTags.includes(t.id)?'on':''}" onclick="toggleModalTag('${prefix}','${t.id}')">${esc(t.name)}</button>`).join("");
+  el.innerHTML = tags.map(t=>`<button type="button" class="tag-chip ${currentModalTags.includes(t.id)?'on':''}" onclick="toggleModalTag('${prefix}','${t.id}')">${esc(t.name)}</button>`).join("");
 }
-function tagNames(item){
+function tagNames(category, item){
   if(!item.tags || !item.tags.length) return [];
-  return item.tags.map(id => (S.tags.find(t=>t.id===id)||{}).name).filter(Boolean);
+  const list = S.tags[category] || [];
+  return item.tags.map(id => (list.find(t=>t.id===id)||{}).name).filter(Boolean);
 }
-function openTagsModal(){
+let currentTagsModalCategory = "games";
+function openTagsModal(category){
+  currentTagsModalCategory = category;
   renderTagsModalBody();
   $("tagsModal").classList.add("show");
 }
 function renderTagsModalBody(){
   const body = $("tagsModalBody");
-  if(!S.tags.length){
+  const list = S.tags[currentTagsModalCategory];
+  if(!list.length){
     body.innerHTML = `<div class="tag-empty">No tags yet. Add your first one below.</div>`;
   } else {
-    body.innerHTML = S.tags.map(t=>`
+    body.innerHTML = list.map(t=>`
       <div class="tag-manage-row">
         <input value="${esc(t.name)}" onchange="renameTag('${t.id}',this.value)">
         <button class="lib-dir-btn" onclick="deleteTag('${t.id}')" title="Delete tag">✕</button>
@@ -840,26 +930,116 @@ function addTag(){
   const input = $("newTagName");
   const name = input.value.trim();
   if(!name) return;
-  if(S.tags.some(t=>t.name.toLowerCase()===name.toLowerCase())) return toast("That tag already exists.");
-  S.tags.push({ id: uid(), name });
+  const cat = currentTagsModalCategory;
+  if(S.tags[cat].some(t=>t.name.toLowerCase()===name.toLowerCase())) return toast("That tag already exists.");
+  S.tags[cat].push({ id: uid(), name });
   input.value = "";
   persist();
   renderTagsModalBody();
 }
 function renameTag(id, name){
   name = name.trim();
-  const t = S.tags.find(x=>x.id===id);
+  const t = S.tags[currentTagsModalCategory].find(x=>x.id===id);
   if(!t || !name) { renderTagsModalBody(); return; }
   t.name = name;
   persist();
 }
 function deleteTag(id){
   if(!confirm("Delete this tag? It will be removed from every title that has it.")) return;
-  S.tags = S.tags.filter(t=>t.id!==id);
+  const cat = currentTagsModalCategory;
+  S.tags[cat] = S.tags[cat].filter(t=>t.id!==id);
   const scrub = list => list.forEach(x => { if(x.tags) x.tags = x.tags.filter(tid=>tid!==id); });
-  ["games","movies","tv","anime","manga"].forEach(cat=>{ scrub(S[cat]); scrub(S.library[cat]); });
+  scrub(S[cat]); scrub(S.library[cat]);
   persist();
   renderTagsModalBody();
+}
+
+/* ---------- v1.7.0 — Series ----------
+   Same shape as Tags (per-category named list), but for grouping titles that
+   belong to the same series/saga with an order number. A title opts in via
+   partOfSeries + picks one series (seriesId) + a position (seriesOrder).
+   Two titles in the same category+series can't share an order number. */
+let currentSeriesModalCategory = "games";
+function openSeriesModal(category){
+  currentSeriesModalCategory = category;
+  renderSeriesModalBody();
+  $("seriesModal").classList.add("show");
+}
+function renderSeriesModalBody(){
+  const body = $("seriesModalBody");
+  const list = S.series[currentSeriesModalCategory];
+  if(!list.length){
+    body.innerHTML = `<div class="tag-empty">No series yet. Add your first one below.</div>`;
+  } else {
+    body.innerHTML = list.map(s=>`
+      <div class="tag-manage-row">
+        <input value="${esc(s.name)}" onchange="renameSeries('${s.id}',this.value)">
+        <button class="lib-dir-btn" onclick="deleteSeries('${s.id}')" title="Delete series">✕</button>
+      </div>
+    `).join("");
+  }
+}
+function addSeries(){
+  const input = $("newSeriesName");
+  const name = input.value.trim();
+  if(!name) return;
+  const cat = currentSeriesModalCategory;
+  if(S.series[cat].some(s=>s.name.toLowerCase()===name.toLowerCase())) return toast("That series already exists.");
+  S.series[cat].push({ id: uid(), name });
+  input.value = "";
+  persist();
+  renderSeriesModalBody();
+}
+function renameSeries(id, name){
+  name = name.trim();
+  const s = S.series[currentSeriesModalCategory].find(x=>x.id===id);
+  if(!s || !name){ renderSeriesModalBody(); return; }
+  s.name = name;
+  persist();
+}
+function deleteSeries(id){
+  if(!confirm("Delete this series? Titles marked as part of it will be unlinked, but otherwise untouched.")) return;
+  const cat = currentSeriesModalCategory;
+  S.series[cat] = S.series[cat].filter(s=>s.id!==id);
+  const scrub = list => list.forEach(x=>{ if(x.seriesId===id){ x.partOfSeries=false; x.seriesId=null; x.seriesOrder=null; } });
+  scrub(S[cat]); scrub(S.library[cat]);
+  persist();
+  renderSeriesModalBody();
+}
+function renderSeriesPicker(prefix, category){
+  const sel = $(prefix+"_seriesId");
+  if(!sel) return;
+  const list = S.series[category] || [];
+  sel.innerHTML = `<option value="">Choose a series…</option>` + list.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+}
+function toggleSeriesSection(prefix){
+  const cb = $(prefix+"_hasSeries");
+  const sec = $(prefix+"_seriesSection");
+  if(cb && sec) sec.style.display = cb.checked ? "block" : "none";
+}
+function fillSeriesFields(prefix, category, item){
+  const cb = $(prefix+"_hasSeries");
+  renderSeriesPicker(prefix, category);
+  cb.checked = !!(item && item.partOfSeries);
+  $(prefix+"_seriesId").value = (item && item.seriesId) || "";
+  $(prefix+"_seriesOrder").value = (item && item.seriesOrder!=null) ? item.seriesOrder : "";
+  toggleSeriesSection(prefix);
+}
+function readSeriesFields(prefix){
+  const partOfSeries = $(prefix+"_hasSeries").checked;
+  const seriesId = partOfSeries ? ($(prefix+"_seriesId").value || null) : null;
+  const orderRaw = $(prefix+"_seriesOrder").value;
+  const seriesOrder = (partOfSeries && seriesId && orderRaw!=="") ? +orderRaw : null;
+  return { partOfSeries: !!(partOfSeries && seriesId), seriesId: (partOfSeries && seriesId) ? seriesId : null, seriesOrder };
+}
+// Checks every title in this category (both books) for a clash — same series,
+// same order number, different title. Returns the conflicting title's name,
+// or null if there's no conflict.
+function seriesOrderConflict(category, seriesId, order, excludeId){
+  if(!seriesId || order==null) return null;
+  const all = [...S[category], ...S.library[category]];
+  const hit = all.find(x => x.id!==excludeId && x.partOfSeries && x.seriesId===seriesId && x.seriesOrder===order);
+  return hit ? hit.name : null;
 }
 
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -1148,6 +1328,116 @@ function moveItem(category, id, fromMode, toMode){
   persist();
   toast(toMode==="library" ? "Moved to Library." : "Moved to Season.");
 }
+// v1.7.0 — games and movies always move as a whole title (moveItem above).
+// tv/anime/manga can be split: only some seasons/arcs (or some volumes) move,
+// the rest stays put. Both halves share an originGroupId the first time a
+// split happens, so if a piece is later moved into a book that already holds
+// its sibling, they merge back into one row instead of sitting side by side —
+// that's what makes "move it back" land in its original place automatically.
+function moveButtonHandler(category, id, fromMode, toMode){
+  if(category==="tv" || category==="anime" || category==="manga") return `openMoveModal('${category}','${id}','${fromMode}','${toMode}')`;
+  return `moveItem('${category}','${id}','${fromMode}','${toMode}')`;
+}
+let moveModalCtx = null;
+function openMoveModal(category, id, fromMode, toMode){
+  const item = (fromMode==="library" ? S.library[category] : S[category]).find(x=>x.id===id);
+  if(!item) return;
+  moveModalCtx = { category, id, fromMode, toMode };
+  const dir = toMode==="library" ? "Library" : "Season";
+  $("moveModalTitle").textContent = `Move to ${dir}`;
+  let body;
+  if(category==="manga"){
+    const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
+    body = `<div class="hint">"${esc(item.name)}" has ${total} volume${total===1?"":"s"} here (vol ${item.fromVol}–${item.toVol}). How many do you want to move to ${dir}? They're taken from the start of the range (vol ${item.fromVol} onward) — the rest stays behind.</div>
+      <div class="field-row"><label>Volumes to move</label><input id="moveVolCount" type="number" min="1" max="${total}" value="${total}" inputmode="numeric"></div>`;
+  } else {
+    const groupWord = (category==="anime" && item.groupType==="arc") ? "arc" : "season";
+    body = `<div class="hint">Pick which ${groupWord}s of "${esc(item.name)}" move to ${dir}. Anything left unchecked stays where it is.</div>
+      <div class="move-group-list">${(item.groups||[]).map(g=>`
+        <label class="check" style="text-transform:none"><input type="checkbox" class="moveGroupChk" value="${g.id}" checked> ${esc(g.name)} (${g.watched||0}/${g.total||0} ep)</label>
+      `).join("") || `<div class="tag-empty">No ${groupWord}s added yet — this will move the whole title.</div>`}</div>`;
+  }
+  $("moveModalBody").innerHTML = body;
+  $("moveModal").classList.add("show");
+}
+function confirmMove(){
+  if(!moveModalCtx) return;
+  const {category, id, fromMode, toMode} = moveModalCtx;
+  if(category==="manga"){
+    const count = Math.max(1, +$("moveVolCount").value || 1);
+    splitAndMoveManga(id, fromMode, toMode, count);
+  } else {
+    const ids = Array.from(document.querySelectorAll(".moveGroupChk:checked")).map(x=>x.value);
+    if(!ids.length && document.querySelectorAll(".moveGroupChk").length) return toast("Pick at least one to move.");
+    splitAndMoveEpisodic(category, id, fromMode, toMode, ids);
+  }
+  closeModal("moveModal");
+  moveModalCtx = null;
+}
+// Merge a moved-out piece into a same-origin sibling already sitting in the
+// target book, if one exists — this is the "goes back to its original place
+// automatically" behavior. Returns true if it merged (caller shouldn't also push).
+function mergeIntoSibling(category, toArr, piece){
+  if(!piece.originGroupId) return false;
+  const sibling = toArr.find(x=>x.originGroupId===piece.originGroupId);
+  if(!sibling) return false;
+  if(category==="manga"){
+    sibling.fromVol = Math.min(sibling.fromVol, piece.fromVol);
+    sibling.toVol = Math.max(sibling.toVol, piece.toVol);
+    sibling.volsRead = (sibling.volsRead||0) + (piece.volsRead||0);
+  } else {
+    sibling.groups = [...(sibling.groups||[]), ...(piece.groups||[])];
+  }
+  return true;
+}
+function splitAndMoveEpisodic(category, id, fromMode, toMode, selectedGroupIds){
+  const fromArr = fromMode==="library" ? S.library[category] : S[category];
+  const idx = fromArr.findIndex(x=>x.id===id);
+  if(idx<0) return;
+  const item = fromArr[idx];
+  const allGroups = item.groups||[];
+  const moving = allGroups.filter(g=>selectedGroupIds.includes(g.id));
+  const staying = allGroups.filter(g=>!selectedGroupIds.includes(g.id));
+  const toArr = toMode==="library" ? S.library[category] : S[category];
+  if(!staying.length || !allGroups.length){
+    // nothing (or everything) is selected to stay behind — move the whole title
+    fromArr.splice(idx,1);
+    if(!mergeIntoSibling(category, toArr, item)) toArr.push(item);
+    persist();
+    toast(toMode==="library" ? "Moved to Library." : "Moved to Season.");
+    return;
+  }
+  if(!item.originGroupId) item.originGroupId = uid();
+  const movedPart = { ...item, id: uid(), groups: moving };
+  item.groups = staying;
+  if(!mergeIntoSibling(category, toArr, movedPart)) toArr.push(movedPart);
+  persist();
+  toast(toMode==="library" ? "Moved the picked ones to Library." : "Moved the picked ones to Season.");
+}
+function splitAndMoveManga(id, fromMode, toMode, volCount){
+  const fromArr = fromMode==="library" ? S.library.manga : S.manga;
+  const idx = fromArr.findIndex(x=>x.id===id);
+  if(idx<0) return;
+  const item = fromArr[idx];
+  const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
+  const toArr = toMode==="library" ? S.library.manga : S.manga;
+  if(volCount>=total){
+    fromArr.splice(idx,1);
+    if(!mergeIntoSibling("manga", toArr, item)) toArr.push(item);
+    persist();
+    toast(toMode==="library" ? "Moved to Library." : "Moved to Season.");
+    return;
+  }
+  if(!item.originGroupId) item.originGroupId = uid();
+  const movedFrom = item.fromVol, movedTo = item.fromVol + volCount - 1;
+  const movedRead = Math.min(item.volsRead||0, volCount);
+  const movedPart = { ...item, id: uid(), fromVol: movedFrom, toVol: movedTo, volsRead: movedRead };
+  item.fromVol = movedTo + 1;
+  item.volsRead = Math.max(0, (item.volsRead||0) - volCount);
+  if(!mergeIntoSibling("manga", toArr, movedPart)) toArr.push(movedPart);
+  persist();
+  toast(toMode==="library" ? "Moved the picked volumes to Library." : "Moved the picked volumes to Season.");
+}
 function removeGeneric(category, id){
   if(category==="games") return removeGame(id);
   if(category==="movies") return removeMovie(id);
@@ -1223,10 +1513,11 @@ function renderTabBar(){
 
 /* ============ GAMES ============ */
 function openGameModal(id=null, target="season"){
-  editId = id; modalTarget = target;
+  editId = id; modalTarget = target; currentModalCategory = "games";
   $("dlcRows").innerHTML = "";
+  let g = null;
   if(id){
-    const g = arrFor("games",target).find(x=>x.id===id);
+    g = arrFor("games",target).find(x=>x.id===id);
     $("formTitle").textContent = "Edit entry";
     $("gname").value = g.name; $("goal").value = g.goal; $("played").value = g.played;
     $("hasDlc").checked = !!g.hasDlc;
@@ -1241,6 +1532,7 @@ function openGameModal(id=null, target="season"){
     currentModalTags = [];
   }
   renderTagPicker("g");
+  fillSeriesFields("g", "games", g);
   toggleDlcSection();
   $("gameModal").classList.add("show"); $("gname").focus();
 }
@@ -1267,6 +1559,11 @@ function saveGame(){
   const hasDlc = $("hasDlc").checked;
   const releaseDate = readRelease("g");
   const hype = readHype("g");
+  const seriesFields = readSeriesFields("g");
+  if(seriesFields.partOfSeries){
+    const clash = seriesOrderConflict("games", seriesFields.seriesId, seriesFields.seriesOrder, editId);
+    if(clash) return toast(`"${clash}" already has that series order number.`);
+  }
   const dlcs = [];
   if(hasDlc){
     document.querySelectorAll(".dlc-edit").forEach(r=>{
@@ -1287,10 +1584,10 @@ function saveGame(){
       const playedVal = nd.type==="time" ? Math.min(match.played||0, nd.goal||match.played||0) : 0;
       return { ...nd, played: playedVal, done: match.done||false, timerStart: match.timerStart||null };
     });
-    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, hype, tags: currentModalTags.slice(), lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
+    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
     checkAutoComplete(g);
   } else {
-    arr.push({ id: uid(), name, goal, played, hasDlc, dlcs, releaseDate, hype, tags: currentModalTags.slice(), lastPlayed: modalTarget==="season" && played<goal, timerStart:null });
+    arr.push({ id: uid(), name, goal, played, hasDlc, dlcs, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, lastPlayed: modalTarget==="season" && played<goal, timerStart:null });
   }
   closeModal("gameModal"); persist(); toast("Entry saved.");
 }
@@ -1329,7 +1626,15 @@ function toggleDlcDone(gameId, dlcId){
   const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
   d.done = !d.done; persist();
 }
-function toggleDlcsVisible(id){ $("dlcs-"+id).classList.toggle("open"); }
+let dlcSectionsOpen = new Set(); // v1.7.0 — ids of games whose inline DLC list is expanded, tracked in JS
+                                  // (not just a DOM class) so a full re-render — e.g. from starting a DLC
+                                  // timer — doesn't silently re-collapse the section on you.
+function toggleDlcsVisible(id){
+  const el = $("dlcs-"+id);
+  if(!el) return;
+  const nowOpen = el.classList.toggle("open");
+  if(nowOpen) dlcSectionsOpen.add(id); else dlcSectionsOpen.delete(id);
+}
 
 /* timer */
 // v1.6.0 — timers can now run on a main game OR one of its timed DLCs, but
@@ -1424,7 +1729,7 @@ function gameCard(g){
   const combinedLine = combined!==null ? `<div class="entry-meta2" style="margin-top:3px">Combined with DLC: ${combined.toFixed(0)}%</div>` : "";
   const dlcPendingNote = done && hasDlcAny && !dlcAllCleared ? `<div class="entry-meta2" style="color:var(--brass);margin-top:2px">◆ DLC not finished (${dlcClearedCount}/${dlcs.length})</div>` : "";
 
-  const dlcHtml = g.hasDlc ? `<div class="dlcs" id="dlcs-${g.id}">${dlcs.map(d=>{
+  const dlcHtml = g.hasDlc ? `<div class="dlcs ${dlcSectionsOpen.has(g.id)?'open':''}" id="dlcs-${g.id}">${dlcs.map(d=>{
       const cleared = dlcCleared(d);
       if(d.type==="check"){
         return `<div class="dlc-row"><div class="dlc-top"><span class="dlc-name">${esc(d.name)}</span><span class="dlc-val">${cleared?"✓ Cleared":"Not cleared"}</span></div>${!cleared ? `<button class="btn small" style="margin-top:8px" onclick="toggleDlcDone('${g.id}','${d.id}')">Finished</button>` : ""}</div>`;
@@ -1474,9 +1779,10 @@ function gameCard(g){
 
 /* ============ MOVIES ============ */
 function openMovieModal(id=null, target="season"){
-  editId = id; modalTarget = target;
+  editId = id; modalTarget = target; currentModalCategory = "movies";
+  let m = null;
   if(id){
-    const m = arrFor("movies",target).find(x=>x.id===id);
+    m = arrFor("movies",target).find(x=>x.id===id);
     $("movieFormTitle").textContent = "Edit movie";
     $("mname").value = m.name; $("mlength").value = m.length;
     fillRelease("mv", m.releaseDate); fillHype("mv", m.hype);
@@ -1488,6 +1794,7 @@ function openMovieModal(id=null, target="season"){
     currentModalTags = [];
   }
   renderTagPicker("mv");
+  fillSeriesFields("mv", "movies", m);
   $("movieModal").classList.add("show"); $("mname").focus();
 }
 function saveMovie(){
@@ -1495,12 +1802,18 @@ function saveMovie(){
   const length = +$("mlength").value;
   if(!name || length <= 0) return toast("Give it a title and a length.");
   const releaseDate = readRelease("mv"); const hype = readHype("mv");
+  const seriesFields = readSeriesFields("mv");
+  if(seriesFields.partOfSeries){
+    const clash = seriesOrderConflict("movies", seriesFields.seriesId, seriesFields.seriesOrder, editId);
+    if(clash) return toast(`"${clash}" already has that series order number.`);
+  }
   const arr = arrFor("movies", modalTarget);
   if(editId){
     const m = arr.find(x=>x.id===editId);
     m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.hype = hype; m.tags = currentModalTags.slice();
+    Object.assign(m, seriesFields);
   } else {
-    arr.push({ id: uid(), name, length, watched:0, releaseDate, hype, tags: currentModalTags.slice() });
+    arr.push({ id: uid(), name, length, watched:0, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields });
   }
   closeModal("movieModal"); persist(); toast("Movie saved.");
 }
@@ -1543,9 +1856,10 @@ function movieCard(m){
 
 /* ============ MANGA ============ */
 function openMangaModal(id=null, target="season"){
-  editId = id; modalTarget = target;
+  editId = id; modalTarget = target; currentModalCategory = "manga";
+  let m = null;
   if(id){
-    const m = arrFor("manga",target).find(x=>x.id===id);
+    m = arrFor("manga",target).find(x=>x.id===id);
     $("mangaFormTitle").textContent = "Edit manga";
     $("mgname").value = m.name; $("mgfrom").value = m.fromVol; $("mgto").value = m.toVol;
     fillRelease("mg", m.releaseDate); fillHype("mg", m.hype);
@@ -1557,6 +1871,7 @@ function openMangaModal(id=null, target="season"){
     currentModalTags = [];
   }
   renderTagPicker("mg");
+  fillSeriesFields("mg", "manga", m);
   $("mangaModal").classList.add("show"); $("mgname").focus();
 }
 function saveManga(){
@@ -1565,14 +1880,20 @@ function saveManga(){
   const toVol = Math.max(fromVol, +$("mgto").value || 0);
   if(!name || fromVol<=0 || toVol<fromVol) return toast("Give it a title and a valid volume range.");
   const releaseDate = readRelease("mg"); const hype = readHype("mg");
+  const seriesFields = readSeriesFields("mg");
+  if(seriesFields.partOfSeries){
+    const clash = seriesOrderConflict("manga", seriesFields.seriesId, seriesFields.seriesOrder, editId);
+    if(clash) return toast(`"${clash}" already has that series order number.`);
+  }
   const arr = arrFor("manga", modalTarget);
   if(editId){
     const m = arr.find(x=>x.id===editId);
     const total = toVol-fromVol+1;
     m.name = name; m.fromVol = fromVol; m.toVol = toVol; m.volsRead = Math.min(m.volsRead||0, total);
     m.releaseDate = releaseDate; m.hype = hype; m.tags = currentModalTags.slice();
+    Object.assign(m, seriesFields);
   } else {
-    arr.push({ id: uid(), name, fromVol, toVol, volsRead:0, releaseDate, hype, tags: currentModalTags.slice() });
+    arr.push({ id: uid(), name, fromVol, toVol, volsRead:0, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields });
   }
   closeModal("mangaModal"); persist(); toast("Manga saved.");
 }
@@ -1627,7 +1948,7 @@ function mangaCard(m){
       <button class="btn small" onclick="stepManga('${m.id}',5)">+5 vol</button>
       <button class="btn accent" onclick="finishManga('${m.id}')">✓ Mark finished</button>
     </div>` : ""}
-    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>` : ""}<button onclick="moveItem('manga','${m.id}','season','library')">To Library</button><button onclick="openMangaModal('${m.id}')">Edit</button><button onclick="removeManga('${m.id}')">Remove</button></div></div>
+    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>` : ""}<button onclick="${moveButtonHandler('manga',m.id,'season','library')}">To Library</button><button onclick="openMangaModal('${m.id}')">Edit</button><button onclick="removeManga('${m.id}')">Remove</button></div></div>
   </article>`;
 }
 function renderManga(){
@@ -1655,14 +1976,16 @@ function renderManga(){
 
 /* ============ TV + ANIME (episodic) ============ */
 function openEpisodicModal(category, id=null, target="season"){
-  editId = id; epiCategory = category; epiTarget = target; modalTarget = target;
+  editId = id; epiCategory = category; epiTarget = target; modalTarget = target; currentModalCategory = category;
   epiInitializing = true;
   $("groupRows").innerHTML = "";
   const isAnime = category === "anime";
   $("groupTypeRow").style.display = isAnime ? "block" : "none";
   $("epiHint").textContent = isAnime ? "Track by season or by arc — your call." : "Each season gets its own episode count, just like DLC for games.";
+  $("epi_seriesLabel").textContent = `This ${isAnime ? "anime" : "show"} is part of a series`;
+  let e = null;
   if(id){
-    const e = arrFor(category,target).find(x=>x.id===id);
+    e = arrFor(category,target).find(x=>x.id===id);
     $("epiFormTitle").textContent = "Edit " + (isAnime ? "anime" : "show");
     $("epiname").value = e.name; $("epilen").value = e.epLen;
     groupTypeSel = e.groupType || "season";
@@ -1677,6 +2000,7 @@ function openEpisodicModal(category, id=null, target="season"){
     currentModalTags = [];
   }
   renderTagPicker("epi");
+  fillSeriesFields("epi", category, e);
   setGroupType(groupTypeSel);
   epiInitializing = false;
   $("epiModal").classList.add("show"); $("epiname").focus();
@@ -1736,12 +2060,17 @@ function saveEpisodic(){
     groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched });
   });
   const releaseDate = readRelease("epi"); const hype = readHype("epi");
+  const seriesFields = readSeriesFields("epi");
+  if(seriesFields.partOfSeries){
+    const clash = seriesOrderConflict(epiCategory, seriesFields.seriesId, seriesFields.seriesOrder, editId);
+    if(clash) return toast(`"${clash}" already has that series order number.`);
+  }
   const list = arrFor(epiCategory, epiTarget);
   if(editId){
     const e = list.find(x=>x.id===editId);
-    Object.assign(e, { name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
+    Object.assign(e, { name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
   } else {
-    const entry = { id: uid(), name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice() };
+    const entry = { id: uid(), name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields };
     if(epiCategory === "anime") entry.groupType = groupTypeSel;
     list.push(entry);
   }
@@ -1794,7 +2123,7 @@ function episodicCard(category, e){
       <div class="remaining">${done?"Done":fmtHM(goal-played)+" left"}</div>
     </div>
     <div class="groups">${groupsHtml}</div>
-    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('${category}','${e.id}')">Abandon</button>` : ""}<button onclick="moveItem('${category}','${e.id}','season','library')">To Library</button><button onclick="openEpisodicModal('${category}','${e.id}')">Edit</button><button onclick="removeEpisodic('${category}','${e.id}')">Remove</button></div></div>
+    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('${category}','${e.id}')">Abandon</button>` : ""}<button onclick="${moveButtonHandler(category,e.id,'season','library')}">To Library</button><button onclick="openEpisodicModal('${category}','${e.id}')">Edit</button><button onclick="removeEpisodic('${category}','${e.id}')">Remove</button></div></div>
   </article>`;
 }
 
@@ -2495,16 +2824,30 @@ function renderEpisodicTab(category){
 }
 
 function render(){
+  const scrollY = window.scrollY;
   renderModeToggle();
   renderAccountBtn();
   if($("accountModal").classList.contains("show")) $("accountModalBody").innerHTML = cloudStatusHtml();
   renderTabBar();
-  if(mode==="library"){ renderLibraryTab(libTab); return; }
+  if(mode==="library"){ renderLibraryTab(libTab); restoreScroll(scrollY); return; }
   if(activeTab==="overview") renderOverview();
   else if(activeTab==="games") renderGames();
   else if(activeTab==="movies") renderMovies();
   else if(activeTab==="manga") renderManga();
   else renderEpisodicTab(activeTab);
+  restoreScroll(scrollY);
+}
+// v1.7.0 — rebuilding #app's innerHTML (which almost every action here does,
+// via persist()) can make the browser clamp or re-settle scrollY mid-reflow —
+// most visible on mobile Safari — even when the rendered content ends up the
+// same height as before. That's what caused things like starting a DLC timer
+// to visibly "jump" the page. Nudging scrollY back after the DOM settles
+// keeps in-place actions from moving the page at all. Callers that WANT an
+// intentional scroll (switchTab, switchLibTab, switchMode) call
+// window.scrollTo(0,0) themselves right after render() runs, which simply
+// overrides this.
+function restoreScroll(y){
+  requestAnimationFrame(()=> window.scrollTo(0, y));
 }
 
 /* ============ LIBRARY BOOK (v1.3.0) ============
@@ -2625,12 +2968,16 @@ function libraryExpanded(category, item){
       ? item.groups.map(g=>`<div class="lib-exp-line">${esc(g.name)}: ${g.watched||0} / ${g.total||0} episodes</div>`).join("")
       : `<div class="lib-exp-line">No seasons/arcs added yet.</div>`;
   }
-  const names = tagNames(item);
+  const names = tagNames(category, item);
   html += names.length
     ? `<div class="lib-exp-tags">${names.map(n=>`<span class="tag-chip-static">${esc(n)}</span>`).join("")}</div>`
     : `<div class="lib-exp-line" style="color:var(--muted-dim)">No tags</div>`;
+  if(item.partOfSeries && item.seriesId){
+    const s = (S.series[category]||[]).find(x=>x.id===item.seriesId);
+    if(s) html += `<div class="lib-exp-line">📖 ${esc(s.name)}${item.seriesOrder!=null ? ` — #${item.seriesOrder}` : ""}</div>`;
+  }
   html += `<div class="lib-exp-actions">
-    <button class="btn small ghost" onclick="moveItem('${category}','${item.id}','library','season')">To Season</button>
+    <button class="btn small ghost" onclick="${moveButtonHandler(category,item.id,'library','season')}">To Season</button>
     <button class="btn small ghost" onclick="${libraryRemoveFn(category,item.id)}">Remove</button>
   </div>`;
   html += `</div>`;
@@ -2764,7 +3111,8 @@ function renderLibraryTab(category){
       </select>
       <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
     </div>
-    <button class="lib-tags-btn" onclick="openTagsModal()" title="Manage tags">🏷 Tags</button>
+    <button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags">🏷 Tags</button>
+    <button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series">📖 Series</button>
   </div>`;
 
   html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
