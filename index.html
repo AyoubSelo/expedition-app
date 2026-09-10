@@ -300,6 +300,20 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .hype-dot.on{background:var(--brass);color:#1a1006;border-color:var(--brass)}
 .hype-label{font-size:11.5px;color:var(--muted);margin-left:4px}
 
+/* v1.7.1 — compact rows: number field(s) + inline checkbox pill(s) on the same
+   line, used to shorten the game/movie edit forms. */
+.compact-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:14px}
+.compact-row > div{flex:1 1 74px;min-width:74px}
+.compact-row > div > label{margin:0 0 6px}
+.compact-num{width:100%;text-align:center}
+.compact-num-tiny{width:100%;text-align:center;max-width:4.5em}
+.check-compact{display:flex;align-items:center;justify-content:center;gap:6px;flex:0 0 auto;
+  padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);
+  color:var(--ink);font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+  cursor:pointer;white-space:nowrap}
+.check-compact input{width:auto;margin:0}
+.hype-row-compact .hype-dot{width:28px;height:28px;font-size:12px}
+
 /* v1.5.0 — tags */
 .tag-picker{display:flex;flex-wrap:wrap;gap:6px}
 .tag-chip{padding:6px 11px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
@@ -420,15 +434,11 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="hint">Saved to this device only.</div>
     <label>Game</label>
     <input id="gname" placeholder="e.g. Metro Exodus">
-    <div class="row2">
-      <div><label>Target hours</label><input id="goal" type="number" min=".1" step=".1" inputmode="decimal"></div>
-      <div><label>Already played</label><input id="played" type="number" min="0" step=".1" value="0" inputmode="decimal"></div>
-    </div>
-    <label class="check" style="text-transform:none"><input id="hasDlc" type="checkbox" onchange="toggleDlcSection()"> This one has DLC / extra content to track</label>
-    <div id="dlcSection" class="dlc-section">
-      <b>DLC / extra content</b>
-      <div id="dlcRows"></div>
-      <button class="btn small" style="margin-top:6px" onclick="addDlcRow()">+ Add DLC</button>
+    <div class="compact-row">
+      <div><label>Target hours</label><input id="goal" class="compact-num" type="number" min=".1" step=".1" inputmode="decimal"></div>
+      <div><label>Played</label><input id="played" class="compact-num" type="number" min="0" step=".1" value="0" inputmode="decimal"></div>
+      <label class="check-compact"><input id="hasDlc" type="checkbox" onchange="toggleDlcSection()"> DLC</label>
+      <label class="check-compact"><input id="g_hasSeries" type="checkbox" onchange="toggleSeriesSection('g')"> Series</label>
     </div>
     <div class="field-row">
       <label>Release date</label>
@@ -436,6 +446,18 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         <div class="release-field"><input id="g_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
         <div class="release-field"><input id="g_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
         <div class="release-field"><input id="g_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
+      </div>
+    </div>
+    <div id="dlcSection" class="dlc-section">
+      <b>DLC / extra content</b>
+      <div id="dlcRows"></div>
+      <button class="btn small" style="margin-top:6px" onclick="addDlcRow()">+ Add DLC</button>
+    </div>
+    <div id="g_seriesSection" class="field-row" style="display:none">
+      <label>Series</label>
+      <div class="row2">
+        <div><select id="g_seriesId"></select></div>
+        <div><input id="g_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
     </div>
     <div class="field-row">
@@ -454,15 +476,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <label>Tags</label>
       <div class="tag-picker" id="g_tagsRow"></div>
     </div>
-    <div class="field-row">
-      <label class="check" style="text-transform:none"><input id="g_hasSeries" type="checkbox" onchange="toggleSeriesSection('g')"> This game is part of a series</label>
-      <div id="g_seriesSection" style="display:none;margin-top:10px">
-        <div class="row2">
-          <div><label>Series</label><select id="g_seriesId"></select></div>
-          <div><label>Order #</label><input id="g_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
-        </div>
-      </div>
-    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('gameModal')">Cancel</button>
       <button class="btn brass" onclick="saveGame()">Save entry</button>
@@ -477,29 +490,19 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="hint">Length in minutes — the card will show it as h/m automatically.</div>
     <label>Title</label>
     <input id="mname" placeholder="e.g. Blade Runner 2049">
-    <label>Length (minutes)</label>
-    <input id="mlength" type="number" min="1" inputmode="numeric" placeholder="e.g. 107">
-    <div class="field-row">
-      <label>Release year</label>
-      <div class="release-row release-row-solo">
-        <div class="release-field"><input id="mv_ry" type="number" inputmode="numeric" placeholder="YYYY"></div>
+    <div class="compact-row">
+      <div style="flex-basis:70px"><label>Length (min)</label><input id="mlength" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="107"></div>
+      <div style="flex-basis:70px"><label>Year</label><input id="mv_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 140px;min-width:140px">
+        <label>Hype</label>
+        <div class="hype-row hype-row-compact">
+          <button type="button" class="hype-dot" data-prefix="mv" data-val="1" onclick="setHype('mv',1)">★</button>
+          <button type="button" class="hype-dot" data-prefix="mv" data-val="2" onclick="setHype('mv',2)">★</button>
+          <button type="button" class="hype-dot" data-prefix="mv" data-val="3" onclick="setHype('mv',3)">★</button>
+          <span class="hype-label" id="mv_hypeLabel">Not set</span>
+        </div>
+        <input type="hidden" id="mv_hype" value="0">
       </div>
-    </div>
-    <div class="field-row">
-      <label>Hype level</label>
-      <div class="hype-row">
-        <button type="button" class="hype-dot" data-prefix="mv" data-val="1" onclick="setHype('mv',1)">★</button>
-        <button type="button" class="hype-dot" data-prefix="mv" data-val="2" onclick="setHype('mv',2)">★</button>
-        <button type="button" class="hype-dot" data-prefix="mv" data-val="3" onclick="setHype('mv',3)">★</button>
-        <button type="button" class="hype-dot" data-prefix="mv" data-val="4" onclick="setHype('mv',4)">★</button>
-        <button type="button" class="hype-dot" data-prefix="mv" data-val="5" onclick="setHype('mv',5)">★</button>
-        <span class="hype-label" id="mv_hypeLabel">Not set</span>
-      </div>
-      <input type="hidden" id="mv_hype" value="0">
-    </div>
-    <div class="field-row">
-      <label>Tags</label>
-      <div class="tag-picker" id="mv_tagsRow"></div>
     </div>
     <div class="field-row">
       <label class="check" style="text-transform:none"><input id="mv_hasSeries" type="checkbox" onchange="toggleSeriesSection('mv')"> This movie is part of a series</label>
@@ -509,6 +512,10 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
           <div><label>Order #</label><input id="mv_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
         </div>
       </div>
+    </div>
+    <div class="field-row">
+      <label>Tags</label>
+      <div class="tag-picker" id="mv_tagsRow"></div>
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('movieModal')">Cancel</button>
@@ -708,7 +715,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.7.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.7.1"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
@@ -1209,6 +1216,7 @@ function ensureSeason(){
 }
 function persist(){
   ensureSeason();
+  scrubFinishedSeasonItems();
   S.updatedAt = Date.now();
   localStorage.setItem(KEY, JSON.stringify(S));
   if(cloudUser) pushToCloud();
@@ -1260,6 +1268,35 @@ function mangaMin(m){
   return { goal: total*60, played: (m.volsRead||0)*60 }; // each volume = 60 minutes
 }
 const MIN_FN = { games:gameMin, movies:movieMin, tv:episodicMin, anime:episodicMin, manga:mangaMin };
+
+/* v1.7.1 — once a Season title is fully finished, its tags/series link/release
+   date aren't shown anywhere again (the eventual archive record only keeps the
+   name and the hours/units cleared), so clear them the moment it finishes
+   rather than carrying them around dead until the next quarter rollover. */
+function isSeasonItemDone(category, item){
+  if(item.abandoned) return false;
+  const {goal, played} = MIN_FN[category](item);
+  if(!(goal>0 && played>=goal)) return false;
+  if(category==="games"){
+    const hasDlcAny = item.hasDlc && (item.dlcs||[]).length>0;
+    return !hasDlcAny || allDlcCleared(item);
+  }
+  return true;
+}
+function scrubFinishedMeta(item){
+  if(item.tags && item.tags.length) item.tags = [];
+  if(item.partOfSeries || item.seriesId || item.seriesOrder!=null){
+    item.partOfSeries = false; item.seriesId = null; item.seriesOrder = null;
+  }
+  if(item.releaseDate && (item.releaseDate.y||item.releaseDate.m||item.releaseDate.d)){
+    item.releaseDate = { y:null, m:null, d:null };
+  }
+}
+function scrubFinishedSeasonItems(){
+  ["games","movies","tv","anime","manga"].forEach(cat=>{
+    (S[cat]||[]).forEach(item=>{ if(isSeasonItemDone(cat,item)) scrubFinishedMeta(item); });
+  });
+}
 
 function categoryTotals(cat){
   const list = (S[cat] || []).filter(x=>!x.abandoned);
@@ -1534,7 +1571,7 @@ function openGameModal(id=null, target="season"){
   renderTagPicker("g");
   fillSeriesFields("g", "games", g);
   toggleDlcSection();
-  $("gameModal").classList.add("show"); $("gname").focus();
+  $("gameModal").classList.add("show"); if(!id) $("gname").focus();
 }
 function toggleDlcSection(){ $("dlcSection").classList.toggle("open", $("hasDlc").checked); }
 function addDlcRow(d={id:"",name:"",type:"time",goal:0}){
@@ -1785,7 +1822,7 @@ function openMovieModal(id=null, target="season"){
     m = arrFor("movies",target).find(x=>x.id===id);
     $("movieFormTitle").textContent = "Edit movie";
     $("mname").value = m.name; $("mlength").value = m.length;
-    fillRelease("mv", m.releaseDate); fillHype("mv", m.hype);
+    fillRelease("mv", m.releaseDate); fillHype("mv", Math.min(3, m.hype||0));
     currentModalTags = (m.tags||[]).slice();
   } else {
     $("movieFormTitle").textContent = "New movie";
@@ -1795,13 +1832,13 @@ function openMovieModal(id=null, target="season"){
   }
   renderTagPicker("mv");
   fillSeriesFields("mv", "movies", m);
-  $("movieModal").classList.add("show"); $("mname").focus();
+  $("movieModal").classList.add("show"); if(!id) $("mname").focus();
 }
 function saveMovie(){
   const name = $("mname").value.trim();
   const length = +$("mlength").value;
   if(!name || length <= 0) return toast("Give it a title and a length.");
-  const releaseDate = readRelease("mv"); const hype = readHype("mv");
+  const releaseDate = readRelease("mv"); const hype = Math.min(3, readHype("mv"));
   const seriesFields = readSeriesFields("mv");
   if(seriesFields.partOfSeries){
     const clash = seriesOrderConflict("movies", seriesFields.seriesId, seriesFields.seriesOrder, editId);
@@ -1872,7 +1909,7 @@ function openMangaModal(id=null, target="season"){
   }
   renderTagPicker("mg");
   fillSeriesFields("mg", "manga", m);
-  $("mangaModal").classList.add("show"); $("mgname").focus();
+  $("mangaModal").classList.add("show"); if(!id) $("mgname").focus();
 }
 function saveManga(){
   const name = $("mgname").value.trim();
@@ -2003,7 +2040,7 @@ function openEpisodicModal(category, id=null, target="season"){
   fillSeriesFields("epi", category, e);
   setGroupType(groupTypeSel);
   epiInitializing = false;
-  $("epiModal").classList.add("show"); $("epiname").focus();
+  $("epiModal").classList.add("show"); if(!id) $("epiname").focus();
 }
 function isNumberedMode(){ return epiCategory==="tv" || (epiCategory==="anime" && groupTypeSel==="season"); }
 function numFromName(name){ const m = /(\d+)\s*$/.exec(name||""); return m ? m[1] : ""; }
@@ -2871,6 +2908,13 @@ function itemMinutes(category, item){
   return { total, played };
 }
 function fmtHrs(mins){ return fmtN(Math.round(mins/6)/10); }
+// v1.7.1 — total runtime of a group of Library titles, shown next to the
+// title count on each group header. Same per-category formatting as a single
+// row's length (movies as "2H 25M", everything else as decimal hours).
+function fmtGroupLength(category, mins){
+  if(mins<=0) return null;
+  return category==="movies" ? fmtHrMin(mins) : `${fmtHrs(mins)}H`;
+}
 // v1.6.0 — movies show "2H 25M" instead of a decimal like "2.4H"; games/manga
 // keep the decimal-hour style since that's what was actually asked for.
 function fmtHrMin(mins){
@@ -3134,12 +3178,14 @@ function renderLibraryTab(category){
     html += orderedKeys.map(key => {
       const isOpen = libExpandedGroups.has(key);
       const safeKey = key.replace(/'/g,"\\'");
+      const groupMins = buckets[key].reduce((a,x)=>a+itemMinutes(category,x).total,0);
+      const groupLenLabel = fmtGroupLength(category, groupMins);
       return `
       <div class="lib-group">
         <div class="lib-group-head" onclick="toggleLibGroup('${safeKey}')">
           <span class="lib-group-arrow">${isOpen?'▾':'▸'}</span>
           <span class="lib-group-title">${esc(key)}</span>
-          <span class="lib-group-count">${buckets[key].length}</span>
+          <span class="lib-group-count">${buckets[key].length}${groupLenLabel?' · '+groupLenLabel:''}</span>
         </div>
         ${isOpen ? `<div class="lib-list">${buckets[key].map(x=>libraryRow(category,x)).join("")}</div>` : ""}
       </div>`;
@@ -3200,6 +3246,14 @@ if("serviceWorker" in navigator){
     navigator.serviceWorker.register(swUrl).catch(()=>{});
   }catch(e){}
 }
+
+// v1.7.1 — clicking the dark backdrop area of any open modal closes it, same
+// as tapping Cancel. Checked against the modal's own root element specifically
+// (not just "not the sheet") so clicks that bubble up from inside form
+// controls never accidentally close it.
+document.querySelectorAll(".modal").forEach(function(m){
+  m.addEventListener("click", function(e){ if(e.target === m) closeModal(m.id); });
+});
 
 $("verTag").textContent = "v" + APP_VERSION;
 render();
