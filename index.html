@@ -314,14 +314,33 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .check-compact input{width:auto;margin:0}
 .hype-row-compact .hype-dot{width:28px;height:28px;font-size:12px}
 
+/* v1.7.2 — game modal's Target hours/Played columns narrowed to a 5-digit max,
+   with DLC/Series stacked as two half-height pills alongside them instead of
+   sitting inline at full checkbox size. */
+.compact-row.align-stretch{align-items:stretch}
+.compact-num-5{width:100%;text-align:center;max-width:5.4em}
+.num-field label{margin:0 0 6px}
+.check-stack{display:flex;flex-direction:column;gap:5px;min-width:90px}
+.compact-row > .check-stack{flex:1 1 100px;min-width:90px}
+.check-stack .check-compact{flex:1;padding:0 10px;font-size:11px}
+
 /* v1.5.0 — tags */
 .tag-picker{display:flex;flex-wrap:wrap;gap:6px}
 .tag-chip{padding:6px 11px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
 .tag-chip.on{background:var(--teal);color:#0d1310;border-color:var(--teal)}
 .tag-empty{font-size:12px;color:var(--muted-dim)}
-.tag-manage-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.tag-manage-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;position:relative;background:var(--bg)}
+.tag-manage-row.dragging{background:var(--panel2);box-shadow:0 6px 16px rgba(0,0,0,.28);border-radius:10px;opacity:.94;z-index:5}
 .move-group-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:40vh;overflow-y:auto}
 .tag-manage-row input{flex:1}
+.drag-handle{cursor:grab;touch-action:none;user-select:none;color:var(--muted);font-size:17px;line-height:1;padding:6px 2px;flex-shrink:0}
+/* v1.7.2 — caps the Tags/Series manage list to ~8 rows tall with its own
+   scroll, so a long list scrolls in place instead of pushing the whole modal
+   around; the mask fades the top/bottom edge to hint there's more to scroll. */
+.scroll-mask{max-height:404px;overflow-y:auto;
+  -webkit-mask-image:linear-gradient(to bottom, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+  mask-image:linear-gradient(to bottom, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
+  padding:4px 0}
 .tag-chip-static{display:inline-block;padding:3px 9px;border-radius:10px;background:var(--panel2);color:var(--muted);font-size:10.5px;margin:0 5px 5px 0}
 
 /* v1.3.0 — Season/Library mode toggle. v1.4.0: icons instead of emoji, plus header-top row for the account button */
@@ -434,11 +453,13 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="hint">Saved to this device only.</div>
     <label>Game</label>
     <input id="gname" placeholder="e.g. Metro Exodus">
-    <div class="compact-row">
-      <div><label>Target hours</label><input id="goal" class="compact-num" type="number" min=".1" step=".1" inputmode="decimal"></div>
-      <div><label>Played</label><input id="played" class="compact-num" type="number" min="0" step=".1" value="0" inputmode="decimal"></div>
-      <label class="check-compact"><input id="hasDlc" type="checkbox" onchange="toggleDlcSection()"> DLC</label>
-      <label class="check-compact"><input id="g_hasSeries" type="checkbox" onchange="toggleSeriesSection('g')"> Series</label>
+    <div class="compact-row align-stretch">
+      <div class="num-field"><label>Target hours</label><input id="goal" class="compact-num-5" type="number" min=".1" step=".1" inputmode="decimal"></div>
+      <div class="num-field"><label>Played</label><input id="played" class="compact-num-5" type="number" min="0" step=".1" value="0" inputmode="decimal"></div>
+      <div class="check-stack">
+        <label class="check-compact"><input id="hasDlc" type="checkbox" onchange="toggleDlcSection()"> DLC</label>
+        <label class="check-compact"><input id="g_hasSeries" type="checkbox" onchange="toggleSeriesSection('g')"> Series</label>
+      </div>
     </div>
     <div class="field-row">
       <label>Release date</label>
@@ -715,7 +736,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.7.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.7.2"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
@@ -922,15 +943,18 @@ function openTagsModal(category){
 function renderTagsModalBody(){
   const body = $("tagsModalBody");
   const list = S.tags[currentTagsModalCategory];
+  body.classList.toggle("scroll-mask", list.length>8);
   if(!list.length){
     body.innerHTML = `<div class="tag-empty">No tags yet. Add your first one below.</div>`;
   } else {
     body.innerHTML = list.map(t=>`
-      <div class="tag-manage-row">
+      <div class="tag-manage-row" data-id="${t.id}">
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
         <input value="${esc(t.name)}" onchange="renameTag('${t.id}',this.value)">
         <button class="lib-dir-btn" onclick="deleteTag('${t.id}')" title="Delete tag">✕</button>
       </div>
     `).join("");
+    bindManageRowDrag(body, list, renderTagsModalBody);
   }
 }
 function addTag(){
@@ -961,6 +985,90 @@ function deleteTag(id){
   renderTagsModalBody();
 }
 
+/* ---------- v1.7.2 — drag-to-reorder for the Tags/Series manage lists ----------
+   Pointer Events (not native HTML5 drag) so it works with touch on the phone,
+   not just mouse. The dragged row follows the finger via a translateY that's
+   recomputed against its own "natural" (untransformed) position every move,
+   so it stays correct even as the DOM reorders under it. Whichever sibling
+   gets displaced by a swap gets a short FLIP slide so the whole thing reads
+   as one continuous drag instead of a jump. */
+function flipMove(el, mutate){
+  const first = el.getBoundingClientRect();
+  mutate();
+  const last = el.getBoundingClientRect();
+  const dy = first.top - last.top;
+  if(dy){
+    el.style.transition = "none";
+    el.style.transform = `translateY(${dy}px)`;
+    requestAnimationFrame(()=>{
+      el.style.transition = "transform 160ms ease";
+      el.style.transform = "";
+    });
+  }
+}
+function bindManageRowDrag(container, list, afterReorder){
+  container.querySelectorAll(".tag-manage-row").forEach(row=>{
+    const handle = row.querySelector(".drag-handle");
+    if(!handle) return;
+    handle.addEventListener("pointerdown", function(e){
+      e.preventDefault();
+      try{ handle.setPointerCapture(e.pointerId); }catch(err){}
+      row.classList.add("dragging");
+      const initialClientY = e.clientY;
+      const initialNaturalTop = row.getBoundingClientRect().top;
+      let lastClientY = initialClientY;
+      function reposition(){
+        const saved = row.style.transform;
+        row.style.transform = "";
+        const naturalTopNow = row.getBoundingClientRect().top;
+        row.style.transform = saved;
+        const dy = lastClientY - initialClientY - (naturalTopNow - initialNaturalTop);
+        row.style.transform = `translateY(${dy}px)`;
+      }
+      reposition();
+      function onMove(ev){
+        lastClientY = ev.clientY;
+        reposition();
+        const rowRect = row.getBoundingClientRect();
+        const rowMid = rowRect.top + rowRect.height/2;
+        const rows = [...container.children];
+        const rowIdx = rows.indexOf(row);
+        for(let i=0;i<rows.length;i++){
+          const sib = rows[i];
+          if(sib===row) continue;
+          const sr = sib.getBoundingClientRect();
+          const sibMid = sr.top + sr.height/2;
+          if(i < rowIdx && rowMid < sibMid){
+            flipMove(sib, ()=>container.insertBefore(row, sib));
+            reposition();
+            break;
+          } else if(i > rowIdx && rowMid > sibMid){
+            flipMove(sib, ()=>container.insertBefore(row, sib.nextSibling));
+            reposition();
+            break;
+          }
+        }
+      }
+      function onUp(){
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", onUp);
+        row.classList.remove("dragging");
+        row.style.transition = "transform 120ms ease";
+        row.style.transform = "";
+        const ids = [...container.children].map(r=>r.dataset.id);
+        const byId = new Map(list.map(x=>[x.id, x]));
+        const reordered = ids.map(id=>byId.get(id)).filter(Boolean);
+        list.length = 0;
+        list.push(...reordered);
+        persist();
+        setTimeout(()=>{ row.style.transition = ""; if(afterReorder) afterReorder(); }, 160);
+      }
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", onUp);
+    });
+  });
+}
+
 /* ---------- v1.7.0 — Series ----------
    Same shape as Tags (per-category named list), but for grouping titles that
    belong to the same series/saga with an order number. A title opts in via
@@ -975,15 +1083,18 @@ function openSeriesModal(category){
 function renderSeriesModalBody(){
   const body = $("seriesModalBody");
   const list = S.series[currentSeriesModalCategory];
+  body.classList.toggle("scroll-mask", list.length>8);
   if(!list.length){
     body.innerHTML = `<div class="tag-empty">No series yet. Add your first one below.</div>`;
   } else {
     body.innerHTML = list.map(s=>`
-      <div class="tag-manage-row">
+      <div class="tag-manage-row" data-id="${s.id}">
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
         <input value="${esc(s.name)}" onchange="renameSeries('${s.id}',this.value)">
         <button class="lib-dir-btn" onclick="deleteSeries('${s.id}')" title="Delete series">✕</button>
       </div>
     `).join("");
+    bindManageRowDrag(body, list, renderSeriesModalBody);
   }
 }
 function addSeries(){
@@ -1423,7 +1534,10 @@ function mergeIntoSibling(category, toArr, piece){
     sibling.toVol = Math.max(sibling.toVol, piece.toVol);
     sibling.volsRead = (sibling.volsRead||0) + (piece.volsRead||0);
   } else {
-    sibling.groups = [...(sibling.groups||[]), ...(piece.groups||[])];
+    // v1.7.2 — sort by each group's persistent `order` after merging so a
+    // season/arc lands back in its correct position rather than at the end.
+    sibling.groups = [...(sibling.groups||[]), ...(piece.groups||[])]
+      .sort((a,b)=>(a.order??0)-(b.order??0));
   }
   return true;
 }
@@ -2087,14 +2201,18 @@ function saveEpisodic(){
   if(!name || epLen <= 0) return toast("Give it a title and an episode length.");
   const numbered = isNumberedMode();
   const groups = [];
-  document.querySelectorAll(".group-edit").forEach(r=>{
+  document.querySelectorAll(".group-edit").forEach((r,idx)=>{
     const rawName = r.querySelector(".gn").value.trim();
     const total = Math.max(0, +r.querySelector(".gt").value || 0);
     let watched = Math.max(0, +r.querySelector(".gw").value || 0);
     watched = Math.min(watched, total);
     if(!rawName || total <= 0) return;
     const finalName = numbered ? ("Season " + rawName) : rawName;
-    groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched });
+    // v1.7.2 — `order` is the group's true position (assigned fresh from the
+    // modal's row order on every save) so a season/arc keeps its correct spot
+    // even after being split off to the other book and merged back later,
+    // instead of just landing wherever the merge happened to concatenate it.
+    groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched, order: idx });
   });
   const releaseDate = readRelease("epi"); const hype = readHype("epi");
   const seriesFields = readSeriesFields("epi");
@@ -3080,10 +3198,20 @@ function libCompare(category, a, b, key, dir){
   return dir==="desc" ? -cmp : cmp;
 }
 const LENGTH_GROUP_ORDER = ["Short (under 10h)","Medium (10–25h)","Long (25–50h)","Gigantic (50h+)"];
+// v1.7.2 — movies get their own length buckets (minutes-based, not hours) since
+// the general hours buckets above were built for games/manga and every movie
+// landed in "Short" regardless of runtime.
+const MOVIE_LENGTH_GROUP_ORDER = ["Short (under 1h 40m)","Medium (1h 40m–2h 20m)","Long (over 2h 20m)"];
 function libGroupKey(category, item, groupBy){
   if(groupBy==="length"){
-    const hrs = itemMinutes(category,item).total/60;
-    if(hrs<=0) return "No length set";
+    const mins = itemMinutes(category,item).total;
+    if(mins<=0) return "No length set";
+    if(category==="movies"){
+      if(mins<100) return "Short (under 1h 40m)";
+      if(mins<=140) return "Medium (1h 40m–2h 20m)";
+      return "Long (over 2h 20m)";
+    }
+    const hrs = mins/60;
     if(hrs<10) return "Short (under 10h)";
     if(hrs<25) return "Medium (10–25h)";
     if(hrs<50) return "Long (25–50h)";
@@ -3097,10 +3225,10 @@ function libGroupKey(category, item, groupBy){
 // chronological for year) rather than alphabetical — the group-order arrow
 // flips that order, but the "nothing set" bucket always stays last so it
 // doesn't jump to the top on every toggle.
-function libGroupOrderKeys(groupBy, dir, presentKeys){
+function libGroupOrderKeys(groupBy, dir, presentKeys, category){
   const present = new Set(presentKeys);
   if(groupBy==="length"){
-    let order = LENGTH_GROUP_ORDER.filter(k=>present.has(k));
+    let order = (category==="movies" ? MOVIE_LENGTH_GROUP_ORDER : LENGTH_GROUP_ORDER).filter(k=>present.has(k));
     if(dir==="desc") order.reverse();
     if(present.has("No length set")) order.push("No length set");
     return order;
@@ -3174,7 +3302,7 @@ function renderLibraryTab(category){
       const key = libGroupKey(category, item, libGroup);
       (buckets[key] = buckets[key]||[]).push(item);
     });
-    const orderedKeys = libGroupOrderKeys(libGroup, libGroupDir, Object.keys(buckets));
+    const orderedKeys = libGroupOrderKeys(libGroup, libGroupDir, Object.keys(buckets), category);
     html += orderedKeys.map(key => {
       const isOpen = libExpandedGroups.has(key);
       const safeKey = key.replace(/'/g,"\\'");
