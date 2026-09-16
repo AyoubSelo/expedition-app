@@ -314,15 +314,27 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .check-compact input{width:auto;margin:0}
 .hype-row-compact .hype-dot{width:28px;height:28px;font-size:12px}
 
-/* v1.7.2 — game modal's Target hours/Played columns narrowed to a 5-digit max,
-   with DLC/Series stacked as two half-height pills alongside them instead of
-   sitting inline at full checkbox size. */
-.compact-row.align-stretch{align-items:stretch}
+/* v1.7.2 — game modal's Target hours/Played columns narrowed to a 5-digit max.
+   v1.7.3 — reworked the DLC/Series stack: the earlier stretch-to-match-height
+   trick looked misaligned in practice, so these are now fixed-height pills
+   (left-aligned, like a normal checkbox row) sized to naturally sit close to
+   the number fields' height instead of forcing an exact match. */
 .compact-num-5{width:100%;text-align:center;max-width:5.4em}
 .num-field label{margin:0 0 6px}
-.check-stack{display:flex;flex-direction:column;gap:5px;min-width:90px}
-.compact-row > .check-stack{flex:1 1 100px;min-width:90px}
-.check-stack .check-compact{flex:1;padding:0 10px;font-size:11px}
+.check-stack{display:flex;flex-direction:column;gap:6px;flex:1 1 100px;min-width:96px}
+.check-stack .check-compact{justify-content:flex-start;padding:9px 10px;font-size:11px;gap:8px}
+.check-stack .check-compact input{transform:scale(.92)}
+
+/* v1.7.3 — "part of a series" toggle sits right next to the title field on
+   tv/anime/manga (instead of its own full checkbox row further down), and
+   the from/to volume columns shrink to a 3-digit max. */
+.name-row{display:flex;gap:8px;align-items:center}
+.name-row input{flex:1}
+.series-toggle{position:relative;flex-shrink:0;width:46px;height:46px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--muted);cursor:pointer;font-size:18px}
+.series-toggle input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.series-toggle:has(input:checked){background:var(--teal);border-color:var(--teal)}
+.compact-num-3{width:100%;text-align:center;max-width:3.6em}
 
 /* v1.5.0 — tags */
 .tag-picker{display:flex;flex-wrap:wrap;gap:6px}
@@ -449,11 +461,11 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 <!-- game modal -->
 <div class="modal" id="gameModal">
   <div class="sheet">
-    <h2 class="serif" id="formTitle">New entry</h2>
-    <div class="hint">Saved to this device only.</div>
+    <h2 class="serif" id="formTitle">New game</h2>
+    <div class="hint">Target hours is just a starting estimate — playing past it expands the goal automatically. Only "Finished" truly completes it.</div>
     <label>Game</label>
     <input id="gname" placeholder="e.g. Metro Exodus">
-    <div class="compact-row align-stretch">
+    <div class="compact-row">
       <div class="num-field"><label>Target hours</label><input id="goal" class="compact-num-5" type="number" min=".1" step=".1" inputmode="decimal"></div>
       <div class="num-field"><label>Played</label><input id="played" class="compact-num-5" type="number" min="0" step=".1" value="0" inputmode="decimal"></div>
       <div class="check-stack">
@@ -508,7 +520,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 <div class="modal" id="movieModal">
   <div class="sheet">
     <h2 class="serif" id="movieFormTitle">New movie</h2>
-    <div class="hint">Length in minutes — the card will show it as h/m automatically.</div>
+    <div class="hint">Length is in minutes — your watched progress shows as hours and minutes automatically.</div>
     <label>Title</label>
     <input id="mname" placeholder="e.g. Blade Runner 2049">
     <div class="compact-row">
@@ -551,41 +563,35 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <h2 class="serif" id="mangaFormTitle">New manga</h2>
     <div class="hint">Each volume counts as 60 minutes toward your stats.</div>
     <label>Title</label>
-    <input id="mgname" placeholder="e.g. Berserk">
-    <div class="row2">
-      <div><label>From volume</label><input id="mgfrom" type="number" min="1" inputmode="numeric" placeholder="e.g. 1"></div>
-      <div><label>To volume</label><input id="mgto" type="number" min="1" inputmode="numeric" placeholder="e.g. 15"></div>
+    <div class="name-row">
+      <input id="mgname" placeholder="e.g. Berserk">
+      <label class="series-toggle" title="Part of a series"><input id="mg_hasSeries" type="checkbox" onchange="toggleSeriesSection('mg')">📖</label>
     </div>
-    <div class="field-row">
-      <label>Release year</label>
-      <div class="release-row release-row-solo">
-        <div class="release-field"><input id="mg_ry" type="number" inputmode="numeric" placeholder="YYYY"></div>
+    <div class="compact-row">
+      <div style="flex-basis:62px"><label>From vol</label><input id="mgfrom" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="1"></div>
+      <div style="flex-basis:62px"><label>To vol</label><input id="mgto" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="15"></div>
+      <div style="flex-basis:70px"><label>Year</label><input id="mg_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 130px;min-width:130px">
+        <label>Hype</label>
+        <div class="hype-row hype-row-compact">
+          <button type="button" class="hype-dot" data-prefix="mg" data-val="1" onclick="setHype('mg',1)">★</button>
+          <button type="button" class="hype-dot" data-prefix="mg" data-val="2" onclick="setHype('mg',2)">★</button>
+          <button type="button" class="hype-dot" data-prefix="mg" data-val="3" onclick="setHype('mg',3)">★</button>
+          <span class="hype-label" id="mg_hypeLabel">Not set</span>
+        </div>
+        <input type="hidden" id="mg_hype" value="0">
       </div>
     </div>
-    <div class="field-row">
-      <label>Hype level</label>
-      <div class="hype-row">
-        <button type="button" class="hype-dot" data-prefix="mg" data-val="1" onclick="setHype('mg',1)">★</button>
-        <button type="button" class="hype-dot" data-prefix="mg" data-val="2" onclick="setHype('mg',2)">★</button>
-        <button type="button" class="hype-dot" data-prefix="mg" data-val="3" onclick="setHype('mg',3)">★</button>
-        <button type="button" class="hype-dot" data-prefix="mg" data-val="4" onclick="setHype('mg',4)">★</button>
-        <button type="button" class="hype-dot" data-prefix="mg" data-val="5" onclick="setHype('mg',5)">★</button>
-        <span class="hype-label" id="mg_hypeLabel">Not set</span>
+    <div id="mg_seriesSection" class="field-row" style="display:none">
+      <label>Series</label>
+      <div class="row2">
+        <div><select id="mg_seriesId"></select></div>
+        <div><input id="mg_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
-      <input type="hidden" id="mg_hype" value="0">
     </div>
     <div class="field-row">
       <label>Tags</label>
       <div class="tag-picker" id="mg_tagsRow"></div>
-    </div>
-    <div class="field-row">
-      <label class="check" style="text-transform:none"><input id="mg_hasSeries" type="checkbox" onchange="toggleSeriesSection('mg')"> This manga is part of a series</label>
-      <div id="mg_seriesSection" style="display:none;margin-top:10px">
-        <div class="row2">
-          <div><label>Series</label><select id="mg_seriesId"></select></div>
-          <div><label>Order #</label><input id="mg_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
-        </div>
-      </div>
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('mangaModal')">Cancel</button>
@@ -600,9 +606,24 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <h2 class="serif" id="epiFormTitle">New show</h2>
     <div class="hint" id="epiHint">Saved to this device only.</div>
     <label id="epiNameLabel">Title</label>
-    <input id="epiname" placeholder="e.g. Game of Thrones">
-    <label>Average episode length (minutes)</label>
-    <input id="epilen" type="number" min="1" inputmode="numeric" placeholder="e.g. 60">
+    <div class="name-row">
+      <input id="epiname" placeholder="e.g. Game of Thrones">
+      <label class="series-toggle" title="Part of a series"><input id="epi_hasSeries" type="checkbox" onchange="toggleSeriesSection('epi')">📖</label>
+    </div>
+    <div class="compact-row">
+      <div style="flex-basis:70px"><label>Avg. ep (min)</label><input id="epilen" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="60"></div>
+      <div style="flex-basis:70px"><label>Year</label><input id="epi_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 140px;min-width:140px">
+        <label>Hype</label>
+        <div class="hype-row hype-row-compact">
+          <button type="button" class="hype-dot" data-prefix="epi" data-val="1" onclick="setHype('epi',1)">★</button>
+          <button type="button" class="hype-dot" data-prefix="epi" data-val="2" onclick="setHype('epi',2)">★</button>
+          <button type="button" class="hype-dot" data-prefix="epi" data-val="3" onclick="setHype('epi',3)">★</button>
+          <span class="hype-label" id="epi_hypeLabel">Not set</span>
+        </div>
+        <input type="hidden" id="epi_hype" value="0">
+      </div>
+    </div>
     <div id="groupTypeRow" style="display:none">
       <label>Grouped by</label>
       <div class="radio-row">
@@ -614,36 +635,16 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div id="groupHeader" class="group-edit-head"></div>
     <div id="groupRows"></div>
     <button class="btn small" style="margin-top:6px" id="addGroupBtn" onclick="addGroupRow()">+ Add season</button>
-    <div class="field-row">
-      <label>Release year</label>
-      <div class="release-row release-row-solo">
-        <div class="release-field"><input id="epi_ry" type="number" inputmode="numeric" placeholder="YYYY"></div>
+    <div id="epi_seriesSection" class="field-row" style="display:none">
+      <label>Series</label>
+      <div class="row2">
+        <div><select id="epi_seriesId"></select></div>
+        <div><input id="epi_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
-    </div>
-    <div class="field-row">
-      <label>Hype level</label>
-      <div class="hype-row">
-        <button type="button" class="hype-dot" data-prefix="epi" data-val="1" onclick="setHype('epi',1)">★</button>
-        <button type="button" class="hype-dot" data-prefix="epi" data-val="2" onclick="setHype('epi',2)">★</button>
-        <button type="button" class="hype-dot" data-prefix="epi" data-val="3" onclick="setHype('epi',3)">★</button>
-        <button type="button" class="hype-dot" data-prefix="epi" data-val="4" onclick="setHype('epi',4)">★</button>
-        <button type="button" class="hype-dot" data-prefix="epi" data-val="5" onclick="setHype('epi',5)">★</button>
-        <span class="hype-label" id="epi_hypeLabel">Not set</span>
-      </div>
-      <input type="hidden" id="epi_hype" value="0">
     </div>
     <div class="field-row">
       <label>Tags</label>
       <div class="tag-picker" id="epi_tagsRow"></div>
-    </div>
-    <div class="field-row">
-      <label class="check" style="text-transform:none"><input id="epi_hasSeries" type="checkbox" onchange="toggleSeriesSection('epi')"> <span id="epi_seriesLabel">This show is part of a series</span></label>
-      <div id="epi_seriesSection" style="display:none;margin-top:10px">
-        <div class="row2">
-          <div><label>Series</label><select id="epi_seriesId"></select></div>
-          <div><label>Order #</label><input id="epi_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
-        </div>
-      </div>
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('epiModal')">Cancel</button>
@@ -736,8 +737,12 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.7.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.7.3"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
+// v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
+// with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
+const HYPE_LABELS_3 = ["Curious","Excited","Essential"];
+const HYPE_3_PREFIXES = new Set(["mv","epi","mg"]);
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
 const CAT = {
@@ -810,13 +815,26 @@ function normalizeTags(raw){
 }
 function normalizeState(raw){
   raw = raw || {};
-  const withExtras = x => ({
-    releaseDate: x.releaseDate || {y:"",m:"",d:""}, hype: x.hype||0, tags: Array.isArray(x.tags) ? x.tags : [],
+  // v1.7.3 — movies/tv/anime/manga are capped to a 3-star hype scale (see
+  // HYPE_LABELS_3); clamp on load too so any pre-existing 4-5 star values
+  // from before this update don't linger unseen.
+  const HYPE_MAX_3 = new Set(["movies","tv","anime","manga"]);
+  const withExtras = (x, cat) => ({
+    releaseDate: x.releaseDate || {y:"",m:"",d:""}, hype: HYPE_MAX_3.has(cat) ? Math.min(3, x.hype||0) : (x.hype||0), tags: Array.isArray(x.tags) ? x.tags : [],
     partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null,
   });
   const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
-    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g)}));
-  const normSimple = list => (list||[]).map(x => ({...x, id:x.id||uid(), originGroupId:x.originGroupId||null, ...withExtras(x)}));
+    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g,"games")}));
+  const normSimple = (list, cat) => (list||[]).map(x => {
+    const item = {...x, id:x.id||uid(), originGroupId:x.originGroupId||null, ...withExtras(x,cat)};
+    // v1.7.3 — retroactively stamp a persistent `order` onto every season/arc
+    // group for titles that existed before v1.7.2, so they get the same
+    // split/merge-safe ordering that newly-saved titles get automatically.
+    if((cat==="tv"||cat==="anime") && Array.isArray(item.groups) && item.groups.some(g=>g.order==null)){
+      item.groups = item.groups.map((g,i)=>({...g, order:i}));
+    }
+    return item;
+  });
   const rawLib = raw.library || {};
   return {
     version: 5,
@@ -826,16 +844,16 @@ function normalizeState(raw){
     tags: normalizeTags(raw.tags),
     series: normalizeNamedList(raw.series),
     games: normGames(raw.games),
-    movies: normSimple(raw.movies),
-    tv: normSimple(raw.tv || raw.shows),
-    anime: normSimple(raw.anime),
-    manga: normSimple(raw.manga),
+    movies: normSimple(raw.movies,"movies"),
+    tv: normSimple(raw.tv || raw.shows,"tv"),
+    anime: normSimple(raw.anime,"anime"),
+    manga: normSimple(raw.manga,"manga"),
     library: {
       games: normGames(rawLib.games),
-      movies: normSimple(rawLib.movies),
-      tv: normSimple(rawLib.tv),
-      anime: normSimple(rawLib.anime),
-      manga: normSimple(rawLib.manga),
+      movies: normSimple(rawLib.movies,"movies"),
+      tv: normSimple(rawLib.tv,"tv"),
+      anime: normSimple(rawLib.anime,"anime"),
+      manga: normSimple(rawLib.manga,"manga"),
     },
     updatedAt: raw.updatedAt || 0,
   };
@@ -882,7 +900,8 @@ function paintHype(prefix, val){
     d.classList.toggle("on", +d.dataset.val <= val && val>0);
   });
   const lbl = $(prefix+"_hypeLabel");
-  if(lbl) lbl.textContent = val>0 ? HYPE_LABELS[val-1] : "Not set";
+  const labels = HYPE_3_PREFIXES.has(prefix) ? HYPE_LABELS_3 : HYPE_LABELS;
+  if(lbl) lbl.textContent = val>0 ? labels[val-1] : "Not set";
 }
 function fillHype(prefix, val){
   val = val||0;
@@ -1669,14 +1688,14 @@ function openGameModal(id=null, target="season"){
   let g = null;
   if(id){
     g = arrFor("games",target).find(x=>x.id===id);
-    $("formTitle").textContent = "Edit entry";
+    $("formTitle").textContent = "Edit game";
     $("gname").value = g.name; $("goal").value = g.goal; $("played").value = g.played;
     $("hasDlc").checked = !!g.hasDlc;
     (g.dlcs||[]).forEach(addDlcRow);
     fillRelease("g", g.releaseDate); fillHype("g", g.hype);
     currentModalTags = (g.tags||[]).slice();
   } else {
-    $("formTitle").textContent = "New entry";
+    $("formTitle").textContent = "New game";
     $("gname").value = ""; $("goal").value = ""; $("played").value = 0;
     $("hasDlc").checked = false;
     fillRelease("g", null); fillHype("g", 0);
@@ -2013,7 +2032,7 @@ function openMangaModal(id=null, target="season"){
     m = arrFor("manga",target).find(x=>x.id===id);
     $("mangaFormTitle").textContent = "Edit manga";
     $("mgname").value = m.name; $("mgfrom").value = m.fromVol; $("mgto").value = m.toVol;
-    fillRelease("mg", m.releaseDate); fillHype("mg", m.hype);
+    fillRelease("mg", m.releaseDate); fillHype("mg", Math.min(3, m.hype||0));
     currentModalTags = (m.tags||[]).slice();
   } else {
     $("mangaFormTitle").textContent = "New manga";
@@ -2030,7 +2049,7 @@ function saveManga(){
   const fromVol = Math.max(1, +$("mgfrom").value || 0);
   const toVol = Math.max(fromVol, +$("mgto").value || 0);
   if(!name || fromVol<=0 || toVol<fromVol) return toast("Give it a title and a valid volume range.");
-  const releaseDate = readRelease("mg"); const hype = readHype("mg");
+  const releaseDate = readRelease("mg"); const hype = Math.min(3, readHype("mg"));
   const seriesFields = readSeriesFields("mg");
   if(seriesFields.partOfSeries){
     const clash = seriesOrderConflict("manga", seriesFields.seriesId, seriesFields.seriesOrder, editId);
@@ -2133,7 +2152,6 @@ function openEpisodicModal(category, id=null, target="season"){
   const isAnime = category === "anime";
   $("groupTypeRow").style.display = isAnime ? "block" : "none";
   $("epiHint").textContent = isAnime ? "Track by season or by arc — your call." : "Each season gets its own episode count, just like DLC for games.";
-  $("epi_seriesLabel").textContent = `This ${isAnime ? "anime" : "show"} is part of a series`;
   let e = null;
   if(id){
     e = arrFor(category,target).find(x=>x.id===id);
@@ -2141,7 +2159,7 @@ function openEpisodicModal(category, id=null, target="season"){
     $("epiname").value = e.name; $("epilen").value = e.epLen;
     groupTypeSel = e.groupType || "season";
     (e.groups||[]).forEach(g=>addGroupRow(g));
-    fillRelease("epi", e.releaseDate); fillHype("epi", e.hype);
+    fillRelease("epi", e.releaseDate); fillHype("epi", Math.min(3, e.hype||0));
     currentModalTags = (e.tags||[]).slice();
   } else {
     $("epiFormTitle").textContent = "New " + (isAnime ? "anime" : "show");
@@ -2214,7 +2232,7 @@ function saveEpisodic(){
     // instead of just landing wherever the merge happened to concatenate it.
     groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched, order: idx });
   });
-  const releaseDate = readRelease("epi"); const hype = readHype("epi");
+  const releaseDate = readRelease("epi"); const hype = Math.min(3, readHype("epi"));
   const seriesFields = readSeriesFields("epi");
   if(seriesFields.partOfSeries){
     const clash = seriesOrderConflict(epiCategory, seriesFields.seriesId, seriesFields.seriesOrder, editId);
@@ -3217,7 +3235,10 @@ function libGroupKey(category, item, groupBy){
     if(hrs<50) return "Long (25–50h)";
     return "Gigantic (50h+)";
   }
-  if(groupBy==="hype") return item.hype>0 ? `${HYPE_LABELS[item.hype-1]} (${item.hype})` : "Not rated";
+  if(groupBy==="hype"){
+    const labels = category==="games" ? HYPE_LABELS : HYPE_LABELS_3;
+    return item.hype>0 ? `${labels[item.hype-1]} (${item.hype})` : "Not rated";
+  }
   if(groupBy==="year") return (item.releaseDate && item.releaseDate.y) ? item.releaseDate.y : "No year set";
   return null;
 }
@@ -3234,7 +3255,9 @@ function libGroupOrderKeys(groupBy, dir, presentKeys, category){
     return order;
   }
   if(groupBy==="hype"){
-    let order = [1,2,3,4,5].map(n=>`${HYPE_LABELS[n-1]} (${n})`).filter(k=>present.has(k));
+    const labels = category==="games" ? HYPE_LABELS : HYPE_LABELS_3;
+    const maxHype = category==="games" ? 5 : 3;
+    let order = Array.from({length:maxHype},(_,i)=>i+1).map(n=>`${labels[n-1]} (${n})`).filter(k=>present.has(k));
     if(dir==="desc") order.reverse();
     if(present.has("Not rated")) order.push("Not rated");
     return order;
