@@ -300,24 +300,29 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .hype-dot.on{background:var(--brass);color:#1a1006;border-color:var(--brass)}
 .hype-label{font-size:11.5px;color:var(--muted);margin-left:4px}
 
-/* v1.7.1 — compact rows: number field(s) + inline checkbox pill(s) on the same
-   line, used to shorten the movie/tv/anime/manga edit forms.
-   v1.7.4 — tightened gap/widths so a 3-star "Essential" label fits beside the
-   stars instead of wrapping to its own line. */
-.compact-row{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;margin-top:14px}
+/* v1.7.1 — compact rows: number field(s) side by side with a hype block, used
+   to shorten the movie/tv/anime/manga edit forms.
+   v1.7.5 — v1.7.4's "fix" actually widened the row's total content past what
+   fits on a real phone, so the whole hype cell wrapped to its own line
+   (flex-wrap was the culprit). Wrapping is now disabled for this row and the
+   per-modal cell widths (set inline in each modal's HTML) were recalculated
+   with real margin to spare, so it can't happen again. */
+.compact-row{display:flex;gap:6px;align-items:flex-end;margin-top:14px}
 .compact-row > div{flex:1 1 74px;min-width:74px}
 .compact-row > div > label{margin:0 0 6px}
 .compact-num{width:100%;text-align:center}
-.compact-num-tiny{width:100%;text-align:center;max-width:4.5em}
-.hype-row-compact{gap:4px}
-.hype-row-compact .hype-dot{width:26px;height:26px;font-size:11px}
-.hype-row-compact .hype-label{margin-left:2px;white-space:nowrap}
+.compact-num-tiny{width:100%;text-align:center}
+.hype-row-compact{gap:3px}
+.hype-row-compact .hype-dot{width:24px;height:24px;font-size:10.5px;flex-shrink:0}
+.hype-row-compact .hype-label{margin-left:2px;white-space:nowrap;font-size:10.5px}
 
 /* v1.7.4 — game modal's Target hours/Played/DLC+Series row: all three cells
    share the exact same grid as the release-date row below it (same class),
    so every box lines up identically in width. The third cell is a single
-   input-sized box holding both checkboxes split by a divider. */
-.triple-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+   input-sized box holding both checkboxes split by a divider.
+   v1.7.5 — restored the standard top margin (this row was sitting flush
+   against the title field with no breathing room). */
+.triple-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
 .triple-grid.two-col{grid-template-columns:1fr 1fr}
 .triple-grid > div > label{margin:0 0 6px}
 .check-combo{display:flex;align-items:stretch;justify-content:center;height:44px;
@@ -329,17 +334,16 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 /* v1.7.3 — "part of a series" toggle sits right next to the title field on
    tv/anime/manga (instead of its own full checkbox row further down), and
    the from/to volume columns shrink to a 3-digit max.
-   v1.7.4 — same toggle now used on movies too; align-items:stretch makes it
-   match the title input's exact rendered height instead of a fixed guess,
-   and the bookmark icon is a line-icon (like the app's other icons) instead
-   of an emoji. */
-.name-row{display:flex;gap:8px;align-items:stretch}
-.name-row input{flex:1}
-.series-toggle{position:relative;flex-shrink:0;width:44px;display:flex;align-items:center;justify-content:center;
+   v1.7.5 — the align-items:stretch height match didn't render reliably, so
+   the title input and the toggle now both get the same explicit height
+   instead of relying on stretch to infer it. */
+.name-row{display:flex;gap:8px;align-items:center}
+.name-row input{flex:1;height:46px}
+.series-toggle{position:relative;flex-shrink:0;width:46px;height:46px;display:flex;align-items:center;justify-content:center;
   border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:#7f9bc4;cursor:pointer}
 .series-toggle input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
 .series-toggle:has(input:checked){background:var(--teal);border-color:var(--teal);color:#0d1310}
-.compact-num-3{width:100%;text-align:center;max-width:3.6em}
+.compact-num-3{width:100%;text-align:center}
 
 /* v1.5.0 — tags */
 .tag-picker{display:flex;flex-wrap:wrap;gap:6px}
@@ -501,7 +505,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         <div><input id="g_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
     </div>
-    <div class="field-row">
+    <div class="field-row" id="g_hypeFieldRow">
       <label>Hype level</label>
       <div class="hype-row">
         <button type="button" class="hype-dot" data-prefix="g" data-val="1" onclick="setHype('g',1)">★</button>
@@ -535,9 +539,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <label class="series-toggle" id="mv_seriesToggleWrap" title="Part of a series"><input id="mv_hasSeries" type="checkbox" onchange="toggleSeriesSection('mv')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
     </div>
     <div class="compact-row">
-      <div style="flex-basis:64px"><label>Length (min)</label><input id="mlength" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="107"></div>
-      <div style="flex-basis:64px" id="mv_yearCell"><label>Year</label><input id="mv_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 158px;min-width:158px">
+      <div style="flex:0 0 48px"><label>Length (min)</label><input id="mlength" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="107"></div>
+      <div style="flex:0 0 54px" id="mv_yearCell"><label>Year</label><input id="mv_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 140px;min-width:140px" id="mv_hypeCell">
         <label>Hype</label>
         <div class="hype-row hype-row-compact">
           <button type="button" class="hype-dot" data-prefix="mv" data-val="1" onclick="setHype('mv',1)">★</button>
@@ -577,10 +581,10 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <label class="series-toggle" id="mg_seriesToggleWrap" title="Part of a series"><input id="mg_hasSeries" type="checkbox" onchange="toggleSeriesSection('mg')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
     </div>
     <div class="compact-row">
-      <div style="flex-basis:52px"><label>From vol</label><input id="mgfrom" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="1"></div>
-      <div style="flex-basis:52px"><label>To vol</label><input id="mgto" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="15"></div>
-      <div style="flex-basis:60px" id="mg_yearCell"><label>Year</label><input id="mg_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 150px;min-width:150px">
+      <div style="flex:0 0 38px"><label>From vol</label><input id="mgfrom" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="1"></div>
+      <div style="flex:0 0 38px"><label>To vol</label><input id="mgto" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="15"></div>
+      <div style="flex:0 0 54px" id="mg_yearCell"><label>Year</label><input id="mg_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 140px;min-width:140px" id="mg_hypeCell">
         <label>Hype</label>
         <div class="hype-row hype-row-compact">
           <button type="button" class="hype-dot" data-prefix="mg" data-val="1" onclick="setHype('mg',1)">★</button>
@@ -620,9 +624,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <label class="series-toggle" id="epi_seriesToggleWrap" title="Part of a series"><input id="epi_hasSeries" type="checkbox" onchange="toggleSeriesSection('epi')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
     </div>
     <div class="compact-row">
-      <div style="flex-basis:64px"><label>Avg. ep (min)</label><input id="epilen" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="60"></div>
-      <div style="flex-basis:64px" id="epi_yearCell"><label>Year</label><input id="epi_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 158px;min-width:158px">
+      <div style="flex:0 0 48px"><label>Avg. ep (min)</label><input id="epilen" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="60"></div>
+      <div style="flex:0 0 54px" id="epi_yearCell"><label>Year</label><input id="epi_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 140px;min-width:140px" id="epi_hypeCell">
         <label>Hype</label>
         <div class="hype-row hype-row-compact">
           <button type="button" class="hype-dot" data-prefix="epi" data-val="1" onclick="setHype('epi',1)">★</button>
@@ -746,7 +750,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.7.4"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.7.5"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -1438,6 +1442,8 @@ function scrubFinishedMeta(item){
   if(item.releaseDate && (item.releaseDate.y||item.releaseDate.m||item.releaseDate.d)){
     item.releaseDate = { y:null, m:null, d:null };
   }
+  // v1.7.5 — hype is scrubbed too, same as tags/series/release date.
+  if(item.hype) item.hype = 0;
 }
 function scrubFinishedSeasonItems(){
   ["games","movies","tv","anime","manga"].forEach(cat=>{
@@ -1729,6 +1735,7 @@ function openGameModal(id=null, target="season"){
   setVisible("g_tagsFieldRow", !gFinished);
   setVisible("g_seriesHalf", !gFinished);
   setVisible("g_dlcSeriesDivider", !gFinished);
+  setVisible("g_hypeFieldRow", !gFinished);
   if(gFinished) $("g_seriesSection").style.display = "none";
   $("g_dlcSeriesLabel").textContent = gFinished ? "DLC" : "DLC · Series";
   $("gameModal").classList.add("show"); if(!id) $("gname").focus();
@@ -1996,6 +2003,7 @@ function openMovieModal(id=null, target="season"){
   setVisible("mv_yearCell", !mvFinished);
   setVisible("mv_seriesToggleWrap", !mvFinished);
   setVisible("mv_tagsFieldRow", !mvFinished);
+  setVisible("mv_hypeCell", !mvFinished);
   if(mvFinished) $("mv_seriesSection").style.display = "none";
   $("movieModal").classList.add("show"); if(!id) $("mname").focus();
 }
@@ -2078,6 +2086,7 @@ function openMangaModal(id=null, target="season"){
   setVisible("mg_yearCell", !mgFinished);
   setVisible("mg_seriesToggleWrap", !mgFinished);
   setVisible("mg_tagsFieldRow", !mgFinished);
+  setVisible("mg_hypeCell", !mgFinished);
   if(mgFinished) $("mg_seriesSection").style.display = "none";
   $("mangaModal").classList.add("show"); if(!id) $("mgname").focus();
 }
@@ -2213,6 +2222,7 @@ function openEpisodicModal(category, id=null, target="season"){
   setVisible("epi_yearCell", !epiFinished);
   setVisible("epi_seriesToggleWrap", !epiFinished);
   setVisible("epi_tagsFieldRow", !epiFinished);
+  setVisible("epi_hypeCell", !epiFinished);
   if(epiFinished) $("epi_seriesSection").style.display = "none";
   $("epiModal").classList.add("show"); if(!id) $("epiname").focus();
 }
