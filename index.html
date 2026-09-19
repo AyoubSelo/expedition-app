@@ -301,39 +301,44 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .hype-label{font-size:11.5px;color:var(--muted);margin-left:4px}
 
 /* v1.7.1 — compact rows: number field(s) + inline checkbox pill(s) on the same
-   line, used to shorten the game/movie edit forms. */
-.compact-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:14px}
+   line, used to shorten the movie/tv/anime/manga edit forms.
+   v1.7.4 — tightened gap/widths so a 3-star "Essential" label fits beside the
+   stars instead of wrapping to its own line. */
+.compact-row{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;margin-top:14px}
 .compact-row > div{flex:1 1 74px;min-width:74px}
 .compact-row > div > label{margin:0 0 6px}
 .compact-num{width:100%;text-align:center}
 .compact-num-tiny{width:100%;text-align:center;max-width:4.5em}
-.check-compact{display:flex;align-items:center;justify-content:center;gap:6px;flex:0 0 auto;
-  padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);
-  color:var(--ink);font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
-  cursor:pointer;white-space:nowrap}
-.check-compact input{width:auto;margin:0}
-.hype-row-compact .hype-dot{width:28px;height:28px;font-size:12px}
+.hype-row-compact{gap:4px}
+.hype-row-compact .hype-dot{width:26px;height:26px;font-size:11px}
+.hype-row-compact .hype-label{margin-left:2px;white-space:nowrap}
 
-/* v1.7.2 — game modal's Target hours/Played columns narrowed to a 5-digit max.
-   v1.7.3 — reworked the DLC/Series stack: the earlier stretch-to-match-height
-   trick looked misaligned in practice, so these are now fixed-height pills
-   (left-aligned, like a normal checkbox row) sized to naturally sit close to
-   the number fields' height instead of forcing an exact match. */
-.compact-num-5{width:100%;text-align:center;max-width:5.4em}
-.num-field label{margin:0 0 6px}
-.check-stack{display:flex;flex-direction:column;gap:6px;flex:1 1 100px;min-width:96px}
-.check-stack .check-compact{justify-content:flex-start;padding:9px 10px;font-size:11px;gap:8px}
-.check-stack .check-compact input{transform:scale(.92)}
+/* v1.7.4 — game modal's Target hours/Played/DLC+Series row: all three cells
+   share the exact same grid as the release-date row below it (same class),
+   so every box lines up identically in width. The third cell is a single
+   input-sized box holding both checkboxes split by a divider. */
+.triple-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.triple-grid.two-col{grid-template-columns:1fr 1fr}
+.triple-grid > div > label{margin:0 0 6px}
+.check-combo{display:flex;align-items:stretch;justify-content:center;height:44px;
+  border:1px solid var(--line);border-radius:10px;background:var(--bg);overflow:hidden}
+.check-half{flex:1;display:flex;align-items:center;justify-content:center;margin:0;cursor:pointer}
+.check-half input{margin:0}
+.check-divider{width:1px;background:var(--line)}
 
 /* v1.7.3 — "part of a series" toggle sits right next to the title field on
    tv/anime/manga (instead of its own full checkbox row further down), and
-   the from/to volume columns shrink to a 3-digit max. */
-.name-row{display:flex;gap:8px;align-items:center}
+   the from/to volume columns shrink to a 3-digit max.
+   v1.7.4 — same toggle now used on movies too; align-items:stretch makes it
+   match the title input's exact rendered height instead of a fixed guess,
+   and the bookmark icon is a line-icon (like the app's other icons) instead
+   of an emoji. */
+.name-row{display:flex;gap:8px;align-items:stretch}
 .name-row input{flex:1}
-.series-toggle{position:relative;flex-shrink:0;width:46px;height:46px;display:flex;align-items:center;justify-content:center;
-  border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--muted);cursor:pointer;font-size:18px}
+.series-toggle{position:relative;flex-shrink:0;width:44px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:#7f9bc4;cursor:pointer}
 .series-toggle input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
-.series-toggle:has(input:checked){background:var(--teal);border-color:var(--teal)}
+.series-toggle:has(input:checked){background:var(--teal);border-color:var(--teal);color:#0d1310}
 .compact-num-3{width:100%;text-align:center;max-width:3.6em}
 
 /* v1.5.0 — tags */
@@ -380,7 +385,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .lib-control select{flex:1;min-width:0}
 .lib-dir-btn{width:32px;height:32px;flex-shrink:0;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit}
 .lib-dir-btn:disabled{opacity:.4;cursor:default}
-.lib-tags-btn{flex-shrink:0;padding:0 14px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.lib-tags-btn{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 .lib-tags-btn:hover{color:var(--brass);border-color:var(--brass)}
 .lib-group{margin-bottom:10px}
 .lib-group-head{display:flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line);cursor:pointer}
@@ -465,15 +470,18 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="hint">Target hours is just a starting estimate — playing past it expands the goal automatically. Only "Finished" truly completes it.</div>
     <label>Game</label>
     <input id="gname" placeholder="e.g. Metro Exodus">
-    <div class="compact-row">
-      <div class="num-field"><label>Target hours</label><input id="goal" class="compact-num-5" type="number" min=".1" step=".1" inputmode="decimal"></div>
-      <div class="num-field"><label>Played</label><input id="played" class="compact-num-5" type="number" min="0" step=".1" value="0" inputmode="decimal"></div>
-      <div class="check-stack">
-        <label class="check-compact"><input id="hasDlc" type="checkbox" onchange="toggleDlcSection()"> DLC</label>
-        <label class="check-compact"><input id="g_hasSeries" type="checkbox" onchange="toggleSeriesSection('g')"> Series</label>
+    <div class="triple-grid" id="g_statsGrid">
+      <div><label>Target hours</label><input id="goal" type="number" min=".1" step=".1" inputmode="decimal"></div>
+      <div><label>Played</label><input id="played" type="number" min="0" step=".1" value="0" inputmode="decimal"></div>
+      <div id="g_dlcSeriesWrap"><label id="g_dlcSeriesLabel">DLC · Series</label>
+        <div class="check-combo" id="g_dlcSeriesCell">
+          <label class="check-half" title="Has DLC"><input id="hasDlc" type="checkbox" onchange="toggleDlcSection()"></label>
+          <span class="check-divider" id="g_dlcSeriesDivider"></span>
+          <label class="check-half" title="Part of a series" id="g_seriesHalf"><input id="g_hasSeries" type="checkbox" onchange="toggleSeriesSection('g')"></label>
+        </div>
       </div>
     </div>
-    <div class="field-row">
+    <div class="field-row" id="g_releaseRow">
       <label>Release date</label>
       <div class="release-row">
         <div class="release-field"><input id="g_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
@@ -505,7 +513,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       </div>
       <input type="hidden" id="g_hype" value="0">
     </div>
-    <div class="field-row">
+    <div class="field-row" id="g_tagsFieldRow">
       <label>Tags</label>
       <div class="tag-picker" id="g_tagsRow"></div>
     </div>
@@ -522,11 +530,14 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <h2 class="serif" id="movieFormTitle">New movie</h2>
     <div class="hint">Length is in minutes — your watched progress shows as hours and minutes automatically.</div>
     <label>Title</label>
-    <input id="mname" placeholder="e.g. Blade Runner 2049">
+    <div class="name-row">
+      <input id="mname" placeholder="e.g. Blade Runner 2049">
+      <label class="series-toggle" id="mv_seriesToggleWrap" title="Part of a series"><input id="mv_hasSeries" type="checkbox" onchange="toggleSeriesSection('mv')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
+    </div>
     <div class="compact-row">
-      <div style="flex-basis:70px"><label>Length (min)</label><input id="mlength" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="107"></div>
-      <div style="flex-basis:70px"><label>Year</label><input id="mv_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 140px;min-width:140px">
+      <div style="flex-basis:64px"><label>Length (min)</label><input id="mlength" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="107"></div>
+      <div style="flex-basis:64px" id="mv_yearCell"><label>Year</label><input id="mv_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 158px;min-width:158px">
         <label>Hype</label>
         <div class="hype-row hype-row-compact">
           <button type="button" class="hype-dot" data-prefix="mv" data-val="1" onclick="setHype('mv',1)">★</button>
@@ -537,16 +548,14 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         <input type="hidden" id="mv_hype" value="0">
       </div>
     </div>
-    <div class="field-row">
-      <label class="check" style="text-transform:none"><input id="mv_hasSeries" type="checkbox" onchange="toggleSeriesSection('mv')"> This movie is part of a series</label>
-      <div id="mv_seriesSection" style="display:none;margin-top:10px">
-        <div class="row2">
-          <div><label>Series</label><select id="mv_seriesId"></select></div>
-          <div><label>Order #</label><input id="mv_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="e.g. 2"></div>
-        </div>
+    <div id="mv_seriesSection" class="field-row" style="display:none">
+      <label>Series</label>
+      <div class="row2">
+        <div><select id="mv_seriesId"></select></div>
+        <div><input id="mv_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
     </div>
-    <div class="field-row">
+    <div class="field-row" id="mv_tagsFieldRow">
       <label>Tags</label>
       <div class="tag-picker" id="mv_tagsRow"></div>
     </div>
@@ -565,13 +574,13 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <label>Title</label>
     <div class="name-row">
       <input id="mgname" placeholder="e.g. Berserk">
-      <label class="series-toggle" title="Part of a series"><input id="mg_hasSeries" type="checkbox" onchange="toggleSeriesSection('mg')">📖</label>
+      <label class="series-toggle" id="mg_seriesToggleWrap" title="Part of a series"><input id="mg_hasSeries" type="checkbox" onchange="toggleSeriesSection('mg')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
     </div>
     <div class="compact-row">
-      <div style="flex-basis:62px"><label>From vol</label><input id="mgfrom" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="1"></div>
-      <div style="flex-basis:62px"><label>To vol</label><input id="mgto" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="15"></div>
-      <div style="flex-basis:70px"><label>Year</label><input id="mg_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 130px;min-width:130px">
+      <div style="flex-basis:52px"><label>From vol</label><input id="mgfrom" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="1"></div>
+      <div style="flex-basis:52px"><label>To vol</label><input id="mgto" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="15"></div>
+      <div style="flex-basis:60px" id="mg_yearCell"><label>Year</label><input id="mg_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 150px;min-width:150px">
         <label>Hype</label>
         <div class="hype-row hype-row-compact">
           <button type="button" class="hype-dot" data-prefix="mg" data-val="1" onclick="setHype('mg',1)">★</button>
@@ -589,7 +598,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         <div><input id="mg_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
     </div>
-    <div class="field-row">
+    <div class="field-row" id="mg_tagsFieldRow">
       <label>Tags</label>
       <div class="tag-picker" id="mg_tagsRow"></div>
     </div>
@@ -608,12 +617,12 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <label id="epiNameLabel">Title</label>
     <div class="name-row">
       <input id="epiname" placeholder="e.g. Game of Thrones">
-      <label class="series-toggle" title="Part of a series"><input id="epi_hasSeries" type="checkbox" onchange="toggleSeriesSection('epi')">📖</label>
+      <label class="series-toggle" id="epi_seriesToggleWrap" title="Part of a series"><input id="epi_hasSeries" type="checkbox" onchange="toggleSeriesSection('epi')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
     </div>
     <div class="compact-row">
-      <div style="flex-basis:70px"><label>Avg. ep (min)</label><input id="epilen" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="60"></div>
-      <div style="flex-basis:70px"><label>Year</label><input id="epi_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 140px;min-width:140px">
+      <div style="flex-basis:64px"><label>Avg. ep (min)</label><input id="epilen" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="60"></div>
+      <div style="flex-basis:64px" id="epi_yearCell"><label>Year</label><input id="epi_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
+      <div style="flex:1 1 158px;min-width:158px">
         <label>Hype</label>
         <div class="hype-row hype-row-compact">
           <button type="button" class="hype-dot" data-prefix="epi" data-val="1" onclick="setHype('epi',1)">★</button>
@@ -642,7 +651,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         <div><input id="epi_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
     </div>
-    <div class="field-row">
+    <div class="field-row" id="epi_tagsFieldRow">
       <label>Tags</label>
       <div class="tag-picker" id="epi_tagsRow"></div>
     </div>
@@ -737,7 +746,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.7.3"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.7.4"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -745,6 +754,10 @@ const HYPE_LABELS_3 = ["Curious","Excited","Essential"];
 const HYPE_3_PREFIXES = new Set(["mv","epi","mg"]);
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
+// v1.7.4 — line-icons for Tags/Series, replacing the 🏷/📖 emoji so they match
+// the app's other hand-drawn icons (thin stroke, single accent color).
+const TAG_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10.9 2.7h4.4a1 1 0 0 1 1 1v4.4a1 1 0 0 1-.3.7l-8 8a1 1 0 0 1-1.4 0L2 12.2a1 1 0 0 1 0-1.4l8-8a1 1 0 0 1 .9-.1z"/><circle cx="13.3" cy="6.3" r="1" fill="currentColor" stroke="none"/></svg>`;
+const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
@@ -769,6 +782,10 @@ function iconBadge(cat){
 }
 
 const $ = id => document.getElementById(id);
+// v1.7.4 — hide/show a modal field block by id; used to strip the now-
+// irrelevant options (release date, series, tags) out of a Season title's
+// edit menu once it's finished, since that data is auto-scrubbed anyway.
+const setVisible = (id, show) => { const el = $(id); if(el) el.style.display = show ? "" : "none"; };
 const uid = () => Math.random().toString(36).slice(2,9);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 // v1.2.1: v1.2.0 truncated long titles with "…" once a stamp was showing —
@@ -1704,6 +1721,16 @@ function openGameModal(id=null, target="season"){
   renderTagPicker("g");
   fillSeriesFields("g", "games", g);
   toggleDlcSection();
+  // v1.7.4 — a finished Season game has already had its tags/series/release
+  // date scrubbed (see scrubFinishedMeta); hide those same fields here so the
+  // edit menu doesn't dangle empty, irrelevant controls.
+  const gFinished = target==="season" && id && isSeasonItemDone("games", g);
+  setVisible("g_releaseRow", !gFinished);
+  setVisible("g_tagsFieldRow", !gFinished);
+  setVisible("g_seriesHalf", !gFinished);
+  setVisible("g_dlcSeriesDivider", !gFinished);
+  if(gFinished) $("g_seriesSection").style.display = "none";
+  $("g_dlcSeriesLabel").textContent = gFinished ? "DLC" : "DLC · Series";
   $("gameModal").classList.add("show"); if(!id) $("gname").focus();
 }
 function toggleDlcSection(){ $("dlcSection").classList.toggle("open", $("hasDlc").checked); }
@@ -1965,6 +1992,11 @@ function openMovieModal(id=null, target="season"){
   }
   renderTagPicker("mv");
   fillSeriesFields("mv", "movies", m);
+  const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
+  setVisible("mv_yearCell", !mvFinished);
+  setVisible("mv_seriesToggleWrap", !mvFinished);
+  setVisible("mv_tagsFieldRow", !mvFinished);
+  if(mvFinished) $("mv_seriesSection").style.display = "none";
   $("movieModal").classList.add("show"); if(!id) $("mname").focus();
 }
 function saveMovie(){
@@ -2042,6 +2074,11 @@ function openMangaModal(id=null, target="season"){
   }
   renderTagPicker("mg");
   fillSeriesFields("mg", "manga", m);
+  const mgFinished = target==="season" && id && isSeasonItemDone("manga", m);
+  setVisible("mg_yearCell", !mgFinished);
+  setVisible("mg_seriesToggleWrap", !mgFinished);
+  setVisible("mg_tagsFieldRow", !mgFinished);
+  if(mgFinished) $("mg_seriesSection").style.display = "none";
   $("mangaModal").classList.add("show"); if(!id) $("mgname").focus();
 }
 function saveManga(){
@@ -2172,6 +2209,11 @@ function openEpisodicModal(category, id=null, target="season"){
   fillSeriesFields("epi", category, e);
   setGroupType(groupTypeSel);
   epiInitializing = false;
+  const epiFinished = target==="season" && id && isSeasonItemDone(category, e);
+  setVisible("epi_yearCell", !epiFinished);
+  setVisible("epi_seriesToggleWrap", !epiFinished);
+  setVisible("epi_tagsFieldRow", !epiFinished);
+  if(epiFinished) $("epi_seriesSection").style.display = "none";
   $("epiModal").classList.add("show"); if(!id) $("epiname").focus();
 }
 function isNumberedMode(){ return epiCategory==="tv" || (epiCategory==="anime" && groupTypeSel==="season"); }
@@ -3154,7 +3196,7 @@ function libraryExpanded(category, item){
     : `<div class="lib-exp-line" style="color:var(--muted-dim)">No tags</div>`;
   if(item.partOfSeries && item.seriesId){
     const s = (S.series[category]||[]).find(x=>x.id===item.seriesId);
-    if(s) html += `<div class="lib-exp-line">📖 ${esc(s.name)}${item.seriesOrder!=null ? ` — #${item.seriesOrder}` : ""}</div>`;
+    if(s) html += `<div class="lib-exp-line"><span style="color:#7f9bc4;display:inline-flex;vertical-align:-2px;margin-right:4px">${SERIES_ICON_SVG}</span>${esc(s.name)}${item.seriesOrder!=null ? ` — #${item.seriesOrder}` : ""}</div>`;
   }
   html += `<div class="lib-exp-actions">
     <button class="btn small ghost" onclick="${moveButtonHandler(category,item.id,'library','season')}">To Season</button>
@@ -3306,8 +3348,8 @@ function renderLibraryTab(category){
       </select>
       <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
     </div>
-    <button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags">🏷 Tags</button>
-    <button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series">📖 Series</button>
+    <button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>
+    <button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>
   </div>`;
 
   html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
