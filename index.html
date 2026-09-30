@@ -427,6 +427,30 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .actions{display:flex;gap:8px;margin-top:20px}
 .actions .btn{flex:1;text-align:center}
 
+/* v1.8.0 — TMDB search / match modals, rating cell, settings box */
+.tmdb-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.tmdb-status{font-size:11.5px;color:var(--muted)}
+.tmdb-status.linked{color:var(--moss)}
+.tmdb-results{margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto}
+.tmdb-res{display:flex;gap:10px;align-items:flex-start;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px;cursor:pointer}
+.tmdb-res:hover,.tmdb-res:active{border-color:var(--brass)}
+.tmdb-poster{width:46px;height:69px;flex-shrink:0;border-radius:6px;background:var(--bg);border:1px solid var(--line-soft);overflow:hidden}
+.tmdb-poster img{width:100%;height:100%;object-fit:cover;display:block}
+.tmdb-res-main{flex:1;min-width:0}
+.tmdb-res-title{font-weight:600;font-size:14px;line-height:1.25;color:var(--ink)}
+.tmdb-res-sub{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--brass);margin-top:3px}
+.tmdb-res-over{font-size:11px;color:var(--muted);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tmdb-msg{text-align:center;color:var(--muted);font-size:13px;padding:22px 8px;line-height:1.5}
+.tmdb-steps{margin:6px 0 8px;padding-left:20px;color:var(--muted);font-size:12.5px;line-height:1.6}
+.tmdb-link{display:inline-block;color:var(--brass);font-size:12.5px;margin-bottom:12px;text-decoration:none}
+.tmdb-credit{font-size:10px;color:var(--muted-dim);margin-top:10px;line-height:1.4}
+.tmdb-settings{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.tmdb-set-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px}
+.match-name{font-size:17px;font-weight:600}
+.match-year{font-size:11.5px;color:var(--muted);margin:2px 0 12px}
+.match-intro{font-size:15px}
+.match-intro b{color:var(--brass)}
+
 .toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:20;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -541,16 +565,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="compact-row">
       <div style="flex:0 0 48px"><label>Length (min)</label><input id="mlength" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="107"></div>
       <div style="flex:0 0 54px" id="mv_yearCell"><label>Year</label><input id="mv_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 140px;min-width:140px" id="mv_hypeCell">
-        <label>Hype</label>
-        <div class="hype-row hype-row-compact">
-          <button type="button" class="hype-dot" data-prefix="mv" data-val="1" onclick="setHype('mv',1)">★</button>
-          <button type="button" class="hype-dot" data-prefix="mv" data-val="2" onclick="setHype('mv',2)">★</button>
-          <button type="button" class="hype-dot" data-prefix="mv" data-val="3" onclick="setHype('mv',3)">★</button>
-          <span class="hype-label" id="mv_hypeLabel">Not set</span>
-        </div>
-        <input type="hidden" id="mv_hype" value="0">
-      </div>
+      <div style="flex:0 0 74px" id="mv_ratingCell"><label>Rating %</label><input id="mv_rating" class="compact-num-tiny" type="number" min="0" max="100" inputmode="numeric" placeholder="85"></div>
+    </div>
+    <div class="tmdb-row" id="mv_tmdbRow"><span class="tmdb-status" id="mv_tmdbStatus">Not linked to TMDB</span><button type="button" class="btn small" id="mv_tmdbBtn" onclick="openTmdbLink('mv')">Link</button></div>
     </div>
     <div id="mv_seriesSection" class="field-row" style="display:none">
       <label>Series</label>
@@ -636,7 +653,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         </div>
         <input type="hidden" id="epi_hype" value="0">
       </div>
+      <div style="flex:0 0 74px;display:none" id="epi_ratingCell"><label>Rating %</label><input id="epi_rating" class="compact-num-tiny" type="number" min="0" max="100" inputmode="numeric" placeholder="85"></div>
     </div>
+    <div class="tmdb-row" id="epi_tmdbRow" style="display:none"><span class="tmdb-status" id="epi_tmdbStatus">Not linked to TMDB</span><button type="button" class="btn small" id="epi_tmdbBtn" onclick="openTmdbLink('epi')">Link</button></div>
     <div id="groupTypeRow" style="display:none">
       <label>Grouped by</label>
       <div class="radio-row">
@@ -667,6 +686,26 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 </div>
 
 <!-- session modal (games + movies manual time) -->
+<div class="modal" id="tmdbModal">
+  <div class="sheet">
+    <h2 class="serif" id="tmdbTitle">Add movie</h2>
+    <div class="hint" id="tmdbHint"></div>
+    <div id="tmdbBody"></div>
+    <div class="actions" id="tmdbActions"></div>
+    <div class="tmdb-credit">This product uses the TMDB API but is not endorsed or certified by TMDB.</div>
+  </div>
+</div>
+
+<div class="modal" id="matchModal">
+  <div class="sheet">
+    <h2 class="serif" id="matchTitle">Match with TMDB</h2>
+    <div class="hint" id="matchHint"></div>
+    <div id="matchBody"></div>
+    <div class="actions" id="matchActions"></div>
+    <div class="tmdb-credit">This product uses the TMDB API but is not endorsed or certified by TMDB.</div>
+  </div>
+</div>
+
 <div class="modal" id="sessionModal">
   <div class="sheet">
     <h2 class="serif">Log a session</h2>
@@ -750,7 +789,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.7.5"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.8.0"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -840,9 +879,18 @@ function normalizeState(raw){
   // HYPE_LABELS_3); clamp on load too so any pre-existing 4-5 star values
   // from before this update don't linger unseen.
   const HYPE_MAX_3 = new Set(["movies","tv","anime","manga"]);
+  // v1.8.0 — movies and TV no longer use hype at all (hype is forced to 0);
+  // they carry a TMDB rating (0-100 | null) plus the permanent tmdbId link and
+  // the poster path instead. Anime/manga keep their 3-star hype.
   const withExtras = (x, cat) => ({
-    releaseDate: x.releaseDate || {y:"",m:"",d:""}, hype: HYPE_MAX_3.has(cat) ? Math.min(3, x.hype||0) : (x.hype||0), tags: Array.isArray(x.tags) ? x.tags : [],
+    releaseDate: x.releaseDate || {y:"",m:"",d:""},
+    hype: (cat==="movies"||cat==="tv") ? 0 : (HYPE_MAX_3.has(cat) ? Math.min(3, x.hype||0) : (x.hype||0)),
+    tags: Array.isArray(x.tags) ? x.tags : [],
     partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null,
+    ...((cat==="movies"||cat==="tv") ? {
+      rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
+      tmdbId: x.tmdbId||null, posterPath: x.posterPath||null, tmdbSkip: !!x.tmdbSkip,
+    } : {}),
   });
   const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
     dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g,"games")}));
@@ -876,6 +924,7 @@ function normalizeState(raw){
       anime: normSimple(rawLib.anime,"anime"),
       manga: normSimple(rawLib.manga,"manga"),
     },
+    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || "") },
     updatedAt: raw.updatedAt || 0,
   };
 }
@@ -1982,36 +2031,49 @@ function gameCard(g){
 }
 
 /* ============ MOVIES ============ */
-function openMovieModal(id=null, target="season"){
+function openMovieModal(id=null, target="season", prefill=null){
   editId = id; modalTarget = target; currentModalCategory = "movies";
+  modalTmdb = { id: null, posterPath: null };
   let m = null;
   if(id){
     m = arrFor("movies",target).find(x=>x.id===id);
     $("movieFormTitle").textContent = "Edit movie";
     $("mname").value = m.name; $("mlength").value = m.length;
-    fillRelease("mv", m.releaseDate); fillHype("mv", Math.min(3, m.hype||0));
+    fillRelease("mv", m.releaseDate);
+    $("mv_rating").value = m.rating == null ? "" : m.rating;
+    modalTmdb = { id: m.tmdbId || null, posterPath: m.posterPath || null };
     currentModalTags = (m.tags||[]).slice();
   } else {
     $("movieFormTitle").textContent = "New movie";
-    $("mname").value = ""; $("mlength").value = "";
-    fillRelease("mv", null); fillHype("mv", 0);
+    if(prefill){
+      $("mname").value = prefill.title; $("mlength").value = prefill.runtime || "";
+      fillRelease("mv", { y: prefill.year || "" });
+      $("mv_rating").value = prefill.rating == null ? "" : prefill.rating;
+      modalTmdb = { id: prefill.id, posterPath: prefill.posterPath };
+    } else {
+      $("mname").value = ""; $("mlength").value = "";
+      fillRelease("mv", null); $("mv_rating").value = "";
+    }
     currentModalTags = [];
   }
+  paintTmdbRow("mv");
   renderTagPicker("mv");
   fillSeriesFields("mv", "movies", m);
   const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
   setVisible("mv_yearCell", !mvFinished);
   setVisible("mv_seriesToggleWrap", !mvFinished);
   setVisible("mv_tagsFieldRow", !mvFinished);
-  setVisible("mv_hypeCell", !mvFinished);
+  setVisible("mv_ratingCell", !mvFinished);
+  setVisible("mv_tmdbRow", !mvFinished);
   if(mvFinished) $("mv_seriesSection").style.display = "none";
-  $("movieModal").classList.add("show"); if(!id) $("mname").focus();
+  $("movieModal").classList.add("show"); if(!id && !prefill) $("mname").focus();
 }
 function saveMovie(){
   const name = $("mname").value.trim();
   const length = +$("mlength").value;
   if(!name || length <= 0) return toast("Give it a title and a length.");
-  const releaseDate = readRelease("mv"); const hype = Math.min(3, readHype("mv"));
+  const releaseDate = readRelease("mv");
+  const tmdbFields = { rating: readRating("mv_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) };
   const seriesFields = readSeriesFields("mv");
   if(seriesFields.partOfSeries){
     const clash = seriesOrderConflict("movies", seriesFields.seriesId, seriesFields.seriesOrder, editId);
@@ -2020,10 +2082,10 @@ function saveMovie(){
   const arr = arrFor("movies", modalTarget);
   if(editId){
     const m = arr.find(x=>x.id===editId);
-    m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.hype = hype; m.tags = currentModalTags.slice();
-    Object.assign(m, seriesFields);
+    m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.hype = 0; m.tags = currentModalTags.slice();
+    Object.assign(m, seriesFields, tmdbFields);
   } else {
-    arr.push({ id: uid(), name, length, watched:0, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields });
+    arr.push({ id: uid(), name, length, watched:0, releaseDate, hype:0, tags: currentModalTags.slice(), ...seriesFields, ...tmdbFields });
   }
   closeModal("movieModal"); persist(); toast("Movie saved.");
 }
@@ -2191,7 +2253,8 @@ function renderManga(){
 }
 
 /* ============ TV + ANIME (episodic) ============ */
-function openEpisodicModal(category, id=null, target="season"){
+function openEpisodicModal(category, id=null, target="season", prefill=null){
+  modalTmdb = { id: null, posterPath: null };
   editId = id; epiCategory = category; epiTarget = target; modalTarget = target; currentModalCategory = category;
   epiInitializing = true;
   $("groupRows").innerHTML = "";
@@ -2206,14 +2269,27 @@ function openEpisodicModal(category, id=null, target="season"){
     groupTypeSel = e.groupType || "season";
     (e.groups||[]).forEach(g=>addGroupRow(g));
     fillRelease("epi", e.releaseDate); fillHype("epi", Math.min(3, e.hype||0));
+    $("epi_rating").value = e.rating == null ? "" : e.rating;
+    modalTmdb = { id: e.tmdbId || null, posterPath: e.posterPath || null };
     currentModalTags = (e.tags||[]).slice();
   } else {
     $("epiFormTitle").textContent = "New " + (isAnime ? "anime" : "show");
-    $("epiname").value = ""; $("epilen").value = "";
     groupTypeSel = "season";
-    fillRelease("epi", null); fillHype("epi", 0);
+    if(prefill && category === "tv"){
+      $("epiname").value = prefill.title; $("epilen").value = prefill.epLen || "";
+      fillRelease("epi", { y: prefill.year || "" });
+      $("epi_rating").value = prefill.rating == null ? "" : prefill.rating;
+      modalTmdb = { id: prefill.id, posterPath: prefill.posterPath };
+      epiCategory = "tv";
+      (prefill.seasons || []).forEach((s,i) => addGroupRow({ name: "Season " + s.number, total: s.episodes, watched: 0, id: "" }));
+    } else {
+      $("epiname").value = ""; $("epilen").value = "";
+      fillRelease("epi", null); $("epi_rating").value = "";
+    }
+    fillHype("epi", 0);
     currentModalTags = [];
   }
+  paintTmdbRow("epi");
   renderTagPicker("epi");
   fillSeriesFields("epi", category, e);
   setGroupType(groupTypeSel);
@@ -2222,9 +2298,11 @@ function openEpisodicModal(category, id=null, target="season"){
   setVisible("epi_yearCell", !epiFinished);
   setVisible("epi_seriesToggleWrap", !epiFinished);
   setVisible("epi_tagsFieldRow", !epiFinished);
-  setVisible("epi_hypeCell", !epiFinished);
+  setVisible("epi_hypeCell", isAnime && !epiFinished);
+  setVisible("epi_ratingCell", !isAnime && !epiFinished);
+  setVisible("epi_tmdbRow", !isAnime && !epiFinished);
   if(epiFinished) $("epi_seriesSection").style.display = "none";
-  $("epiModal").classList.add("show"); if(!id) $("epiname").focus();
+  $("epiModal").classList.add("show"); if(!id && !prefill) $("epiname").focus();
 }
 function isNumberedMode(){ return epiCategory==="tv" || (epiCategory==="anime" && groupTypeSel==="season"); }
 function numFromName(name){ const m = /(\d+)\s*$/.exec(name||""); return m ? m[1] : ""; }
@@ -2284,7 +2362,10 @@ function saveEpisodic(){
     // instead of just landing wherever the merge happened to concatenate it.
     groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched, order: idx });
   });
-  const releaseDate = readRelease("epi"); const hype = Math.min(3, readHype("epi"));
+  const releaseDate = readRelease("epi");
+  const isTv = epiCategory === "tv";
+  const hype = isTv ? 0 : Math.min(3, readHype("epi"));
+  const tmdbFields = isTv ? { rating: readRating("epi_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) } : {};
   const seriesFields = readSeriesFields("epi");
   if(seriesFields.partOfSeries){
     const clash = seriesOrderConflict(epiCategory, seriesFields.seriesId, seriesFields.seriesOrder, editId);
@@ -2293,9 +2374,9 @@ function saveEpisodic(){
   const list = arrFor(epiCategory, epiTarget);
   if(editId){
     const e = list.find(x=>x.id===editId);
-    Object.assign(e, { name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
+    Object.assign(e, { name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, ...tmdbFields, ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
   } else {
-    const entry = { id: uid(), name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields };
+    const entry = { id: uid(), name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, ...tmdbFields };
     if(epiCategory === "anime") entry.groupType = groupTypeSel;
     list.push(entry);
   }
@@ -2352,6 +2433,445 @@ function episodicCard(category, e){
   </article>`;
 }
 
+/* ---------- v1.8.0 — online title database (TMDB) ----------
+   One small data layer (MediaDB) sits between the app and any outside
+   database. Each provider returns the SAME normalized shape, so nothing else
+   in the app cares where a title came from — AniList (anime/manga) and a
+   games source can be added later as more providers without touching the
+   modals, the match tool or the cards.
+
+   Normalized title shape:
+   { source, category, id, title, originalTitle, year, rating (0-100 | null),
+     posterPath, overview,
+     movies: runtime (min)            tv: epLen (min) + seasons:[{number,episodes}] }
+
+   Items store only the small, permanent bits: tmdbId, rating, posterPath
+   (+ tmdbSkip for "this one isn't on TMDB"). Anything richer (cast, genres,
+   streaming info...) can be fetched later BY tmdbId, so it never has to be
+   re-entered — and it never bloats the synced state. */
+const TMDB_BASE = "https://api.themoviedb.org/3";
+const TMDB_IMG = "https://image.tmdb.org/t/p/";
+const TMDB_CREDIT = "This product uses the TMDB API but is not endorsed or certified by TMDB.";
+
+function tmdbNormalize(category, r){
+  const isTv = category === "tv";
+  const date = isTv ? r.first_air_date : r.release_date;
+  return {
+    source: "tmdb", category, id: r.id,
+    title: (isTv ? r.name : r.title) || "",
+    originalTitle: (isTv ? r.original_name : r.original_title) || "",
+    year: date ? String(date).slice(0,4) : "",
+    rating: r.vote_count > 0 ? Math.round(r.vote_average * 10) : null,
+    posterPath: r.poster_path || null,
+    overview: r.overview || "",
+  };
+}
+const MediaDB = {
+  providers: {
+    tmdb: {
+      name: "TMDB",
+      categories: ["movies","tv"],
+      key(){ return ((S.settings && S.settings.tmdbKey) || "").trim(); },
+      async api(path, params){
+        const key = this.key();
+        if(!key) throw new Error("no-key");
+        const url = new URL(TMDB_BASE + path);
+        const headers = {};
+        // A v4 "Read Access Token" is a long JWT and goes in a header; the
+        // short v3 "API Key" goes in the query string. Either one works.
+        if(key.length > 40) headers.Authorization = "Bearer " + key;
+        else url.searchParams.set("api_key", key);
+        Object.entries(params || {}).forEach(([k,v]) => url.searchParams.set(k, v));
+        const res = await fetch(url.toString(), { headers });
+        if(res.status === 401) throw new Error("bad-key");
+        if(!res.ok) throw new Error("http-" + res.status);
+        return res.json();
+      },
+      async search(category, query){
+        const type = category === "tv" ? "tv" : "movie";
+        const data = await this.api("/search/" + type, { query, include_adult: "false", page: "1" });
+        return (data.results || []).slice(0, 10).map(r => tmdbNormalize(category, r));
+      },
+      async details(category, id){
+        if(category === "tv"){
+          const d = await this.api("/tv/" + id);
+          const out = tmdbNormalize("tv", d);
+          let epLen = 0;
+          if(d.episode_run_time && d.episode_run_time.length){
+            epLen = Math.round(d.episode_run_time.reduce((a,b)=>a+b,0) / d.episode_run_time.length);
+          } else if(d.last_episode_to_air && d.last_episode_to_air.runtime){
+            epLen = d.last_episode_to_air.runtime;
+          }
+          const today = todayStr();
+          // Specials (season 0) and seasons that haven't started airing yet are left out.
+          out.seasons = (d.seasons || [])
+            .filter(s => s.season_number > 0 && s.episode_count > 0 && s.air_date && s.air_date <= today)
+            .map(s => ({ number: s.season_number, episodes: s.episode_count }));
+          out.epLen = epLen;
+          return out;
+        }
+        const d = await this.api("/movie/" + id);
+        const out = tmdbNormalize("movies", d);
+        out.runtime = d.runtime || 0;
+        return out;
+      },
+    },
+  },
+  for(category){ return Object.values(this.providers).find(p => p.categories.includes(category)) || null; },
+};
+
+let modalTmdb = { id: null, posterPath: null }; // link state of whichever movie/show modal is open
+let tmdbCtx = null;                              // { category, target, mode: "add" | "link" }
+let tmdbResults = [], tmdbSearchSeq = 0, tmdbSearchTimer = null;
+let matchCtx = null, matchSeq = 0;
+
+function readRating(id){
+  const raw = ($(id).value || "").trim();
+  if(raw === "") return null;
+  const n = Math.round(+raw);
+  return isNaN(n) ? null : Math.max(0, Math.min(100, n));
+}
+function paintTmdbRow(prefix){
+  const linked = !!modalTmdb.id;
+  const st = $(prefix + "_tmdbStatus"), btn = $(prefix + "_tmdbBtn");
+  if(!st || !btn) return;
+  st.textContent = linked ? "✓ Linked to TMDB" : "Not linked to TMDB";
+  st.classList.toggle("linked", linked);
+  btn.textContent = linked ? "Change" : "Link";
+}
+function openTmdbLink(prefix){
+  const category = prefix === "mv" ? "movies" : "tv";
+  const name = ($(prefix === "mv" ? "mname" : "epiname").value || "").trim();
+  openTmdbSearch(category, modalTarget, "link", name);
+}
+
+/* ----- TMDB key (stored in S.settings so it syncs to every device) ----- */
+function tmdbKeyFormHtml(){
+  return `<div class="tmdb-keybox">
+    <div class="tmdb-msg" style="text-align:left;padding:4px 0">Search needs a free TMDB key. One-time setup, about two minutes:</div>
+    <ol class="tmdb-steps">
+      <li>Make a free account at themoviedb.org</li>
+      <li>Open Settings → API and request a key (personal, non-commercial use)</li>
+      <li>Paste the “API Key” (or the long “API Read Access Token”) below</li>
+    </ol>
+    <a class="tmdb-link" href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Open TMDB API settings ↗</a>
+    <input id="tmdbKeyInput" placeholder="Paste key here" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button class="btn brass wide" style="margin-top:10px" onclick="saveTmdbKey('search')">Save key</button>
+  </div>`;
+}
+function tmdbSettingsHtml(){
+  const has = !!((S.settings && S.settings.tmdbKey) || "");
+  return `<div class="tmdb-settings">
+    <div class="tmdb-set-head"><b>TMDB lookup</b><span class="entry-meta2">${has ? "Key saved" : "No key yet"}</span></div>
+    <input id="acctTmdbKey" placeholder="${has ? "Paste a new key to replace it" : "Paste TMDB API key"}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="account-row"><button class="btn small ghost" onclick="saveTmdbKey('account')">Save key</button>${has ? `<button class="btn small ghost" onclick="clearTmdbKey()">Remove key</button>` : ""}</div>
+    <div class="tmdb-credit">${TMDB_CREDIT}</div>
+  </div>`;
+}
+function accountBodyHtml(){ return cloudStatusHtml() + tmdbSettingsHtml(); }
+function saveTmdbKey(from){
+  const el = $(from === "account" ? "acctTmdbKey" : "tmdbKeyInput");
+  const v = el ? el.value.trim() : "";
+  if(!v) return toast("Paste your TMDB key first.");
+  if(!/^[A-Za-z0-9._-]{20,}$/.test(v)) return toast("That doesn't look like a TMDB key.");
+  S.settings.tmdbKey = v;
+  persist();
+  toast("TMDB key saved.");
+  refreshTmdbModals();
+}
+function clearTmdbKey(){
+  if(!confirm("Remove the saved TMDB key from this account?")) return;
+  S.settings.tmdbKey = "";
+  persist();
+  refreshTmdbModals();
+}
+function retryKeyEntry(){
+  S.settings.tmdbKey = "";
+  persist();
+  refreshTmdbModals();
+}
+function refreshTmdbModals(){
+  if($("tmdbModal").classList.contains("show") && tmdbCtx) renderTmdbModal("");
+  if($("matchModal").classList.contains("show") && matchCtx) renderMatchModal();
+}
+function tmdbErrorHtml(e){
+  const m = e && e.message;
+  if(m === "bad-key") return `<div class="tmdb-msg">TMDB rejected the key. Make sure it was pasted in full.<br><button class="btn small ghost" style="margin-top:10px" onclick="retryKeyEntry()">Enter key again</button></div>`;
+  if(m === "no-key") return `<div class="tmdb-msg">No TMDB key saved yet.</div>`;
+  return `<div class="tmdb-msg">Couldn't reach TMDB (${esc(m || "network")}). Check your connection and try again.</div>`;
+}
+
+/* ----- shared result row ----- */
+function tmdbResultHtml(r, i, pickFn){
+  const sub = [r.year, r.rating != null ? r.rating + "%" : ""].filter(Boolean).join(" · ");
+  return `<div class="tmdb-res" onclick="${pickFn}">
+    <div class="tmdb-poster">${r.posterPath ? `<img loading="lazy" alt="" src="${TMDB_IMG}w92${r.posterPath}">` : ""}</div>
+    <div class="tmdb-res-main">
+      <div class="tmdb-res-title serif">${esc(r.title)}</div>
+      ${sub ? `<div class="tmdb-res-sub">${esc(sub)}</div>` : ""}
+      ${r.overview ? `<div class="tmdb-res-over">${esc(r.overview)}</div>` : ""}
+    </div>
+  </div>`;
+}
+
+/* ----- search-and-add modal ----- */
+function openTmdbSearch(category, target, mode, initialQuery){
+  tmdbCtx = { category, target: target || "season", mode: mode || "add" };
+  renderTmdbModal(initialQuery || "");
+  $("tmdbModal").classList.add("show");
+}
+function renderTmdbModal(q){
+  const { category, mode } = tmdbCtx;
+  const noun = category === "tv" ? "show" : "movie";
+  $("tmdbTitle").textContent = mode === "link" ? "Link to TMDB" : "Add " + noun;
+  $("tmdbHint").textContent = mode === "link"
+    ? "Pick the right one — the name and your progress stay as they are; missing details get filled in."
+    : "Search, tap the right one, then check the details before saving.";
+  const actions = $("tmdbActions");
+  if(!MediaDB.for(category).key()){
+    $("tmdbBody").innerHTML = tmdbKeyFormHtml();
+  } else {
+    $("tmdbBody").innerHTML = `<input id="tmdbQuery" placeholder="Search ${noun}s on TMDB…" value="${esc(q)}" oninput="tmdbQueryChanged()" onkeydown="if(event.key==='Enter'){event.preventDefault();runTmdbSearch();}" autocomplete="off"><div id="tmdbResults" class="tmdb-results"></div>`;
+    if(q) runTmdbSearch(); else setTimeout(()=>{ const el = $("tmdbQuery"); if(el) el.focus(); }, 60);
+  }
+  actions.innerHTML = mode === "link"
+    ? `<button class="btn" onclick="closeModal('tmdbModal')">Cancel</button>`
+    : `<button class="btn" onclick="tmdbManual()">Enter manually</button><button class="btn" onclick="closeModal('tmdbModal')">Cancel</button>`;
+}
+function tmdbQueryChanged(){
+  clearTimeout(tmdbSearchTimer);
+  tmdbSearchTimer = setTimeout(runTmdbSearch, 400);
+}
+async function runTmdbSearch(){
+  clearTimeout(tmdbSearchTimer);
+  const input = $("tmdbQuery"), box = $("tmdbResults");
+  if(!input || !box || !tmdbCtx) return;
+  const q = input.value.trim();
+  if(q.length < 2){ box.innerHTML = ""; return; }
+  const seq = ++tmdbSearchSeq;
+  box.innerHTML = `<div class="tmdb-msg">Searching…</div>`;
+  try{
+    const res = await MediaDB.for(tmdbCtx.category).search(tmdbCtx.category, q);
+    if(seq !== tmdbSearchSeq) return;
+    tmdbResults = res;
+    box.innerHTML = res.length
+      ? res.map((r,i)=>tmdbResultHtml(r, i, `tmdbPick(${i})`)).join("")
+      : `<div class="tmdb-msg">No results for “${esc(q)}”.</div>`;
+  }catch(e){
+    if(seq !== tmdbSearchSeq) return;
+    box.innerHTML = tmdbErrorHtml(e);
+  }
+}
+async function tmdbPick(i){
+  const r = tmdbResults[i];
+  if(!r || !tmdbCtx) return;
+  const box = $("tmdbResults");
+  box.innerHTML = `<div class="tmdb-msg">Loading details…</div>`;
+  try{
+    const { category, target, mode } = tmdbCtx;
+    const d = await MediaDB.for(category).details(category, r.id);
+    closeModal("tmdbModal");
+    if(mode === "link") applyTmdbToOpenModal(category, d);
+    else if(category === "movies") openMovieModal(null, target, d);
+    else openEpisodicModal("tv", null, target, d);
+  }catch(e){ box.innerHTML = tmdbErrorHtml(e); }
+}
+function tmdbManual(){
+  const { category, target } = tmdbCtx;
+  closeModal("tmdbModal");
+  if(category === "movies") openMovieModal(null, target);
+  else openEpisodicModal("tv", null, target);
+}
+// Link mode: fill the already-open edit modal. Never touches the name, and
+// only fills length / seasons when they're empty, so nothing you typed or any
+// watched progress gets overwritten.
+function applyTmdbToOpenModal(category, d){
+  modalTmdb = { id: d.id, posterPath: d.posterPath };
+  if(category === "movies"){
+    if(!($("mv_ry").value || "").trim() && d.year) $("mv_ry").value = d.year;
+    if(!(+$("mlength").value) && d.runtime) $("mlength").value = d.runtime;
+    $("mv_rating").value = d.rating == null ? "" : d.rating;
+    paintTmdbRow("mv");
+  } else {
+    if(!($("epi_ry").value || "").trim() && d.year) $("epi_ry").value = d.year;
+    if(!(+$("epilen").value) && d.epLen) $("epilen").value = d.epLen;
+    if(!$("groupRows").children.length){
+      (d.seasons || []).forEach(s => addGroupRow({ name: "Season " + s.number, total: s.episodes, watched: 0, id: "" }));
+    }
+    $("epi_rating").value = d.rating == null ? "" : d.rating;
+    paintTmdbRow("epi");
+  }
+  toast("Linked to TMDB.");
+}
+
+/* ----- match-my-Library tool -----
+   Walks through titles that have no tmdbId yet. "Auto-match" only links the
+   unambiguous ones (year on file AND the same title AND the same year); the
+   rest go through a one-tap-per-title review, so a wrong remake never gets
+   linked silently. Existing names / lengths / seasons / progress are never
+   overwritten — only blanks are filled, and the rating is set. */
+function normTitle(s){
+  return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+function unlinkedQueue(category){
+  const out = [];
+  (S.library[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip) out.push({ book: "library", id: it.id }); });
+  (S[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip && !it.abandoned && !isSeasonItemDone(category, it)) out.push({ book: "season", id: it.id }); });
+  return out;
+}
+function applyTmdbToItem(category, item, d){
+  item.tmdbId = d.id; item.posterPath = d.posterPath; item.tmdbSkip = false;
+  item.rating = d.rating;
+  if(!item.releaseDate) item.releaseDate = { y: "", m: "", d: "" };
+  if(!item.releaseDate.y && d.year) item.releaseDate.y = d.year;
+  if(category === "movies"){
+    if(!(item.length > 0) && d.runtime) item.length = d.runtime;
+  } else {
+    if(!(item.epLen > 0) && d.epLen) item.epLen = d.epLen;
+    if(!(item.groups || []).length && (d.seasons || []).length){
+      item.groups = d.seasons.map((s,i) => ({ id: uid(), name: "Season " + s.number, total: s.episodes, watched: 0, order: i }));
+    }
+  }
+}
+function openMatchModal(category){
+  matchCtx = { category, queue: unlinkedQueue(category), pos: 0, results: [], view: "intro", note: "", abort: false };
+  renderMatchModal();
+  $("matchModal").classList.add("show");
+}
+function matchItemFor(q){ return (arrFor(matchCtx.category, q.book) || []).find(x => x.id === q.id) || null; }
+function matchCurrent(){
+  while(matchCtx.pos < matchCtx.queue.length){
+    const it = matchItemFor(matchCtx.queue[matchCtx.pos]);
+    if(it && !it.tmdbId && !it.tmdbSkip) return it;
+    matchCtx.pos++;
+  }
+  return null;
+}
+function renderMatchModal(){
+  const c = matchCtx;
+  const noun = c.category === "tv" ? "show" : "movie";
+  const body = $("matchBody"), actions = $("matchActions"), hint = $("matchHint");
+  $("matchTitle").textContent = "Match with TMDB";
+  if(!MediaDB.for(c.category).key()){
+    hint.textContent = "One quick setup step first.";
+    body.innerHTML = tmdbKeyFormHtml();
+    actions.innerHTML = `<button class="btn" onclick="closeModal('matchModal')">Close</button>`;
+    return;
+  }
+  if(c.view === "auto"){
+    hint.textContent = "Linking the obvious ones — this can take a minute.";
+    body.innerHTML = `<div class="tmdb-msg" id="matchAutoText">Starting…</div>`;
+    actions.innerHTML = `<button class="btn" onclick="closeModal('matchModal')">Stop</button>`;
+    return;
+  }
+  if(c.view === "review"){
+    const it = matchCurrent();
+    if(it){
+      const left = c.queue.length - c.pos;
+      const year = it.releaseDate && it.releaseDate.y;
+      hint.textContent = `${left} left. Tap the right match, or skip it.`;
+      body.innerHTML = `<div class="match-name serif">${esc(it.name)}</div>
+        <div class="match-year">${year ? "Year on file: " + esc(year) : "No year on file"}</div>
+        <input id="matchQuery" value="${esc(it.name)}" placeholder="Search TMDB…" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();matchSearch();}">
+        <div id="matchResults" class="tmdb-results"></div>`;
+      actions.innerHTML = `<button class="btn" onclick="matchSkip()">Skip</button><button class="btn" onclick="matchNotFound()">Not on TMDB</button><button class="btn" onclick="closeModal('matchModal')">Close</button>`;
+      matchSearch();
+      return;
+    }
+    c.view = "intro";
+    c.queue = unlinkedQueue(c.category); c.pos = 0;
+  }
+  const n = c.queue.length;
+  hint.textContent = "";
+  if(!n){
+    body.innerHTML = `<div class="tmdb-msg">${c.note ? esc(c.note) + "<br>" : ""}Every ${noun} is linked or marked as not on TMDB. 🎉</div>`;
+    actions.innerHTML = `<button class="btn" onclick="closeModal('matchModal')">Close</button>`;
+    return;
+  }
+  body.innerHTML = `${c.note ? `<div class="tmdb-msg" style="padding:4px 0 10px">${esc(c.note)}</div>` : ""}
+    <div class="match-intro"><b>${n}</b> ${noun}${n === 1 ? " isn't" : "s aren't"} linked to TMDB yet.</div>
+    <div class="hint" style="margin-top:8px">Linking fills in the rating and any blank year, length or seasons. Names and progress are never changed.<br><br><b>Auto-match</b> links only exact matches (same title and same year).<br><b>Review</b> goes through them one by one.</div>`;
+  actions.innerHTML = `<button class="btn brass" onclick="matchAuto()">Auto-match</button><button class="btn" onclick="matchReview()">Review</button><button class="btn" onclick="closeModal('matchModal')">Close</button>`;
+}
+function matchReview(){ matchCtx.view = "review"; matchCtx.pos = 0; renderMatchModal(); }
+async function matchSearch(){
+  const c = matchCtx, input = $("matchQuery"), box = $("matchResults");
+  if(!c || !input || !box) return;
+  const it = matchCurrent();
+  const q = input.value.trim();
+  if(q.length < 2){ box.innerHTML = ""; return; }
+  const seq = ++matchSeq;
+  box.innerHTML = `<div class="tmdb-msg">Searching…</div>`;
+  try{
+    let res = await MediaDB.for(c.category).search(c.category, q);
+    if(seq !== matchSeq) return;
+    const y = it && it.releaseDate && it.releaseDate.y ? String(it.releaseDate.y) : "";
+    if(y) res = res.map((r,i)=>({ r, i })).sort((a,b)=> ((b.r.year===y) - (a.r.year===y)) || (a.i - b.i)).map(x=>x.r);
+    c.results = res;
+    box.innerHTML = res.length
+      ? res.map((r,i)=>tmdbResultHtml(r, i, `matchPick(${i})`)).join("")
+      : `<div class="tmdb-msg">No results. Edit the search above, or mark it as not on TMDB.</div>`;
+  }catch(e){
+    if(seq !== matchSeq) return;
+    box.innerHTML = tmdbErrorHtml(e);
+  }
+}
+async function matchPick(i){
+  const c = matchCtx, r = c.results[i], it = matchCurrent();
+  if(!r || !it) return;
+  const box = $("matchResults");
+  box.innerHTML = `<div class="tmdb-msg">Linking…</div>`;
+  try{
+    const d = await MediaDB.for(c.category).details(c.category, r.id);
+    applyTmdbToItem(c.category, it, d);
+    c.pos++;
+    persist();
+    renderMatchModal();
+  }catch(e){ box.innerHTML = tmdbErrorHtml(e); }
+}
+function matchSkip(){ matchCtx.pos++; renderMatchModal(); }
+function matchNotFound(){
+  const it = matchCurrent();
+  if(it){ it.tmdbSkip = true; matchCtx.pos++; persist(); }
+  renderMatchModal();
+}
+async function matchAuto(){
+  const c = matchCtx;
+  const provider = MediaDB.for(c.category);
+  c.view = "auto"; c.abort = false; renderMatchModal();
+  const total = c.queue.length;
+  let done = 0, linked = 0, fatal = null;
+  for(const q of c.queue.slice()){
+    if(c.abort) break;
+    const it = matchItemFor(q);
+    done++;
+    const year = it && it.releaseDate && it.releaseDate.y ? String(it.releaseDate.y) : "";
+    if(it && !it.tmdbId && !it.tmdbSkip && year){
+      try{
+        const res = await provider.search(c.category, it.name);
+        const want = normTitle(it.name);
+        const hit = want ? res.find(r => r.year === year && (normTitle(r.title) === want || normTitle(r.originalTitle) === want)) : null;
+        if(hit){
+          const d = await provider.details(c.category, hit.id);
+          applyTmdbToItem(c.category, it, d);
+          linked++;
+        }
+      }catch(e){
+        if(e && (e.message === "bad-key" || e.message === "no-key")){ fatal = e; break; }
+      }
+    }
+    const el = $("matchAutoText");
+    if(el) el.textContent = `Checked ${done} of ${total} · ${linked} linked`;
+    await new Promise(r => setTimeout(r, 70));
+  }
+  if(linked) persist();
+  if(c.abort) return;
+  c.queue = unlinkedQueue(c.category); c.pos = 0; c.view = "intro";
+  c.note = fatal ? "TMDB rejected the key — auto-match stopped." : `Auto-match linked ${linked} of ${total}.`;
+  renderMatchModal();
+}
+
 /* ---------- shared: session modal (games + movies + dlc) ---------- */
 function openSessionModal(category, id){
   sessionCtx = {category, id};
@@ -2399,7 +2919,7 @@ function addSession(){
 /* ---------- backup ---------- */
 function exportData(){
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(S,null,2)], {type:"application/json"}));
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({...S, settings:{...S.settings, tmdbKey:""}},null,2)], {type:"application/json"}));
   a.download = "expedition-backup.json";
   a.click();
   toast("Backup saved.");
@@ -2413,7 +2933,9 @@ function importData(){
       try{
         const x = JSON.parse(r.result);
         if(!Array.isArray(x.games) && !Array.isArray(x.movies) && !x.library) throw 0;
-        S = normalizeState(x); // v1.3.0: routes through the same normalizer as load(), so Library + releaseDate/hype come along for the ride
+        const keepKey = S.settings.tmdbKey;
+        S = normalizeState(x); if(!S.settings.tmdbKey) S.settings.tmdbKey = keepKey; // v1.8.0: backups never carry the key, so keep this device's
+        // v1.3.0: routes through the same normalizer as load(), so Library + releaseDate/hype come along for the ride
         persist(); toast("Backup restored.");
       }catch(e){ toast("That file doesn't look right."); }
     };
@@ -2545,7 +3067,7 @@ function renderAccountBtn(){
   }
 }
 function openAccountModal(){
-  $("accountModalBody").innerHTML = cloudStatusHtml();
+  $("accountModalBody").innerHTML = accountBodyHtml();
   $("accountModal").classList.add("show");
 }
 
@@ -3002,7 +3524,7 @@ function renderGames(){
 function renderMovies(){
   const totals = categoryTotals("movies");
   let html = statbar("movies", totals);
-  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}" onclick="openMovieModal()">+ Add Movie</button></div>`;
+  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}" onclick="openTmdbSearch('movies','season','add')">+ Add Movie</button></div>`;
   if(!S.movies.length){
     html += `<div class="empty"><span class="serif">No movies yet</span>Add one you're planning to watch this season.</div>`;
     $("app").innerHTML = html; return;
@@ -3027,7 +3549,7 @@ function renderEpisodicTab(category){
   const meta = CAT[category];
   const addLabel = category==="anime" ? "+ Add Anime" : "+ Add Show";
   let html = statbar(category, totals, {label:"seasons", value:activeSeasonCount(category)});
-  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${meta.color};--accent-text:${meta.text}" onclick="openEpisodicModal('${category}')">${addLabel}</button></div>`;
+  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${meta.color};--accent-text:${meta.text}" onclick="${category==="tv" ? "openTmdbSearch('tv','season','add')" : `openEpisodicModal('${category}')`}">${addLabel}</button></div>`;
   const list = S[category];
   if(!list.length){
     html += `<div class="empty"><span class="serif">Nothing here yet</span>Add ${category==="anime"?"an anime":"a show"} to start tracking episodes.</div>`;
@@ -3052,7 +3574,7 @@ function render(){
   const scrollY = window.scrollY;
   renderModeToggle();
   renderAccountBtn();
-  if($("accountModal").classList.contains("show")) $("accountModalBody").innerHTML = cloudStatusHtml();
+  if($("accountModal").classList.contains("show")) $("accountModalBody").innerHTML = accountBodyHtml();
   renderTabBar();
   if(mode==="library"){ renderLibraryTab(libTab); restoreScroll(scrollY); return; }
   if(activeTab==="overview") renderOverview();
@@ -3127,13 +3649,15 @@ function libSubLine(category, item){
 function libraryMissingFields(category, item){
   const missing = [];
   if(!hasReleaseDate(item.releaseDate, category)) missing.push(category==="games" ? "release date" : "release year");
-  if(!item.hype) missing.push("hype level");
+  if(category==="movies"||category==="tv"){ if(item.rating==null) missing.push("rating"); }
+  else if(!item.hype) missing.push("hype level");
   if((category==="tv"||category==="anime") && !(item.groups && item.groups.length)) missing.push("episode count");
   return missing;
 }
 function libraryOpenFn(category, id){
   if(category==="games") return `openGameModal(${id?`'${id}'`:"null"},'library')`;
-  if(category==="movies") return `openMovieModal(${id?`'${id}'`:"null"},'library')`;
+  if(category==="movies") return id ? `openMovieModal('${id}','library')` : `openTmdbSearch('movies','library','add')`;
+  if(category==="tv" && !id) return `openTmdbSearch('tv','library','add')`;
   if(category==="manga") return `openMangaModal(${id?`'${id}'`:"null"},'library')`;
   return `openEpisodicModal('${category}',${id?`'${id}'`:"null"},'library')`;
 }
@@ -3172,8 +3696,13 @@ function libSegments(category, item){
     const eps = (item.groups||[]).reduce((a,g)=>a+(g.total||0),0);
     if(eps) segs.push(`${eps} Ep`);
   }
-  const hype = item.hype||0;
-  segs.push(hype>0 ? `⭐ ${hype}` : `☆ –`);
+  if(category==="movies"||category==="tv"){
+    // v1.8.0 — the TMDB rating replaces the hype stars for movies and TV.
+    if(item.rating!=null) segs.push(`${item.rating}%`);
+  } else {
+    const hype = item.hype||0;
+    segs.push(hype>0 ? `⭐ ${hype}` : `☆ –`);
+  }
   return segs;
 }
 // v1.5.0 — tap a card to expand it in place: category-specific breakdown
@@ -3254,7 +3783,10 @@ function toggleLibSortDir(){ libSortDir = libSortDir==="asc"?"desc":"asc"; local
 function setLibGroup(v){ libGroup=v; localStorage.setItem("expedition-libgroup",v); libExpandedGroups.clear(); renderLibraryTab(libTab); }
 function toggleLibGroupDir(){ libGroupDir = libGroupDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libgroupdir",libGroupDir); renderLibraryTab(libTab); }
 function libSortValue(category, item, key){
-  if(key==="hype") return item.hype||0;
+  if(key==="hype"){
+    if(category==="movies"||category==="tv") return item.rating==null ? -1 : item.rating;
+    return item.hype||0;
+  }
   if(key==="length") return itemMinutes(category,item).total;
   if(key==="date"){
     const rd = item.releaseDate||{};
@@ -3267,6 +3799,7 @@ function libCompare(category, a, b, key, dir){
   const cmp = typeof va==="string" ? va.localeCompare(vb) : va-vb;
   return dir==="desc" ? -cmp : cmp;
 }
+const RATING_GROUP_ORDER = ["Under 70%","70–79%","80–89%","90% and up"]; // v1.8.0 — movies/tv rating buckets, low → high
 const LENGTH_GROUP_ORDER = ["Short (under 10h)","Medium (10–25h)","Long (25–50h)","Gigantic (50h+)"];
 // v1.7.2 — movies get their own length buckets (minutes-based, not hours) since
 // the general hours buckets above were built for games/manga and every movie
@@ -3287,6 +3820,14 @@ function libGroupKey(category, item, groupBy){
     if(hrs<50) return "Long (25–50h)";
     return "Gigantic (50h+)";
   }
+  if(groupBy==="hype" && (category==="movies"||category==="tv")){
+    const r = item.rating;
+    if(r==null) return "Not rated";
+    if(r>=90) return "90% and up";
+    if(r>=80) return "80–89%";
+    if(r>=70) return "70–79%";
+    return "Under 70%";
+  }
   if(groupBy==="hype"){
     const labels = category==="games" ? HYPE_LABELS : HYPE_LABELS_3;
     return item.hype>0 ? `${labels[item.hype-1]} (${item.hype})` : "Not rated";
@@ -3304,6 +3845,12 @@ function libGroupOrderKeys(groupBy, dir, presentKeys, category){
     let order = (category==="movies" ? MOVIE_LENGTH_GROUP_ORDER : LENGTH_GROUP_ORDER).filter(k=>present.has(k));
     if(dir==="desc") order.reverse();
     if(present.has("No length set")) order.push("No length set");
+    return order;
+  }
+  if(groupBy==="hype" && (category==="movies"||category==="tv")){
+    let order = RATING_GROUP_ORDER.filter(k=>present.has(k));
+    if(dir==="desc") order.reverse();
+    if(present.has("Not rated")) order.push("Not rated");
     return order;
   }
   if(groupBy==="hype"){
@@ -3328,6 +3875,8 @@ function renderLibraryTab(category){
   const prevSearch = $("libSearch");
   const wasFocused = !!prevSearch && document.activeElement===prevSearch;
   const caret = wasFocused ? prevSearch.selectionStart : null;
+  const isRate = category==="movies" || category==="tv";
+  const unlinkedN = isRate ? unlinkedQueue(category).length : 0;
   const addLabels = { games:"+ Add Game", movies:"+ Add Movie", manga:"+ Add Manga", anime:"+ Add Anime", tv:"+ Add Show" };
 
   let html = `<div class="lib-head"><b>${list.length}</b> title${list.length===1?"":"s"} filed in ${meta.label}</div>`;
@@ -3344,7 +3893,7 @@ function renderLibraryTab(category){
       <select onchange="setLibSort(this.value)">
         <option value="name" ${libSort==="name"?"selected":""}>Sort: Name</option>
         <option value="date" ${libSort==="date"?"selected":""}>Sort: Release date</option>
-        <option value="hype" ${libSort==="hype"?"selected":""}>Sort: Hype</option>
+        <option value="hype" ${libSort==="hype"?"selected":""}>Sort: ${isRate?"Rating":"Hype"}</option>
         <option value="length" ${libSort==="length"?"selected":""}>Sort: Length</option>
       </select>
       <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
@@ -3353,13 +3902,14 @@ function renderLibraryTab(category){
       <select onchange="setLibGroup(this.value)">
         <option value="none" ${libGroup==="none"?"selected":""}>Group: None</option>
         <option value="length" ${libGroup==="length"?"selected":""}>Group: Length</option>
-        <option value="hype" ${libGroup==="hype"?"selected":""}>Group: Hype</option>
+        <option value="hype" ${libGroup==="hype"?"selected":""}>Group: ${isRate?"Rating":"Hype"}</option>
         <option value="year" ${libGroup==="year"?"selected":""}>Group: Year</option>
       </select>
       <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
     </div>
     <button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>
     <button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>
+    ${isRate ? `<button class="lib-tags-btn" onclick="openMatchModal('${category}')" title="Link titles to TMDB">⇄ TMDB${unlinkedN?` (${unlinkedN})`:""}</button>` : ""}
   </div>`;
 
   html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
