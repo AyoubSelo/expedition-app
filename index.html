@@ -451,19 +451,41 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .match-intro{font-size:15px}
 .match-intro b{color:var(--brass)}
 
-/* v1.8.2 — Library movies: poster grid (4 per row) */
-.poster-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 6px}
+/* v1.8.3 — Library movies: poster rows (3 per row) + expandable detail block */
+.poster-grid{display:flex;flex-direction:column;gap:12px}
+.poster-row,.pd-top,.pd-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.pd-block{display:flex;flex-direction:column;gap:6px}
 .pcard{min-width:0;cursor:pointer;container-type:inline-size;-webkit-tap-highlight-color:transparent}
-.pposter{position:relative;aspect-ratio:2/3;border-radius:7px;overflow:hidden;background:var(--panel2);border:1px solid var(--line)}
-.pcard:active .pposter{border-color:var(--brass)}
-.pph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;font-family:"Fraunces",Georgia,serif;font-size:11px;line-height:1.25;color:var(--muted);word-break:break-word;overflow:hidden}
+.pposter{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--panel2);border:1px solid var(--line)}
+.pcard:active .pposter,.pcard.open .pposter{border-color:var(--brass)}
+.pcard.open .pinfo{display:none}
+.pph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;font-family:"Fraunces",Georgia,serif;font-size:12px;line-height:1.25;color:var(--muted);word-break:break-word;overflow:hidden}
 .pposter img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease}
 .pposter img.in{opacity:1}
-.prate{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.55);color:#0d0d0d}
+.pposter img.seen{opacity:1;transition:none}
+.prate{position:absolute;top:5px;right:5px;width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.55);color:#0d0d0d}
 .prate.good{background:#58b774}
 .prate.mid{background:#e2b93b}
 .prate.low{background:#d9544a;color:#fff}
-.pinfo{margin-top:5px;padding:3px 2px;background:var(--panel2);border:1px solid var(--line-soft);border-radius:6px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(6.5px,10cqw,10px);color:var(--muted)}
+.pinfo{margin-top:5px;padding:4px 2px;background:var(--panel2);border:1px solid var(--line-soft);border-radius:6px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(6.5px,10cqw,10.5px);color:var(--muted)}
+/* detail block: info box to the right of the poster, bar underneath */
+.pd-info{grid-column:2 / 4;position:relative;min-width:0}
+.pd-info-in{position:absolute;inset:0;display:flex;flex-direction:column;gap:6px}
+.pd-box{background:var(--panel2);border:1px solid var(--line-soft);border-radius:10px}
+.pd-title{padding:7px 10px;font-size:14px;font-weight:600;line-height:1.25;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex-shrink:0}
+.pd-desc{flex:1;min-height:0;overflow-y:auto;padding:9px 10px;font-size:12px;line-height:1.5;color:var(--muted)}
+.pd-yl{align-self:start;padding:5px 2px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(7px,2.4vw,10.5px);color:var(--brass)}
+.pd-cast{grid-column:2 / 4;padding:9px 10px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.pd-lab{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dim);margin-bottom:1px}
+.pd-val{font-size:12px;line-height:1.4;color:var(--ink)}
+.pd-val.dim{color:var(--muted)}
+.pd-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.pd-btns .btn{flex:1 1 0;min-width:0;white-space:nowrap;text-align:center}
+.pd-enter{animation:pdIn .3s .16s both ease-out}
+.pd-leave{animation:pdOut .15s both ease-in}
+@keyframes pdIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pdOut{from{opacity:1}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.pd-enter,.pd-leave{animation:none}}
 .lib-modal-actions{display:flex;gap:8px;margin-top:14px}
 
 .toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:20;max-width:88vw;text-align:center}
@@ -803,7 +825,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.8.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.8.3"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -2523,6 +2545,17 @@ const MediaDB = {
         const data = await this.api("/search/" + type, { query, include_adult: "false", page: "1" });
         return (data.results || []).slice(0, 10).map(r => tmdbNormalize(category, r));
       },
+      // v1.8.3 — description + director + top-5 cast, fetched on demand by tmdbId
+      async extras(category, id){
+        const d = await this.api("/movie/" + id, { append_to_response: "credits" });
+        const crew = (d.credits && d.credits.crew) || [];
+        const cast = ((d.credits && d.credits.cast) || []).slice().sort((a,b) => (a.order||0) - (b.order||0));
+        return {
+          overview: d.overview || "",
+          director: crew.filter(c => c.job === "Director").slice(0, 2).map(c => c.name),
+          cast: cast.slice(0, 5).map(c => c.name),
+        };
+      },
       async details(category, id){
         if(category === "tv"){
           const d = await this.api("/tv/" + id);
@@ -3798,33 +3831,184 @@ function toggleLibGroup(key){
   if(libExpandedGroups.has(key)) libExpandedGroups.delete(key); else libExpandedGroups.add(key);
   renderLibraryTab(libTab);
 }
-// v1.8.2 — a Library movie as a poster card. Posters are NOT stored in the
+// v1.8.3 — a Library movie as a poster card. Posters are NOT stored in the
 // app's data (only the small posterPath is); they're fetched from TMDB's image
 // server each time the app opens and cached by the browser. The first rows
 // load eagerly, in order from the top; the rest load as you scroll to them.
-function moviePosterCard(item, idx){
-  const r = item.rating;
-  const cls = r==null ? "" : (r>=80 ? "good" : (r>=70 ? "mid" : "low"));
+const posterSeen = new Set();   // poster URLs already loaded this session, so a re-render never re-fades them
+function movieInfoText(item){
   const {total, played} = itemMinutes("movies", item);
   const y = item.releaseDate && item.releaseDate.y ? String(item.releaseDate.y) : "";
   let len = "";
   if(total>0) len = played>0 ? `${fmtHrMin(Math.max(0,total-played))} R` : fmtHrMin(total);
-  const info = [y, len].filter(Boolean).join(" · ") || "No info";
-  const img = item.posterPath
-    ? `<img alt="${esc(item.name)}" decoding="async" ${idx<12 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${TMDB_IMG}w342${item.posterPath}" onload="this.classList.add('in')" onerror="this.remove()">`
+  return [y, len].filter(Boolean).join(" · ") || "No info";
+}
+function moviePosterCard(item, idx){
+  const r = item.rating;
+  const cls = r==null ? "" : (r>=80 ? "good" : (r>=70 ? "mid" : "low"));
+  const open = libOpenMovie === item.id;
+  const url = item.posterPath ? `${TMDB_IMG}w342${item.posterPath}` : "";
+  const seen = url && posterSeen.has(url);
+  const img = url
+    ? `<img alt="${esc(item.name)}" class="${seen?"seen":""}" ${idx<12 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${url}" onload="this.classList.add('in');posterSeen.add(this.src)" onerror="this.remove()">`
     : "";
-  return `<div class="pcard" onclick="${libraryOpenFn("movies", item.id)}">
+  return `<div class="pcard${open?" open":""}" data-pid="${item.id}" onclick="pdToggle('${item.id}')">
     <div class="pposter">
       <div class="pph"><span>${esc(item.name)}</span></div>
       ${img}
       ${r!=null ? `<div class="prate ${cls}">${r}</div>` : ""}
     </div>
-    <div class="pinfo">${info}</div>
+    <div class="pinfo">${movieInfoText(item)}</div>
   </div>`;
 }
 function libraryList(category, items){
-  if(category==="movies") return `<div class="poster-grid">${items.map((x,i)=>moviePosterCard(x,i)).join("")}</div>`;
-  return `<div class="lib-list">${items.map(x=>libraryRow(category,x)).join("")}</div>`;
+  if(category!=="movies") return `<div class="lib-list">${items.map(x=>libraryRow(category,x)).join("")}</div>`;
+  const rows = (arr, start) => { let h = ""; for(let i=0;i<arr.length;i+=3) h += `<div class="poster-row">${arr.slice(i,i+3).map((x,j)=>moviePosterCard(x,start+i+j)).join("")}</div>`; return h; };
+  const openIdx = libOpenMovie ? items.findIndex(x=>x.id===libOpenMovie) : -1;
+  if(openIdx<0) return `<div class="poster-grid">${rows(items,0)}</div>`;
+  // The tapped poster drops to the left of its own row-block. Posters before it
+  // in its old row stay put on a row of their own; posters after it start again
+  // underneath the detail block.
+  const rowStart = Math.floor(openIdx/3)*3;
+  const item = items[openIdx];
+  const enter = pdAnimateIn ? " pd-enter" : "";
+  return `<div class="poster-grid">
+    ${rows(items.slice(0,rowStart), 0)}
+    ${rows(items.slice(rowStart,openIdx), rowStart)}
+    <div class="pd-block">
+      <div class="pd-top">
+        ${moviePosterCard(item, openIdx)}
+        <div class="pd-info${enter}"><div class="pd-info-in">
+          <div class="pd-box pd-title serif">${esc(item.name)}</div>
+          <div class="pd-box pd-desc" id="pdDesc">${pdBodies(item).desc}</div>
+        </div></div>
+      </div>
+      <div class="pd-bar${enter}">
+        <div class="pd-yl pd-box">${movieInfoText(item)}</div>
+        <div class="pd-box pd-cast">
+          <div><div class="pd-lab">Director</div><div class="pd-val" id="pdDir">${pdBodies(item).dir}</div></div>
+          <div><div class="pd-lab">Starring</div><div class="pd-val" id="pdCast">${pdBodies(item).cast}</div></div>
+          <div class="pd-btns">
+            <button class="btn small" onclick="pdEdit('${item.id}')">Edit</button>
+            <button class="btn small ghost" onclick="pdMove('${item.id}')">To Season</button>
+            <button class="btn small ghost danger" onclick="pdRemove('${item.id}')">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${rows(items.slice(openIdx+1), openIdx+1)}
+  </div>`;
+}
+
+/* ---------- v1.8.3 — poster detail: open / close, animation, data ----------
+   Open/closed state lives in libOpenMovie (a JS var, never a DOM class), so it
+   survives every re-render. Moving posters are animated with FLIP: measure
+   where every poster is, change the layout, measure again, then play each one
+   from its old spot to its new spot. */
+let libOpenMovie = null, pdBusy = false, pdAnimateIn = false;
+const pdErr = {};
+function pdCaptureRects(){
+  const m = new Map(), sy = window.scrollY;
+  document.querySelectorAll("[data-pid]").forEach(el => { const r = el.getBoundingClientRect(); m.set(el.dataset.pid, { left: r.left, top: r.top + sy }); });
+  return m;
+}
+function pdPlayFlip(before){
+  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const sy = window.scrollY, vh = window.innerHeight;
+  document.querySelectorAll("[data-pid]").forEach(el => {
+    const o = before.get(el.dataset.pid); if(!o) return;
+    const r = el.getBoundingClientRect();
+    const dx = o.left - r.left, dy = o.top - (r.top + sy);
+    if(Math.abs(dx)<1 && Math.abs(dy)<1) return;
+    // skip posters that are far off-screen both before and after
+    const nowTop = r.top, oldTop = o.top - sy;
+    if((nowTop > vh*2 || nowTop < -vh*2) && (oldTop > vh*2 || oldTop < -vh*2)) return;
+    if(!el.animate) return;
+    el.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: "none" }], { duration: 360, easing: "cubic-bezier(.22,.8,.24,1)" });
+  });
+}
+function pdWithFlip(fn){
+  const before = pdCaptureRects();
+  fn();
+  pdPlayFlip(before);
+}
+function pdToggle(id){
+  if(pdBusy) return;
+  const wasOpen = libOpenMovie != null;
+  const go = () => {
+    const before = pdCaptureRects();
+    libOpenMovie = libOpenMovie === id ? null : id;
+    pdAnimateIn = !!libOpenMovie;
+    render();
+    pdAnimateIn = false;
+    pdPlayFlip(before);
+    pdBusy = false;
+    if(libOpenMovie){
+      const it = (S.library.movies||[]).find(x=>x.id===libOpenMovie);
+      if(it){ delete pdErr[it.tmdbId]; pdLoadExtras(it); }
+      setTimeout(pdScrollIntoView, 420);
+    }
+  };
+  if(wasOpen){
+    pdBusy = true;
+    document.querySelectorAll(".pd-info,.pd-bar").forEach(e => { e.classList.remove("pd-enter"); e.classList.add("pd-leave"); });
+    setTimeout(go, 150);
+  } else go();
+}
+function pdScrollIntoView(){
+  const el = document.querySelector(".pd-block"); if(!el) return;
+  const r = el.getBoundingClientRect(), vh = window.innerHeight;
+  const bottomLimit = vh - 100;   // keep clear of the tab bar
+  if(r.top < 12) window.scrollBy({ top: r.top - 12, behavior: "smooth" });
+  else if(r.bottom > bottomLimit) window.scrollBy({ top: Math.min(r.bottom - bottomLimit, r.top - 12), behavior: "smooth" });
+}
+function pdEdit(id){ openMovieModal(id, "library"); }
+function pdMove(id){
+  pdWithFlip(() => { libOpenMovie = null; moveItem("movies", id, "library", "season"); });
+}
+function pdRemove(id){
+  if(!confirm("Remove this movie?")) return;
+  pdWithFlip(() => { libOpenMovie = null; S.library.movies = S.library.movies.filter(x=>x.id!==id); persist(); });
+}
+
+/* The richer TMDB details (description, director, cast) are fetched by tmdbId
+   on demand and kept in a small separate cache on this device — NOT inside the
+   synced app data, so they never count toward the cloud document's size limit. */
+const PD_CACHE_KEY = "expedition-tmdb-extras-v1";
+let pdCache = {};
+try{ pdCache = JSON.parse(localStorage.getItem(PD_CACHE_KEY) || "{}") || {}; }catch(e){ pdCache = {}; }
+function pdCacheSave(){ try{ localStorage.setItem(PD_CACHE_KEY, JSON.stringify(pdCache)); }catch(e){} }
+function pdBodies(item){
+  const dim = t => `<span class="pd-val dim">${t}</span>`;
+  if(!item.tmdbId) return { desc: dim("Not linked to TMDB yet — use the ⇄ TMDB button above to link it and the details show up here."), dir: dim("—"), cast: dim("—") };
+  const ex = pdCache["m:" + item.tmdbId];
+  if(ex){
+    return {
+      desc: ex.overview ? esc(ex.overview) : dim("No description available."),
+      dir: ex.director && ex.director.length ? esc(ex.director.join(", ")) : dim("—"),
+      cast: ex.cast && ex.cast.length ? esc(ex.cast.join(", ")) : dim("—"),
+    };
+  }
+  const err = pdErr[item.tmdbId];
+  if(err === "no-key") return { desc: dim("Add your TMDB key (account menu) to load details."), dir: dim("—"), cast: dim("—") };
+  if(err) return { desc: dim("Couldn't load details. Close and reopen to try again."), dir: dim("—"), cast: dim("—") };
+  return { desc: dim("Loading…"), dir: dim("…"), cast: dim("…") };
+}
+function pdFill(item){
+  if(libOpenMovie !== item.id) return;
+  const b = pdBodies(item);
+  const d = $("pdDesc"), r = $("pdDir"), c = $("pdCast");
+  if(d) d.innerHTML = b.desc;
+  if(r) r.innerHTML = b.dir;
+  if(c) c.innerHTML = b.cast;
+}
+async function pdLoadExtras(item){
+  if(!item.tmdbId || pdCache["m:" + item.tmdbId]) return;
+  try{
+    pdCache["m:" + item.tmdbId] = await MediaDB.providers.tmdb.extras("movies", item.tmdbId);
+    pdCacheSave();
+  }catch(e){ pdErr[item.tmdbId] = (e && e.message) || "error"; }
+  pdFill(item);
 }
 function libraryRow(category, item){
   const meta = CAT[category];
