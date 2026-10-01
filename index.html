@@ -568,17 +568,12 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <div style="flex:0 0 74px" id="mv_ratingCell"><label>Rating %</label><input id="mv_rating" class="compact-num-tiny" type="number" min="0" max="100" inputmode="numeric" placeholder="85"></div>
     </div>
     <div class="tmdb-row" id="mv_tmdbRow"><span class="tmdb-status" id="mv_tmdbStatus">Not linked to TMDB</span><button type="button" class="btn small" id="mv_tmdbBtn" onclick="openTmdbLink('mv')">Link</button></div>
-    </div>
     <div id="mv_seriesSection" class="field-row" style="display:none">
       <label>Series</label>
       <div class="row2">
         <div><select id="mv_seriesId"></select></div>
         <div><input id="mv_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
-    </div>
-    <div class="field-row" id="mv_tagsFieldRow">
-      <label>Tags</label>
-      <div class="tag-picker" id="mv_tagsRow"></div>
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('movieModal')">Cancel</button>
@@ -789,7 +784,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.8.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.8.1"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -885,7 +880,7 @@ function normalizeState(raw){
   const withExtras = (x, cat) => ({
     releaseDate: x.releaseDate || {y:"",m:"",d:""},
     hype: (cat==="movies"||cat==="tv") ? 0 : (HYPE_MAX_3.has(cat) ? Math.min(3, x.hype||0) : (x.hype||0)),
-    tags: Array.isArray(x.tags) ? x.tags : [],
+    tags: (cat==="movies"||cat==="tv") ? [] : (Array.isArray(x.tags) ? x.tags : []), // v1.8.1 — movies/TV no longer use tags
     partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null,
     ...((cat==="movies"||cat==="tv") ? {
       rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
@@ -910,7 +905,7 @@ function normalizeState(raw){
     seasonStart: raw.seasonStart || "",
     archive: raw.archive || [],
     sessionLog: raw.sessionLog || [],
-    tags: normalizeTags(raw.tags),
+    tags: (()=>{ const t = normalizeTags(raw.tags); t.movies = []; t.tv = []; return t; })(),
     series: normalizeNamedList(raw.series),
     games: normGames(raw.games),
     movies: normSimple(raw.movies,"movies"),
@@ -1587,8 +1582,12 @@ function openMoveModal(category, id, fromMode, toMode){
   let body;
   if(category==="manga"){
     const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
-    body = `<div class="hint">"${esc(item.name)}" has ${total} volume${total===1?"":"s"} here (vol ${item.fromVol}–${item.toVol}). How many do you want to move to ${dir}? They're taken from the start of the range (vol ${item.fromVol} onward) — the rest stays behind.</div>
-      <div class="field-row"><label>Volumes to move</label><input id="moveVolCount" type="number" min="1" max="${total}" value="${total}" inputmode="numeric"></div>`;
+    const read = Math.min(item.volsRead||0, total);
+    const unread = total - read;
+    if(unread<=0){ toast("Every volume here is already read — nothing unfinished to move."); moveModalCtx = null; return; }
+    const firstUnread = item.fromVol + read;
+    body = `<div class="hint">"${esc(item.name)}" has ${unread} unfinished volume${unread===1?"":"s"} here (vol ${firstUnread}–${item.toVol})${read ? `, plus ${read} already read` : ""}. How many do you want to move to ${dir}? Only unfinished volumes move, starting from vol ${firstUnread} — read ones and the rest stay behind.</div>
+      <div class="field-row"><label>Volumes to move</label><input id="moveVolCount" type="number" min="1" max="${unread}" value="${unread}" inputmode="numeric"></div>`;
   } else {
     const groupWord = (category==="anime" && item.groupType==="arc") ? "arc" : "season";
     body = `<div class="hint">Pick which ${groupWord}s of "${esc(item.name)}" move to ${dir}. Anything left unchecked stays where it is.</div>
@@ -1661,9 +1660,14 @@ function splitAndMoveManga(id, fromMode, toMode, volCount){
   const idx = fromArr.findIndex(x=>x.id===id);
   if(idx<0) return;
   const item = fromArr[idx];
-  const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
   const toArr = toMode==="library" ? S.library.manga : S.manga;
-  if(volCount>=total){
+  const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
+  const read = Math.min(item.volsRead||0, total);   // read volumes are the first `read` of the range
+  const unread = total - read;
+  if(unread<=0) return toast("Every volume here is already read — nothing unfinished to move.");
+  const count = Math.max(1, Math.min(volCount, unread));
+  if(read===0 && count>=unread){
+    // nothing read and everything is moving — a normal whole-title move
     fromArr.splice(idx,1);
     if(!mergeIntoSibling("manga", toArr, item)) toArr.push(item);
     persist();
@@ -1671,14 +1675,24 @@ function splitAndMoveManga(id, fromMode, toMode, volCount){
     return;
   }
   if(!item.originGroupId) item.originGroupId = uid();
-  const movedFrom = item.fromVol, movedTo = item.fromVol + volCount - 1;
-  const movedRead = Math.min(item.volsRead||0, volCount);
-  const movedPart = { ...item, id: uid(), fromVol: movedFrom, toVol: movedTo, volsRead: movedRead };
-  item.fromVol = movedTo + 1;
-  item.volsRead = Math.max(0, (item.volsRead||0) - volCount);
+  // v1.8.1 — only UNFINISHED volumes ever move, starting at the first unread one.
+  const firstUnread = item.fromVol + read;
+  const movedTo = firstUnread + count - 1;
+  const movedPart = { ...item, id: uid(), fromVol: firstUnread, toVol: movedTo, volsRead: 0 };
+  if(read===0){
+    item.fromVol = movedTo + 1;                     // the rest stays, same as before
+  } else {
+    // The read volumes stay put as their own (finished) piece; whatever unread
+    // volumes are left over after the move become a separate unread piece.
+    if(movedTo < item.toVol){
+      const leftover = { ...item, id: uid(), fromVol: movedTo + 1, toVol: item.toVol, volsRead: 0 };
+      fromArr.splice(idx+1, 0, leftover);
+    }
+    item.toVol = firstUnread - 1;
+  }
   if(!mergeIntoSibling("manga", toArr, movedPart)) toArr.push(movedPart);
   persist();
-  toast(toMode==="library" ? "Moved the picked volumes to Library." : "Moved the picked volumes to Season.");
+  toast(toMode==="library" ? "Moved the unfinished volumes to Library." : "Moved the unfinished volumes to Season.");
 }
 function removeGeneric(category, id){
   if(category==="games") return removeGame(id);
@@ -2042,7 +2056,6 @@ function openMovieModal(id=null, target="season", prefill=null){
     fillRelease("mv", m.releaseDate);
     $("mv_rating").value = m.rating == null ? "" : m.rating;
     modalTmdb = { id: m.tmdbId || null, posterPath: m.posterPath || null };
-    currentModalTags = (m.tags||[]).slice();
   } else {
     $("movieFormTitle").textContent = "New movie";
     if(prefill){
@@ -2054,15 +2067,12 @@ function openMovieModal(id=null, target="season", prefill=null){
       $("mname").value = ""; $("mlength").value = "";
       fillRelease("mv", null); $("mv_rating").value = "";
     }
-    currentModalTags = [];
   }
   paintTmdbRow("mv");
-  renderTagPicker("mv");
   fillSeriesFields("mv", "movies", m);
   const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
   setVisible("mv_yearCell", !mvFinished);
   setVisible("mv_seriesToggleWrap", !mvFinished);
-  setVisible("mv_tagsFieldRow", !mvFinished);
   setVisible("mv_ratingCell", !mvFinished);
   setVisible("mv_tmdbRow", !mvFinished);
   if(mvFinished) $("mv_seriesSection").style.display = "none";
@@ -2082,10 +2092,10 @@ function saveMovie(){
   const arr = arrFor("movies", modalTarget);
   if(editId){
     const m = arr.find(x=>x.id===editId);
-    m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.hype = 0; m.tags = currentModalTags.slice();
+    m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.hype = 0; m.tags = [];
     Object.assign(m, seriesFields, tmdbFields);
   } else {
-    arr.push({ id: uid(), name, length, watched:0, releaseDate, hype:0, tags: currentModalTags.slice(), ...seriesFields, ...tmdbFields });
+    arr.push({ id: uid(), name, length, watched:0, releaseDate, hype:0, tags: [], ...seriesFields, ...tmdbFields });
   }
   closeModal("movieModal"); persist(); toast("Movie saved.");
 }
@@ -2297,7 +2307,7 @@ function openEpisodicModal(category, id=null, target="season", prefill=null){
   const epiFinished = target==="season" && id && isSeasonItemDone(category, e);
   setVisible("epi_yearCell", !epiFinished);
   setVisible("epi_seriesToggleWrap", !epiFinished);
-  setVisible("epi_tagsFieldRow", !epiFinished);
+  setVisible("epi_tagsFieldRow", isAnime && !epiFinished);
   setVisible("epi_hypeCell", isAnime && !epiFinished);
   setVisible("epi_ratingCell", !isAnime && !epiFinished);
   setVisible("epi_tmdbRow", !isAnime && !epiFinished);
@@ -2374,9 +2384,9 @@ function saveEpisodic(){
   const list = arrFor(epiCategory, epiTarget);
   if(editId){
     const e = list.find(x=>x.id===editId);
-    Object.assign(e, { name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, ...tmdbFields, ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
+    Object.assign(e, { name, epLen, groups, releaseDate, hype, tags: isTv ? [] : currentModalTags.slice(), ...seriesFields, ...tmdbFields, ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
   } else {
-    const entry = { id: uid(), name, epLen, groups, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, ...tmdbFields };
+    const entry = { id: uid(), name, epLen, groups, releaseDate, hype, tags: isTv ? [] : currentModalTags.slice(), ...seriesFields, ...tmdbFields };
     if(epiCategory === "anime") entry.groupType = groupTypeSel;
     list.push(entry);
   }
@@ -3617,6 +3627,19 @@ function itemMinutes(category, item){
   const played = (item.groups||[]).reduce((a,g)=>a+(g.watched||0),0) * (item.epLen||0);
   return { total, played };
 }
+// v1.8.1 — what's actually left to do. Library grouping (and each group's
+// total runtime) counts this instead of the full target. Games fold timed
+// DLC goals in, exactly like the "H total" figure on a game's row.
+function libRemainingMin(category, item){
+  if(category==="games"){
+    const mainRemaining = Math.max(0, (item.goal||0)-(item.played||0));
+    const hasDlcs = item.hasDlc && item.dlcs && item.dlcs.length;
+    const dlcHours = hasDlcs ? item.dlcs.filter(d=>d.type==="time").reduce((a,d)=>a+(d.goal||0),0) : 0;
+    return (mainRemaining+dlcHours)*60;
+  }
+  const {total, played} = itemMinutes(category, item);
+  return Math.max(0, total-played);
+}
 function fmtHrs(mins){ return fmtN(Math.round(mins/6)/10); }
 // v1.7.1 — total runtime of a group of Library titles, shown next to the
 // title count on each group header. Same per-category formatting as a single
@@ -3677,9 +3700,7 @@ function libSegments(category, item){
   if(category==="games"){
     const hasDlcs = item.hasDlc && item.dlcs && item.dlcs.length;
     if(hasDlcs){
-      const mainRemaining = Math.max(0, (item.goal||0)-(item.played||0));
-      const dlcHours = item.dlcs.filter(d=>d.type==="time").reduce((a,d)=>a+(d.goal||0),0);
-      segs.push(`${fmtHrs((mainRemaining+dlcHours)*60)}H total`);
+      segs.push(`${fmtHrs(libRemainingMin(category,item))}H total`);
     } else {
       segs.push(libSubLine(category,item));
     }
@@ -3729,10 +3750,12 @@ function libraryExpanded(category, item){
       ? item.groups.map(g=>`<div class="lib-exp-line">${esc(g.name)}: ${g.watched||0} / ${g.total||0} episodes</div>`).join("")
       : `<div class="lib-exp-line">No seasons/arcs added yet.</div>`;
   }
-  const names = tagNames(category, item);
-  html += names.length
-    ? `<div class="lib-exp-tags">${names.map(n=>`<span class="tag-chip-static">${esc(n)}</span>`).join("")}</div>`
-    : `<div class="lib-exp-line" style="color:var(--muted-dim)">No tags</div>`;
+  if(category!=="movies" && category!=="tv"){
+    const names = tagNames(category, item);
+    html += names.length
+      ? `<div class="lib-exp-tags">${names.map(n=>`<span class="tag-chip-static">${esc(n)}</span>`).join("")}</div>`
+      : `<div class="lib-exp-line" style="color:var(--muted-dim)">No tags</div>`;
+  }
   if(item.partOfSeries && item.seriesId){
     const s = (S.series[category]||[]).find(x=>x.id===item.seriesId);
     if(s) html += `<div class="lib-exp-line"><span style="color:#7f9bc4;display:inline-flex;vertical-align:-2px;margin-right:4px">${SERIES_ICON_SVG}</span>${esc(s.name)}${item.seriesOrder!=null ? ` — #${item.seriesOrder}` : ""}</div>`;
@@ -3807,8 +3830,8 @@ const LENGTH_GROUP_ORDER = ["Short (under 10h)","Medium (10–25h)","Long (25–
 const MOVIE_LENGTH_GROUP_ORDER = ["Short (under 1h 40m)","Medium (1h 40m–2h 20m)","Long (over 2h 20m)"];
 function libGroupKey(category, item, groupBy){
   if(groupBy==="length"){
-    const mins = itemMinutes(category,item).total;
-    if(mins<=0) return "No length set";
+    const mins = libRemainingMin(category,item);
+    if(mins<=0 && itemMinutes(category,item).total<=0) return "No length set";
     if(category==="movies"){
       if(mins<100) return "Short (under 1h 40m)";
       if(mins<=140) return "Medium (1h 40m–2h 20m)";
@@ -3907,7 +3930,7 @@ function renderLibraryTab(category){
       </select>
       <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
     </div>
-    <button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>
+    ${isRate ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
     <button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>
     ${isRate ? `<button class="lib-tags-btn" onclick="openMatchModal('${category}')" title="Link titles to TMDB">⇄ TMDB${unlinkedN?` (${unlinkedN})`:""}</button>` : ""}
   </div>`;
@@ -3931,7 +3954,7 @@ function renderLibraryTab(category){
     html += orderedKeys.map(key => {
       const isOpen = libExpandedGroups.has(key);
       const safeKey = key.replace(/'/g,"\\'");
-      const groupMins = buckets[key].reduce((a,x)=>a+itemMinutes(category,x).total,0);
+      const groupMins = buckets[key].reduce((a,x)=>a+libRemainingMin(category,x),0);
       const groupLenLabel = fmtGroupLength(category, groupMins);
       return `
       <div class="lib-group">
