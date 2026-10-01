@@ -451,6 +451,21 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .match-intro{font-size:15px}
 .match-intro b{color:var(--brass)}
 
+/* v1.8.2 — Library movies: poster grid (4 per row) */
+.poster-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 6px}
+.pcard{min-width:0;cursor:pointer;container-type:inline-size;-webkit-tap-highlight-color:transparent}
+.pposter{position:relative;aspect-ratio:2/3;border-radius:7px;overflow:hidden;background:var(--panel2);border:1px solid var(--line)}
+.pcard:active .pposter{border-color:var(--brass)}
+.pph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;font-family:"Fraunces",Georgia,serif;font-size:11px;line-height:1.25;color:var(--muted);word-break:break-word;overflow:hidden}
+.pposter img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease}
+.pposter img.in{opacity:1}
+.prate{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.55);color:#0d0d0d}
+.prate.good{background:#58b774}
+.prate.mid{background:#e2b93b}
+.prate.low{background:#d9544a;color:#fff}
+.pinfo{margin-top:5px;padding:3px 2px;background:var(--panel2);border:1px solid var(--line-soft);border-radius:6px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(6.5px,10cqw,10px);color:var(--muted)}
+.lib-modal-actions{display:flex;gap:8px;margin-top:14px}
+
 .toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:20;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -574,6 +589,10 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         <div><select id="mv_seriesId"></select></div>
         <div><input id="mv_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
+    </div>
+    <div class="lib-modal-actions" id="mv_libActions" style="display:none">
+      <button class="btn small ghost" onclick="movieModalMove()">To Season</button>
+      <button class="btn small ghost" onclick="movieModalRemove()">Remove</button>
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('movieModal')">Cancel</button>
@@ -784,7 +803,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.8.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.8.2"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -1584,9 +1603,8 @@ function openMoveModal(category, id, fromMode, toMode){
     const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
     const read = Math.min(item.volsRead||0, total);
     const unread = total - read;
-    if(unread<=0){ toast("Every volume here is already read — nothing unfinished to move."); moveModalCtx = null; return; }
-    const firstUnread = item.fromVol + read;
-    body = `<div class="hint">"${esc(item.name)}" has ${unread} unfinished volume${unread===1?"":"s"} here (vol ${firstUnread}–${item.toVol})${read ? `, plus ${read} already read` : ""}. How many do you want to move to ${dir}? Only unfinished volumes move, starting from vol ${firstUnread} — read ones and the rest stay behind.</div>
+    if(unread<=0){ toast("Every volume here is already read — nothing unread to move."); moveModalCtx = null; return; }
+    body = `<div class="hint">"${esc(item.name)}" has ${unread} unread volume${unread===1?"":"s"}${read ? ` (${read} already read)` : ""}. How many do you want to move to ${dir}? Only unread volumes move.</div>
       <div class="field-row"><label>Volumes to move</label><input id="moveVolCount" type="number" min="1" max="${unread}" value="${unread}" inputmode="numeric"></div>`;
   } else {
     const groupWord = (category==="anime" && item.groupType==="arc") ? "arc" : "season";
@@ -1662,9 +1680,9 @@ function splitAndMoveManga(id, fromMode, toMode, volCount){
   const item = fromArr[idx];
   const toArr = toMode==="library" ? S.library.manga : S.manga;
   const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
-  const read = Math.min(item.volsRead||0, total);   // read volumes are the first `read` of the range
+  const read = Math.min(item.volsRead||0, total);
   const unread = total - read;
-  if(unread<=0) return toast("Every volume here is already read — nothing unfinished to move.");
+  if(unread<=0) return toast("Every volume here is already read — nothing unread to move.");
   const count = Math.max(1, Math.min(volCount, unread));
   if(read===0 && count>=unread){
     // nothing read and everything is moving — a normal whole-title move
@@ -1675,24 +1693,14 @@ function splitAndMoveManga(id, fromMode, toMode, volCount){
     return;
   }
   if(!item.originGroupId) item.originGroupId = uid();
-  // v1.8.1 — only UNFINISHED volumes ever move, starting at the first unread one.
-  const firstUnread = item.fromVol + read;
-  const movedTo = firstUnread + count - 1;
-  const movedPart = { ...item, id: uid(), fromVol: firstUnread, toVol: movedTo, volsRead: 0 };
-  if(read===0){
-    item.fromVol = movedTo + 1;                     // the rest stays, same as before
-  } else {
-    // The read volumes stay put as their own (finished) piece; whatever unread
-    // volumes are left over after the move become a separate unread piece.
-    if(movedTo < item.toVol){
-      const leftover = { ...item, id: uid(), fromVol: movedTo + 1, toVol: item.toVol, volsRead: 0 };
-      fromArr.splice(idx+1, 0, leftover);
-    }
-    item.toVol = firstUnread - 1;
-  }
+  // v1.8.2 — plain counts, no volume-order logic. The moved piece is `count`
+  // unread volumes; the original just shrinks by that many and keeps its
+  // progress. (The numbers are only labels: the last `count` of the range go.)
+  const movedPart = { ...item, id: uid(), fromVol: item.toVol - count + 1, toVol: item.toVol, volsRead: 0 };
+  item.toVol = item.toVol - count;
   if(!mergeIntoSibling("manga", toArr, movedPart)) toArr.push(movedPart);
   persist();
-  toast(toMode==="library" ? "Moved the unfinished volumes to Library." : "Moved the unfinished volumes to Season.");
+  toast(toMode==="library" ? "Moved to Library." : "Moved to Season.");
 }
 function removeGeneric(category, id){
   if(category==="games") return removeGame(id);
@@ -2069,6 +2077,7 @@ function openMovieModal(id=null, target="season", prefill=null){
     }
   }
   paintTmdbRow("mv");
+  $("mv_libActions").style.display = (id && target==="library") ? "flex" : "none";
   fillSeriesFields("mv", "movies", m);
   const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
   setVisible("mv_yearCell", !mvFinished);
@@ -2098,6 +2107,18 @@ function saveMovie(){
     arr.push({ id: uid(), name, length, watched:0, releaseDate, hype:0, tags: [], ...seriesFields, ...tmdbFields });
   }
   closeModal("movieModal"); persist(); toast("Movie saved.");
+}
+function movieModalMove(){
+  const id = editId; if(!id) return;
+  closeModal("movieModal");
+  moveItem("movies", id, "library", "season");
+}
+function movieModalRemove(){
+  const id = editId; if(!id) return;
+  if(!confirm("Remove this movie?")) return;
+  S.library.movies = S.library.movies.filter(x=>x.id!==id);
+  closeModal("movieModal");
+  persist();
 }
 function removeMovie(id, target="season"){
   if(confirm("Remove this movie?")){
@@ -3777,6 +3798,34 @@ function toggleLibGroup(key){
   if(libExpandedGroups.has(key)) libExpandedGroups.delete(key); else libExpandedGroups.add(key);
   renderLibraryTab(libTab);
 }
+// v1.8.2 — a Library movie as a poster card. Posters are NOT stored in the
+// app's data (only the small posterPath is); they're fetched from TMDB's image
+// server each time the app opens and cached by the browser. The first rows
+// load eagerly, in order from the top; the rest load as you scroll to them.
+function moviePosterCard(item, idx){
+  const r = item.rating;
+  const cls = r==null ? "" : (r>=80 ? "good" : (r>=70 ? "mid" : "low"));
+  const {total, played} = itemMinutes("movies", item);
+  const y = item.releaseDate && item.releaseDate.y ? String(item.releaseDate.y) : "";
+  let len = "";
+  if(total>0) len = played>0 ? `${fmtHrMin(Math.max(0,total-played))} R` : fmtHrMin(total);
+  const info = [y, len].filter(Boolean).join(" · ") || "No info";
+  const img = item.posterPath
+    ? `<img alt="${esc(item.name)}" decoding="async" ${idx<12 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${TMDB_IMG}w342${item.posterPath}" onload="this.classList.add('in')" onerror="this.remove()">`
+    : "";
+  return `<div class="pcard" onclick="${libraryOpenFn("movies", item.id)}">
+    <div class="pposter">
+      <div class="pph"><span>${esc(item.name)}</span></div>
+      ${img}
+      ${r!=null ? `<div class="prate ${cls}">${r}</div>` : ""}
+    </div>
+    <div class="pinfo">${info}</div>
+  </div>`;
+}
+function libraryList(category, items){
+  if(category==="movies") return `<div class="poster-grid">${items.map((x,i)=>moviePosterCard(x,i)).join("")}</div>`;
+  return `<div class="lib-list">${items.map(x=>libraryRow(category,x)).join("")}</div>`;
+}
 function libraryRow(category, item){
   const meta = CAT[category];
   const missing = libraryMissingFields(category, item);
@@ -3810,7 +3859,7 @@ function libSortValue(category, item, key){
     if(category==="movies"||category==="tv") return item.rating==null ? -1 : item.rating;
     return item.hype||0;
   }
-  if(key==="length") return itemMinutes(category,item).total;
+  if(key==="length") return libRemainingMin(category,item); // v1.8.2 — remaining, same as grouping
   if(key==="date"){
     const rd = item.releaseDate||{};
     return (rd.y||"0000") + String(rd.m||"00").padStart(2,"0") + String(rd.d||"00").padStart(2,"0");
@@ -3943,7 +3992,7 @@ function renderLibraryTab(category){
   if(!filtered.length){
     html += `<div class="empty"><span class="serif">No matches</span>Nothing in ${meta.label} matches "${esc(libSearchQ)}".</div>`;
   } else if(libGroup==="none"){
-    html += `<div class="lib-list">${sorted.map(x=>libraryRow(category,x)).join("")}</div>`;
+    html += libraryList(category, sorted);
   } else {
     const buckets = {};
     sorted.forEach(item=>{
@@ -3963,7 +4012,7 @@ function renderLibraryTab(category){
           <span class="lib-group-title">${esc(key)}</span>
           <span class="lib-group-count">${buckets[key].length}${groupLenLabel?' · '+groupLenLabel:''}</span>
         </div>
-        ${isOpen ? `<div class="lib-list">${buckets[key].map(x=>libraryRow(category,x)).join("")}</div>` : ""}
+        ${isOpen ? libraryList(category, buckets[key]) : ""}
       </div>`;
     }).join("");
   }
