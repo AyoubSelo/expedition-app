@@ -463,7 +463,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .pposter img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .25s ease}
 .pposter img.in{opacity:1}
 .pposter img.seen{opacity:1;transition:none}
-.prate{position:absolute;top:5px;right:5px;width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.55);color:#0d0d0d}
+.prate{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.55);color:#0d0d0d}
 .prate.good{background:#58b774}
 .prate.mid{background:#e2b93b}
 .prate.low{background:#d9544a;color:#fff}
@@ -474,19 +474,37 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .pd-box{background:var(--panel2);border:1px solid var(--line-soft);border-radius:10px}
 .pd-title{padding:7px 10px;font-size:14px;font-weight:600;line-height:1.25;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex-shrink:0}
 .pd-desc{flex:1;min-height:0;overflow-y:auto;padding:9px 10px;font-size:12px;line-height:1.5;color:var(--muted)}
-.pd-yl{align-self:start;padding:5px 2px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(7px,2.4vw,10.5px);color:var(--brass)}
+.pd-left{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pd-left .btn{width:100%}
+.pd-tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pd-tap:active{border-color:var(--brass)}
+.pd-yl{align-self:stretch;padding:5px 2px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(7px,2.4vw,10.5px);color:var(--brass)}
 .pd-cast{grid-column:2 / 4;padding:9px 10px;display:flex;flex-direction:column;gap:7px;min-width:0}
 .pd-lab{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dim);margin-bottom:1px}
 .pd-val{font-size:12px;line-height:1.4;color:var(--ink)}
 .pd-val.dim{color:var(--muted)}
-.pd-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
-.pd-btns .btn{flex:1 1 0;min-width:0;white-space:nowrap;text-align:center}
 .pd-enter{animation:pdIn .3s .16s both ease-out}
 .pd-leave{animation:pdOut .15s both ease-in}
 @keyframes pdIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes pdOut{from{opacity:1}to{opacity:0}}
 @media (prefers-reduced-motion:reduce){.pd-enter,.pd-leave{animation:none}}
 .lib-modal-actions{display:flex;gap:8px;margin-top:14px}
+
+/* v1.8.4 — filter menu (dual-handle sliders), poster viewer */
+.lib-tags-btn.active{color:var(--brass);border-color:var(--brass)}
+.flt-sec{margin-top:18px}
+.flt-head{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted)}
+.flt-head b{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--brass);font-weight:600}
+.dual{position:relative;height:38px;margin:4px 14px 0;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dtrack{position:absolute;left:0;right:0;top:17px;height:4px;border-radius:2px;background:var(--line)}
+.dfill{position:absolute;top:17px;height:4px;border-radius:2px;background:var(--brass)}
+.dthumb{position:absolute;top:7px;width:24px;height:24px;margin-left:-12px;border-radius:50%;background:var(--brass);border:3px solid #141b17;box-shadow:0 0 0 1px var(--brass),0 2px 6px rgba(0,0,0,.5)}
+.flt-ends{display:flex;justify-content:space-between;margin:0 6px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted-dim)}
+.flt-none{font-size:12px;color:var(--muted-dim);padding:8px 0 0}
+.flt-count{font-size:12px;color:var(--muted);margin-top:16px;text-align:center}
+.pv{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s ease;touch-action:none;user-select:none;-webkit-user-select:none;overscroll-behavior:contain}
+.pv.show{opacity:1;pointer-events:auto}
+.pv img{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center center;will-change:transform;pointer-events:none;-webkit-user-drag:none}
 
 .toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:20;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -597,7 +615,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <label>Title</label>
     <div class="name-row">
       <input id="mname" placeholder="e.g. Blade Runner 2049">
-      <label class="series-toggle" id="mv_seriesToggleWrap" title="Part of a series"><input id="mv_hasSeries" type="checkbox" onchange="toggleSeriesSection('mv')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
     </div>
     <div class="compact-row">
       <div style="flex:0 0 48px"><label>Length (min)</label><input id="mlength" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="107"></div>
@@ -605,13 +622,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <div style="flex:0 0 74px" id="mv_ratingCell"><label>Rating %</label><input id="mv_rating" class="compact-num-tiny" type="number" min="0" max="100" inputmode="numeric" placeholder="85"></div>
     </div>
     <div class="tmdb-row" id="mv_tmdbRow"><span class="tmdb-status" id="mv_tmdbStatus">Not linked to TMDB</span><button type="button" class="btn small" id="mv_tmdbBtn" onclick="openTmdbLink('mv')">Link</button></div>
-    <div id="mv_seriesSection" class="field-row" style="display:none">
-      <label>Series</label>
-      <div class="row2">
-        <div><select id="mv_seriesId"></select></div>
-        <div><input id="mv_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
-      </div>
-    </div>
     <div class="lib-modal-actions" id="mv_libActions" style="display:none">
       <button class="btn small ghost" onclick="movieModalMove()">To Season</button>
       <button class="btn small ghost" onclick="movieModalRemove()">Remove</button>
@@ -742,6 +752,35 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
+<div class="modal" id="filterModal">
+  <div class="sheet">
+    <h2 class="serif">Filter</h2>
+    <div class="hint">Drag the handles to narrow the range. Each slider only steps through values you actually have in Movies.</div>
+    <div id="fltBody"></div>
+    <div class="flt-count" id="fltCount"></div>
+    <div class="actions">
+      <button class="btn" onclick="fltReset()">Reset</button>
+      <button class="btn brass" onclick="closeModal('filterModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="ratingModal">
+  <div class="sheet">
+    <h2 class="serif" id="ratingTitle">Rating</h2>
+    <div class="hint">Type your own score from 0 to 100 (an IMDb 7.8 would be 78). Leave it empty to clear the rating.</div>
+    <label>Rating</label>
+    <input id="ratingInput" type="number" min="0" max="100" inputmode="numeric" placeholder="e.g. 78" onkeydown="if(event.key==='Enter'){event.preventDefault();saveRating();}">
+    <button class="btn small ghost" id="ratingTmdbBtn" style="margin-top:10px" onclick="ratingUseTmdb()">Use TMDB score</button>
+    <div class="actions">
+      <button class="btn" onclick="closeModal('ratingModal')">Cancel</button>
+      <button class="btn brass" onclick="saveRating()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="pv" id="posterViewer" aria-hidden="true"><img id="pvImg" alt=""></div>
+
 <div class="modal" id="sessionModal">
   <div class="sheet">
     <h2 class="serif">Log a session</h2>
@@ -825,7 +864,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.8.3"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.8.4"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -922,7 +961,9 @@ function normalizeState(raw){
     releaseDate: x.releaseDate || {y:"",m:"",d:""},
     hype: (cat==="movies"||cat==="tv") ? 0 : (HYPE_MAX_3.has(cat) ? Math.min(3, x.hype||0) : (x.hype||0)),
     tags: (cat==="movies"||cat==="tv") ? [] : (Array.isArray(x.tags) ? x.tags : []), // v1.8.1 — movies/TV no longer use tags
-    partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null,
+    ...(cat==="movies"
+      ? { partOfSeries:false, seriesId:null, seriesOrder:null } // v1.8.4 — the series system is gone for movies
+      : { partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null }),
     ...((cat==="movies"||cat==="tv") ? {
       rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
       tmdbId: x.tmdbId||null, posterPath: x.posterPath||null, tmdbSkip: !!x.tmdbSkip,
@@ -947,7 +988,7 @@ function normalizeState(raw){
     archive: raw.archive || [],
     sessionLog: raw.sessionLog || [],
     tags: (()=>{ const t = normalizeTags(raw.tags); t.movies = []; t.tv = []; return t; })(),
-    series: normalizeNamedList(raw.series),
+    series: (()=>{ const s = normalizeNamedList(raw.series); s.movies = []; return s; })(),
     games: normGames(raw.games),
     movies: normSimple(raw.movies,"movies"),
     tv: normSimple(raw.tv || raw.shows,"tv"),
@@ -2100,13 +2141,10 @@ function openMovieModal(id=null, target="season", prefill=null){
   }
   paintTmdbRow("mv");
   $("mv_libActions").style.display = (id && target==="library") ? "flex" : "none";
-  fillSeriesFields("mv", "movies", m);
   const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
   setVisible("mv_yearCell", !mvFinished);
-  setVisible("mv_seriesToggleWrap", !mvFinished);
   setVisible("mv_ratingCell", !mvFinished);
   setVisible("mv_tmdbRow", !mvFinished);
-  if(mvFinished) $("mv_seriesSection").style.display = "none";
   $("movieModal").classList.add("show"); if(!id && !prefill) $("mname").focus();
 }
 function saveMovie(){
@@ -2115,11 +2153,7 @@ function saveMovie(){
   if(!name || length <= 0) return toast("Give it a title and a length.");
   const releaseDate = readRelease("mv");
   const tmdbFields = { rating: readRating("mv_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) };
-  const seriesFields = readSeriesFields("mv");
-  if(seriesFields.partOfSeries){
-    const clash = seriesOrderConflict("movies", seriesFields.seriesId, seriesFields.seriesOrder, editId);
-    if(clash) return toast(`"${clash}" already has that series order number.`);
-  }
+  const seriesFields = { partOfSeries:false, seriesId:null, seriesOrder:null }; // v1.8.4 — movies no longer use series
   const arr = arrFor("movies", modalTarget);
   if(editId){
     const m = arr.find(x=>x.id===editId);
@@ -3884,17 +3918,18 @@ function libraryList(category, items){
         </div></div>
       </div>
       <div class="pd-bar${enter}">
-        <div class="pd-yl pd-box">${movieInfoText(item)}</div>
+        <div class="pd-left">
+          <div class="pd-yl pd-box pd-tap" onclick="openRatingMenu('${item.id}')" title="Tap to edit the rating">${movieInfoText(item)}</div>
+          <button class="btn small" onclick="pdView('${item.id}')">View poster</button>
+          <button class="btn small ghost" onclick="pdMove('${item.id}')">To Season</button>
+          <button class="btn small ghost danger" onclick="pdRemove('${item.id}')">Remove</button>
+        </div>
         <div class="pd-box pd-cast">
           <div><div class="pd-lab">Director</div><div class="pd-val" id="pdDir">${pdBodies(item).dir}</div></div>
           <div><div class="pd-lab">Starring</div><div class="pd-val" id="pdCast">${pdBodies(item).cast}</div></div>
-          <div class="pd-btns">
-            <button class="btn small" onclick="pdEdit('${item.id}')">Edit</button>
-            <button class="btn small ghost" onclick="pdMove('${item.id}')">To Season</button>
-            <button class="btn small ghost danger" onclick="pdRemove('${item.id}')">Remove</button>
-          </div>
         </div>
       </div>
+    </div>
     </div>
     ${rows(items.slice(openIdx+1), openIdx+1)}
   </div>`;
@@ -3962,7 +3997,260 @@ function pdScrollIntoView(){
   if(r.top < 12) window.scrollBy({ top: r.top - 12, behavior: "smooth" });
   else if(r.bottom > bottomLimit) window.scrollBy({ top: Math.min(r.bottom - bottomLimit, r.top - 12), behavior: "smooth" });
 }
-function pdEdit(id){ openMovieModal(id, "library"); }
+/* ---------- v1.8.4 — full-screen poster viewer ----------
+   Tap anywhere to close. Two fingers pinch-zoom (and pan while zoomed); one
+   finger pans a zoomed poster. A tap only closes if the finger didn't move and
+   no pinch happened, so zooming never closes it by accident. The sharp
+   original is fetched when you open it; the cached small one shows instantly. */
+const pv = { s:1, tx:0, ty:0, pts:new Map(), start:null, moved:false, multi:false, pinch:null };
+let pvOpenId = null;
+const pvEl = () => document.getElementById("posterViewer");
+function pvApply(anim){
+  const img = $("pvImg");
+  img.style.transition = anim ? "transform .22s ease" : "none";
+  img.style.transform = `translate(${pv.tx}px,${pv.ty}px) scale(${pv.s})`;
+}
+function pvClamp(){
+  const o = pvEl(), img = $("pvImg");
+  const mx = Math.max(0, (img.offsetWidth * pv.s - o.clientWidth) / 2);
+  const my = Math.max(0, (img.offsetHeight * pv.s - o.clientHeight) / 2);
+  pv.tx = Math.max(-mx, Math.min(mx, pv.tx));
+  pv.ty = Math.max(-my, Math.min(my, pv.ty));
+}
+function pdView(id){
+  const it = (S.library.movies||[]).find(x=>x.id===id);
+  if(!it || !it.posterPath) return toast("This title has no poster.");
+  pvOpenId = id;
+  pv.s = 1; pv.tx = 0; pv.ty = 0; pv.pts.clear(); pv.pinch = null; pv.moved = false; pv.multi = false; pv.start = null;
+  const img = $("pvImg");
+  img.src = `${TMDB_IMG}w342${it.posterPath}`;
+  pvApply(false);
+  pvEl().classList.add("show");
+  pvEl().setAttribute("aria-hidden", "false");
+  const big = new Image();
+  big.onload = () => { if(pvOpenId === id) img.src = big.src; };
+  big.src = `${TMDB_IMG}original${it.posterPath}`;
+}
+function pvClose(){
+  pvOpenId = null;
+  pv.pts.clear(); pv.pinch = null;
+  pvEl().classList.remove("show");
+  pvEl().setAttribute("aria-hidden", "true");
+  setTimeout(() => { if(!pvOpenId) $("pvImg").removeAttribute("src"); }, 250);
+}
+function pvStartPinch(){
+  const [a, b] = [...pv.pts.values()], o = pvEl();
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  pv.pinch = {
+    d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, s0: pv.s,
+    ux: (mx - o.clientWidth/2 - pv.tx) / pv.s, uy: (my - o.clientHeight/2 - pv.ty) / pv.s,   // the image point under the fingers' midpoint
+  };
+}
+function pvDown(e){
+  if(!pvOpenId) return;
+  pv.pts.set(e.pointerId, { x:e.clientX, y:e.clientY });
+  try{ pvEl().setPointerCapture(e.pointerId); }catch(_){}
+  if(pv.pts.size === 1){ pv.start = { x:e.clientX, y:e.clientY, t:Date.now() }; pv.moved = false; pv.multi = false; }
+  else { pv.multi = true; pvStartPinch(); }
+}
+function pvMove(e){
+  if(!pvOpenId || !pv.pts.has(e.pointerId)) return;
+  const prev = pv.pts.get(e.pointerId), cur = { x:e.clientX, y:e.clientY };
+  pv.pts.set(e.pointerId, cur);
+  if(pv.pts.size >= 2 && pv.pinch){
+    const [a, b] = [...pv.pts.values()], o = pvEl();
+    const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    const s = Math.max(1, Math.min(6, pv.pinch.s0 * d / pv.pinch.d0));
+    pv.s = s;
+    pv.tx = (mx - o.clientWidth/2) - pv.pinch.ux * s;
+    pv.ty = (my - o.clientHeight/2) - pv.pinch.uy * s;
+    pv.moved = true; pvClamp(); pvApply(false);
+  } else if(pv.pts.size === 1){
+    if(pv.start && Math.hypot(cur.x - pv.start.x, cur.y - pv.start.y) > 8) pv.moved = true;
+    if(pv.s > 1 && pv.moved){ pv.tx += cur.x - prev.x; pv.ty += cur.y - prev.y; pvClamp(); pvApply(false); }
+  }
+}
+function pvEnd(e, allowTap){
+  if(!pv.pts.has(e.pointerId)) return;
+  pv.pts.delete(e.pointerId);
+  if(pv.pts.size >= 2) pvStartPinch(); else pv.pinch = null;
+  if(pv.pts.size > 0) return;
+  const tap = allowTap && !pv.moved && !pv.multi && pv.start && (Date.now() - pv.start.t) < 450;
+  if(tap) return pvClose();
+  if(pv.s < 1.03){ pv.s = 1; pv.tx = 0; pv.ty = 0; } else pvClamp();
+  pvApply(true);
+}
+function pvWheel(e){
+  if(!pvOpenId) return;
+  e.preventDefault();
+  const o = pvEl(), s0 = pv.s, s = Math.max(1, Math.min(6, s0 * Math.exp(-e.deltaY * 0.0015)));
+  const ux = (e.clientX - o.clientWidth/2 - pv.tx) / s0, uy = (e.clientY - o.clientHeight/2 - pv.ty) / s0;
+  pv.s = s;
+  pv.tx = (e.clientX - o.clientWidth/2) - ux * s;
+  pv.ty = (e.clientY - o.clientHeight/2) - uy * s;
+  if(s === 1){ pv.tx = 0; pv.ty = 0; }
+  pvClamp(); pvApply(false);
+}
+(function pvInit(){
+  const o = pvEl(); if(!o) return;
+  o.addEventListener("pointerdown", pvDown);
+  o.addEventListener("pointermove", pvMove);
+  o.addEventListener("pointerup", e => pvEnd(e, true));
+  o.addEventListener("pointercancel", e => pvEnd(e, false));
+  o.addEventListener("wheel", pvWheel, { passive:false });
+  document.addEventListener("keydown", e => { if(e.key === "Escape" && pvOpenId) pvClose(); });
+})();
+
+/* ---------- v1.8.4 — edit a movie's rating by hand ---------- */
+let ratingEditId = null;
+function openRatingMenu(id){
+  const it = (S.library.movies||[]).find(x=>x.id===id); if(!it) return;
+  ratingEditId = id;
+  $("ratingTitle").textContent = it.name;
+  $("ratingInput").value = it.rating == null ? "" : it.rating;
+  $("ratingTmdbBtn").style.display = it.tmdbId ? "" : "none";
+  $("ratingModal").classList.add("show");
+  setTimeout(() => { const el = $("ratingInput"); el.focus(); el.select(); }, 60);
+}
+function saveRating(){
+  const it = (S.library.movies||[]).find(x=>x.id===ratingEditId); if(!it) return closeModal("ratingModal");
+  it.rating = readRating("ratingInput");
+  closeModal("ratingModal");
+  persist();
+  toast(it.rating == null ? "Rating cleared." : "Rating saved.");
+}
+async function ratingUseTmdb(){
+  const it = (S.library.movies||[]).find(x=>x.id===ratingEditId); if(!it || !it.tmdbId) return;
+  const btn = $("ratingTmdbBtn"); btn.disabled = true;
+  try{
+    const d = await MediaDB.for("movies").details("movies", it.tmdbId);
+    $("ratingInput").value = d.rating == null ? "" : d.rating;
+    toast("TMDB score loaded — press Save to keep it.");
+  }catch(e){
+    toast(e && e.message === "no-key" ? "No TMDB key saved." : "Couldn't reach TMDB.");
+  }
+  btn.disabled = false;
+}
+
+/* ---------- v1.8.4 — Library Movies filter ----------
+   Each slider steps through the distinct values that actually exist (so a year
+   with no titles is simply skipped). Handles are positions in that list; what
+   gets stored is the value range, so it stays correct as titles come and go.
+   Titles with no value for a filter (no year, not rated…) only show while that
+   filter is untouched. Filters live for the session and aren't synced. */
+let libFilter = { y:null, r:null, l:null };
+let fltCtx = null, fltDrag = null, fltTimer = null;
+const FLT_DEFS = {
+  y: { label:"Release year", get: i => { const y = +(i.releaseDate && i.releaseDate.y); return y > 0 ? y : null; }, fmt: v => String(v) },
+  r: { label:"Rating",       get: i => i.rating == null ? null : i.rating, fmt: v => String(v) },
+  l: { label:"Length",       get: i => { const m = libRemainingMin("movies", i); return m > 0 ? m : null; }, fmt: v => fmtHrMin(v) },
+};
+function fltValues(k){
+  const set = new Set();
+  (S.library.movies||[]).forEach(it => { const v = FLT_DEFS[k].get(it); if(v != null) set.add(v); });
+  return [...set].sort((a,b) => a - b);
+}
+function libFilterCount(){ return Object.keys(FLT_DEFS).filter(k => libFilter[k]).length; }
+function libFilterPass(item){
+  for(const k in FLT_DEFS){
+    const f = libFilter[k]; if(!f) continue;
+    const v = FLT_DEFS[k].get(item);
+    if(v == null || v < f[0] || v > f[1]) return false;
+  }
+  return true;
+}
+function fltSectionHtml(k){
+  const d = FLT_DEFS[k], v = fltCtx.vals[k];
+  if(v.length < 2) return `<div class="flt-sec"><div class="flt-head"><span>${d.label}</span></div><div class="flt-none">${v.length ? "Only one value (" + d.fmt(v[0]) + ") — nothing to narrow." : "No titles have this yet."}</div></div>`;
+  return `<div class="flt-sec">
+    <div class="flt-head"><span>${d.label}</span><b id="fltVal_${k}"></b></div>
+    <div class="dual" data-k="${k}"><div class="dtrack"></div><div class="dfill" id="dfill_${k}"></div><div class="dthumb" id="dlo_${k}"></div><div class="dthumb" id="dhi_${k}"></div></div>
+    <div class="flt-ends"><span>${d.fmt(v[0])}</span><span>${d.fmt(v[v.length-1])}</span></div>
+  </div>`;
+}
+function fltPaint(k){
+  const v = fltCtx.vals[k]; if(v.length < 2) return;
+  const [lo, hi] = fltCtx.idx[k], n = v.length - 1;
+  const pl = lo / n * 100, ph = hi / n * 100;
+  $("dlo_" + k).style.left = pl + "%";
+  $("dhi_" + k).style.left = ph + "%";
+  $("dfill_" + k).style.left = pl + "%";
+  $("dfill_" + k).style.width = (ph - pl) + "%";
+  const d = FLT_DEFS[k];
+  $("fltVal_" + k).textContent = (lo === 0 && hi === n) ? "All" : `${d.fmt(v[lo])} – ${d.fmt(v[hi])}`;
+}
+function fltUpdateCount(){
+  const all = S.library.movies || [];
+  $("fltCount").textContent = `${all.filter(libFilterPass).length} of ${all.length} titles match`;
+}
+function openFilterModal(){
+  const vals = {}, idx = {};
+  Object.keys(FLT_DEFS).forEach(k => {
+    const v = fltValues(k); vals[k] = v;
+    let lo = 0, hi = Math.max(0, v.length - 1);
+    const f = libFilter[k];
+    if(f && v.length){
+      lo = v.findIndex(x => x >= f[0]); if(lo < 0) lo = 0;
+      let h = -1; v.forEach((x, i) => { if(x <= f[1]) h = i; });
+      hi = h < 0 ? v.length - 1 : h;
+      if(lo > hi) lo = hi;
+    }
+    idx[k] = [lo, hi];
+  });
+  fltCtx = { vals, idx };
+  $("fltBody").innerHTML = Object.keys(FLT_DEFS).map(fltSectionHtml).join("");
+  Object.keys(FLT_DEFS).forEach(fltPaint);
+  fltUpdateCount();
+  $("filterModal").classList.add("show");
+}
+function fltReset(){
+  libFilter = { y:null, r:null, l:null };
+  openFilterModal();
+  render();
+}
+function fltIdxAt(dual, clientX, n){
+  const r = dual.getBoundingClientRect();
+  const f = r.width > 0 ? (clientX - r.left) / r.width : 0;
+  return Math.max(0, Math.min(n - 1, Math.round(f * (n - 1))));
+}
+function fltSet(k, which, idx){
+  let [lo, hi] = fltCtx.idx[k];
+  if(which === "lo") lo = Math.min(idx, hi); else hi = Math.max(idx, lo);
+  fltCtx.idx[k] = [lo, hi];
+  const v = fltCtx.vals[k];
+  libFilter[k] = (lo === 0 && hi === v.length - 1) ? null : [v[lo], v[hi]];
+  fltPaint(k); fltUpdateCount();
+  clearTimeout(fltTimer);
+  fltTimer = setTimeout(render, 120);
+}
+(function fltInit(){
+  const body = document.getElementById("fltBody"); if(!body) return;
+  body.addEventListener("pointerdown", e => {
+    const dual = e.target.closest && e.target.closest(".dual"); if(!dual || !fltCtx) return;
+    const k = dual.dataset.k, n = fltCtx.vals[k].length; if(n < 2) return;
+    const idx = fltIdxAt(dual, e.clientX, n), [lo, hi] = fltCtx.idx[k];
+    let which;
+    if(lo === hi) which = idx < lo ? "lo" : (idx > hi ? "hi" : null);   // overlapping handles: decide by drag direction
+    else if(idx <= lo) which = "lo";
+    else if(idx >= hi) which = "hi";
+    else which = (idx - lo <= hi - idx) ? "lo" : "hi";
+    fltDrag = { k, which, dual, startX: e.clientX, n };
+    try{ dual.setPointerCapture(e.pointerId); }catch(_){}
+    if(which) fltSet(k, which, idx);
+  });
+  body.addEventListener("pointermove", e => {
+    if(!fltDrag) return;
+    const d = fltDrag;
+    if(!d.which){
+      if(Math.abs(e.clientX - d.startX) < 3) return;
+      d.which = e.clientX < d.startX ? "lo" : "hi";
+    }
+    fltSet(d.k, d.which, fltIdxAt(d.dual, e.clientX, d.n));
+  });
+  const end = () => { fltDrag = null; };
+  body.addEventListener("pointerup", end);
+  body.addEventListener("pointercancel", end);
+})();
 function pdMove(id){
   pdWithFlip(() => { libOpenMovie = null; moveItem("movies", id, "library", "season"); });
 }
@@ -4135,7 +4423,12 @@ function renderLibraryTab(category){
   const unlinkedN = isRate ? unlinkedQueue(category).length : 0;
   const addLabels = { games:"+ Add Game", movies:"+ Add Movie", manga:"+ Add Manga", anime:"+ Add Anime", tv:"+ Add Show" };
 
-  let html = `<div class="lib-head"><b>${list.length}</b> title${list.length===1?"":"s"} filed in ${meta.label}</div>`;
+  const isMovies = category==="movies";
+  const base = isMovies ? list.filter(libFilterPass) : list;   // v1.8.4 — Filter menu applies to Movies
+  const fN = isMovies ? libFilterCount() : 0;
+  let html = fN
+    ? `<div class="lib-head"><b>${base.length}</b> of ${list.length} title${list.length===1?"":"s"} shown in ${meta.label}</div>`
+    : `<div class="lib-head"><b>${list.length}</b> title${list.length===1?"":"s"} filed in ${meta.label}</div>`;
   html += `<div class="btn-row" style="margin-bottom:12px"><button class="btn accent wide" style="--accent:${meta.color};--accent-text:${meta.text}" onclick="${libraryOpenFn(category,null)}">${addLabels[category]}</button></div>`;
 
   if(!list.length){
@@ -4154,7 +4447,7 @@ function renderLibraryTab(category){
       </select>
       <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
     </div>
-    <div class="lib-control">
+    ${isMovies ? `<button class="lib-tags-btn${fN?" active":""}" onclick="openFilterModal()" title="Filter movies"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14l-5.2 6.2v4.6l-3.6 1.7v-6.3z"/></svg> Filter${fN?` (${fN})`:""}</button>` : `<div class="lib-control">
       <select onchange="setLibGroup(this.value)">
         <option value="none" ${libGroup==="none"?"selected":""}>Group: None</option>
         <option value="length" ${libGroup==="length"?"selected":""}>Group: Length</option>
@@ -4162,20 +4455,20 @@ function renderLibraryTab(category){
         <option value="year" ${libGroup==="year"?"selected":""}>Group: Year</option>
       </select>
       <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
-    </div>
+    </div>`}
     ${isRate ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
-    <button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>
+    ${isMovies ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
     ${isRate ? `<button class="lib-tags-btn" onclick="openMatchModal('${category}')" title="Link titles to TMDB">⇄ TMDB${unlinkedN?` (${unlinkedN})`:""}</button>` : ""}
   </div>`;
 
   html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
   const q = libSearchQ.trim().toLowerCase();
-  const filtered = q ? list.filter(x=>(x.name||"").toLowerCase().includes(q)) : list;
+  const filtered = q ? base.filter(x=>(x.name||"").toLowerCase().includes(q)) : base;
   const sorted = [...filtered].sort((a,b)=>libCompare(category,a,b,libSort,libSortDir));
 
   if(!filtered.length){
-    html += `<div class="empty"><span class="serif">No matches</span>Nothing in ${meta.label} matches "${esc(libSearchQ)}".</div>`;
-  } else if(libGroup==="none"){
+    html += `<div class="empty"><span class="serif">No matches</span>Nothing in ${meta.label} matches ${q ? `"${esc(libSearchQ)}"` : "your filters"}${q && fN ? " with the current filters" : ""}.</div>`;
+  } else if(isMovies || libGroup==="none"){
     html += libraryList(category, sorted);
   } else {
     const buckets = {};
