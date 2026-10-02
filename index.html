@@ -506,6 +506,13 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .pv.show{opacity:1;pointer-events:auto}
 .pv img{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center center;will-change:transform;pointer-events:none;-webkit-user-drag:none}
 
+/* v1.8.5 — rating source chips */
+.rate-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.rate-chip{padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:12px;cursor:pointer;font-family:inherit}
+.rate-chip b{font-family:"IBM Plex Mono",monospace;color:var(--brass);margin-left:6px;font-weight:600}
+.rate-chip:active{border-color:var(--brass)}
+.rate-note{font-size:12px;color:var(--muted-dim);margin-top:10px;line-height:1.5}
+
 .toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:20;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -765,13 +772,23 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
+<div class="modal" id="ratingsModal">
+  <div class="sheet">
+    <h2 class="serif">Movie ratings</h2>
+    <div class="hint" id="rtHint"></div>
+    <div id="rtBody"></div>
+    <div class="actions" id="rtActions"></div>
+    <div class="tmdb-credit">Ratings data from MDBList (IMDb, Letterboxd and other sources).</div>
+  </div>
+</div>
+
 <div class="modal" id="ratingModal">
   <div class="sheet">
     <h2 class="serif" id="ratingTitle">Rating</h2>
-    <div class="hint">Type your own score from 0 to 100 (an IMDb 7.8 would be 78). Leave it empty to clear the rating.</div>
+    <div class="hint">Tap a source to use its score, or type your own (0–100). Leave it empty to go back to the automatic score.</div>
     <label>Rating</label>
     <input id="ratingInput" type="number" min="0" max="100" inputmode="numeric" placeholder="e.g. 78" onkeydown="if(event.key==='Enter'){event.preventDefault();saveRating();}">
-    <button class="btn small ghost" id="ratingTmdbBtn" style="margin-top:10px" onclick="ratingUseTmdb()">Use TMDB score</button>
+    <div id="ratingChips"></div>
     <div class="actions">
       <button class="btn" onclick="closeModal('ratingModal')">Cancel</button>
       <button class="btn brass" onclick="saveRating()">Save</button>
@@ -864,7 +881,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.8.4"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.8.5"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -967,6 +984,9 @@ function normalizeState(raw){
     ...((cat==="movies"||cat==="tv") ? {
       rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
       tmdbId: x.tmdbId||null, posterPath: x.posterPath||null, tmdbSkip: !!x.tmdbSkip,
+      // v1.8.5 — scores from MDBList by source ({merged, imdb, letterboxd, ...}, each 0-100),
+      // and whether the number on the poster was typed in by hand.
+      ratings: (x.ratings && typeof x.ratings === "object") ? x.ratings : null, ratingsAt: x.ratingsAt||0, ratingManual: !!x.ratingManual,
     } : {}),
   });
   const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
@@ -1001,7 +1021,7 @@ function normalizeState(raw){
       anime: normSimple(rawLib.anime,"anime"),
       manga: normSimple(rawLib.manga,"manga"),
     },
-    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || "") },
+    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || "") },
     updatedAt: raw.updatedAt || 0,
   };
 }
@@ -2140,6 +2160,7 @@ function openMovieModal(id=null, target="season", prefill=null){
     }
   }
   paintTmdbRow("mv");
+  modalRatingInit = $("mv_rating").value.trim();
   $("mv_libActions").style.display = (id && target==="library") ? "flex" : "none";
   const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
   setVisible("mv_yearCell", !mvFinished);
@@ -2152,7 +2173,10 @@ function saveMovie(){
   const length = +$("mlength").value;
   if(!name || length <= 0) return toast("Give it a title and a length.");
   const releaseDate = readRelease("mv");
-  const tmdbFields = { rating: readRating("mv_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) };
+  const rField = readRating("mv_rating");
+  const ratingTouched = $("mv_rating").value.trim() !== modalRatingInit;   // changed by hand in this form?
+  const tmdbFields = { rating: rField, tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}), ...(ratingTouched ? { ratingManual: rField != null } : {}) };
+  let newId = null;
   const seriesFields = { partOfSeries:false, seriesId:null, seriesOrder:null }; // v1.8.4 — movies no longer use series
   const arr = arrFor("movies", modalTarget);
   if(editId){
@@ -2160,9 +2184,12 @@ function saveMovie(){
     m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.hype = 0; m.tags = [];
     Object.assign(m, seriesFields, tmdbFields);
   } else {
-    arr.push({ id: uid(), name, length, watched:0, releaseDate, hype:0, tags: [], ...seriesFields, ...tmdbFields });
+    newId = uid();
+    arr.push({ id: newId, name, length, watched:0, releaseDate, hype:0, tags: [], ...seriesFields, ...tmdbFields });
   }
+  const savedTarget = modalTarget;
   closeModal("movieModal"); persist(); toast("Movie saved.");
+  if(newId) mdbAutoFetch("movies", newId, savedTarget);   // new title: pull its MDBList scores in the background
 }
 function movieModalMove(){
   const id = editId; if(!id) return;
@@ -2666,7 +2693,15 @@ function tmdbSettingsHtml(){
     <div class="tmdb-credit">${TMDB_CREDIT}</div>
   </div>`;
 }
-function accountBodyHtml(){ return cloudStatusHtml() + tmdbSettingsHtml(); }
+function mdbSettingsHtml(){
+  const has = !!((S.settings && S.settings.mdbKey) || "");
+  return `<div class="tmdb-settings">
+    <div class="tmdb-set-head"><b>MDBList ratings</b><span class="entry-meta2">${has ? "Key saved" : "No key yet"}</span></div>
+    <input id="acctMdbKey" placeholder="${has ? "Paste a new key to replace it" : "Paste MDBList API key"}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="account-row"><button class="btn small ghost" onclick="saveMdbKey('account')">Save key</button>${has ? `<button class="btn small ghost" onclick="clearMdbKey()">Remove key</button>` : ""}</div>
+  </div>`;
+}
+function accountBodyHtml(){ return cloudStatusHtml() + tmdbSettingsHtml() + mdbSettingsHtml(); }
 function saveTmdbKey(from){
   const el = $(from === "account" ? "acctTmdbKey" : "tmdbKeyInput");
   const v = el ? el.value.trim() : "";
@@ -2689,6 +2724,7 @@ function retryKeyEntry(){
   refreshTmdbModals();
 }
 function refreshTmdbModals(){
+  if($("ratingsModal").classList.contains("show")) renderRatingsModal();
   if($("tmdbModal").classList.contains("show") && tmdbCtx) renderTmdbModal("");
   if($("matchModal").classList.contains("show") && matchCtx) renderMatchModal();
 }
@@ -3017,7 +3053,7 @@ function addSession(){
 /* ---------- backup ---------- */
 function exportData(){
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([JSON.stringify({...S, settings:{...S.settings, tmdbKey:""}},null,2)], {type:"application/json"}));
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({...S, settings:{...S.settings, tmdbKey:"", mdbKey:""}},null,2)], {type:"application/json"}));
   a.download = "expedition-backup.json";
   a.click();
   toast("Backup saved.");
@@ -3031,8 +3067,8 @@ function importData(){
       try{
         const x = JSON.parse(r.result);
         if(!Array.isArray(x.games) && !Array.isArray(x.movies) && !x.library) throw 0;
-        const keepKey = S.settings.tmdbKey;
-        S = normalizeState(x); if(!S.settings.tmdbKey) S.settings.tmdbKey = keepKey; // v1.8.0: backups never carry the key, so keep this device's
+        const keepKey = S.settings.tmdbKey, keepMdb = S.settings.mdbKey;
+        S = normalizeState(x); if(!S.settings.tmdbKey) S.settings.tmdbKey = keepKey; if(!S.settings.mdbKey) S.settings.mdbKey = keepMdb; // backups never carry keys, so keep this device's
         // v1.3.0: routes through the same normalizer as load(), so Library + releaseDate/hype come along for the ride
         persist(); toast("Backup restored.");
       }catch(e){ toast("That file doesn't look right."); }
@@ -3920,7 +3956,7 @@ function libraryList(category, items){
       <div class="pd-bar${enter}">
         <div class="pd-left">
           <div class="pd-yl pd-box pd-tap" onclick="openRatingMenu('${item.id}')" title="Tap to edit the rating">${movieInfoText(item)}</div>
-          <button class="btn small" onclick="pdView('${item.id}')">View poster</button>
+          <button class="btn small ghost" onclick="pdView('${item.id}')">View poster</button>
           <button class="btn small ghost" onclick="pdMove('${item.id}')">To Season</button>
           <button class="btn small ghost danger" onclick="pdRemove('${item.id}')">Remove</button>
         </div>
@@ -3929,7 +3965,6 @@ function libraryList(category, items){
           <div><div class="pd-lab">Starring</div><div class="pd-val" id="pdCast">${pdBodies(item).cast}</div></div>
         </div>
       </div>
-    </div>
     </div>
     ${rows(items.slice(openIdx+1), openIdx+1)}
   </div>`;
@@ -4101,35 +4136,213 @@ function pvWheel(e){
   document.addEventListener("keydown", e => { if(e.key === "Escape" && pvOpenId) pvClose(); });
 })();
 
-/* ---------- v1.8.4 — edit a movie's rating by hand ---------- */
+/* ---------- v1.8.5 — MDBList ratings ----------
+   MDBList merges IMDb, Letterboxd, Rotten Tomatoes, Metacritic, TMDB and more.
+   For each title we keep every source's score (0-100, already on one scale)
+   plus MDBList's own merged average. The number on the poster is the merged
+   score, falling back to IMDb, then TMDB — unless you typed a number by hand,
+   which always wins (ratingManual). Looked up by the TMDB id we already store. */
+let modalRatingInit = "";
+const MDB_LABELS = { merged:"Merged", imdb:"IMDb", letterboxd:"Letterboxd", tmdb:"TMDB", metacritic:"Metacritic", metacriticuser:"Metacritic users",
+  trakt:"Trakt", tomatoes:"Rotten Tomatoes", rottentomatoes:"Rotten Tomatoes", rotten_tomatoes:"Rotten Tomatoes", tomatoesaudience:"RT audience",
+  popcorn:"RT audience", audience:"RT audience", myanimelist:"MyAnimeList", rogerebert:"RogerEbert" };
+const mdbLabel = k => MDB_LABELS[k] || (String(k).charAt(0).toUpperCase() + String(k).slice(1).replace(/_/g, " "));
+MediaDB.providers.mdblist = {
+  name: "MDBList",
+  categories: [],      // never picked by MediaDB.for(); used only for scores
+  key(){ return ((S.settings && S.settings.mdbKey) || "").trim(); },
+  async ratings(category, tmdbId){
+    const key = this.key();
+    if(!key) throw new Error("no-key");
+    const type = category === "tv" ? "show" : "movie";
+    let res;
+    try{ res = await fetch(`https://api.mdblist.com/tmdb/${type}/${tmdbId}?apikey=${encodeURIComponent(key)}`); }
+    catch(e){ throw new Error("network"); }
+    if(res.status === 401 || res.status === 403) throw new Error("bad-key");
+    if(res.status === 429) throw new Error("rate");
+    if(res.status === 404) throw new Error("notfound");
+    if(!res.ok) throw new Error("http-" + res.status);
+    const d = await res.json();
+    if(d && d.error){
+      const m = String(d.error).toLowerCase();
+      if(m.includes("key")) throw new Error("bad-key");
+      if(m.includes("limit")) throw new Error("limit");
+      if(m.includes("not found")) throw new Error("notfound");
+      throw new Error("api");
+    }
+    const out = {};
+    (d.ratings || []).forEach(r => {
+      const sc = Math.round(+r.score);
+      if(r && r.source && sc > 0) out[r.source] = Math.min(100, sc);
+    });
+    const avg = [d.score_average, d.scoreaverage, d.scoreAverage].map(Number).find(v => v > 0);
+    if(avg) out.merged = Math.min(100, Math.round(avg));
+    return out;
+  },
+};
+function autoRating(item){
+  const r = item.ratings;
+  if(!r) return null;
+  if(r.merged != null) return r.merged;
+  if(r.imdb != null) return r.imdb;
+  return r.tmdb != null ? r.tmdb : null;
+}
+function applyMdbRatings(item, scores){
+  const first = !item.ratings;
+  item.ratings = scores; item.ratingsAt = Date.now();
+  // A number that disagrees with TMDB's own score by more than a few points on the very first
+  // fetch was almost certainly typed in by hand — keep it.
+  if(first && !item.ratingManual && item.rating != null && scores.tmdb != null && Math.abs(item.rating - scores.tmdb) > 3) item.ratingManual = true;
+  if(!item.ratingManual){ const a = autoRating(item); if(a != null) item.rating = a; }
+}
+async function mdbFetchItem(category, item){
+  try{
+    applyMdbRatings(item, await MediaDB.providers.mdblist.ratings(category, item.tmdbId));
+    return "ok";
+  }catch(e){
+    if(e && e.message === "notfound"){ item.ratings = {}; item.ratingsAt = Date.now(); return "none"; }   // MDBList doesn't know it — don't retry forever
+    throw e;
+  }
+}
+async function mdbAutoFetch(category, id, target){
+  if(!MediaDB.providers.mdblist.key()) return;
+  const it = (arrFor(category, target) || []).find(x => x.id === id);
+  if(!it || !it.tmdbId) return;
+  try{ await mdbFetchItem(category, it); persist(); }catch(e){}
+}
+function mdbErrorText(e){
+  const m = e && e.message;
+  if(m === "bad-key" || m === "no-key") return "MDBList rejected the key.";
+  if(m === "limit" || m === "rate") return "MDBList's daily limit was reached — try again tomorrow.";
+  if(m === "network") return "Couldn't reach MDBList (offline, or the browser blocked the request).";
+  return "MDBList returned an error (" + (m || "unknown") + ").";
+}
+function saveMdbKey(from){
+  const el = $(from === "account" ? "acctMdbKey" : "mdbKeyInput");
+  const v = el ? el.value.trim() : "";
+  if(!v) return toast("Paste your MDBList key first.");
+  if(!/^[A-Za-z0-9_-]{16,}$/.test(v)) return toast("That doesn't look like an MDBList key.");
+  S.settings.mdbKey = v;
+  persist();
+  toast("MDBList key saved.");
+  refreshTmdbModals();
+}
+function clearMdbKey(){
+  if(!confirm("Remove the saved MDBList key from this account?")) return;
+  S.settings.mdbKey = "";
+  persist();
+  refreshTmdbModals();
+}
+
+/* ----- "Ratings" tool: fetch scores for the whole library, gently ----- */
+let rtRun = null;
+function rtQueue(force){ return (S.library.movies || []).filter(it => it.tmdbId && (force || !it.ratings)).map(it => it.id); }
+function openRatingsModal(){ rtRun = null; renderRatingsModal(); $("ratingsModal").classList.add("show"); }
+function renderRatingsModal(note){
+  const body = $("rtBody"), actions = $("rtActions"), hint = $("rtHint");
+  if(!MediaDB.providers.mdblist.key()){
+    hint.textContent = "One quick setup step first.";
+    body.innerHTML = `<div class="tmdb-keybox">
+      <ol class="tmdb-steps"><li>Make a free account at mdblist.com</li><li>Open Preferences and copy your API key</li><li>Paste it below</li></ol>
+      <a class="tmdb-link" href="https://mdblist.com/preferences/" target="_blank" rel="noopener">Open MDBList preferences ↗</a>
+      <input id="mdbKeyInput" placeholder="Paste key here" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="btn brass wide" style="margin-top:10px" onclick="saveMdbKey('ratings')">Save key</button></div>`;
+    actions.innerHTML = `<button class="btn" onclick="closeModal('ratingsModal')">Close</button>`;
+    return;
+  }
+  if(rtRun && rtRun.running){
+    hint.textContent = "Fetching scores — this takes a little while.";
+    body.innerHTML = `<div class="tmdb-msg" id="rtProgress">Starting…</div>`;
+    actions.innerHTML = `<button class="btn" onclick="rtStop()">Stop</button>`;
+    return;
+  }
+  const movies = S.library.movies || [];
+  const linked = movies.filter(i => i.tmdbId).length, missing = rtQueue(false).length, unlinked = movies.length - linked;
+  hint.textContent = "";
+  body.innerHTML = `${note ? `<div class="tmdb-msg" style="padding:4px 0 10px">${esc(note)}</div>` : ""}
+    <div class="match-intro"><b>${missing}</b> of ${linked} linked movie${linked===1?"":"s"} ${missing===1?"has":"have"} no scores yet.</div>
+    <div class="hint" style="margin-top:8px">The poster number becomes MDBList's merged score (IMDb if there isn't one). Numbers you typed in yourself are never replaced.${unlinked ? `<br><br>${unlinked} movie${unlinked===1?" isn't":"s aren't"} linked to TMDB, so they're skipped — use ⇄ TMDB to link them.` : ""}</div>`;
+  actions.innerHTML = (missing ? `<button class="btn brass" onclick="rtStart(false)">Fetch missing</button>` : "") +
+    (linked ? `<button class="btn" onclick="rtStart(true)">Refresh all</button>` : "") +
+    `<button class="btn" onclick="closeModal('ratingsModal')">Close</button>`;
+}
+function rtStop(){ if(rtRun) rtRun.stop = true; }
+async function rtStart(force){
+  const ids = rtQueue(force);
+  if(!ids.length) return;
+  rtRun = { running: true, stop: false };
+  renderRatingsModal();
+  let done = 0, updated = 0, none = 0, failed = 0, fatal = null;
+  for(const id of ids){
+    if(rtRun.stop) break;
+    const it = (S.library.movies || []).find(x => x.id === id);
+    done++;
+    if(it){
+      let tries = 0;
+      for(;;){
+        try{
+          const r = await mdbFetchItem("movies", it);
+          if(r === "ok") updated++; else none++;
+          break;
+        }catch(e){
+          const m = e && e.message;
+          if(m === "rate" && tries < 3){ tries++; await new Promise(r => setTimeout(r, 2500)); continue; }
+          if(m === "bad-key" || m === "no-key" || m === "limit" || m === "rate" || m === "network") fatal = e; else failed++;
+          break;
+        }
+      }
+      if(fatal) break;
+    }
+    const el = $("rtProgress");
+    if(el) el.textContent = `Fetched ${done} of ${ids.length} · ${updated} updated${none ? ` · ${none} not on MDBList` : ""}${failed ? ` · ${failed} failed` : ""}`;
+    if(done % 8 === 0) persist();
+    await new Promise(r => setTimeout(r, 150));
+  }
+  persist();
+  const stopped = rtRun.stop;
+  rtRun = null;
+  renderRatingsModal(fatal ? mdbErrorText(fatal) + ` (${updated} updated before it stopped.)` : (stopped ? `Stopped — ${updated} updated.` : `Done — ${updated} updated${none ? `, ${none} not on MDBList` : ""}${failed ? `, ${failed} failed` : ""}.`));
+}
+
+/* ---------- v1.8.5 — the rating menu: pick a source or type your own ---------- */
 let ratingEditId = null;
-function openRatingMenu(id){
+function ratingChipsHtml(it){
+  const r = it.ratings;
+  if(!MediaDB.providers.mdblist.key()) return `<div class="rate-note">Add your MDBList key (account menu, or the ★ Ratings button) to see scores from IMDb, Letterboxd and more.</div>`;
+  if(!it.tmdbId) return `<div class="rate-note">Link this title to TMDB (⇄ TMDB) to load scores from other sites.</div>`;
+  if(!r) return `<div class="rate-note">Loading scores…</div>`;
+  const keys = Object.keys(r).filter(k => k !== "merged").sort((a, b) => mdbLabel(a).localeCompare(mdbLabel(b)));
+  const all = (r.merged != null ? ["merged"] : []).concat(keys);
+  if(!all.length) return `<div class="rate-note">MDBList has no scores for this title yet.</div>`;
+  return `<div class="rate-chips">${all.map(k => `<button class="rate-chip" onclick="ratingPick(${r[k]})">${esc(mdbLabel(k))}<b>${r[k]}</b></button>`).join("")}<button class="rate-chip" onclick="ratingPick('')">Automatic</button></div>`;
+}
+function ratingPick(v){ $("ratingInput").value = v; }
+async function openRatingMenu(id){
   const it = (S.library.movies||[]).find(x=>x.id===id); if(!it) return;
   ratingEditId = id;
   $("ratingTitle").textContent = it.name;
   $("ratingInput").value = it.rating == null ? "" : it.rating;
-  $("ratingTmdbBtn").style.display = it.tmdbId ? "" : "none";
+  $("ratingChips").innerHTML = ratingChipsHtml(it);
   $("ratingModal").classList.add("show");
   setTimeout(() => { const el = $("ratingInput"); el.focus(); el.select(); }, 60);
+  if(!it.ratings && it.tmdbId && MediaDB.providers.mdblist.key()){
+    try{
+      await mdbFetchItem("movies", it); persist();
+    }catch(e){
+      if(ratingEditId === id) $("ratingChips").innerHTML = `<div class="rate-note">${esc(mdbErrorText(e))}</div>`;
+      return;
+    }
+    if(ratingEditId === id && $("ratingModal").classList.contains("show")) $("ratingChips").innerHTML = ratingChipsHtml(it);
+  }
 }
 function saveRating(){
   const it = (S.library.movies||[]).find(x=>x.id===ratingEditId); if(!it) return closeModal("ratingModal");
-  it.rating = readRating("ratingInput");
+  const v = readRating("ratingInput");
+  if(v == null){ it.ratingManual = false; it.rating = autoRating(it); }
+  else { const auto = autoRating(it); it.rating = v; it.ratingManual = (auto == null || v !== auto); }
   closeModal("ratingModal");
   persist();
-  toast(it.rating == null ? "Rating cleared." : "Rating saved.");
-}
-async function ratingUseTmdb(){
-  const it = (S.library.movies||[]).find(x=>x.id===ratingEditId); if(!it || !it.tmdbId) return;
-  const btn = $("ratingTmdbBtn"); btn.disabled = true;
-  try{
-    const d = await MediaDB.for("movies").details("movies", it.tmdbId);
-    $("ratingInput").value = d.rating == null ? "" : d.rating;
-    toast("TMDB score loaded — press Save to keep it.");
-  }catch(e){
-    toast(e && e.message === "no-key" ? "No TMDB key saved." : "Couldn't reach TMDB.");
-  }
-  btn.disabled = false;
+  toast(v == null ? "Rating set to automatic." : "Rating saved.");
 }
 
 /* ---------- v1.8.4 — Library Movies filter ----------
@@ -4459,6 +4672,7 @@ function renderLibraryTab(category){
     ${isRate ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
     ${isMovies ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
     ${isRate ? `<button class="lib-tags-btn" onclick="openMatchModal('${category}')" title="Link titles to TMDB">⇄ TMDB${unlinkedN?` (${unlinkedN})`:""}</button>` : ""}
+    ${isMovies ? `<button class="lib-tags-btn" onclick="openRatingsModal()" title="Fetch IMDb / Letterboxd scores from MDBList">★ Ratings${rtQueue(false).length?` (${rtQueue(false).length})`:""}</button>` : ""}
   </div>`;
 
   html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
@@ -4507,18 +4721,20 @@ function renderLibraryTab(category){
    so on a short page (e.g. a category with few entries) touches below the visible
    list would land outside #app and never register — document always covers the
    full screen so swipes work everywhere, on every page, regardless of length. */
+// v1.8.5 — pinching / panning a zoomed poster must never flip the page underneath
+function posterViewerOpen(){ const o = document.getElementById("posterViewer"); return !!o && o.classList.contains("show"); }
 (function setupSwipeNav(){
   const MIN_DIST = 60;      // minimum horizontal travel to count as a swipe
   const MAX_SLOPE = 0.65;   // vertical/horizontal ratio allowed before it's treated as a scroll
   let sx = 0, sy = 0, tracking = false;
   document.addEventListener("touchstart", e=>{
-    if(e.touches.length !== 1 || document.querySelector(".modal.show") || e.target.closest(".tabbar")){ tracking=false; return; }
+    if(e.touches.length !== 1 || document.querySelector(".modal.show") || e.target.closest(".tabbar") || posterViewerOpen()){ tracking=false; return; }
     sx = e.touches[0].clientX; sy = e.touches[0].clientY; tracking = true;
   }, {passive:true});
   document.addEventListener("touchend", e=>{
     if(!tracking) return;
     tracking = false;
-    if(document.querySelector(".modal.show")) return; // guard again in case a modal opened mid-gesture
+    if(document.querySelector(".modal.show") || posterViewerOpen()) return; // guard again in case a modal opened mid-gesture
     const t = e.changedTouches[0];
     const dx = t.clientX - sx, dy = t.clientY - sy;
     if(Math.abs(dx) < MIN_DIST || Math.abs(dy) > Math.abs(dx)*MAX_SLOPE) return;
