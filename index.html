@@ -98,7 +98,6 @@ h1{margin:0;font-size:27px;font-weight:700;letter-spacing:.2px}
 .pace-status{margin-top:6px;font-size:12px;font-weight:600}
 .pace-status.good{color:var(--moss)}
 .pace-status.behind{color:var(--rust)}
-.season-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
 .cloud-box{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px dashed var(--line)}
 .cloud-box .entry-meta2{font-size:11.5px}
 @media(min-width:560px){.season-grid{grid-template-columns:repeat(6,1fr)}}
@@ -291,7 +290,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .field-row{margin-top:14px}
 .field-row > label{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .release-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.release-row-solo{grid-template-columns:1fr;max-width:120px}
 .release-field{display:flex;flex-direction:column;gap:4px}
 .release-field input{width:100%;text-align:center}
 .release-field span{font-size:9.5px;color:var(--muted-dim);text-align:center}
@@ -310,7 +308,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .compact-row{display:flex;gap:6px;align-items:flex-end;margin-top:14px}
 .compact-row > div{flex:1 1 74px;min-width:74px}
 .compact-row > div > label{margin:0 0 6px}
-.compact-num{width:100%;text-align:center}
 .compact-num-tiny{width:100%;text-align:center}
 .hype-row-compact{gap:3px}
 .hype-row-compact .hype-dot{width:24px;height:24px;font-size:10.5px;flex-shrink:0}
@@ -478,8 +475,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .pd-desc{flex:1;min-height:0;overflow-y:auto;padding:9px 10px;font-size:12px;line-height:1.5;color:var(--muted)}
 .pd-left{display:flex;flex-direction:column;gap:6px;min-width:0}
 .pd-left .btn{width:100%}
-.pd-tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
-.pd-tap:active{border-color:var(--brass)}
 .pd-yl{align-self:stretch;padding:5px 2px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(7px,2.4vw,10.5px);color:var(--brass)}
 .pd-cast{grid-column:2 / 4;padding:9px 10px;display:flex;flex-direction:column;gap:7px;min-width:0}
 .pd-lab{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dim);margin-bottom:1px}
@@ -490,7 +485,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 @keyframes pdIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes pdOut{from{opacity:1}to{opacity:0}}
 @media (prefers-reduced-motion:reduce){.pd-enter,.pd-leave{animation:none}}
-.lib-modal-actions{display:flex;gap:8px;margin-top:14px}
 
 /* v1.8.4 — filter menu (dual-handle sliders), poster viewer */
 .lib-tags-btn.active{color:var(--brass);border-color:var(--brass)}
@@ -586,6 +580,10 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .tve-bar i.good{background:#58b774}.tve-bar i.mid{background:#e2b93b}.tve-bar i.low{background:#d9544a}
 .tve-s{font-family:"IBM Plex Mono",monospace;font-size:11.5px;text-align:right}
 .tve.fb{opacity:.6}
+.tvs.done .tvs-p img{opacity:.55}
+.tvs-ok{position:absolute;top:4px;left:4px;z-index:2;width:18px;height:18px;border-radius:50%;background:#58b774;color:#08140c;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.tve-actions{display:flex;gap:8px;margin-top:10px}
+.tve-actions .btn{flex:1}
 .tve-legend{margin-top:6px;font-size:11px;color:var(--muted-dim)}
 .tvc-foot{margin-top:12px}
 .tvc-foot .full{grid-column:1 / -1}
@@ -759,10 +757,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       <div style="flex:0 0 74px" id="mv_ratingCell"><label>Rating %</label><input id="mv_rating" class="compact-num-tiny" type="number" min="0" max="100" inputmode="numeric" placeholder="85"></div>
     </div>
     <div class="tmdb-row" id="mv_tmdbRow"><span class="tmdb-status" id="mv_tmdbStatus">Not linked to TMDB</span><button type="button" class="btn small" id="mv_tmdbBtn" onclick="openTmdbLink('mv')">Link</button></div>
-    <div class="lib-modal-actions" id="mv_libActions" style="display:none">
-      <button class="btn small ghost" onclick="movieModalMove()">To Season</button>
-      <button class="btn small ghost" onclick="movieModalRemove()">Remove</button>
-    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('movieModal')">Cancel</button>
       <button class="btn brass" onclick="saveMovie()">Save movie</button>
@@ -1051,7 +1045,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.10.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.10.1"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -1148,8 +1142,8 @@ function normalizeState(raw){
     releaseDate: x.releaseDate || {y:"",m:"",d:""},
     hype: (cat==="movies"||cat==="tv") ? 0 : (HYPE_MAX_3.has(cat) ? Math.min(3, x.hype||0) : (x.hype||0)),
     tags: (cat==="movies"||cat==="tv") ? [] : (Array.isArray(x.tags) ? x.tags : []), // v1.8.1 — movies/TV no longer use tags
-    ...(cat==="movies"
-      ? { partOfSeries:false, seriesId:null, seriesOrder:null } // v1.8.4 — the series system is gone for movies
+    ...((cat==="movies"||cat==="tv")
+      ? { partOfSeries:false, seriesId:null, seriesOrder:null } // v1.8.4 / v1.10.1 — the series system is gone for movies and TV
       : { partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null }),
     ...((cat==="movies"||cat==="tv") ? {
       rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
@@ -2332,7 +2326,6 @@ function openMovieModal(id=null, target="season", prefill=null){
     }
   }
   paintTmdbRow("mv");
-  $("mv_libActions").style.display = (id && target==="library") ? "flex" : "none";
   const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
   setVisible("mv_yearCell", !mvFinished);
   setVisible("mv_ratingCell", !mvFinished && !(m && m.ratings && Object.keys(m.ratings).length));   // v1.9.1 — scores from the sources replace the typed number
@@ -2361,18 +2354,6 @@ function saveMovie(){
   closeModal("movieModal"); persist(); toast("Movie saved.");
   if(newId) mdbAutoFetch("movies", newId, savedTarget);   // new title: pull its MDBList scores in the background
 }
-function movieModalMove(){
-  const id = editId; if(!id) return;
-  closeModal("movieModal");
-  moveItem("movies", id, "library", "season");
-}
-function movieModalRemove(){
-  const id = editId; if(!id) return;
-  if(!confirm("Remove this movie?")) return;
-  S.library.movies = S.library.movies.filter(x=>x.id!==id);
-  closeModal("movieModal");
-  persist();
-}
 function removeMovie(id, target="season"){
   if(confirm("Remove this movie?")){
     if(target==="library") S.library.movies = S.library.movies.filter(x=>x.id!==id);
@@ -2386,28 +2367,6 @@ function markWatched(id){
   m.watched = m.length;
   logAction("movies", m.id, m.name, delta, "watched");
   persist(); toast("Marked watched 🎬");
-}
-
-function movieCard(m){
-  const pct = m.length ? m.watched/m.length*100 : 0;
-  const done = pct >= 100;
-  return `<article class="entry cat-movies${done?" complete":""}" style="--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}">
-    ${done ? `<div class="stamp"><b>✓</b><span>WATCHED</span></div>` : ""}
-    <div class="entry-top">
-      <div><div class="entry-name serif"${nameFlowRoot(done)}>${nameClipSpacer(done, false)}${esc(m.name)}</div><div class="entry-meta mono">RUNTIME ${fmtHM(m.length)}</div></div>
-      <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
-    </div>
-    <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
-    <div class="entry-stats">
-      <div><div class="played">${fmtHM(m.watched)}<span style="color:var(--muted);font-weight:400"> / ${fmtHM(m.length)}</span></div><div class="entry-meta2">${done?"Fully watched":"Watched so far"}</div></div>
-      <div class="remaining">${done?"Done":fmtHM(m.length-m.watched)+" left"}</div>
-    </div>
-    ${!done ? `<div class="controls">
-      <button class="btn accent" onclick="markWatched('${m.id}')">✓ Mark watched</button>
-      <button class="btn" onclick="openSessionModal('movies','${m.id}')">Log session</button>
-    </div>` : ""}
-    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('movies','${m.id}')">Abandon</button>` : ""}<button onclick="moveItem('movies','${m.id}','season','library')">To Library</button><button onclick="openMovieModal('${m.id}')">Edit</button><button onclick="removeMovie('${m.id}')">Remove</button></div></div>
-  </article>`;
 }
 
 /* ============ MANGA ============ */
@@ -2575,17 +2534,17 @@ function openEpisodicModal(category, id=null, target="season", prefill=null){
   }
   paintTmdbRow("epi");
   renderTagPicker("epi");
-  fillSeriesFields("epi", category, e);
+  if(category !== "tv") fillSeriesFields("epi", category, e);
   setGroupType(groupTypeSel);
   epiInitializing = false;
   const epiFinished = target==="season" && id && isSeasonItemDone(category, e);
   setVisible("epi_yearCell", !epiFinished);
-  setVisible("epi_seriesToggleWrap", !epiFinished);
+  setVisible("epi_seriesToggleWrap", !epiFinished && category !== "tv");
   setVisible("epi_tagsFieldRow", isAnime && !epiFinished);
   setVisible("epi_hypeCell", isAnime && !epiFinished);
   setVisible("epi_ratingCell", !isAnime && !epiFinished);
   setVisible("epi_tmdbRow", !isAnime && !epiFinished);
-  if(epiFinished) $("epi_seriesSection").style.display = "none";
+  if(epiFinished || category === "tv") $("epi_seriesSection").style.display = "none";
   $("epiModal").classList.add("show"); if(!id && !prefill) $("epiname").focus();
 }
 function isNumberedMode(){ return epiCategory==="tv" || (epiCategory==="anime" && groupTypeSel==="season"); }
@@ -2650,7 +2609,7 @@ function saveEpisodic(){
   const isTv = epiCategory === "tv";
   const hype = isTv ? 0 : Math.min(3, readHype("epi"));
   const tmdbFields = isTv ? { rating: readRating("epi_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) } : {};
-  const seriesFields = readSeriesFields("epi");
+  const seriesFields = isTv ? { partOfSeries:false, seriesId:null, seriesOrder:null } : readSeriesFields("epi");
   if(seriesFields.partOfSeries){
     const clash = seriesOrderConflict(epiCategory, seriesFields.seriesId, seriesFields.seriesOrder, editId);
     if(clash) return toast(`"${clash}" already has that series order number.`);
@@ -2955,7 +2914,7 @@ function renderTmdbModal(q){
   $("tmdbTitle").textContent = mode === "link" ? "Link to TMDB" : "Add " + noun;
   $("tmdbHint").textContent = mode === "link"
     ? "Pick the right one — the name and your progress stay as they are; missing details get filled in."
-    : "Search, tap the right one, then check the details before saving.";
+    : "Search and tap the right one — it's added straight away.";
   const actions = $("tmdbActions");
   if(!MediaDB.for(category).key()){
     $("tmdbBody").innerHTML = tmdbKeyFormHtml();
@@ -3001,9 +2960,34 @@ async function tmdbPick(i){
     const d = await MediaDB.for(category).details(category, r.id);
     closeModal("tmdbModal");
     if(mode === "link") applyTmdbToOpenModal(category, d);
-    else if(category === "movies") openMovieModal(null, target, d);
+    else if(tmdbAddDirect(category, target, d)) { /* added */ }
+    else if(category === "movies") openMovieModal(null, target, d);       // TMDB has no runtime / episode info yet — fill it in by hand
     else openEpisodicModal("tv", null, target, d);
   }catch(e){ box.innerHTML = tmdbErrorHtml(e); }
+}
+// v1.10.1 — tapping a result adds the title right away (no edit form). Returns false when TMDB
+// doesn't know enough (no runtime / no episode info) so the form can open for the missing bits.
+function tmdbAddDirect(category, target, d){
+  const exists = (S.library[category] || []).concat(S[category] || []).some(x => x.tmdbId === d.id);
+  if(exists){ toast(`“${d.title}” is already on your list.`); return true; }
+  const releaseDate = { y: d.year ? String(d.year) : "", m: "", d: "" };
+  const base = { id: uid(), name: d.title, releaseDate, hype: 0, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null,
+    rating: d.rating == null ? null : d.rating, tmdbId: d.id, posterPath: d.posterPath || null, tmdbSkip: false };
+  const where = target === "library" ? "the Library" : "this season";
+  if(category === "movies"){
+    if(!(d.runtime > 0)) return false;
+    arrFor("movies", target).push({ ...base, length: d.runtime, watched: 0 });
+    persist(); toast(`Added “${d.title}” to ${where}.`);
+    mdbAutoFetch("movies", base.id, target);
+    return true;
+  }
+  const groups = (d.seasons || []).filter(x => x.episodes > 0).map((x, i) => ({ id: uid(), name: "Season " + x.number, total: x.episodes, watched: 0, order: i }));
+  if(!(d.epLen > 0) || !groups.length) return false;
+  const item = { ...base, epLen: d.epLen, groups };
+  arrFor("tv", target).push(item);
+  persist(); toast(`Added “${d.title}” to ${where}.`);
+  tvFetchAll(item);   // seasons' episodes, cast and scores load in the background
+  return true;
 }
 function tmdbManual(){
   const { category, target } = tmdbCtx;
@@ -3954,10 +3938,6 @@ function pdSfEdit(id){ openMovieModal(id, "season"); }
 function pdSfMove(id){ libOpenMovie = null; moveItem("movies", id, "season", "library"); }
 function pdSfWatched(id){ libOpenMovie = null; markWatched(id); }
 function pdSfLog(id){ openSessionModal("movies", id); }
-function pdSfRemove(id){
-  if(!confirm("Remove this movie?")) return;
-  libOpenMovie = null; S.movies = S.movies.filter(x=>x.id!==id); persist();
-}
 function pdSfAbandon(id){
   abandonItem("movies", id);
   const it = S.movies.find(x=>x.id===id);
@@ -4118,9 +4098,6 @@ function fmtHrMin(mins){
 function libSubLine(category, item){
   const {total, played} = itemMinutes(category, item);
   if(total<=0) return "No length set";
-  if(category==="movies"){
-    return played>0 ? `${fmtHrMin(Math.max(0,total-played))} remaining` : `${fmtHrMin(total)} target`;
-  }
   return played>0 ? `${fmtHrs(Math.max(0,total-played))}H remaining` : `${fmtHrs(total)}H target`;
 }
 // The "!" flags ANY missing info, not just release date — release date and
@@ -4131,21 +4108,19 @@ function libSubLine(category, item){
 function libraryMissingFields(category, item){
   const missing = [];
   if(!hasReleaseDate(item.releaseDate, category)) missing.push(category==="games" ? "release date" : "release year");
-  if(category==="movies"||category==="tv"){ if(itemRating(item)==null) missing.push("rating"); }
-  else if(!item.hype) missing.push("hype level");
-  if((category==="tv"||category==="anime") && !(item.groups && item.groups.length)) missing.push("episode count");
+  if(!item.hype) missing.push("hype level");
+  if(category==="anime" && !(item.groups && item.groups.length)) missing.push("episode count");
   return missing;
 }
 function libraryOpenFn(category, id){
   if(category==="games") return `openGameModal(${id?`'${id}'`:"null"},'library')`;
-  if(category==="movies") return id ? `openMovieModal('${id}','library')` : `openTmdbSearch('movies','library','add')`;
-  if(category==="tv" && !id) return `openTmdbSearch('tv','library','add')`;
+  if(category==="movies") return `openTmdbSearch('movies','library','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
+  if(category==="tv") return `openTmdbSearch('tv','library','add')`;
   if(category==="manga") return `openMangaModal(${id?`'${id}'`:"null"},'library')`;
   return `openEpisodicModal('${category}',${id?`'${id}'`:"null"},'library')`;
 }
 function libraryRemoveFn(category, id){
   if(category==="games") return `removeGame('${id}','library')`;
-  if(category==="movies") return `removeMovie('${id}','library')`;
   if(category==="manga") return `removeManga('${id}','library')`;
   return `removeEpisodic('${category}','${id}','library')`;
 }
@@ -4165,7 +4140,7 @@ function libSegments(category, item){
     }
     if(dateStr) segs.push(esc(dateStr));
     if(hasDlcs) segs.push(`${item.dlcs.length} DLC${item.dlcs.length===1?"":"s"}`);
-  } else if(category==="movies" || category==="manga"){
+  } else if(category==="manga"){
     segs.push(libSubLine(category,item));
     if(dateStr) segs.push(esc(dateStr));
   } else {
@@ -4176,13 +4151,8 @@ function libSegments(category, item){
     const eps = (item.groups||[]).reduce((a,g)=>a+(g.total||0),0);
     if(eps) segs.push(`${eps} Ep`);
   }
-  if(category==="movies"||category==="tv"){
-    // v1.8.0 — the TMDB rating replaces the hype stars for movies and TV.
-    if(itemRating(item)!=null) segs.push(`${itemRating(item)}%`);
-  } else {
-    const hype = item.hype||0;
-    segs.push(hype>0 ? `⭐ ${hype}` : `☆ –`);
-  }
+  const hype = item.hype||0;
+  segs.push(hype>0 ? `⭐ ${hype}` : `☆ –`);
   return segs;
 }
 // v1.5.0 — tap a card to expand it in place: category-specific breakdown
@@ -4199,8 +4169,6 @@ function libraryExpanded(category, item){
         : `<div class="lib-exp-line">↳ ${esc(d.name)}: ${d.done?"Done":"Checklist, not done"}</div>`
       ).join("");
     }
-  } else if(category==="movies"){
-    html += `<div class="lib-exp-line">${fmtHM(item.watched||0)} watched of ${fmtHM(item.length||0)}</div>`;
   } else if(category==="manga"){
     const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
     html += `<div class="lib-exp-line">${item.volsRead||0} / ${total} volumes read</div>`;
@@ -4209,7 +4177,7 @@ function libraryExpanded(category, item){
       ? item.groups.map(g=>`<div class="lib-exp-line">${esc(g.name)}: ${g.watched||0} / ${g.total||0} episodes</div>`).join("")
       : `<div class="lib-exp-line">No seasons/arcs added yet.</div>`;
   }
-  if(category!=="movies" && category!=="tv"){
+  {
     const names = tagNames(category, item);
     html += names.length
       ? `<div class="lib-exp-tags">${names.map(n=>`<span class="tag-chip-static">${esc(n)}</span>`).join("")}</div>`
@@ -4972,7 +4940,7 @@ function tvSeasonRows(item, entry){
   const find = n => entry && n != null ? entry.seasons.find(x => x.n === n) : null;
   if(gs.length) return gs.map(g => {
     const m = /season\s*(\d+)/i.exec(g.name || ""), n = m ? +m[1] : null;
-    return { key: n != null ? "n" + n : "g" + g.id, n, s: find(n), label: g.name || "Season", short: n != null ? "S" + n : (g.name || "").slice(0, 6) };
+    return { key: n != null ? "n" + n : "g" + g.id, gid: g.id, n, s: find(n), label: g.name || "Season", short: n != null ? "S" + n : (g.name || "").slice(0, 6) };
   });
   return entry ? entry.seasons.map(s => ({ key: "n" + s.n, n: s.n, s, label: "Season " + s.n, short: "S" + s.n })) : [];
 }
@@ -4982,20 +4950,23 @@ function tvSeasonsHtml(item, entry){
   const tiles = rows.map(r => {
     const poster = (r.s && r.s.poster) || item.posterPath;
     const avg = r.n != null && entry && entry.eps[r.n] ? tvSeasonAvg(entry.eps[r.n], item) : null;
-    return `<div class="tvs${tvOpenSeason === r.key ? " on" : ""}" onclick="tvPickSeason('${r.key}')"><div class="tvs-p">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : esc(r.short)}</div><div class="tvs-l"><b>${esc(r.short)}</b>${avg != null ? ` <em class="${ratingClass(avg)}">${avg}</em>` : ""}</div></div>`;
+    const grp = r.gid ? (item.groups || []).find(x => x.id === r.gid) : null, seen = !!(grp && grp.total > 0 && grp.watched >= grp.total);
+    return `<div class="tvs${tvOpenSeason === r.key ? " on" : ""}${seen ? " done" : ""}" onclick="tvPickSeason('${r.key}')"><div class="tvs-p">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : esc(r.short)}${seen ? `<span class="tvs-ok">✓</span>` : ""}</div><div class="tvs-l"><b>${esc(r.short)}</b>${avg != null ? ` <em class="${ratingClass(avg)}">${avg}</em>` : ""}</div></div>`;
   }).join("");
   const sel = rows.find(r => r.key === tvOpenSeason);
   let panel = "";
   if(sel){
     const eps = sel.n != null && entry ? entry.eps[sel.n] : null;
-    if(!eps) panel = `<div class="tve-wrap"><div class="tvc-note">No episode info for this one — it isn't matched to a TMDB season.</div></div>`;
+    const g = sel.gid ? (item.groups || []).find(x => x.id === sel.gid) : null, seen = !!(g && g.total > 0 && g.watched >= g.total);
+    const acts = g ? `<div class="tve-actions"><button class="btn small ${seen ? "brass" : "ghost"}" onclick="tvSeasonWatched('${item.id}','${g.id}')">${seen ? "✅ Watched" : "☑ Mark as watched"}</button><button class="btn small ghost danger" onclick="tvSeasonRemove('${item.id}','${g.id}')">🗑 Remove season</button></div>` : "";
+    if(!eps) panel = `<div class="tve-wrap"><div class="tve-head"><span><b>${esc(sel.label)}</b></span></div><div class="tvc-note">No episode info for this one — it isn't matched to a TMDB season.</div>${acts}</div>`;
     else {
       const avg = tvSeasonAvg(eps, item); let anyFb = false;
       const list = eps.map(ep => {
         const sc = tvEpScore(ep, item); if(sc && sc.fb) anyFb = true;
         return `<div class="tve${sc && sc.fb ? " fb" : ""}"><span class="tve-n">E${ep.e}</span><span class="tve-t">${esc(ep.t || "Episode " + ep.e)}</span><span class="tve-bar">${sc ? `<i class="${ratingClass(sc.v)}" style="width:${sc.v}%"></i>` : ""}</span><span class="tve-s ${sc ? ratingClass(sc.v) : ""}">${sc ? sc.v : "–"}</span></div>`;
       }).join("");
-      panel = `<div class="tve-wrap${tvEpAnim ? " pd-enter" : ""}"><div class="tve-head"><span><b>${esc(sel.label)}</b> · ${eps.length} episode${eps.length === 1 ? "" : "s"}</span><span>${avg != null ? `average <b>${avg}</b>` : "no scores yet"}</span></div><div class="tve-list">${list}</div>${anyFb ? `<div class="tve-legend">Dimmed rows show TMDB's score (no IMDb score for that episode).</div>` : ""}</div>`;
+      panel = `<div class="tve-wrap${tvEpAnim ? " pd-enter" : ""}"><div class="tve-head"><span><b>${esc(sel.label)}</b> · ${eps.length} episode${eps.length === 1 ? "" : "s"}</span><span>${avg != null ? `average <b>${avg}</b>` : "no scores yet"}</span></div><div class="tve-list">${list}</div>${anyFb ? `<div class="tve-legend">Dimmed rows show TMDB's score (no IMDb score for that episode).</div>` : ""}${acts}</div>`;
     }
   }
   return `<div class="tvc-seasons">${tiles}</div>${panel}`;
@@ -5053,6 +5024,22 @@ function tvScrollIntoView(){
 function tvPickSeason(key){
   tvOpenSeason = tvOpenSeason === key ? null : key;
   tvEpAnim = !!tvOpenSeason; render(); tvEpAnim = false;
+}
+function tvSeasonWatched(id, gid){
+  const it = titleById(id), g = it && (it.groups || []).find(x => x.id === gid); if(!g) return;
+  g.watched = (g.total > 0 && g.watched >= g.total) ? 0 : g.total;   // tap again to undo
+  persist();
+}
+function tvSeasonRemove(id, gid){
+  const it = titleById(id), g = it && (it.groups || []).find(x => x.id === gid); if(!g) return;
+  if(!confirm(`Remove ${g.name || "this season"} from “${it.name}”?`)) return;
+  it.groups = it.groups.filter(x => x.id !== gid);
+  tvOpenSeason = null;
+  if(!it.groups.length && confirm("That was the last season. Remove the whole show too?")){
+    tvOpen = null;
+    S.library.tv = S.library.tv.filter(x => x.id !== id);
+  }
+  persist();
 }
 function tvMove(id){ tvOpen = null; tvOpenSeason = null; openMoveModal("tv", id, "library", "season"); render(); }
 function tvEdit(id){ openEpisodicModal("tv", id, "library"); }
@@ -5314,34 +5301,16 @@ function libCompare(category, a, b, key, dir){
   const cmp = typeof va==="string" ? va.localeCompare(vb) : va-vb;
   return dir==="desc" ? -cmp : cmp;
 }
-const RATING_GROUP_ORDER = ["Under 70%","70–79%","80–89%","90% and up"]; // v1.8.0 — movies/tv rating buckets, low → high
 const LENGTH_GROUP_ORDER = ["Short (under 10h)","Medium (10–25h)","Long (25–50h)","Gigantic (50h+)"];
-// v1.7.2 — movies get their own length buckets (minutes-based, not hours) since
-// the general hours buckets above were built for games/manga and every movie
-// landed in "Short" regardless of runtime.
-const MOVIE_LENGTH_GROUP_ORDER = ["Short (under 1h 40m)","Medium (1h 40m–2h 20m)","Long (over 2h 20m)"];
 function libGroupKey(category, item, groupBy){
   if(groupBy==="length"){
     const mins = libRemainingMin(category,item);
     if(mins<=0 && itemMinutes(category,item).total<=0) return "No length set";
-    if(category==="movies"){
-      if(mins<100) return "Short (under 1h 40m)";
-      if(mins<=140) return "Medium (1h 40m–2h 20m)";
-      return "Long (over 2h 20m)";
-    }
     const hrs = mins/60;
     if(hrs<10) return "Short (under 10h)";
     if(hrs<25) return "Medium (10–25h)";
     if(hrs<50) return "Long (25–50h)";
     return "Gigantic (50h+)";
-  }
-  if(groupBy==="hype" && (category==="movies"||category==="tv")){
-    const r = itemRating(item);
-    if(r==null) return "Not rated";
-    if(r>=90) return "90% and up";
-    if(r>=80) return "80–89%";
-    if(r>=70) return "70–79%";
-    return "Under 70%";
   }
   if(groupBy==="hype"){
     const labels = category==="games" ? HYPE_LABELS : HYPE_LABELS_3;
@@ -5357,15 +5326,9 @@ function libGroupKey(category, item, groupBy){
 function libGroupOrderKeys(groupBy, dir, presentKeys, category){
   const present = new Set(presentKeys);
   if(groupBy==="length"){
-    let order = (category==="movies" ? MOVIE_LENGTH_GROUP_ORDER : LENGTH_GROUP_ORDER).filter(k=>present.has(k));
+    let order = LENGTH_GROUP_ORDER.filter(k=>present.has(k));
     if(dir==="desc") order.reverse();
     if(present.has("No length set")) order.push("No length set");
-    return order;
-  }
-  if(groupBy==="hype" && (category==="movies"||category==="tv")){
-    let order = RATING_GROUP_ORDER.filter(k=>present.has(k));
-    if(dir==="desc") order.reverse();
-    if(present.has("Not rated")) order.push("Not rated");
     return order;
   }
   if(groupBy==="hype"){
@@ -5428,7 +5391,7 @@ function renderLibraryTab(category){
       <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
     </div>`}
     ${isRate ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
-    ${isMovies ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
+    ${(isMovies || isTv) ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
     ${(isMovies || isTv) ? `<button class="lib-tags-btn" onclick="openDataModal('${category}')" title="Link titles to TMDB and fetch ratings">${DATA_ICON} Data${dataCount(category)?` (${dataCount(category)})`:""}</button>` : ""}
   </div>`;
 
