@@ -513,6 +513,48 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .rate-chip:active{border-color:var(--brass)}
 .rate-note{font-size:12px;color:var(--muted-dim);margin-top:10px;line-height:1.5}
 
+/* v1.9.0 — Season Movies page */
+.sf-head{margin-bottom:16px}
+.sf-line{font-size:13px;color:var(--muted)}
+.sf-line b{color:var(--ink);font-family:"IBM Plex Mono",monospace;font-weight:600}
+.sf-line .dot{margin:0 6px;color:var(--muted-dim)}
+.sf-segs{display:flex;gap:3px;margin-top:10px}
+.sf-seg{flex:1 1 0;min-width:4px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.sf-seg i{display:block;height:100%;border-radius:3px;background:var(--brass)}
+.sf-hero{background:var(--panel2);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:22px}
+.sf-band{position:relative;height:150px;background:#0e1411;overflow:hidden}
+.sf-band img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 25%}
+.sf-band img.ph{filter:blur(16px) brightness(.7);transform:scale(1.25)}
+.sf-band::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.08) 0%,var(--panel2) 100%)}
+.sf-hero-row{display:flex;gap:12px;padding:0 14px;margin-top:-62px;position:relative;z-index:1}
+.sf-thumb{width:96px;flex-shrink:0;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.sf-hero-txt{flex:1;min-width:0;padding-top:68px}
+.sf-title{font-size:19px;line-height:1.2;font-weight:600;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sf-meta{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);margin-top:5px}
+.sf-body{padding:14px 14px 14px}
+.sf-tag{font-size:12.5px;line-height:1.45;color:var(--muted);font-style:italic;margin-bottom:12px}
+.sf-tag:empty{display:none}
+.sf-prog{margin-bottom:12px}
+.sf-prog-t{font-size:11.5px;color:var(--muted);margin-top:6px}
+.sf-btns{display:flex;gap:8px}
+.sf-btns .btn{flex:1}
+.sf-links{display:flex;justify-content:center;gap:20px;margin-top:10px}
+.sf-links button{background:none;border:none;color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;padding:6px 4px}
+.sf-links button:active{color:var(--brass)}
+.sf-sec{margin:22px 0 10px}
+.pprog{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(0,0,0,.55)}
+.pprog i{display:block;height:100%;background:var(--brass)}
+.sf-shelf{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px 6px}
+.sf-mini{min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sf-mini .pposter{border-radius:6px}
+.sf-mini.open .pposter{border-color:var(--brass)}
+.sf-mini .pph{font-size:9px;padding:4px}
+.sf-mini img{filter:saturate(.85)}
+.sf-check{position:absolute;left:4px;bottom:4px;width:18px;height:18px;border-radius:50%;background:#58b774;color:#0d0d0d;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.55)}
+.sf-shelf-block{margin-top:12px}
+.pd-foot{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pd-foot .btn{width:100%}
+
 .toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:20;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -881,7 +923,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.8.5"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.9.0"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -2612,6 +2654,7 @@ const MediaDB = {
         const crew = (d.credits && d.credits.crew) || [];
         const cast = ((d.credits && d.credits.cast) || []).slice().sort((a,b) => (a.order||0) - (b.order||0));
         return {
+          v: 2, tagline: d.tagline || "", backdrop: d.backdrop_path || null,
           overview: d.overview || "",
           director: crew.filter(c => c.job === "Director").slice(0, 2).map(c => c.name),
           cast: cast.slice(0, 5).map(c => c.name),
@@ -3655,20 +3698,150 @@ function renderGames(){
   $("app").innerHTML = html;
 }
 
+/* ---------- v1.9.0 — Season Movies page ----------
+   Progress header, a "Watch next" hero chosen by the recommendation engine's
+   points, an In-progress group, an Up-next poster grid, and a Cleared shelf. */
+function pickMovieHero(incomplete){
+  if(!incomplete.length) return null;
+  const pts = m => (m.recoPoints || RECO_BASE_POINTS);
+  // the engine's points decide; ties go to something already started, then the higher-rated one
+  return incomplete.slice().sort((a,b) =>
+    (pts(b)-pts(a)) || ((b.watched>0)-(a.watched>0)) || ((b.rating||0)-(a.rating||0)) || (a.name||"").localeCompare(b.name||""))[0];
+}
+function seasonMoviesHeader(){
+  const t = categoryTotals("movies");
+  const remain = Math.max(0, t.goal - t.played), pct = t.goal > 0 ? t.played / t.goal * 100 : 100;
+  const segs = S.movies.filter(m => !m.abandoned).map(m => ({ m, p: m.length > 0 ? Math.min(1, m.watched / m.length) : 0 }))
+    .sort((a,b) => (b.p - a.p) || (a.m.name||"").localeCompare(b.m.name||""));
+  return `<div class="sf-head">
+    <div class="sf-line"><b>${t.done}</b> of ${t.count} watched <span class="dot">·</span> <b>${fmtHM(Math.round(remain))}</b> left <span class="dot">·</span> <b>${pct.toFixed(0)}%</b></div>
+    <div class="sf-segs">${segs.map(s => `<div class="sf-seg"><i style="width:${(s.p*100).toFixed(0)}%"></i></div>`).join("")}</div>
+  </div>`;
+}
+const heroLoading = new Set();
+function heroEntry(m){ return m.tmdbId ? (pdCache["m:" + m.tmdbId] || null) : null; }
+function heroTagText(m){
+  const ex = heroEntry(m); if(!ex) return "";
+  if(ex.tagline) return ex.tagline;
+  const o = (ex.overview || "").trim(); if(!o) return "";
+  const mm = o.match(/^.*?[.!?](?=\s|$)/), first = mm ? mm[0] : o;
+  return first.length > 160 ? first.slice(0, 157) + "…" : first;
+}
+function movieHeroHtml(m){
+  const ex = heroEntry(m);
+  const back = ex && ex.backdrop ? `${TMDB_IMG}w780${ex.backdrop}` : "";
+  const bandSrc = back || (m.posterPath ? `${TMDB_IMG}w342${m.posterPath}` : "");
+  const pct = m.length > 0 ? Math.min(100, m.watched / m.length * 100) : 0;
+  const accent = `--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}`;
+  return `<section class="sf-hero">
+    <div class="sf-band" id="heroBand" data-id="${m.id}">${bandSrc ? `<img class="${back?"":"ph"}" alt="" src="${bandSrc}" onerror="this.remove()">` : ""}</div>
+    <div class="sf-hero-row">
+      <div class="pposter sf-thumb" data-pid="${m.id}" onclick="pdView('${m.id}')">
+        <div class="pph"><span>${esc(m.name)}</span></div>
+        ${posterImgHtml(m, 0, "w342")}
+        ${m.rating!=null ? `<div class="prate ${ratingClass(m.rating)}">${m.rating}</div>` : ""}
+      </div>
+      <div class="sf-hero-txt">
+        <div class="eyebrow">Watch next</div>
+        <div class="sf-title serif">${esc(m.name)}</div>
+        <div class="sf-meta">${movieInfoText(m)}</div>
+      </div>
+    </div>
+    <div class="sf-body">
+      <div class="sf-tag" id="heroTag">${esc(heroTagText(m))}</div>
+      ${m.watched > 0 ? `<div class="sf-prog" style="${accent}"><div class="gauge"><div class="gauge-fill" style="width:${pct}%"></div></div><div class="sf-prog-t">${fmtHM(m.length - m.watched)} left · ${pct.toFixed(0)}% watched</div></div>` : ""}
+      <div class="sf-btns" style="${accent}">
+        <button class="btn accent" onclick="markWatched('${m.id}')">✓ Mark watched</button>
+        <button class="btn" onclick="openSessionModal('movies','${m.id}')">Log session</button>
+      </div>
+      <div class="sf-links"><button onclick="pdSfEdit('${m.id}')">Edit</button><button onclick="pdSfMove('${m.id}')">To Library</button><button onclick="abandonItem('movies','${m.id}')">Abandon</button></div>
+    </div>
+  </section>`;
+}
+// The hero's richer data (tagline, backdrop) loads by TMDB id and is cached on this device.
+async function heroLoad(m){
+  if(!m || !m.tmdbId) return;
+  const k = "m:" + m.tmdbId, ex = pdCache[k];
+  if(!ex || ex.v !== 2){
+    if(heroLoading.has(k)) return;
+    heroLoading.add(k);
+    try{ pdCache[k] = await MediaDB.providers.tmdb.extras("movies", m.tmdbId); pdCacheSave(); }
+    catch(e){ heroLoading.delete(k); return; }
+    heroLoading.delete(k);
+  }
+  heroFill(m);
+}
+function heroFill(m){
+  const band = document.getElementById("heroBand");
+  if(!band || band.dataset.id !== m.id) return;
+  const ex = pdCache["m:" + m.tmdbId]; if(!ex) return;
+  if(ex.backdrop){
+    const url = `${TMDB_IMG}w780${ex.backdrop}`;
+    let img = band.querySelector("img");
+    if(!img || img.getAttribute("src") !== url){
+      const pre = new Image();
+      pre.onload = () => {
+        if(!document.getElementById("heroBand") || band.dataset.id !== m.id) return;
+        let el = band.querySelector("img");
+        if(!el){ el = document.createElement("img"); el.alt = ""; band.prepend(el); }
+        el.src = url; el.classList.remove("ph");
+      };
+      pre.src = url;
+    }
+  }
+  const tag = document.getElementById("heroTag");
+  if(tag) tag.textContent = heroTagText(m);
+}
+function miniPosterCard(m, idx){
+  const open = libOpenMovie === m.id;
+  return `<div class="sf-mini${open?" open":""}"${open ? "" : ` data-pid="${m.id}"`} onclick="pdToggle('${m.id}')">
+    <div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, idx, "w342")}<div class="sf-check">✓</div></div>
+  </div>`;
+}
+function pdSfEdit(id){ openMovieModal(id, "season"); }
+function pdSfMove(id){ libOpenMovie = null; moveItem("movies", id, "season", "library"); }
+function pdSfWatched(id){ libOpenMovie = null; markWatched(id); }
+function pdSfLog(id){ openSessionModal("movies", id); }
+function pdSfRemove(id){
+  if(!confirm("Remove this movie?")) return;
+  libOpenMovie = null; S.movies = S.movies.filter(x=>x.id!==id); persist();
+}
+function pdSfAbandon(id){
+  abandonItem("movies", id);
+  const it = S.movies.find(x=>x.id===id);
+  if(it && it.abandoned) libOpenMovie = null;
+}
+
 function renderMovies(){
-  const totals = categoryTotals("movies");
-  let html = statbar("movies", totals);
-  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}" onclick="openTmdbSearch('movies','season','add')">+ Add Movie</button></div>`;
+  let html = seasonMoviesHeader();
+  html += `<div class="btn-row" style="margin-bottom:16px"><button class="btn accent wide" style="--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}" onclick="openTmdbSearch('movies','season','add')">+ Add Movie</button></div>`;
   if(!S.movies.length){
     html += `<div class="empty"><span class="serif">No movies yet</span>Add one you're planning to watch this season.</div>`;
     $("app").innerHTML = html; return;
   }
-  html += `<div class="list-head"><b>ENTRIES</b>${sortDropdown("movies")}</div>`;
   const {incomplete, completed} = splitSorted("movies", S.movies, movieMin);
-  incomplete.forEach(m=> html += movieCard(m));
+  const hero = pickMovieHero(incomplete);
+  const rest = incomplete.filter(m => m !== hero);
+  const inProg = rest.filter(m => m.watched > 0), upNext = rest.filter(m => !(m.watched > 0));
+  if(hero) html += movieHeroHtml(hero);
+  const accent = `--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}`;
+  const seasonBlock = (it, i, enter) => movieDetailBlock(it, i, enter,
+    btnH("accent","pdSfWatched",it.id,"✓ Mark watched",accent) + btnH("ghost","pdSfLog",it.id,"Log session"),
+    btnH("ghost","pdView",it.id,"View poster") + btnH("ghost","pdSfEdit",it.id,"Edit") + btnH("ghost","pdSfMove",it.id,"To Library") + btnH("ghost","pdSfAbandon",it.id,"Abandon"));
+  if(inProg.length){
+    html += `<div class="marginalia sf-sec">in progress</div>` + posterGridHtml(inProg, seasonBlock, { progress:true });
+  }
+  if(upNext.length){
+    html += `<div class="list-head sf-sec"><b>UP NEXT</b>${sortDropdown("movies")}</div>` + posterGridHtml(upNext, seasonBlock, { progress:true });
+  }
   if(completed.length){
-    html += `<div class="marginalia">cleared</div>`;
-    completed.forEach(m=> html += movieCard(m));
+    html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m,i)=>miniPosterCard(m,i)).join("")}</div>`;
+    const open = completed.find(m => m.id === libOpenMovie);
+    if(open){
+      const enter = pdAnimateIn ? " pd-enter" : "";
+      html += `<div class="sf-shelf-block">${movieDetailBlock(open, 0, enter,
+        btnH("ghost","pdView",open.id,"View poster") + btnH("ghost","pdSfMove",open.id,"To Library") + btnH("ghost danger","pdSfRemove",open.id,"Remove"))}</div>`;
+    }
   }
   const abandonedMovies = S.movies.filter(m=>m.abandoned);
   if(abandonedMovies.length){
@@ -3676,6 +3849,7 @@ function renderMovies(){
     abandonedMovies.forEach(m=> html += abandonedCard("movies", m));
   }
   $("app").innerHTML = html;
+  if(hero) setTimeout(() => heroLoad(hero), 0);
 }
 
 function renderEpisodicTab(category){
@@ -3704,7 +3878,15 @@ function renderEpisodicTab(category){
   $("app").innerHTML = html;
 }
 
+// v1.9.0 — every re-render now animates posters from where they were to where they land
+// (see pdCaptureRects / pdPlayFlip), so sorting, filtering, marking watched, moving a
+// title between books, etc. all slide instead of jumping.
 function render(){
+  const before = pdCaptureRects();
+  renderCore();
+  pdPlayFlip(before);
+}
+function renderCore(){
   const scrollY = window.scrollY;
   renderModeToggle();
   renderAccountBtn();
@@ -3913,61 +4095,67 @@ function movieInfoText(item){
   if(total>0) len = played>0 ? `${fmtHrMin(Math.max(0,total-played))} R` : fmtHrMin(total);
   return [y, len].filter(Boolean).join(" · ") || "No info";
 }
-function moviePosterCard(item, idx){
-  const r = item.rating;
-  const cls = r==null ? "" : (r>=80 ? "good" : (r>=70 ? "mid" : "low"));
-  const open = libOpenMovie === item.id;
-  const url = item.posterPath ? `${TMDB_IMG}w342${item.posterPath}` : "";
-  const seen = url && posterSeen.has(url);
-  const img = url
-    ? `<img alt="${esc(item.name)}" class="${seen?"seen":""}" ${idx<12 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${url}" onload="this.classList.add('in');posterSeen.add(this.src)" onerror="this.remove()">`
-    : "";
+function posterImgHtml(item, idx, w){
+  if(!item.posterPath) return "";
+  const url = `${TMDB_IMG}${w}${item.posterPath}`;
+  const seen = posterSeen.has(url);
+  return `<img alt="${esc(item.name)}" class="${seen?"seen":""}" ${idx<12 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${url}" onload="this.classList.add('in');posterSeen.add(this.src)" onerror="this.remove()">`;
+}
+function ratingClass(r){ return r==null ? "" : (r>=80 ? "good" : (r>=70 ? "mid" : "low")); }
+function moviePosterCard(item, idx, opts){
+  const r = item.rating, open = libOpenMovie === item.id;
+  const prog = (opts && opts.progress && item.length>0 && item.watched>0)
+    ? `<div class="pprog"><i style="width:${Math.min(100, item.watched/item.length*100)}%"></i></div>` : "";
   return `<div class="pcard${open?" open":""}" data-pid="${item.id}" onclick="pdToggle('${item.id}')">
     <div class="pposter">
       <div class="pph"><span>${esc(item.name)}</span></div>
-      ${img}
-      ${r!=null ? `<div class="prate ${cls}">${r}</div>` : ""}
+      ${posterImgHtml(item, idx, "w342")}
+      ${r!=null ? `<div class="prate ${ratingClass(r)}">${r}</div>` : ""}
+      ${prog}
     </div>
     <div class="pinfo">${movieInfoText(item)}</div>
   </div>`;
 }
-function libraryList(category, items){
-  if(category!=="movies") return `<div class="lib-list">${items.map(x=>libraryRow(category,x)).join("")}</div>`;
-  const rows = (arr, start) => { let h = ""; for(let i=0;i<arr.length;i+=3) h += `<div class="poster-row">${arr.slice(i,i+3).map((x,j)=>moviePosterCard(x,start+i+j)).join("")}</div>`; return h; };
-  const openIdx = libOpenMovie ? items.findIndex(x=>x.id===libOpenMovie) : -1;
-  if(openIdx<0) return `<div class="poster-grid">${rows(items,0)}</div>`;
-  // The tapped poster drops to the left of its own row-block. Posters before it
-  // in its old row stay put on a row of their own; posters after it start again
-  // underneath the detail block.
-  const rowStart = Math.floor(openIdx/3)*3;
-  const item = items[openIdx];
-  const enter = pdAnimateIn ? " pd-enter" : "";
-  return `<div class="poster-grid">
-    ${rows(items.slice(0,rowStart), 0)}
-    ${rows(items.slice(rowStart,openIdx), rowStart)}
-    <div class="pd-block">
-      <div class="pd-top">
-        ${moviePosterCard(item, openIdx)}
-        <div class="pd-info${enter}"><div class="pd-info-in">
-          <div class="pd-box pd-title serif">${esc(item.name)}</div>
-          <div class="pd-box pd-desc" id="pdDesc">${pdBodies(item).desc}</div>
-        </div></div>
+// The tap-to-expand detail block. `leftBtns` is the stack of buttons under the
+// year/length box; `footHtml` (optional) is a full-width row of small buttons.
+function movieDetailBlock(item, idx, enter, leftBtns, footHtml){
+  const b = pdBodies(item);
+  return `<div class="pd-block">
+    <div class="pd-top">
+      ${moviePosterCard(item, idx, { progress:true })}
+      <div class="pd-info${enter}"><div class="pd-info-in">
+        <div class="pd-box pd-title serif">${esc(item.name)}</div>
+        <div class="pd-box pd-desc" id="pdDesc">${b.desc}</div>
+      </div></div>
+    </div>
+    <div class="pd-bar${enter}">
+      <div class="pd-left">
+        <div class="pd-yl pd-box pd-tap" onclick="openRatingMenu('${item.id}')" title="Tap to edit the rating">${movieInfoText(item)}</div>
+        ${leftBtns}
       </div>
-      <div class="pd-bar${enter}">
-        <div class="pd-left">
-          <div class="pd-yl pd-box pd-tap" onclick="openRatingMenu('${item.id}')" title="Tap to edit the rating">${movieInfoText(item)}</div>
-          <button class="btn small ghost" onclick="pdView('${item.id}')">View poster</button>
-          <button class="btn small ghost" onclick="pdMove('${item.id}')">To Season</button>
-          <button class="btn small ghost danger" onclick="pdRemove('${item.id}')">Remove</button>
-        </div>
-        <div class="pd-box pd-cast">
-          <div><div class="pd-lab">Director</div><div class="pd-val" id="pdDir">${pdBodies(item).dir}</div></div>
-          <div><div class="pd-lab">Starring</div><div class="pd-val" id="pdCast">${pdBodies(item).cast}</div></div>
-        </div>
+      <div class="pd-box pd-cast">
+        <div><div class="pd-lab">Director</div><div class="pd-val" id="pdDir">${b.dir}</div></div>
+        <div><div class="pd-lab">Starring</div><div class="pd-val" id="pdCast">${b.cast}</div></div>
       </div>
     </div>
-    ${rows(items.slice(openIdx+1), openIdx+1)}
+    ${footHtml ? `<div class="pd-foot${enter}">${footHtml}</div>` : ""}
   </div>`;
+}
+// Rows of 3. The tapped poster drops to the left of its own block; posters before
+// it in its old row stay on a row of their own; posters after it start again underneath.
+function posterGridHtml(items, blockFn, opts){
+  const rows = (arr, start) => { let h = ""; for(let i=0;i<arr.length;i+=3) h += `<div class="poster-row">${arr.slice(i,i+3).map((x,j)=>moviePosterCard(x,start+i+j,opts)).join("")}</div>`; return h; };
+  const openIdx = libOpenMovie ? items.findIndex(x=>x.id===libOpenMovie) : -1;
+  if(openIdx<0) return `<div class="poster-grid">${rows(items,0)}</div>`;
+  const rowStart = Math.floor(openIdx/3)*3;
+  const enter = pdAnimateIn ? " pd-enter" : "";
+  return `<div class="poster-grid">${rows(items.slice(0,rowStart),0)}${rows(items.slice(rowStart,openIdx),rowStart)}${blockFn(items[openIdx], openIdx, enter)}${rows(items.slice(openIdx+1),openIdx+1)}</div>`;
+}
+const btnH = (cls, fn, id, label, style) => `<button class="btn small ${cls}"${style?` style="${style}"`:""} onclick="${fn}('${id}')">${label}</button>`;
+function libraryList(category, items){
+  if(category!=="movies") return `<div class="lib-list">${items.map(x=>libraryRow(category,x)).join("")}</div>`;
+  return posterGridHtml(items, (it, i, enter) => movieDetailBlock(it, i, enter,
+    btnH("ghost","pdView",it.id,"View poster") + btnH("ghost","pdMove",it.id,"To Season") + btnH("ghost danger","pdRemove",it.id,"Remove")));
 }
 
 /* ---------- v1.8.3 — poster detail: open / close, animation, data ----------
@@ -3979,49 +4167,46 @@ let libOpenMovie = null, pdBusy = false, pdAnimateIn = false;
 const pdErr = {};
 function pdCaptureRects(){
   const m = new Map(), sy = window.scrollY;
-  document.querySelectorAll("[data-pid]").forEach(el => { const r = el.getBoundingClientRect(); m.set(el.dataset.pid, { left: r.left, top: r.top + sy }); });
+  document.querySelectorAll("[data-pid]").forEach(el => { const r = el.getBoundingClientRect(); m.set(el.dataset.pid, { left: r.left, top: r.top + sy, w: r.width, h: r.height }); });
   return m;
 }
 function pdPlayFlip(before){
+  if(!before || !before.size) return;
   if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const sy = window.scrollY, vh = window.innerHeight;
   document.querySelectorAll("[data-pid]").forEach(el => {
-    const o = before.get(el.dataset.pid); if(!o) return;
+    const o = before.get(el.dataset.pid); if(!o || !el.animate) return;
     const r = el.getBoundingClientRect();
     const dx = o.left - r.left, dy = o.top - (r.top + sy);
-    if(Math.abs(dx)<1 && Math.abs(dy)<1) return;
+    const sx = r.width > 0 ? o.w / r.width : 1, sc = r.height > 0 ? o.h / r.height : 1;
+    const resized = Math.abs(sx - 1) > 0.04 || Math.abs(sc - 1) > 0.04;
+    if(Math.abs(dx) < 1 && Math.abs(dy) < 1 && !resized) return;
     // skip posters that are far off-screen both before and after
     const nowTop = r.top, oldTop = o.top - sy;
     if((nowTop > vh*2 || nowTop < -vh*2) && (oldTop > vh*2 || oldTop < -vh*2)) return;
-    if(!el.animate) return;
-    el.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: "none" }], { duration: 360, easing: "cubic-bezier(.22,.8,.24,1)" });
+    el.style.transformOrigin = "0 0";
+    el.animate([{ transform: `translate(${dx}px,${dy}px)${resized ? ` scale(${sx},${sc})` : ""}` }, { transform: "none" }], { duration: 380, easing: "cubic-bezier(.22,.8,.24,1)" });
   });
 }
-function pdWithFlip(fn){
-  const before = pdCaptureRects();
-  fn();
-  pdPlayFlip(before);
-}
+function pdWithFlip(fn){ fn(); }   // render() animates by itself now
 function pdToggle(id){
   if(pdBusy) return;
   const wasOpen = libOpenMovie != null;
   const go = () => {
-    const before = pdCaptureRects();
     libOpenMovie = libOpenMovie === id ? null : id;
     pdAnimateIn = !!libOpenMovie;
     render();
     pdAnimateIn = false;
-    pdPlayFlip(before);
     pdBusy = false;
     if(libOpenMovie){
-      const it = (S.library.movies||[]).find(x=>x.id===libOpenMovie);
+      const it = movieById(libOpenMovie);
       if(it){ delete pdErr[it.tmdbId]; pdLoadExtras(it); }
       setTimeout(pdScrollIntoView, 420);
     }
   };
   if(wasOpen){
     pdBusy = true;
-    document.querySelectorAll(".pd-info,.pd-bar").forEach(e => { e.classList.remove("pd-enter"); e.classList.add("pd-leave"); });
+    document.querySelectorAll(".pd-info,.pd-bar,.pd-foot").forEach(e => { e.classList.remove("pd-enter"); e.classList.add("pd-leave"); });
     setTimeout(go, 150);
   } else go();
 }
@@ -4053,7 +4238,7 @@ function pvClamp(){
   pv.ty = Math.max(-my, Math.min(my, pv.ty));
 }
 function pdView(id){
-  const it = (S.library.movies||[]).find(x=>x.id===id);
+  const it = movieById(id);
   if(!it || !it.posterPath) return toast("This title has no poster.");
   pvOpenId = id;
   pv.s = 1; pv.tx = 0; pv.ty = 0; pv.pts.clear(); pv.pinch = null; pv.moved = false; pv.multi = false; pv.start = null;
@@ -4236,7 +4421,7 @@ function clearMdbKey(){
 
 /* ----- "Ratings" tool: fetch scores for the whole library, gently ----- */
 let rtRun = null;
-function rtQueue(force){ return (S.library.movies || []).filter(it => it.tmdbId && (force || !it.ratings)).map(it => it.id); }
+function rtQueue(force){ return allMovies().filter(it => it.tmdbId && (force || !it.ratings)).map(it => it.id); }
 function openRatingsModal(){ rtRun = null; renderRatingsModal(); $("ratingsModal").classList.add("show"); }
 function renderRatingsModal(note){
   const body = $("rtBody"), actions = $("rtActions"), hint = $("rtHint");
@@ -4256,7 +4441,7 @@ function renderRatingsModal(note){
     actions.innerHTML = `<button class="btn" onclick="rtStop()">Stop</button>`;
     return;
   }
-  const movies = S.library.movies || [];
+  const movies = allMovies();
   const linked = movies.filter(i => i.tmdbId).length, missing = rtQueue(false).length, unlinked = movies.length - linked;
   hint.textContent = "";
   body.innerHTML = `${note ? `<div class="tmdb-msg" style="padding:4px 0 10px">${esc(note)}</div>` : ""}
@@ -4275,7 +4460,7 @@ async function rtStart(force){
   let done = 0, updated = 0, none = 0, failed = 0, fatal = null;
   for(const id of ids){
     if(rtRun.stop) break;
-    const it = (S.library.movies || []).find(x => x.id === id);
+    const it = movieById(id);
     done++;
     if(it){
       let tries = 0;
@@ -4318,7 +4503,7 @@ function ratingChipsHtml(it){
 }
 function ratingPick(v){ $("ratingInput").value = v; }
 async function openRatingMenu(id){
-  const it = (S.library.movies||[]).find(x=>x.id===id); if(!it) return;
+  const it = movieById(id); if(!it) return;
   ratingEditId = id;
   $("ratingTitle").textContent = it.name;
   $("ratingInput").value = it.rating == null ? "" : it.rating;
@@ -4336,7 +4521,7 @@ async function openRatingMenu(id){
   }
 }
 function saveRating(){
-  const it = (S.library.movies||[]).find(x=>x.id===ratingEditId); if(!it) return closeModal("ratingModal");
+  const it = movieById(ratingEditId); if(!it) return closeModal("ratingModal");
   const v = readRating("ratingInput");
   if(v == null){ it.ratingManual = false; it.rating = autoRating(it); }
   else { const auto = autoRating(it); it.rating = v; it.ratingManual = (auto == null || v !== auto); }
@@ -4722,6 +4907,8 @@ function renderLibraryTab(category){
    list would land outside #app and never register — document always covers the
    full screen so swipes work everywhere, on every page, regardless of length. */
 // v1.8.5 — pinching / panning a zoomed poster must never flip the page underneath
+function movieById(id){ return (S.library.movies||[]).find(x=>x.id===id) || (S.movies||[]).find(x=>x.id===id) || null; }
+function allMovies(){ return (S.library.movies||[]).concat(S.movies||[]); }
 function posterViewerOpen(){ const o = document.getElementById("posterViewer"); return !!o && o.classList.contains("show"); }
 (function setupSwipeNav(){
   const MIN_DIST = 60;      // minimum horizontal travel to count as a swipe
