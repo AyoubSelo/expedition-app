@@ -467,6 +467,8 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .prate.good{background:#58b774}
 .prate.mid{background:#e2b93b}
 .prate.low{background:#d9544a;color:#fff}
+.prate{cursor:pointer}
+.prate::after{content:"";position:absolute;inset:-8px}   /* v1.9.1 — bigger tap target, it opens the rating-source menu */
 .pinfo{margin-top:5px;padding:4px 2px;background:var(--panel2);border:1px solid var(--line-soft);border-radius:6px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(6.5px,10cqw,10.5px);color:var(--muted)}
 /* detail block: info box to the right of the poster, bar underneath */
 .pd-info{grid-column:2 / 4;position:relative;min-width:0}
@@ -512,6 +514,31 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .rate-chip b{font-family:"IBM Plex Mono",monospace;color:var(--brass);margin-left:6px;font-weight:600}
 .rate-chip:active{border-color:var(--brass)}
 .rate-note{font-size:12px;color:var(--muted-dim);margin-top:10px;line-height:1.5}
+
+/* v1.9.1 — selected chip, sort menu, data menu, settings */
+.rate-chip.on{border-color:var(--brass);background:rgba(217,162,86,.14)}
+.rate-chip .rc-sub{margin-left:6px;color:var(--muted);font-size:11px}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.settings-btn{width:34px;height:34px;flex-shrink:0;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.settings-btn:active{color:var(--brass);border-color:var(--brass)}
+.sort-cur{color:var(--muted-dim);font-weight:500}
+.sort-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.sort-opt{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px;font-family:inherit;cursor:pointer;text-align:left}
+.sort-opt i{font-style:normal;color:var(--brass);opacity:0}
+.sort-opt.on{border-color:var(--brass);background:rgba(217,162,86,.10)}
+.sort-opt.on i{opacity:1}
+.sort-seg{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sort-seg button{padding:12px 8px;background:var(--panel2);color:var(--muted);border:0;font-size:13px;font-family:inherit;cursor:pointer}
+.sort-seg button+button{border-left:1px solid var(--line)}
+.sort-seg button.on{background:rgba(217,162,86,.16);color:var(--brass);font-weight:600}
+.data-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin-top:10px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-family:inherit;text-align:left;cursor:pointer}
+.data-row b{display:block;font-size:14px}
+.data-row span{display:block;margin-top:3px;font-size:12px;color:var(--muted)}
+.data-row i{font-style:normal;color:var(--muted-dim);font-size:20px}
+.data-row:active{border-color:var(--brass)}
+.set-sec{margin-top:18px}
+.set-sec:first-child{margin-top:8px}
+.set-head{font-size:13px;color:var(--ink);letter-spacing:.02em}
 
 /* v1.9.0 — Season Movies page */
 .sf-head{margin-bottom:16px}
@@ -578,7 +605,10 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   <header>
     <div class="header-top">
       <h1 class="serif">Expedition<span class="version-tag mono" id="verTag"></span></h1>
-      <button class="account-btn" id="accountBtn" onclick="openAccountModal()">Sign in</button>
+      <div class="header-right">
+        <button class="settings-btn" id="settingsBtn" onclick="openSettingsModal()" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+        <button class="account-btn" id="accountBtn" onclick="openAccountModal()">Sign in</button>
+      </div>
     </div>
     <div class="tagline">Log the hours. Clear the backlog.</div>
     <div class="mode-toggle" id="modeToggle">
@@ -827,14 +857,40 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 <div class="modal" id="ratingModal">
   <div class="sheet">
     <h2 class="serif" id="ratingTitle">Rating</h2>
-    <div class="hint">Tap a source to use its score, or type your own (0–100). Leave it empty to go back to the automatic score.</div>
-    <label>Rating</label>
-    <input id="ratingInput" type="number" min="0" max="100" inputmode="numeric" placeholder="e.g. 78" onkeydown="if(event.key==='Enter'){event.preventDefault();saveRating();}">
+    <div class="hint">Choose which site's score this title shows. “Default” follows the source set in Settings.</div>
     <div id="ratingChips"></div>
     <div class="actions">
-      <button class="btn" onclick="closeModal('ratingModal')">Cancel</button>
-      <button class="btn brass" onclick="saveRating()">Save</button>
+      <button class="btn" onclick="closeModal('ratingModal')">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- v1.9.1 — sort menu (Library + Season Movies) -->
+<div class="modal" id="sortModal">
+  <div class="sheet">
+    <h2 class="serif" id="sortTitle">Sort</h2>
+    <div class="hint" id="sortHint"></div>
+    <div id="sortBody"></div>
+    <div class="actions"><button class="btn brass" onclick="closeModal('sortModal')">Done</button></div>
+  </div>
+</div>
+
+<!-- v1.9.1 — Library Movies data tools (TMDB links + ratings) in one place -->
+<div class="modal" id="dataModal">
+  <div class="sheet">
+    <h2 class="serif">Movie data</h2>
+    <div class="hint">Keep your movies linked to TMDB and loaded with scores.</div>
+    <div id="dataBody"></div>
+    <div class="actions"><button class="btn" onclick="closeModal('dataModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- v1.9.1 — global settings -->
+<div class="modal" id="settingsModal">
+  <div class="sheet">
+    <h2 class="serif">Settings</h2>
+    <div id="settingsBody"></div>
+    <div class="actions"><button class="btn" onclick="closeModal('settingsModal')">Close</button></div>
   </div>
 </div>
 
@@ -923,7 +979,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.9.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.9.1"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -1026,9 +1082,9 @@ function normalizeState(raw){
     ...((cat==="movies"||cat==="tv") ? {
       rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
       tmdbId: x.tmdbId||null, posterPath: x.posterPath||null, tmdbSkip: !!x.tmdbSkip,
-      // v1.8.5 — scores from MDBList by source ({merged, imdb, letterboxd, ...}, each 0-100),
-      // and whether the number on the poster was typed in by hand.
-      ratings: (x.ratings && typeof x.ratings === "object") ? x.ratings : null, ratingsAt: x.ratingsAt||0, ratingManual: !!x.ratingManual,
+      // v1.8.5 — scores from MDBList by source ({merged, imdb, letterboxd, ...}, each 0-100).
+      // v1.9.1 — ratingSrc = which source this one title shows (null = follow the global setting).
+      ratings: (x.ratings && typeof x.ratings === "object") ? x.ratings : null, ratingsAt: x.ratingsAt||0, ratingSrc: (typeof x.ratingSrc === "string" && x.ratingSrc) ? x.ratingSrc : null,
     } : {}),
   });
   const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
@@ -1063,7 +1119,7 @@ function normalizeState(raw){
       anime: normSimple(rawLib.anime,"anime"),
       manga: normSimple(rawLib.manga,"manga"),
     },
-    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || "") },
+    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged") },
     updatedAt: raw.updatedAt || 0,
   };
 }
@@ -2202,11 +2258,10 @@ function openMovieModal(id=null, target="season", prefill=null){
     }
   }
   paintTmdbRow("mv");
-  modalRatingInit = $("mv_rating").value.trim();
   $("mv_libActions").style.display = (id && target==="library") ? "flex" : "none";
   const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
   setVisible("mv_yearCell", !mvFinished);
-  setVisible("mv_ratingCell", !mvFinished);
+  setVisible("mv_ratingCell", !mvFinished && !(m && m.ratings && Object.keys(m.ratings).length));   // v1.9.1 — scores from the sources replace the typed number
   setVisible("mv_tmdbRow", !mvFinished);
   $("movieModal").classList.add("show"); if(!id && !prefill) $("mname").focus();
 }
@@ -2216,8 +2271,7 @@ function saveMovie(){
   if(!name || length <= 0) return toast("Give it a title and a length.");
   const releaseDate = readRelease("mv");
   const rField = readRating("mv_rating");
-  const ratingTouched = $("mv_rating").value.trim() !== modalRatingInit;   // changed by hand in this form?
-  const tmdbFields = { rating: rField, tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}), ...(ratingTouched ? { ratingManual: rField != null } : {}) };
+  const tmdbFields = { rating: rField, tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) };
   let newId = null;
   const seriesFields = { partOfSeries:false, seriesId:null, seriesOrder:null }; // v1.8.4 — movies no longer use series
   const arr = arrFor("movies", modalTarget);
@@ -2731,8 +2785,8 @@ function tmdbSettingsHtml(){
   const has = !!((S.settings && S.settings.tmdbKey) || "");
   return `<div class="tmdb-settings">
     <div class="tmdb-set-head"><b>TMDB lookup</b><span class="entry-meta2">${has ? "Key saved" : "No key yet"}</span></div>
-    <input id="acctTmdbKey" placeholder="${has ? "Paste a new key to replace it" : "Paste TMDB API key"}" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <div class="account-row"><button class="btn small ghost" onclick="saveTmdbKey('account')">Save key</button>${has ? `<button class="btn small ghost" onclick="clearTmdbKey()">Remove key</button>` : ""}</div>
+    <input id="setTmdbKey" placeholder="${has ? "Paste a new key to replace it" : "Paste TMDB API key"}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="account-row"><button class="btn small ghost" onclick="saveTmdbKey('settings')">Save key</button>${has ? `<button class="btn small ghost" onclick="clearTmdbKey()">Remove key</button>` : ""}</div>
     <div class="tmdb-credit">${TMDB_CREDIT}</div>
   </div>`;
 }
@@ -2740,13 +2794,13 @@ function mdbSettingsHtml(){
   const has = !!((S.settings && S.settings.mdbKey) || "");
   return `<div class="tmdb-settings">
     <div class="tmdb-set-head"><b>MDBList ratings</b><span class="entry-meta2">${has ? "Key saved" : "No key yet"}</span></div>
-    <input id="acctMdbKey" placeholder="${has ? "Paste a new key to replace it" : "Paste MDBList API key"}" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <div class="account-row"><button class="btn small ghost" onclick="saveMdbKey('account')">Save key</button>${has ? `<button class="btn small ghost" onclick="clearMdbKey()">Remove key</button>` : ""}</div>
+    <input id="setMdbKey" placeholder="${has ? "Paste a new key to replace it" : "Paste MDBList API key"}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="account-row"><button class="btn small ghost" onclick="saveMdbKey('settings')">Save key</button>${has ? `<button class="btn small ghost" onclick="clearMdbKey()">Remove key</button>` : ""}</div>
   </div>`;
 }
-function accountBodyHtml(){ return cloudStatusHtml() + tmdbSettingsHtml() + mdbSettingsHtml(); }
+function accountBodyHtml(){ return cloudStatusHtml(); }   // v1.9.1 — API keys moved to Settings
 function saveTmdbKey(from){
-  const el = $(from === "account" ? "acctTmdbKey" : "tmdbKeyInput");
+  const el = $(from === "settings" ? "setTmdbKey" : "tmdbKeyInput");
   const v = el ? el.value.trim() : "";
   if(!v) return toast("Paste your TMDB key first.");
   if(!/^[A-Za-z0-9._-]{20,}$/.test(v)) return toast("That doesn't look like a TMDB key.");
@@ -2770,6 +2824,8 @@ function refreshTmdbModals(){
   if($("ratingsModal").classList.contains("show")) renderRatingsModal();
   if($("tmdbModal").classList.contains("show") && tmdbCtx) renderTmdbModal("");
   if($("matchModal").classList.contains("show") && matchCtx) renderMatchModal();
+  if($("settingsModal").classList.contains("show")) $("settingsBody").innerHTML = settingsBodyHtml();
+  if($("dataModal").classList.contains("show")) renderDataModal();
 }
 function tmdbErrorHtml(e){
   const m = e && e.message;
@@ -3706,7 +3762,7 @@ function pickMovieHero(incomplete){
   const pts = m => (m.recoPoints || RECO_BASE_POINTS);
   // the engine's points decide; ties go to something already started, then the higher-rated one
   return incomplete.slice().sort((a,b) =>
-    (pts(b)-pts(a)) || ((b.watched>0)-(a.watched>0)) || ((b.rating||0)-(a.rating||0)) || (a.name||"").localeCompare(b.name||""))[0];
+    (pts(b)-pts(a)) || ((b.watched>0)-(a.watched>0)) || ((itemRating(b)||0)-(itemRating(a)||0)) || (a.name||"").localeCompare(b.name||""))[0];
 }
 function seasonMoviesHeader(){
   const t = categoryTotals("movies");
@@ -3739,7 +3795,7 @@ function movieHeroHtml(m){
       <div class="pposter sf-thumb" data-pid="${m.id}" onclick="pdView('${m.id}')">
         <div class="pph"><span>${esc(m.name)}</span></div>
         ${posterImgHtml(m, 0, "w342")}
-        ${m.rating!=null ? `<div class="prate ${ratingClass(m.rating)}">${m.rating}</div>` : ""}
+        ${rateBadge(m)}
       </div>
       <div class="sf-hero-txt">
         <div class="eyebrow">Watch next</div>
@@ -3822,7 +3878,8 @@ function renderMovies(){
   const {incomplete, completed} = splitSorted("movies", S.movies, movieMin);
   const hero = pickMovieHero(incomplete);
   const rest = incomplete.filter(m => m !== hero);
-  const inProg = rest.filter(m => m.watched > 0), upNext = rest.filter(m => !(m.watched > 0));
+  const sfCmp = (a, b) => libCompare("movies", a, b, sfSort, sfSortDir) || (a.name||"").localeCompare(b.name||"");   // v1.9.1 — same sorting as the Library
+  const inProg = rest.filter(m => m.watched > 0).sort(sfCmp), upNext = rest.filter(m => !(m.watched > 0)).sort(sfCmp);
   if(hero) html += movieHeroHtml(hero);
   const accent = `--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}`;
   const seasonBlock = (it, i, enter) => movieDetailBlock(it, i, enter,
@@ -3832,7 +3889,7 @@ function renderMovies(){
     html += `<div class="marginalia sf-sec">in progress</div>` + posterGridHtml(inProg, seasonBlock, { progress:true });
   }
   if(upNext.length){
-    html += `<div class="list-head sf-sec"><b>UP NEXT</b>${sortDropdown("movies")}</div>` + posterGridHtml(upNext, seasonBlock, { progress:true });
+    html += `<div class="list-head sf-sec"><b>UP NEXT</b>${sortBtnHtml("season")}</div>` + posterGridHtml(upNext, seasonBlock, { progress:true });
   }
   if(completed.length){
     html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m,i)=>miniPosterCard(m,i)).join("")}</div>`;
@@ -3840,7 +3897,7 @@ function renderMovies(){
     if(open){
       const enter = pdAnimateIn ? " pd-enter" : "";
       html += `<div class="sf-shelf-block">${movieDetailBlock(open, 0, enter,
-        btnH("ghost","pdView",open.id,"View poster") + btnH("ghost","pdSfMove",open.id,"To Library") + btnH("ghost danger","pdSfRemove",open.id,"Remove"))}</div>`;
+        btnH("ghost","pdView",open.id,"View poster"))}</div>`;   // v1.9.1 — a finished title just stays on the shelf
     }
   }
   const abandonedMovies = S.movies.filter(m=>m.abandoned);
@@ -3978,7 +4035,7 @@ function libSubLine(category, item){
 function libraryMissingFields(category, item){
   const missing = [];
   if(!hasReleaseDate(item.releaseDate, category)) missing.push(category==="games" ? "release date" : "release year");
-  if(category==="movies"||category==="tv"){ if(item.rating==null) missing.push("rating"); }
+  if(category==="movies"||category==="tv"){ if(itemRating(item)==null) missing.push("rating"); }
   else if(!item.hype) missing.push("hype level");
   if((category==="tv"||category==="anime") && !(item.groups && item.groups.length)) missing.push("episode count");
   return missing;
@@ -4025,7 +4082,7 @@ function libSegments(category, item){
   }
   if(category==="movies"||category==="tv"){
     // v1.8.0 — the TMDB rating replaces the hype stars for movies and TV.
-    if(item.rating!=null) segs.push(`${item.rating}%`);
+    if(itemRating(item)!=null) segs.push(`${itemRating(item)}%`);
   } else {
     const hype = item.hype||0;
     segs.push(hype>0 ? `⭐ ${hype}` : `☆ –`);
@@ -4103,14 +4160,14 @@ function posterImgHtml(item, idx, w){
 }
 function ratingClass(r){ return r==null ? "" : (r>=80 ? "good" : (r>=70 ? "mid" : "low")); }
 function moviePosterCard(item, idx, opts){
-  const r = item.rating, open = libOpenMovie === item.id;
+  const open = libOpenMovie === item.id;
   const prog = (opts && opts.progress && item.length>0 && item.watched>0)
     ? `<div class="pprog"><i style="width:${Math.min(100, item.watched/item.length*100)}%"></i></div>` : "";
   return `<div class="pcard${open?" open":""}" data-pid="${item.id}" onclick="pdToggle('${item.id}')">
     <div class="pposter">
       <div class="pph"><span>${esc(item.name)}</span></div>
       ${posterImgHtml(item, idx, "w342")}
-      ${r!=null ? `<div class="prate ${ratingClass(r)}">${r}</div>` : ""}
+      ${rateBadge(item)}
       ${prog}
     </div>
     <div class="pinfo">${movieInfoText(item)}</div>
@@ -4130,7 +4187,7 @@ function movieDetailBlock(item, idx, enter, leftBtns, footHtml){
     </div>
     <div class="pd-bar${enter}">
       <div class="pd-left">
-        <div class="pd-yl pd-box pd-tap" onclick="openRatingMenu('${item.id}')" title="Tap to edit the rating">${movieInfoText(item)}</div>
+        <div class="pd-yl pd-box">${movieInfoText(item)}</div>
         ${leftBtns}
       </div>
       <div class="pd-box pd-cast">
@@ -4325,9 +4382,9 @@ function pvWheel(e){
    MDBList merges IMDb, Letterboxd, Rotten Tomatoes, Metacritic, TMDB and more.
    For each title we keep every source's score (0-100, already on one scale)
    plus MDBList's own merged average. The number on the poster is the merged
-   score, falling back to IMDb, then TMDB — unless you typed a number by hand,
-   which always wins (ratingManual). Looked up by the TMDB id we already store. */
-let modalRatingInit = "";
+   score, falling back to IMDb, then TMDB. v1.9.1: the source shown is chosen globally
+   (Settings) or per title (tap the rating circle); no more typed-in numbers.
+   Looked up by the TMDB id we already store. */
 const MDB_LABELS = { merged:"Merged", imdb:"IMDb", letterboxd:"Letterboxd", tmdb:"TMDB", metacritic:"Metacritic", metacriticuser:"Metacritic users",
   trakt:"Trakt", tomatoes:"Rotten Tomatoes", rottentomatoes:"Rotten Tomatoes", rotten_tomatoes:"Rotten Tomatoes", tomatoesaudience:"RT audience",
   popcorn:"RT audience", audience:"RT audience", myanimelist:"MyAnimeList", rogerebert:"RogerEbert" };
@@ -4372,13 +4429,25 @@ function autoRating(item){
   if(r.imdb != null) return r.imdb;
   return r.tmdb != null ? r.tmdb : null;
 }
+function globalRatingSrc(){ return (S.settings && S.settings.ratingSrc) || "merged"; }
+// The score a title shows, worked out live from its stored per-source scores: its own pick,
+// else the global source, else merged → IMDb → TMDB. Titles with no source data keep the
+// plain number stored in item.rating (TMDB's score from when it was added).
+function ratingFor(item){
+  const r = item && item.ratings;
+  if(!r) return null;
+  const pref = item.ratingSrc || globalRatingSrc();
+  if(r[pref] != null) return r[pref];
+  return autoRating(item);
+}
+function itemRating(item){ const v = ratingFor(item); return v != null ? v : (item.rating == null ? null : item.rating); }
+function rateBadge(item){
+  const r = itemRating(item);
+  return r != null ? `<div class="prate ${ratingClass(r)}" onclick="event.stopPropagation();openRatingMenu('${item.id}')" title="Choose rating source">${r}</div>` : "";
+}
 function applyMdbRatings(item, scores){
-  const first = !item.ratings;
   item.ratings = scores; item.ratingsAt = Date.now();
-  // A number that disagrees with TMDB's own score by more than a few points on the very first
-  // fetch was almost certainly typed in by hand — keep it.
-  if(first && !item.ratingManual && item.rating != null && scores.tmdb != null && Math.abs(item.rating - scores.tmdb) > 3) item.ratingManual = true;
-  if(!item.ratingManual){ const a = autoRating(item); if(a != null) item.rating = a; }
+  const a = ratingFor(item); if(a != null) item.rating = a;   // keep the stored number current as the fallback
 }
 async function mdbFetchItem(category, item){
   try{
@@ -4403,7 +4472,7 @@ function mdbErrorText(e){
   return "MDBList returned an error (" + (m || "unknown") + ").";
 }
 function saveMdbKey(from){
-  const el = $(from === "account" ? "acctMdbKey" : "mdbKeyInput");
+  const el = $(from === "settings" ? "setMdbKey" : "mdbKeyInput");
   const v = el ? el.value.trim() : "";
   if(!v) return toast("Paste your MDBList key first.");
   if(!/^[A-Za-z0-9_-]{16,}$/.test(v)) return toast("That doesn't look like an MDBList key.");
@@ -4446,7 +4515,7 @@ function renderRatingsModal(note){
   hint.textContent = "";
   body.innerHTML = `${note ? `<div class="tmdb-msg" style="padding:4px 0 10px">${esc(note)}</div>` : ""}
     <div class="match-intro"><b>${missing}</b> of ${linked} linked movie${linked===1?"":"s"} ${missing===1?"has":"have"} no scores yet.</div>
-    <div class="hint" style="margin-top:8px">The poster number becomes MDBList's merged score (IMDb if there isn't one). Numbers you typed in yourself are never replaced.${unlinked ? `<br><br>${unlinked} movie${unlinked===1?" isn't":"s aren't"} linked to TMDB, so they're skipped — use ⇄ TMDB to link them.` : ""}</div>`;
+    <div class="hint" style="margin-top:8px">Scores for every site are stored per title. Which site's number shows on the posters is set in Settings (⚙ top right), or per title by tapping its rating circle.${unlinked ? `<br><br>${unlinked} movie${unlinked===1?" isn't":"s aren't"} linked to TMDB, so they're skipped — link them first from the Data menu.` : ""}</div>`;
   actions.innerHTML = (missing ? `<button class="btn brass" onclick="rtStart(false)">Fetch missing</button>` : "") +
     (linked ? `<button class="btn" onclick="rtStart(true)">Refresh all</button>` : "") +
     `<button class="btn" onclick="closeModal('ratingsModal')">Close</button>`;
@@ -4489,27 +4558,30 @@ async function rtStart(force){
   renderRatingsModal(fatal ? mdbErrorText(fatal) + ` (${updated} updated before it stopped.)` : (stopped ? `Stopped — ${updated} updated.` : `Done — ${updated} updated${none ? `, ${none} not on MDBList` : ""}${failed ? `, ${failed} failed` : ""}.`));
 }
 
-/* ---------- v1.8.5 — the rating menu: pick a source or type your own ---------- */
+/* ---------- v1.9.1 — the rating menu: pick which site's score this title shows ---------- */
 let ratingEditId = null;
+function ratingSourceKeys(r){
+  const keys = Object.keys(r || {}).filter(k => k !== "merged").sort((a, b) => mdbLabel(a).localeCompare(mdbLabel(b)));
+  return (r && r.merged != null ? ["merged"] : []).concat(keys);
+}
 function ratingChipsHtml(it){
   const r = it.ratings;
-  if(!MediaDB.providers.mdblist.key()) return `<div class="rate-note">Add your MDBList key (account menu, or the ★ Ratings button) to see scores from IMDb, Letterboxd and more.</div>`;
-  if(!it.tmdbId) return `<div class="rate-note">Link this title to TMDB (⇄ TMDB) to load scores from other sites.</div>`;
+  if(!MediaDB.providers.mdblist.key()) return `<div class="rate-note">Add your MDBList key in Settings (⚙ top right) to see scores from IMDb, Letterboxd and more.</div>`;
+  if(!it.tmdbId) return `<div class="rate-note">Link this title to TMDB (Data button in the Library) to load scores from other sites.</div>`;
   if(!r) return `<div class="rate-note">Loading scores…</div>`;
-  const keys = Object.keys(r).filter(k => k !== "merged").sort((a, b) => mdbLabel(a).localeCompare(mdbLabel(b)));
-  const all = (r.merged != null ? ["merged"] : []).concat(keys);
+  const all = ratingSourceKeys(r);
   if(!all.length) return `<div class="rate-note">MDBList has no scores for this title yet.</div>`;
-  return `<div class="rate-chips">${all.map(k => `<button class="rate-chip" onclick="ratingPick(${r[k]})">${esc(mdbLabel(k))}<b>${r[k]}</b></button>`).join("")}<button class="rate-chip" onclick="ratingPick('')">Automatic</button></div>`;
+  const miss = it.ratingSrc && r[it.ratingSrc] == null;
+  return `<div class="rate-chips"><button class="rate-chip${it.ratingSrc ? "" : " on"}" onclick="ratingPick('')">Default<span class="rc-sub">${esc(mdbLabel(globalRatingSrc()))}</span></button>${
+    all.map(k => `<button class="rate-chip${it.ratingSrc === k ? " on" : ""}" onclick="ratingPick('${esc(k)}')">${esc(mdbLabel(k))}<b>${r[k]}</b></button>`).join("")}</div>${
+    miss ? `<div class="rate-note">${esc(mdbLabel(it.ratingSrc))} has no score for this title, so the usual fallback is shown.</div>` : ""}`;
 }
-function ratingPick(v){ $("ratingInput").value = v; }
 async function openRatingMenu(id){
   const it = movieById(id); if(!it) return;
   ratingEditId = id;
   $("ratingTitle").textContent = it.name;
-  $("ratingInput").value = it.rating == null ? "" : it.rating;
   $("ratingChips").innerHTML = ratingChipsHtml(it);
   $("ratingModal").classList.add("show");
-  setTimeout(() => { const el = $("ratingInput"); el.focus(); el.select(); }, 60);
   if(!it.ratings && it.tmdbId && MediaDB.providers.mdblist.key()){
     try{
       await mdbFetchItem("movies", it); persist();
@@ -4520,14 +4592,82 @@ async function openRatingMenu(id){
     if(ratingEditId === id && $("ratingModal").classList.contains("show")) $("ratingChips").innerHTML = ratingChipsHtml(it);
   }
 }
-function saveRating(){
+function ratingPick(k){
   const it = movieById(ratingEditId); if(!it) return closeModal("ratingModal");
-  const v = readRating("ratingInput");
-  if(v == null){ it.ratingManual = false; it.rating = autoRating(it); }
-  else { const auto = autoRating(it); it.rating = v; it.ratingManual = (auto == null || v !== auto); }
+  it.ratingSrc = k || null;
   closeModal("ratingModal");
   persist();
-  toast(v == null ? "Rating set to automatic." : "Rating saved.");
+  toast(k ? `Showing ${mdbLabel(k)} for this title.` : "Using the default source for this title.");
+}
+
+/* ---------- v1.9.1 — custom sort menu (Library Movies + Season Movies) ---------- */
+const SORT_OPTS = [["name","Name"],["date","Release date"],["hype","Rating"],["length","Length"]];
+const SORT_DIR_LABELS = { name:["A → Z","Z → A"], date:["Oldest first","Newest first"], hype:["Lowest first","Highest first"], length:["Shortest first","Longest first"] };
+const SORT_ICON = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v13M6 16.5l-2.6-2.6M6 16.5l2.6-2.6M14 16.5v-13M14 3.5l-2.6 2.6M14 3.5l2.6 2.6"/></svg>`;
+const DATA_ICON = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="5" rx="6" ry="2.5"/><path d="M4 5v10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V5M4 10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5"/></svg>`;
+let sfSort = localStorage.getItem("expedition-sfsort") || "length";        // Season Movies — default keeps the old "most remaining first"
+let sfSortDir = localStorage.getItem("expedition-sfsortdir") || "desc";
+const SORT_CTX = {
+  lib: { title:"Sort Library", hint:"Length sorts by time left to watch.",
+    get:() => ({ key:libSort, dir:libSortDir }),
+    set(k, d){ libSort = k; libSortDir = d; localStorage.setItem("expedition-libsort", k); localStorage.setItem("expedition-libsortdir", d); render(); } },
+  season: { title:"Sort Up next", hint:"Length sorts by time left to watch.",
+    get:() => ({ key:sfSort, dir:sfSortDir }),
+    set(k, d){ sfSort = k; sfSortDir = d; localStorage.setItem("expedition-sfsort", k); localStorage.setItem("expedition-sfsortdir", d); render(); } },
+};
+let sortCtxName = "lib";
+function sortBtnHtml(which){
+  const cur = SORT_CTX[which].get();
+  const lab = (SORT_OPTS.find(o => o[0] === cur.key) || [0, ""])[1];
+  return `<button class="lib-tags-btn" onclick="openSortMenu('${which}')" title="Sort">${SORT_ICON} Sort <span class="sort-cur">· ${lab} ${cur.dir === "asc" ? "↑" : "↓"}</span></button>`;
+}
+function openSortMenu(which){ sortCtxName = which; renderSortModal(); $("sortModal").classList.add("show"); }
+function renderSortModal(){
+  const c = SORT_CTX[sortCtxName], cur = c.get(), dl = SORT_DIR_LABELS[cur.key];
+  $("sortTitle").textContent = c.title; $("sortHint").textContent = c.hint;
+  $("sortBody").innerHTML = `<div class="sort-list">${SORT_OPTS.map(o => `<button class="sort-opt${cur.key === o[0] ? " on" : ""}" onclick="sortPick('${o[0]}')"><span>${o[1]}</span><i>✓</i></button>`).join("")}</div>
+    <div class="sort-seg"><button class="${cur.dir === "asc" ? "on" : ""}" onclick="sortDirPick('asc')">↑ ${dl[0]}</button><button class="${cur.dir === "desc" ? "on" : ""}" onclick="sortDirPick('desc')">↓ ${dl[1]}</button></div>`;
+}
+function sortPick(k){ const c = SORT_CTX[sortCtxName]; c.set(k, c.get().dir); renderSortModal(); }
+function sortDirPick(d){ const c = SORT_CTX[sortCtxName]; c.set(c.get().key, d); renderSortModal(); }
+
+/* ---------- v1.9.1 — "Data" menu: TMDB links + ratings in one button ---------- */
+function dataCount(){ return unlinkedQueue("movies").length + rtQueue(false).length; }
+function openDataModal(){ renderDataModal(); $("dataModal").classList.add("show"); }
+function renderDataModal(){
+  const unl = unlinkedQueue("movies").length, miss = rtQueue(false).length;
+  $("dataBody").innerHTML = `
+    <button class="data-row" onclick="dataGo('match')"><div><b>⇄ Link to TMDB</b><span>${unl ? `${unl} title${unl===1?"":"s"} not linked yet` : "Every title is linked"}</span></div><i>›</i></button>
+    <button class="data-row" onclick="dataGo('ratings')"><div><b>★ Fetch ratings</b><span>${miss ? `${miss} linked title${miss===1?"":"s"} without scores` : "Scores loaded for every linked title"}</span></div><i>›</i></button>`;
+}
+function dataGo(which){ closeModal("dataModal"); if(which === "match") openMatchModal("movies"); else openRatingsModal(); }
+
+/* ---------- v1.9.1 — Settings (header gear) ---------- */
+function ratingSrcOptions(){
+  const set = new Set(["merged", "imdb", "letterboxd", "tmdb"]);
+  allMovies().forEach(m => Object.keys(m.ratings || {}).forEach(k => set.add(k)));
+  const rest = [...set].filter(k => k !== "merged").sort((a, b) => mdbLabel(a).localeCompare(mdbLabel(b)));
+  return ["merged"].concat(rest);
+}
+function settingsBodyHtml(){
+  const cur = globalRatingSrc();
+  return `<div class="set-sec"><div class="set-head"><b>Ratings</b></div>
+      <div class="hint" style="margin:4px 0 0">Which site's score every title shows. You can still override a single title by tapping its rating circle.</div>
+      <div class="rate-chips">${ratingSrcOptions().map(k => `<button class="rate-chip${k === cur ? " on" : ""}" onclick="setGlobalRatingSrc('${esc(k)}')">${esc(mdbLabel(k))}</button>`).join("")}</div>
+      <div class="hint" style="margin:10px 0 0">A title with no score from that site falls back to Merged, then IMDb, then TMDB.</div></div>
+    <div class="set-sec"><div class="set-head"><b>API keys</b></div>${tmdbSettingsHtml()}${mdbSettingsHtml()}</div>`;
+}
+function openSettingsModal(){ $("settingsBody").innerHTML = settingsBodyHtml(); $("settingsModal").classList.add("show"); }
+function setGlobalRatingSrc(k){
+  const movies = allMovies();
+  const own = movies.filter(m => m.ratingSrc && m.ratingSrc !== k);
+  if(k === globalRatingSrc() && !own.length) return;
+  if(own.length && !confirm(`${own.length} title${own.length===1?" has its":"s have their"} own source picked. Switch ${own.length===1?"it":"them"} to ${mdbLabel(k)} too?`)) return;
+  movies.forEach(m => { m.ratingSrc = null; });
+  S.settings.ratingSrc = k;
+  persist();
+  $("settingsBody").innerHTML = settingsBodyHtml();
+  toast(`Showing ${mdbLabel(k)} scores.`);
 }
 
 /* ---------- v1.8.4 — Library Movies filter ----------
@@ -4540,7 +4680,7 @@ let libFilter = { y:null, r:null, l:null };
 let fltCtx = null, fltDrag = null, fltTimer = null;
 const FLT_DEFS = {
   y: { label:"Release year", get: i => { const y = +(i.releaseDate && i.releaseDate.y); return y > 0 ? y : null; }, fmt: v => String(v) },
-  r: { label:"Rating",       get: i => i.rating == null ? null : i.rating, fmt: v => String(v) },
+  r: { label:"Rating",       get: i => itemRating(i), fmt: v => String(v) },
   l: { label:"Length",       get: i => { const m = libRemainingMin("movies", i); return m > 0 ? m : null; }, fmt: v => fmtHrMin(v) },
 };
 function fltValues(k){
@@ -4666,7 +4806,7 @@ try{ pdCache = JSON.parse(localStorage.getItem(PD_CACHE_KEY) || "{}") || {}; }ca
 function pdCacheSave(){ try{ localStorage.setItem(PD_CACHE_KEY, JSON.stringify(pdCache)); }catch(e){} }
 function pdBodies(item){
   const dim = t => `<span class="pd-val dim">${t}</span>`;
-  if(!item.tmdbId) return { desc: dim("Not linked to TMDB yet — use the ⇄ TMDB button above to link it and the details show up here."), dir: dim("—"), cast: dim("—") };
+  if(!item.tmdbId) return { desc: dim("Not linked to TMDB yet — use the Data button above to link it and the details show up here."), dir: dim("—"), cast: dim("—") };
   const ex = pdCache["m:" + item.tmdbId];
   if(ex){
     return {
@@ -4676,7 +4816,7 @@ function pdBodies(item){
     };
   }
   const err = pdErr[item.tmdbId];
-  if(err === "no-key") return { desc: dim("Add your TMDB key (account menu) to load details."), dir: dim("—"), cast: dim("—") };
+  if(err === "no-key") return { desc: dim("Add your TMDB key in Settings (⚙ top right) to load details."), dir: dim("—"), cast: dim("—") };
   if(err) return { desc: dim("Couldn't load details. Close and reopen to try again."), dir: dim("—"), cast: dim("—") };
   return { desc: dim("Loading…"), dir: dim("…"), cast: dim("…") };
 }
@@ -4726,7 +4866,7 @@ function setLibGroup(v){ libGroup=v; localStorage.setItem("expedition-libgroup",
 function toggleLibGroupDir(){ libGroupDir = libGroupDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libgroupdir",libGroupDir); renderLibraryTab(libTab); }
 function libSortValue(category, item, key){
   if(key==="hype"){
-    if(category==="movies"||category==="tv") return item.rating==null ? -1 : item.rating;
+    if(category==="movies"||category==="tv") return itemRating(item)==null ? -1 : itemRating(item);
     return item.hype||0;
   }
   if(key==="length") return libRemainingMin(category,item); // v1.8.2 — remaining, same as grouping
@@ -4763,7 +4903,7 @@ function libGroupKey(category, item, groupBy){
     return "Gigantic (50h+)";
   }
   if(groupBy==="hype" && (category==="movies"||category==="tv")){
-    const r = item.rating;
+    const r = itemRating(item);
     if(r==null) return "Not rated";
     if(r>=90) return "90% and up";
     if(r>=80) return "80–89%";
@@ -4836,7 +4976,7 @@ function renderLibraryTab(category){
   }
 
   html += `<div class="lib-controls">
-    <div class="lib-control">
+    ${isMovies ? sortBtnHtml("lib") : `<div class="lib-control">
       <select onchange="setLibSort(this.value)">
         <option value="name" ${libSort==="name"?"selected":""}>Sort: Name</option>
         <option value="date" ${libSort==="date"?"selected":""}>Sort: Release date</option>
@@ -4844,7 +4984,7 @@ function renderLibraryTab(category){
         <option value="length" ${libSort==="length"?"selected":""}>Sort: Length</option>
       </select>
       <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
-    </div>
+    </div>`}
     ${isMovies ? `<button class="lib-tags-btn${fN?" active":""}" onclick="openFilterModal()" title="Filter movies"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14l-5.2 6.2v4.6l-3.6 1.7v-6.3z"/></svg> Filter${fN?` (${fN})`:""}</button>` : `<div class="lib-control">
       <select onchange="setLibGroup(this.value)">
         <option value="none" ${libGroup==="none"?"selected":""}>Group: None</option>
@@ -4856,8 +4996,7 @@ function renderLibraryTab(category){
     </div>`}
     ${isRate ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
     ${isMovies ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
-    ${isRate ? `<button class="lib-tags-btn" onclick="openMatchModal('${category}')" title="Link titles to TMDB">⇄ TMDB${unlinkedN?` (${unlinkedN})`:""}</button>` : ""}
-    ${isMovies ? `<button class="lib-tags-btn" onclick="openRatingsModal()" title="Fetch IMDb / Letterboxd scores from MDBList">★ Ratings${rtQueue(false).length?` (${rtQueue(false).length})`:""}</button>` : ""}
+    ${isMovies ? `<button class="lib-tags-btn" onclick="openDataModal()" title="Link titles to TMDB and fetch ratings">${DATA_ICON} Data${dataCount()?` (${dataCount()})`:""}</button>` : (isRate ? `<button class="lib-tags-btn" onclick="openMatchModal('${category}')" title="Link titles to TMDB">⇄ TMDB${unlinkedN?` (${unlinkedN})`:""}</button>` : "")}
   </div>`;
 
   html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
