@@ -244,13 +244,6 @@ select{
 
 /* episode groups (shows/anime) — visible by default, not collapsed */
 .groups{border-top:1px solid var(--line-soft);margin-top:13px;padding-top:12px}
-.group-row{padding:9px 0;border-bottom:1px solid var(--line-soft)}
-.group-row:last-child{border-bottom:none}
-.group-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.group-name{font-size:13px;font-weight:600}
-.group-count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
-.group-bar{height:5px;background:var(--bg);border-radius:99px;margin:7px 0;overflow:hidden}
-.group-fill{height:100%;background:var(--accent);border-radius:99px}
 .stepper{display:flex;align-items:center;gap:8px;margin-top:6px}
 .stepper button{
   width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);
@@ -573,6 +566,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .tvs-l b{font-weight:600;color:var(--ink)}
 .tvs-l em,.tve-s{font-style:normal;font-weight:600}
 .tvs-l em[class*="rc-"],.tve-s[class*="rc-"]{color:var(--rcx)}
+.tvs-l.arc b{display:block;overflow:hidden;text-overflow:ellipsis}
 .tve-wrap{margin-top:10px;padding:10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line-soft)}
 .tve-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin-bottom:6px}
 .tve-head b{color:var(--ink)}
@@ -616,20 +610,20 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .sx-hero-img{position:relative;aspect-ratio:16/9;cursor:pointer;overflow:hidden;background:linear-gradient(135deg,#1a241e,#0f1612);-webkit-tap-highlight-color:transparent}
 .sx-hero-img>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% var(--by,30%);opacity:0;transition:opacity .3s ease}
 .sx-hero-img>img.in,.sx-hero-img>img.seen{opacity:1}
-.sx-hero-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(8,12,10,.97) 0%,rgba(8,12,10,.66) 44%,rgba(8,12,10,.1) 78%)}
-.sx-hero-tag{position:absolute;left:14px;top:13px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);text-shadow:0 1px 8px rgba(0,0,0,.85)}
+.sx-hero-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,#182019 0%,rgba(24,32,25,.94) 14%,rgba(24,32,25,.6) 40%,rgba(24,32,25,.1) 72%)}   /* v1.12.0 — ends in the footer colour, so the image melts into it */
+.sx-hero-tag{position:absolute;left:14px;top:13px;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);text-shadow:0 1px 8px rgba(0,0,0,.85)}
 .sx-hero .sx-chev{top:12px;bottom:auto;color:#fff;opacity:.9;text-shadow:0 1px 6px rgba(0,0,0,.8)}
-.sx-hero-row{position:absolute;left:12px;right:12px;bottom:12px;display:grid;grid-template-columns:66px minmax(0,1fr);gap:12px;align-items:end;pointer-events:none}
+.sx-hero-row{position:absolute;left:12px;right:12px;bottom:12px;display:grid;grid-template-columns:56px minmax(0,1fr);gap:11px;align-items:end;pointer-events:none}
 .sx-hero-poster{position:relative;aspect-ratio:2/3;border-radius:7px;overflow:hidden;background:var(--bg);border:1px solid rgba(255,255,255,.2);box-shadow:0 6px 18px rgba(0,0,0,.65)}
 .sx-hero-poster>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .sx-hero-poster .prate{pointer-events:auto}
 .sx-hero-info{min-width:0;padding-bottom:2px}
-.sx-hero-info .t{font-size:23px;line-height:1.12;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.7);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.sx-hero-info .n{margin-top:6px;font-size:12.5px;line-height:1.35;color:#d8dcd6;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.sx-hero-info .t{font-size:18.5px;line-height:1.12;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.7);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sx-hero-info .n{margin-top:5px;font-size:10.5px;line-height:1.35;color:#d8dcd6;text-shadow:0 1px 6px rgba(0,0,0,.8)}
 .sx-hero-info .n b{color:#fff}
 .sx-hero-info .n em{font-style:normal;font-weight:600;font-family:"IBM Plex Mono",monospace}
 .sx-hero-info .n em[class*="rc-"]{color:var(--rcx)}
-.sx-hero-info .s{margin-top:4px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.03em;color:var(--brass);text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.sx-hero-info .s{margin-top:3px;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.03em;color:var(--brass);text-shadow:0 1px 6px rgba(0,0,0,.8)}
 .sx-hero-foot{padding:12px}
 .sx-hprog{font-size:11.5px;color:var(--muted);margin-bottom:10px}
 .sx-hero-foot .btn{width:100%}
@@ -1136,7 +1130,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.11.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.12.0"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -1236,11 +1230,11 @@ function normalizeState(raw){
     ...((cat==="movies"||cat==="tv")
       ? { partOfSeries:false, seriesId:null, seriesOrder:null } // v1.8.4 / v1.10.1 — the series system is gone for movies and TV
       : { partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null }),
-    ...((cat==="movies"||cat==="tv") ? {
+    ...((cat==="movies"||cat==="tv"||cat==="anime") ? {
       rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
       tmdbId: x.tmdbId||null, posterPath: x.posterPath||null, tmdbSkip: !!x.tmdbSkip,
       // v1.10.0 — TV banner image + which part of it the collapsed card shows (0-100, top to bottom)
-      ...(cat==="tv" ? { backdropPath: x.backdropPath||null, backdropY: (x.backdropY===0||x.backdropY) ? Math.max(0, Math.min(100, +x.backdropY||0)) : null } : {}),
+      ...((cat==="tv"||cat==="anime") ? { backdropPath: x.backdropPath||null, backdropY: (x.backdropY===0||x.backdropY) ? Math.max(0, Math.min(100, +x.backdropY||0)) : null } : {}),
       // v1.8.5 — scores from MDBList by source ({merged, imdb, letterboxd, ...}, each 0-100).
       // v1.9.1 — ratingSrc = which source this one title shows (null = follow the global setting).
       ratings: (x.ratings && typeof x.ratings === "object") ? x.ratings : null, ratingsAt: x.ratingsAt||0, ratingSrc: (typeof x.ratingSrc === "string" && x.ratingSrc) ? x.ratingSrc : null,
@@ -2060,7 +2054,7 @@ const TAB_ORDER = ["overview","games","movies","tv","anime","manga"];
 function switchTab(t){
   const oldIdx = TAB_ORDER.indexOf(activeTab);
   const newIdx = TAB_ORDER.indexOf(t);
-  if(t === "tv" && activeTab !== "tv") sxInit = false;   // v1.11.1 — back on Season TV: recommended show open again
+  if(isShowCat(t) && activeTab !== t) sxInit = false;   // v1.11.1 — back on Season TV: recommended show open again
   activeTab = t;
   localStorage.setItem("expedition-tab", t);
   render();
@@ -2610,13 +2604,14 @@ function openEpisodicModal(category, id=null, target="season", prefill=null){
   } else {
     $("epiFormTitle").textContent = "New " + (isAnime ? "anime" : "show");
     groupTypeSel = "season";
-    if(prefill && category === "tv"){
+    if(prefill && isShowCat(category)){
       $("epiname").value = prefill.title; $("epilen").value = prefill.epLen || "";
       fillRelease("epi", { y: prefill.year || "" });
       $("epi_rating").value = prefill.rating == null ? "" : prefill.rating;
       modalTmdb = { id: prefill.id, posterPath: prefill.posterPath };
-      epiCategory = "tv";
-      (prefill.seasons || []).forEach((s,i) => addGroupRow({ name: "Season " + s.number, total: s.episodes, watched: 0, id: "" }));
+      const gs = tmdbGroups(category, prefill.seasons);
+      groupTypeSel = groupTypeFor(category, gs);
+      gs.forEach(g => addGroupRow({ ...g, id: "" }));
     } else {
       $("epiname").value = ""; $("epilen").value = "";
       fillRelease("epi", null); $("epi_rating").value = "";
@@ -2626,17 +2621,17 @@ function openEpisodicModal(category, id=null, target="season", prefill=null){
   }
   paintTmdbRow("epi");
   renderTagPicker("epi");
-  if(category !== "tv") fillSeriesFields("epi", category, e);
   setGroupType(groupTypeSel);
   epiInitializing = false;
   const epiFinished = target==="season" && id && isSeasonItemDone(category, e);
   setVisible("epi_yearCell", !epiFinished);
-  setVisible("epi_seriesToggleWrap", !epiFinished && category !== "tv");
-  setVisible("epi_tagsFieldRow", isAnime && !epiFinished);
-  setVisible("epi_hypeCell", isAnime && !epiFinished);
-  setVisible("epi_ratingCell", !isAnime && !epiFinished);
-  setVisible("epi_tmdbRow", !isAnime && !epiFinished);
-  if(epiFinished || category === "tv") $("epi_seriesSection").style.display = "none";
+  // v1.12.0 — anime now works like TV: scores come from TMDB, no hype / tags / series in the form
+  setVisible("epi_seriesToggleWrap", false);
+  setVisible("epi_tagsFieldRow", false);
+  setVisible("epi_hypeCell", false);
+  setVisible("epi_ratingCell", !epiFinished && !(e && e.ratings && Object.keys(e.ratings).length));
+  setVisible("epi_tmdbRow", !epiFinished);
+  $("epi_seriesSection").style.display = "none";
   $("epiModal").classList.add("show"); if(!id && !prefill) $("epiname").focus();
 }
 function isNumberedMode(){ return epiCategory==="tv" || (epiCategory==="anime" && groupTypeSel==="season"); }
@@ -2668,6 +2663,7 @@ function addGroupRow(d={name:"",total:0,watched:0,id:""}){
   const row = document.createElement("div");
   row.className = "group-edit " + (numbered ? "numbered" : "named");
   row.dataset.id = d.id || "";
+  row.dataset.ts = d.tmdbSeason != null ? d.tmdbSeason : "";   // which TMDB season this one is (arc names don't say)
   const nameField = numbered
     ? `<input class="gn" type="number" min="1" inputmode="numeric" placeholder="1" value="${esc(numFromName(d.name))}">`
     : `<input class="gn" placeholder="e.g. Romance Dawn" value="${esc(d.name)}">`;
@@ -2695,25 +2691,22 @@ function saveEpisodic(){
     // modal's row order on every save) so a season/arc keeps its correct spot
     // even after being split off to the other book and merged back later,
     // instead of just landing wherever the merge happened to concatenate it.
-    groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched, order: idx });
+    groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched, order: idx, ...(r.dataset.ts ? { tmdbSeason: +r.dataset.ts } : {}) });
   });
   const releaseDate = readRelease("epi");
-  const isTv = epiCategory === "tv";
-  const hype = isTv ? 0 : Math.min(3, readHype("epi"));
-  const tmdbFields = isTv ? { rating: readRating("epi_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) } : {};
-  const seriesFields = isTv ? { partOfSeries:false, seriesId:null, seriesOrder:null } : readSeriesFields("epi");
-  if(seriesFields.partOfSeries){
-    const clash = seriesOrderConflict(epiCategory, seriesFields.seriesId, seriesFields.seriesOrder, editId);
-    if(clash) return toast(`"${clash}" already has that series order number.`);
-  }
   const list = arrFor(epiCategory, epiTarget);
-  if(editId){
-    const e = list.find(x=>x.id===editId);
-    Object.assign(e, { name, epLen, groups, releaseDate, hype, tags: isTv ? [] : currentModalTags.slice(), ...seriesFields, ...tmdbFields, ...(epiCategory==="anime"?{groupType:groupTypeSel}:{}) });
+  const prev = editId ? list.find(x => x.id === editId) : null;
+  const tmdbFields = { rating: readRating("epi_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) };
+  // hype / tags / series aren't edited any more (TV and anime use TMDB scores); whatever an older anime already has is kept untouched
+  const legacy = prev ? { hype: prev.hype || 0, tags: prev.tags || [], partOfSeries: !!prev.partOfSeries, seriesId: prev.seriesId || null, seriesOrder: prev.seriesOrder ?? null }
+                      : { hype: 0, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null };
+  const gt = epiCategory === "anime" ? { groupType: groupTypeSel } : {};
+  if(prev){
+    Object.assign(prev, { name, epLen, groups, releaseDate, ...legacy, ...tmdbFields, ...gt });
   } else {
-    const entry = { id: uid(), name, epLen, groups, releaseDate, hype, tags: isTv ? [] : currentModalTags.slice(), ...seriesFields, ...tmdbFields };
-    if(epiCategory === "anime") entry.groupType = groupTypeSel;
+    const entry = { id: uid(), name, epLen, groups, releaseDate, ...legacy, ...tmdbFields, ...gt };
     list.push(entry);
+    if(entry.tmdbId) tvFetchAll(entry);
   }
   closeModal("epiModal"); persist(); toast("Saved.");
 }
@@ -2724,50 +2717,6 @@ function removeEpisodic(category, id, target="season"){
     persist();
   }
 }
-function stepGroup(category, entryId, groupId, delta){
-  const e = S[category].find(x=>x.id===entryId);
-  const g = e.groups.find(x=>x.id===groupId);
-  const before = g.watched;
-  g.watched = Math.max(0, Math.min(g.total, g.watched+delta));
-  if(g.watched > before) logAction(category, e.id, e.name, (g.watched-before)*e.epLen, "episode");
-  persist();
-}
-
-function episodicCard(category, e){
-  const meta = CAT[category];
-  const {goal,played} = episodicMin(e);
-  const pct = goal ? played/goal*100 : 0;
-  const done = pct >= 100 && goal > 0;
-  const label = category==="anime" ? (e.groupType==="arc"?"Arc":"Season") : "Season";
-  const groupsHtml = (e.groups||[]).map(g=>{
-    const gp = g.total ? Math.min(100, g.watched/g.total*100) : 0;
-    return `<div class="group-row">
-      <div class="group-top"><span class="group-name">${esc(g.name)}</span><span class="group-count">${g.watched} / ${g.total}</span></div>
-      <div class="group-bar"><div class="group-fill" style="width:${gp}%"></div></div>
-      ${!done ? `<div class="stepper">
-        <button onclick="stepGroup('${category}','${e.id}','${g.id}',-1)">−</button>
-        <span>episodes</span>
-        <button onclick="stepGroup('${category}','${e.id}','${g.id}',1)">+</button>
-      </div>` : ""}
-    </div>`;
-  }).join("") || `<div class="entry-meta2" style="padding:6px 0">No ${label.toLowerCase()}s added yet — edit this entry to add one.</div>`;
-
-  return `<article class="entry cat-${category}${done?" complete":""}" style="--accent:${meta.color};--accent-text:${meta.text}">
-    ${done ? `<div class="stamp"><b>✓</b><span>CLEARED</span></div>` : ""}
-    <div class="entry-top">
-      <div><div class="entry-name serif"${nameFlowRoot(done)}>${nameClipSpacer(done, false)}${esc(e.name)}</div><div class="entry-meta mono">${e.epLen}m / EPISODE</div></div>
-      <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
-    </div>
-    <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
-    <div class="entry-stats">
-      <div><div class="played">${fmtHM(played)}<span style="color:var(--muted);font-weight:400"> / ${fmtHM(goal)}</span></div><div class="entry-meta2">${done?"Fully cleared":"Watched so far"}</div></div>
-      <div class="remaining">${done?"Done":fmtHM(goal-played)+" left"}</div>
-    </div>
-    <div class="groups">${groupsHtml}</div>
-    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('${category}','${e.id}')">Abandon</button>` : ""}<button onclick="${moveButtonHandler(category,e.id,'season','library')}">To Library</button><button onclick="openEpisodicModal('${category}','${e.id}')">Edit</button><button onclick="removeEpisodic('${category}','${e.id}')">Remove</button></div></div>
-  </article>`;
-}
-
 /* ---------- v1.8.0 — online title database (TMDB) ----------
    One small data layer (MediaDB) sits between the app and any outside
    database. Each provider returns the SAME normalized shape, so nothing else
@@ -2789,7 +2738,7 @@ const TMDB_IMG = "https://image.tmdb.org/t/p/";
 const TMDB_CREDIT = "This product uses the TMDB API but is not endorsed or certified by TMDB.";
 
 function tmdbNormalize(category, r){
-  const isTv = category === "tv";
+  const isTv = category === "tv" || category === "anime";
   const date = isTv ? r.first_air_date : r.release_date;
   return {
     source: "tmdb", category, id: r.id,
@@ -2805,7 +2754,7 @@ const MediaDB = {
   providers: {
     tmdb: {
       name: "TMDB",
-      categories: ["movies","tv"],
+      categories: ["movies","tv","anime"],
       key(){ return ((S.settings && S.settings.tmdbKey) || "").trim(); },
       async api(path, params){
         const key = this.key();
@@ -2823,7 +2772,7 @@ const MediaDB = {
         return res.json();
       },
       async search(category, query){
-        const type = category === "tv" ? "tv" : "movie";
+        const type = isShowCat(category) ? "tv" : "movie";
         const data = await this.api("/search/" + type, { query, include_adult: "false", page: "1" });
         return (data.results || []).slice(0, 10).map(r => tmdbNormalize(category, r));
       },
@@ -2840,7 +2789,7 @@ const MediaDB = {
         };
       },
       async details(category, id){
-        if(category === "tv"){
+        if(isShowCat(category)){
           const d = await this.api("/tv/" + id);
           const out = tmdbNormalize("tv", d);
           let epLen = 0;
@@ -2853,7 +2802,7 @@ const MediaDB = {
           // Specials (season 0) and seasons that haven't started airing yet are left out.
           out.seasons = (d.seasons || [])
             .filter(s => s.season_number > 0 && s.episode_count > 0 && s.air_date && s.air_date <= today)
-            .map(s => ({ number: s.season_number, episodes: s.episode_count }));
+            .map(s => ({ number: s.season_number, episodes: s.episode_count, name: s.name || "" }));
           out.epLen = epLen;
           return out;
         }
@@ -2887,7 +2836,7 @@ function paintTmdbRow(prefix){
   btn.textContent = linked ? "Change" : "Link";
 }
 function openTmdbLink(prefix){
-  const category = prefix === "mv" ? "movies" : "tv";
+  const category = prefix === "mv" ? "movies" : epiCategory;
   const name = ($(prefix === "mv" ? "mname" : "epiname").value || "").trim();
   openTmdbSearch(category, modalTarget, "link", name);
 }
@@ -3002,7 +2951,7 @@ function openTmdbSearch(category, target, mode, initialQuery){
 }
 function renderTmdbModal(q){
   const { category, mode } = tmdbCtx;
-  const noun = category === "tv" ? "show" : "movie";
+  const noun = nounFor(category);
   $("tmdbTitle").textContent = mode === "link" ? "Link to TMDB" : "Add " + noun;
   $("tmdbHint").textContent = mode === "link"
     ? "Pick the right one — the name and your progress stay as they are; missing details get filled in."
@@ -3054,7 +3003,7 @@ async function tmdbPick(i){
     if(mode === "link") applyTmdbToOpenModal(category, d);
     else if(tmdbAddDirect(category, target, d)) { /* added */ }
     else if(category === "movies") openMovieModal(null, target, d);       // TMDB has no runtime / episode info yet — fill it in by hand
-    else openEpisodicModal("tv", null, target, d);
+    else openEpisodicModal(category, null, target, d);
   }catch(e){ box.innerHTML = tmdbErrorHtml(e); }
 }
 // v1.10.1 — tapping a result adds the title right away (no edit form). Returns false when TMDB
@@ -3073,10 +3022,10 @@ function tmdbAddDirect(category, target, d){
     mdbAutoFetch("movies", base.id, target);
     return true;
   }
-  const groups = (d.seasons || []).filter(x => x.episodes > 0).map((x, i) => ({ id: uid(), name: "Season " + x.number, total: x.episodes, watched: 0, order: i }));
+  const groups = tmdbGroups(category, d.seasons);
   if(!(d.epLen > 0) || !groups.length) return false;
-  const item = { ...base, epLen: d.epLen, groups };
-  arrFor("tv", target).push(item);
+  const item = { ...base, epLen: d.epLen, groups, ...(category === "anime" ? { groupType: groupTypeFor(category, groups) } : {}) };
+  arrFor(category, target).push(item);
   persist(); toast(`Added “${d.title}” to ${where}.`);
   tvFetchAll(item);   // seasons' episodes, cast and scores load in the background
   return true;
@@ -3085,7 +3034,7 @@ function tmdbManual(){
   const { category, target } = tmdbCtx;
   closeModal("tmdbModal");
   if(category === "movies") openMovieModal(null, target);
-  else openEpisodicModal("tv", null, target);
+  else openEpisodicModal(category, null, target);
 }
 // Link mode: fill the already-open edit modal. Never touches the name, and
 // only fills length / seasons when they're empty, so nothing you typed or any
@@ -3101,7 +3050,11 @@ function applyTmdbToOpenModal(category, d){
     if(!($("epi_ry").value || "").trim() && d.year) $("epi_ry").value = d.year;
     if(!(+$("epilen").value) && d.epLen) $("epilen").value = d.epLen;
     if(!$("groupRows").children.length){
-      (d.seasons || []).forEach(s => addGroupRow({ name: "Season " + s.number, total: s.episodes, watched: 0, id: "" }));
+      const gs = tmdbGroups(category, d.seasons);
+      if(gs.length){
+        if(groupTypeFor(category, gs) === "arc" && groupTypeSel !== "arc") setGroupType("arc");
+        gs.forEach(g => addGroupRow({ ...g, id: "" }));
+      }
     }
     $("epi_rating").value = d.rating == null ? "" : d.rating;
     paintTmdbRow("epi");
@@ -3135,7 +3088,8 @@ function applyTmdbToItem(category, item, d){
   } else {
     if(!(item.epLen > 0) && d.epLen) item.epLen = d.epLen;
     if(!(item.groups || []).length && (d.seasons || []).length){
-      item.groups = d.seasons.map((s,i) => ({ id: uid(), name: "Season " + s.number, total: s.episodes, watched: 0, order: i }));
+      item.groups = tmdbGroups(category, d.seasons);
+      if(category === "anime") item.groupType = groupTypeFor(category, item.groups);
     }
   }
 }
@@ -3155,7 +3109,7 @@ function matchCurrent(){
 }
 function renderMatchModal(){
   const c = matchCtx;
-  const noun = c.category === "tv" ? "show" : "movie";
+  const noun = nounFor(c.category);
   const body = $("matchBody"), actions = $("matchActions"), hint = $("matchHint");
   $("matchTitle").textContent = "Match with TMDB";
   if(!MediaDB.for(c.category).key()){
@@ -3517,9 +3471,6 @@ function statbar(cat, totals, extra){
 // v1.6.0 — the small counts shown in each stat bar next to "active"
 function activeDlcCount(){
   return (S.games||[]).filter(g=>!g.abandoned).reduce((a,g)=> a + (g.dlcs||[]).filter(d=>!dlcCleared(d)).length, 0);
-}
-function activeSeasonCount(cat){
-  return (S[cat]||[]).filter(e=>!e.abandoned).reduce((a,e)=> a + (e.groups||[]).filter(g=>(g.watched||0) < (g.total||0)).length, 0);
 }
 function activeVolumeCount(){
   return (S.manga||[]).filter(m=>!m.abandoned).reduce((a,m)=>{
@@ -4077,31 +4028,8 @@ function renderMovies(){
   if(hero) setTimeout(() => heroLoad(hero), 0);
 }
 
-function renderEpisodicTab(category){
-  if(category === "tv") return renderSeasonTv();
-  const totals = categoryTotals(category);
-  const meta = CAT[category];
-  const addLabel = category==="anime" ? "+ Add Anime" : "+ Add Show";
-  let html = statbar(category, totals, {label:"seasons", value:activeSeasonCount(category)});
-  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${meta.color};--accent-text:${meta.text}" onclick="${category==="tv" ? "openTmdbSearch('tv','season','add')" : `openEpisodicModal('${category}')`}">${addLabel}</button></div>`;
-  const list = S[category];
-  if(!list.length){
-    html += `<div class="empty"><span class="serif">Nothing here yet</span>Add ${category==="anime"?"an anime":"a show"} to start tracking episodes.</div>`;
-    $("app").innerHTML = html; return;
-  }
-  html += `<div class="list-head"><b>ENTRIES</b>${sortDropdown(category)}</div>`;
-  const {incomplete, completed} = splitSorted(category, list, episodicMin);
-  incomplete.forEach(e=> html += episodicCard(category, e));
-  if(completed.length){
-    html += `<div class="marginalia">cleared</div>`;
-    completed.forEach(e=> html += episodicCard(category, e));
-  }
-  const abandonedList = list.filter(e=>e.abandoned);
-  if(abandonedList.length){
-    html += `<div class="marginalia">abandoned</div>`;
-    abandonedList.forEach(e=> html += abandonedCard(category, e));
-  }
-  $("app").innerHTML = html;
+function renderEpisodicTab(category){   // v1.12.0 — TV and anime share one Season page
+  return renderSeasonTv(category);
 }
 
 // v1.9.0 — every re-render now animates posters from where they were to where they land
@@ -4208,7 +4136,7 @@ function libraryMissingFields(category, item){
 function libraryOpenFn(category, id){
   if(category==="games") return `openGameModal(${id?`'${id}'`:"null"},'library')`;
   if(category==="movies") return `openTmdbSearch('movies','library','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
-  if(category==="tv") return `openTmdbSearch('tv','library','add')`;
+  if(isShowCat(category)) return `openTmdbSearch('${category}','library','add')`;
   if(category==="manga") return `openMangaModal(${id?`'${id}'`:"null"},'library')`;
   return `openEpisodicModal('${category}',${id?`'${id}'`:"null"},'library')`;
 }
@@ -4372,7 +4300,7 @@ function posterGridHtml(items, blockFn, opts){
 }
 const btnH = (cls, fn, id, label, style) => `<button class="btn small ${cls}"${style?` style="${style}"`:""} onclick="${fn}('${id}')">${label}</button>`;
 function libraryList(category, items){
-  if(category==="tv") return `<div class="tv-list">${items.map(tvCard).join("")}</div>`;
+  if(isShowCat(category)) return `<div class="tv-list">${items.map(tvCard).join("")}</div>`;
   if(category!=="movies") return `<div class="lib-list">${items.map(x=>libraryRow(category,x)).join("")}</div>`;
   return posterGridHtml(items, (it, i, enter) => movieDetailBlock(it, i, enter,
     btnH("ghost","pdView",it.id,"View poster") + btnH("ghost","pdMove",it.id,"To Season") + btnH("ghost danger","pdRemove",it.id,"Remove")));
@@ -4724,8 +4652,8 @@ async function rtStart(force){
 /* ---------- v1.9.1 — the rating menu: pick which site's score this title shows ----------
    v1.10.0: shows use it too — their scores are the average of the episodes' scores. */
 let ratingEditId = null;
-function allRated(){ return allMovies().concat(S.library.tv || [], S.tv || []); }
-function titleById(id){ return movieById(id) || (S.library.tv || []).find(x => x.id === id) || (S.tv || []).find(x => x.id === id) || null; }
+function allRated(){ return allMovies().concat(allShows()); }
+function titleById(id){ return movieById(id) || allShows().find(x => x.id === id) || null; }
 function isTvItem(it){ return !!it && Array.isArray(it.groups); }
 function ratingSourceKeys(r){
   const keys = Object.keys(r || {}).filter(k => k !== "merged").sort((a, b) => mdbLabel(a).localeCompare(mdbLabel(b)));
@@ -4803,12 +4731,12 @@ function sortDirPick(d){ const c = SORT_CTX[sortCtxName]; c.set(c.get().key, d);
 
 /* ---------- v1.9.1 — "Data" menu: TMDB links + ratings in one button (v1.10.0: Movies and TV) ---------- */
 let dataCat = "movies", tvBatch = null;
-function dataCount(cat){ return cat === "tv" ? unlinkedQueue("tv").length + tvQueue(false).length : unlinkedQueue("movies").length + rtQueue(false).length; }
+function dataCount(cat){ return isShowCat(cat) ? unlinkedQueue(cat).length + tvQueue(false, cat).length : unlinkedQueue("movies").length + rtQueue(false).length; }
 function openDataModal(cat){ dataCat = cat || "movies"; tvBatch = null; renderDataModal(); $("dataModal").classList.add("show"); }
 function renderDataModal(){
-  const tv = dataCat === "tv";
-  $("dataTitle").textContent = tv ? "Show data" : "Movie data";
-  $("dataHint").textContent = tv ? "Keep your shows linked to TMDB and loaded with seasons, episodes and scores." : "Keep your movies linked to TMDB and loaded with scores.";
+  const tv = isShowCat(dataCat), an = dataCat === "anime", w = an ? "anime" : "show", wp = an ? "anime" : "shows";
+  $("dataTitle").textContent = tv ? (an ? "Anime data" : "Show data") : "Movie data";
+  $("dataHint").textContent = tv ? `Keep your ${wp} linked to TMDB and loaded with ${an ? "arcs" : "seasons"}, episodes and scores.` : "Keep your movies linked to TMDB and loaded with scores.";
   const unl = unlinkedQueue(dataCat).length;
   if(!tv){
     const miss = rtQueue(false).length;
@@ -4821,11 +4749,11 @@ function renderDataModal(){
     $("dataBody").innerHTML = `<div class="tmdb-msg" id="tvProg">${esc(tvBatch.text || "Starting…")}</div><div class="actions"><button class="btn" onclick="tvBatch.stop=true">Stop</button></div>`;
     return;
   }
-  const miss = tvQueue(false).length, linked = tvQueue(true).length;
+  const miss = tvQueue(false, dataCat).length, linked = tvQueue(true, dataCat).length;
   $("dataBody").innerHTML = `${tvBatch && tvBatch.note ? `<div class="tmdb-msg" style="padding:2px 0 8px">${esc(tvBatch.note)}</div>` : ""}
-    <button class="data-row" onclick="dataGo('match')"><div><b>⇄ Link to TMDB</b><span>${unl ? `${unl} show${unl===1?"":"s"} not linked yet` : "Every show is linked"}</span></div><i>›</i></button>
-    <button class="data-row" onclick="tvBatchStart(false)"><div><b>★ Fetch episode scores</b><span>${miss ? `${miss} linked show${miss===1?"":"s"} without scores` : "Scores loaded for every linked show"}</span></div><i>›</i></button>
-    ${linked ? `<button class="data-row" onclick="tvBatchStart(true)"><div><b>↻ Refresh all</b><span>Reload seasons and scores for ${linked} show${linked===1?"":"s"}</span></div><i>›</i></button>` : ""}
+    <button class="data-row" onclick="dataGo('match')"><div><b>⇄ Link to TMDB</b><span>${unl ? `${unl} ${unl===1?w:wp} not linked yet` : `Every ${w} is linked`}</span></div><i>›</i></button>
+    <button class="data-row" onclick="tvBatchStart(false)"><div><b>★ Fetch episode scores</b><span>${miss ? `${miss} linked ${miss===1?w:wp} without scores` : `Scores loaded for every linked ${w}`}</span></div><i>›</i></button>
+    ${linked ? `<button class="data-row" onclick="tvBatchStart(true)"><div><b>↻ Refresh all</b><span>Reload ${an ? "arcs" : "seasons"} and scores for ${linked} ${linked===1?w:wp}</span></div><i>›</i></button>` : ""}
     <div class="hint" style="margin-top:12px">${omdbKey() ? "IMDb episode scores come from OMDb; episodes it doesn't have fall back to TMDB's score." : "No OMDb key yet, so episodes use TMDB's score. Add an OMDb key in Settings (⚙ top right) for IMDb episode scores."}</div>`;
 }
 function dataGo(which){ closeModal("dataModal"); if(which === "match") openMatchModal(dataCat); else openRatingsModal(); }
@@ -4865,12 +4793,42 @@ function setGlobalRatingSrc(k){
    posters) lives in the device-local cache under "t:{tmdbId}", never in the synced data;
    the synced item only gets backdropPath/backdropY and `ratings` = the average of all
    its episodes' scores per site ({imdb, tmdb}). */
+// v1.12.0 — anime uses exactly the same Library banners and Season cards as TV, so "show"
+// code works for both categories.
+const SHOW_CATS = ["tv", "anime"];
+function isShowCat(c){ return c === "tv" || c === "anime"; }
+function allShows(){ return SHOW_CATS.reduce((a, c) => a.concat(S.library[c] || [], S[c] || []), []); }
+function libCatOf(id){ return SHOW_CATS.find(c => (S.library[c] || []).some(x => x.id === id)) || null; }
+function nounFor(c){ return c === "movies" ? "movie" : (c === "anime" ? "anime" : "show"); }
+const GENERIC_SEASON = /^season\s*\d+$/i;
+// TMDB's season names are arc names for many anime ("East Blue", "Alabasta"…) and plain
+// "Season N" otherwise. Anime keeps the arc name; everything else stays "Season N".
+function tmdbGroups(category, seasons){
+  return (seasons || []).filter(x => x.episodes > 0).map((x, i) => {
+    const nm = String(x.name || "").trim();
+    const arc = category === "anime" && nm && !GENERIC_SEASON.test(nm) && !/^specials?$/i.test(nm);
+    return { id: uid(), name: arc ? nm : "Season " + x.number, total: x.episodes, watched: 0, order: i, tmdbSeason: x.number };
+  });
+}
+function groupTypeFor(category, groups){ return category === "anime" && groups.some(g => !GENERIC_SEASON.test(g.name)) ? "arc" : "season"; }
+function groupsWord(gs){ return gs.some(g => !GENERIC_SEASON.test(g.name || "")) ? "arc" : "season"; }
+// which TMDB season a group maps to: "Season N" by name, else the stored number, else by arc name / position
+function grpNum(g, idx, count, entry){
+  const m = /season\s*(\d+)/i.exec(g.name || ""); if(m) return +m[1];
+  if(g.tmdbSeason != null) return +g.tmdbSeason;
+  if(entry && entry.seasons){
+    const nm = normTitle(g.name), hit = entry.seasons.find(x => x.name && normTitle(x.name) === nm);
+    if(hit) return hit.n;
+    if(entry.seasons.length === count && entry.seasons[idx]) return entry.seasons[idx].n;
+  }
+  return null;
+}
 let tvOpen = null, tvOpenSeason = null, tvEpAnim = false;
 const tvInflight = new Set(), tvErr = {}, tvBackdropTried = new Set(), bdImgs = {};
 const TV_STALE_MS = 7 * 86400000;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function tvEntry(item){ return item && item.tmdbId ? (pdCache["t:" + item.tmdbId] || null) : null; }
-function tvItemsFor(tmdbId){ return (S.library.tv || []).concat(S.tv || []).filter(x => x.tmdbId === tmdbId); }
+function tvItemsFor(tmdbId){ return allShows().filter(x => x.tmdbId === tmdbId); }
 function tvNeedsFetch(e){
   if(!e || e.v !== 1) return true;
   if(Date.now() - e.at > TV_STALE_MS) return true;
@@ -4931,7 +4889,7 @@ async function tvFetchAll(item){
     const seasons = (d.seasons || []).filter(s => s.season_number > 0 && s.episode_count > 0 && s.air_date && s.air_date <= today);
     for(const s of seasons){
       const n = s.season_number;
-      entry.seasons.push({ n, poster: s.poster_path || null, count: s.episode_count });
+      entry.seasons.push({ n, poster: s.poster_path || null, count: s.episode_count, name: s.name || "" });
       try{
         const sd = await tm.api("/tv/" + id + "/season/" + n);
         entry.eps[n] = (sd.episodes || []).map(e => ({ e: e.episode_number, t: e.name || "", m: (e.vote_count > 0 && e.air_date && e.air_date <= today) ? Math.round(e.vote_average * 10) : null }));
@@ -4967,7 +4925,7 @@ async function tvFetchAll(item){
 function tvEnsure(item){ if(item && item.tmdbId && tvNeedsFetch(tvEntry(item))) tvFetchAll(item); }
 // Shows that have a TMDB link but no banner yet get their default backdrop in the background.
 async function tvEnsureBackdrops(){
-  const list = (S.library.tv || []).concat(S.tv || []).filter(x => x.tmdbId && !x.backdropPath && !tvBackdropTried.has(x.tmdbId));
+  const list = allShows().filter(x => x.tmdbId && !x.backdropPath && !tvBackdropTried.has(x.tmdbId));
   if(!list.length || !MediaDB.providers.tmdb.key()) return;
   let changed = false;
   for(const it of list){
@@ -4980,13 +4938,13 @@ async function tvEnsureBackdrops(){
   }
   if(changed) persist();
 }
-function tvQueue(force){
+function tvQueue(force, cat){
   const seen = new Set(), out = [];
-  (S.library.tv || []).concat(S.tv || []).forEach(it => { if(it.tmdbId && !it.abandoned && !seen.has(it.tmdbId) && (force || !it.ratings)){ seen.add(it.tmdbId); out.push(it); } });
+  (cat ? S.library[cat].concat(S[cat]) : allShows()).forEach(it => { if(it.tmdbId && !it.abandoned && !seen.has(it.tmdbId) && (force || !it.ratings)){ seen.add(it.tmdbId); out.push(it); } });
   return out;
 }
 async function tvBatchStart(force){
-  const q = tvQueue(force); if(!q.length) return;
+  const q = tvQueue(force, dataCat); if(!q.length) return;
   tvBatch = { running: true, stop: false, text: "Starting…" };
   renderDataModal();
   let done = 0;
@@ -5017,7 +4975,7 @@ function tvChip(item){
   const gs = item.groups || [], eps = gs.reduce((a, g) => a + (g.total || 0), 0), seen = gs.reduce((a, g) => a + (g.watched || 0), 0);
   if(!gs.length) return "No seasons yet";
   if(seen > 0) return `${Math.max(0, eps - seen)} ep left`;
-  return `${gs.length} season${gs.length === 1 ? "" : "s"} · ${eps} ep`;
+  return `${gs.length} ${groupsWord(gs)}${gs.length === 1 ? "" : "s"} · ${eps} ep`;
 }
 function tvOpenHeight(){ const w = ($("app") && $("app").clientWidth) || 373; return Math.round((w - 2) * 9 / 16); }
 function tvCard(item){
@@ -5036,11 +4994,17 @@ function tvCard(item){
 function tvSeasonRows(item, entry){
   const gs = (item.groups || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const find = n => entry && n != null ? entry.seasons.find(x => x.n === n) : null;
-  if(gs.length) return gs.map(g => {
-    const m = /season\s*(\d+)/i.exec(g.name || ""), n = m ? +m[1] : null;
-    return { key: n != null ? "n" + n : "g" + g.id, gid: g.id, n, s: find(n), label: g.name || "Season", short: n != null ? "S" + n : (g.name || "").slice(0, 6) };
+  const generic = t => GENERIC_SEASON.test(String(t || "").trim());
+  const mk = (key, gid, n, s, label) => {
+    const arc = !generic(label);
+    return { key, gid, n, s, label, arc, short: arc ? label : (n != null ? "S" + n : label.slice(0, 6)) };
+  };
+  if(gs.length) return gs.map((g, i) => {
+    const n = grpNum(g, i, gs.length, entry);
+    return mk(n != null ? "n" + n : "g" + g.id, g.id, n, find(n), g.name || "Season");
   });
-  return entry ? entry.seasons.map(s => ({ key: "n" + s.n, n: s.n, s, label: "Season " + s.n, short: "S" + s.n })) : [];
+  const an = libCatOf(item.id) === "anime" || S.anime.some(x => x.id === item.id);
+  return entry ? entry.seasons.map(s => mk("n" + s.n, undefined, s.n, s, an && s.name && !generic(s.name) ? s.name : "Season " + s.n)) : [];
 }
 function tvSeasonsHtml(item, entry){
   const rows = tvSeasonRows(item, entry);
@@ -5049,7 +5013,7 @@ function tvSeasonsHtml(item, entry){
     const poster = (r.s && r.s.poster) || item.posterPath;
     const avg = r.n != null && entry && entry.eps[r.n] ? tvSeasonAvg(entry.eps[r.n], item) : null;
     const grp = r.gid ? (item.groups || []).find(x => x.id === r.gid) : null, seen = !!(grp && grp.total > 0 && grp.watched >= grp.total);
-    return `<div class="tvs${tvOpenSeason === r.key ? " on" : ""}${seen ? " done" : ""}" onclick="tvPickSeason('${r.key}')"><div class="tvs-p">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : esc(r.short)}${seen ? `<span class="tvs-ok">✓</span>` : ""}</div><div class="tvs-l"><b>${esc(r.short)}</b>${avg != null ? ` <em class="${ratingClass(avg)}">${avg}</em>` : ""}</div></div>`;
+    return `<div class="tvs${tvOpenSeason === r.key ? " on" : ""}${seen ? " done" : ""}" onclick="tvPickSeason('${r.key}')"><div class="tvs-p">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : esc(r.short)}${seen ? `<span class="tvs-ok">✓</span>` : ""}</div><div class="tvs-l${r.arc ? " arc" : ""}"><b>${esc(r.short)}</b>${avg != null ? ` <em class="${ratingClass(avg)}">${avg}</em>` : ""}</div></div>`;
   }).join("");
   const sel = rows.find(r => r.key === tvOpenSeason);
   let panel = "";
@@ -5133,18 +5097,18 @@ function tvSeasonRemove(id, gid){
   if(!confirm(`Remove ${g.name || "this season"} from “${it.name}”?`)) return;
   it.groups = it.groups.filter(x => x.id !== gid);
   tvOpenSeason = null;
-  if(!it.groups.length && confirm("That was the last season. Remove the whole show too?")){
+  if(!it.groups.length && confirm("That was the last one. Remove the whole title too?")){
     tvOpen = null;
-    S.library.tv = S.library.tv.filter(x => x.id !== id);
+    const c = libCatOf(id); if(c) S.library[c] = S.library[c].filter(x => x.id !== id);
   }
   persist();
 }
-function tvMove(id){ tvOpen = null; tvOpenSeason = null; openMoveModal("tv", id, "library", "season"); render(); }
-function tvEdit(id){ openEpisodicModal("tv", id, "library"); }
+function tvMove(id){ tvOpen = null; tvOpenSeason = null; openMoveModal(libCatOf(id), id, "library", "season"); render(); }
+function tvEdit(id){ openEpisodicModal(libCatOf(id), id, "library"); }
 function tvRemove(id){
-  if(!confirm("Remove this show?")) return;
+  if(!confirm("Remove this title?")) return;
   tvOpen = null; tvOpenSeason = null;
-  S.library.tv = S.library.tv.filter(x => x.id !== id);
+  const c = libCatOf(id); if(c) S.library[c] = S.library[c].filter(x => x.id !== id);
   persist();
 }
 
@@ -5197,7 +5161,7 @@ function bdSave(){
    (and dips) ahead are visible. Scores come from the same device cache as the Library. */
 let sxDoneOpen = new Set(), sxShelfOpen = null, sxPop = null;
 // v1.11.1 — what's expanded lives in JS (never in the DOM). v1.11.2: every visit starts fully collapsed.
-let sxInit = false, sxShowOpen = new Set(), sxSeasonOpen = new Set(), sxAnim = null, sxBusy = false;
+let sxInit = false, sxShowOpen = new Set(), sxSeasonOpen = new Set(), sxAnim = null, sxBusy = false, sxCat = "tv";   // sxCat: which category the Season page is drawing (tv or anime)
 const sxEnsured = new Set();
 function sxPickShow(list){
   if(!list.length) return null;
@@ -5205,6 +5169,7 @@ function sxPickShow(list){
   return list.slice().sort((a, b) => (pts(b) - pts(a)) || ((episodicMin(b).played > 0) - (episodicMin(a).played > 0)) || ((itemRating(b) || 0) - (itemRating(a) || 0)) || (a.name || "").localeCompare(b.name || ""))[0];
 }
 function sxSeasonsLabel(rows, entry){
+  if(rows.some(r => r.arc)) return `${rows.length} arc${rows.length === 1 ? "" : "s"}` + (entry && entry.seasons && entry.seasons.length ? ` of ${entry.seasons.length}` : "");
   const ns = rows.map(r => r.n).filter(n => n != null).sort((a, b) => a - b);
   if(!ns.length) return `${rows.length} season${rows.length === 1 ? "" : "s"}`;
   const parts = []; let st = ns[0], pv = ns[0];
@@ -5217,7 +5182,7 @@ function sxSeasonsLabel(rows, entry){
   return entry && entry.seasons && entry.seasons.length ? `${lab} of ${entry.seasons.length}` : lab;
 }
 function sxHeaderHtml(){
-  const shows = S.tv.filter(x => !x.abandoned);
+  const shows = S[sxCat].filter(x => !x.abandoned);
   let eps = 0, seen = 0, goal = 0, played = 0; const segs = [];
   shows.forEach(it => {
     (it.groups || []).forEach(g => {
@@ -5258,7 +5223,7 @@ function sxHeroHtml(item, entry, rows, open, nextGid){
     const list = (row.n != null && entry && entry.eps[row.n]) || [], ep = list.find(x => x.e === g.watched + 1), sc = ep ? tvEpScore(ep, item) : null;
     const tag = `${esc(row.short)} · E${g.watched + 1}`;
     nextLine = `<div class="n"><b>${tag}</b>${ep && ep.t ? ` “${esc(ep.t)}”` : ""}${sc ? ` · <em class="${ratingClass(sc.v)}">${sc.v}</em>` : ""}</div>`;
-    btn = `<button class="btn accent wide" style="--accent:${CAT.tv.color};--accent-text:${CAT.tv.text}" onclick="event.stopPropagation();sxWatched('${item.id}','${nextGid}')">✓ Watched ${tag}</button>`;
+    btn = `<button class="btn accent wide" style="--accent:${CAT[sxCat].color};--accent-text:${CAT[sxCat].text}" onclick="event.stopPropagation();sxWatched('${item.id}','${nextGid}')">✓ Watched ${tag}</button>`;
   }
   const pct = eps > 0 ? seen / eps * 100 : 0;
   return `<div class="sx-hero">
@@ -5295,7 +5260,7 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
   const nextEp = !finished && left > 0 ? eps.find(x => x.e === g.watched + 1) : null, sc = nextEp ? tvEpScore(nextEp, item) : null;
   const nextLine = finished ? `<div class="sx-next">All ${g.total} episodes watched.</div>`
     : `<div class="sx-next">${g.watched > 0 ? "Next" : "Start with"}: <b>E${g.watched + 1}</b>${nextEp && nextEp.t ? ` “${esc(nextEp.t)}”` : ""}${sc ? ` · <em class="${ratingClass(sc.v)}">${sc.v}</em>` : ""}</div>`;
-  const links = finished ? "" : `<div class="sf-links"><button onclick="event.stopPropagation();openEpisodicModal('tv','${item.id}')">Edit</button><button onclick="event.stopPropagation();sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`;
+  const links = finished ? "" : `<div class="sf-links"><button onclick="event.stopPropagation();openEpisodicModal('${sxCat}','${item.id}')">Edit</button><button onclick="event.stopPropagation();sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`;
   const grid = open ? `<div class="sx-grid${sxAnim === "c:" + g.id ? " sx-in" : ""}">${sxTilesHtml(item, g, eps)}${finished ? "" : `<div class="sx-tiles-hint">Tap an episode to mark everything up to it as watched.</div>`}${links}</div>` : "";
   return `<div class="sx-card${isNext ? " next" : ""}${finished ? " fin" : ""}"${finished ? "" : ` onclick="sxToggleSeason('${g.id}')"`}>
     ${finished ? "" : `<span class="sx-chev${open ? " up" : ""}">▾</span>`}
@@ -5307,7 +5272,7 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
         <div class="sx-prog">${g.watched} / ${g.total} · ${finished ? "done" : fmtHM(left * (item.epLen || 0)) + " left"}<div class="sx-bar"><i style="width:${pct}%"></i></div></div>
       </div>
     </div>
-    ${finished || left <= 0 ? "" : `<div class="sx-btn"><button class="btn accent" style="--accent:${CAT.tv.color};--accent-text:${CAT.tv.text}" onclick="event.stopPropagation();sxWatched('${item.id}','${g.id}')">✓ Watched</button></div>`}
+    ${finished || left <= 0 ? "" : `<div class="sx-btn"><button class="btn accent" style="--accent:${CAT[sxCat].color};--accent-text:${CAT[sxCat].text}" onclick="event.stopPropagation();sxWatched('${item.id}','${g.id}')">✓ Watched</button></div>`}
     ${grid}
   </div>`;
 }
@@ -5327,22 +5292,23 @@ function sxShowHtml(item, nextGid, isHero){
           const fin = x.g.total > 0 && x.g.watched >= x.g.total, isNext = !fin && x.g.id === nextGid;
           return `<div class="sxn${fin ? " dn" : ""}${isNext ? " next" : ""}${i === list.length - 1 ? " last" : ""}">${fin ? sxDoneRow(item, x.r, x.g, entry) : sxSeasonCard(item, x.r, x.g, entry, isNext, false)}</div>`;
         }).join("")
-      : `<div class="tvc-note" style="padding:12px 0">No seasons added yet — edit this show to add some.</div><div class="sf-links"><button onclick="openEpisodicModal('tv','${item.id}')">Edit</button></div>`;
+      : `<div class="tvc-note" style="padding:12px 0">No seasons added yet — edit this show to add some.</div><div class="sf-links"><button onclick="openEpisodicModal('${sxCat}','${item.id}')">Edit</button></div>`;
     body = `<div class="sx-body${sxAnim === "s:" + item.id ? " sx-in" : ""}">
       <div class="sx-seasons">${inner}</div>
-      <div class="sf-links"><button onclick="abandonItem('tv','${item.id}')">Abandon show</button><button onclick="removeEpisodic('tv','${item.id}')">Remove show</button></div>
+      <div class="sf-links"><button onclick="abandonItem('${sxCat}','${item.id}')">Abandon ${nounFor(sxCat)}</button><button onclick="removeEpisodic('${sxCat}','${item.id}')">Remove ${nounFor(sxCat)}</button></div>
     </div>`;
   }
   return `<section class="sx-show${open ? "" : " col"}" data-id="${item.id}">${isHero ? sxHeroHtml(item, entry, rows, open, nextGid) : sxBandHtml(item, entry, rows, open)}${body}</section>`;
 }
-function renderSeasonTv(){
+function renderSeasonTv(category){
+  sxCat = category || "tv";
   let html = sxHeaderHtml();
-  html += `<div class="btn-row" style="margin-bottom:16px"><button class="btn accent wide" style="--accent:${CAT.tv.color};--accent-text:${CAT.tv.text}" onclick="openTmdbSearch('tv','season','add')">+ Add Show</button></div>`;
-  if(!S.tv.length){
-    html += `<div class="empty"><span class="serif">No shows yet</span>Add the show you want to watch this season.</div>`;
+  html += `<div class="btn-row" style="margin-bottom:16px"><button class="btn accent wide" style="--accent:${CAT[sxCat].color};--accent-text:${CAT[sxCat].text}" onclick="openTmdbSearch('${sxCat}','season','add')">${sxCat === "anime" ? "+ Add Anime" : "+ Add Show"}</button></div>`;
+  if(!S[sxCat].length){
+    html += `<div class="empty"><span class="serif">${sxCat === "anime" ? "No anime yet" : "No shows yet"}</span>Add ${sxCat === "anime" ? "the anime" : "the show"} you want to watch this season.</div>`;
     $("app").innerHTML = html; return;
   }
-  const live = S.tv.filter(x => !x.abandoned);
+  const live = S[sxCat].filter(x => !x.abandoned);
   const done = x => { const m = episodicMin(x); return m.goal > 0 && m.played >= m.goal; };
   const incomplete = live.filter(x => !done(x)), completed = live.filter(done).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   const pick = sxPickShow(incomplete);
@@ -5364,24 +5330,24 @@ function renderSeasonTv(){
         <div class="sf-links"><button onclick="pdView('${open.id}')">View poster</button></div></div>`;
     }
   }
-  const ab = S.tv.filter(x => x.abandoned);
+  const ab = S[sxCat].filter(x => x.abandoned);
   if(ab.length){
     html += `<div class="marginalia">abandoned</div>`;
-    ab.forEach(x => html += abandonedCard("tv", x));
+    ab.forEach(x => html += abandonedCard(sxCat, x));
   }
   $("app").innerHTML = html;
   setTimeout(sxEnsureData, 0);
 }
 // Episodes, season posters and scores load in the background (once per show per visit).
 function sxEnsureData(){
-  S.tv.filter(x => x.tmdbId && !x.abandoned).forEach(it => { if(!sxEnsured.has(it.tmdbId)){ sxEnsured.add(it.tmdbId); tvEnsure(it); } });
+  S[sxCat].filter(x => x.tmdbId && !x.abandoned).forEach(it => { if(!sxEnsured.has(it.tmdbId)){ sxEnsured.add(it.tmdbId); tvEnsure(it); } });
   tvEnsureBackdrops();
 }
 function sxTap(id, gid, e){
-  const it = S.tv.find(x => x.id === id), g = it && (it.groups || []).find(x => x.id === gid); if(!g) return;
+  const it = S[sxCat].find(x => x.id === id), g = it && (it.groups || []).find(x => x.id === gid); if(!g) return;
   const before = g.watched || 0;
   g.watched = e <= before ? e - 1 : Math.min(e, g.total);   // tap a watched one to step back to just before it
-  if(g.watched > before) logAction("tv", it.id, it.name, (g.watched - before) * (it.epLen || 0), "episode");
+  if(g.watched > before) logAction(sxCat, it.id, it.name, (g.watched - before) * (it.epLen || 0), "episode");
   if(g.total > 0 && g.watched >= g.total && sxSeasonOpen.has(gid)){   // finished it — open the next season for you
     sxSeasonOpen.delete(gid);
     const nx = sxNextGid(it); if(nx) sxSeasonOpen.add(nx);
@@ -5391,7 +5357,7 @@ function sxTap(id, gid, e){
   sxPop = null;
 }
 function sxWatched(id, gid){
-  const it = S.tv.find(x => x.id === id), g = it && (it.groups || []).find(x => x.id === gid);
+  const it = S[sxCat].find(x => x.id === id), g = it && (it.groups || []).find(x => x.id === gid);
   if(g && g.watched < g.total) sxTap(id, gid, g.watched + 1);
 }
 // Expand / collapse with a short fade; the DOM is rebuilt by render(), so the collapse plays first.
@@ -5413,7 +5379,7 @@ function sxToggleSeason(gid){
 }
 function sxToggleDone(gid){ if(sxDoneOpen.has(gid)) sxDoneOpen.delete(gid); else sxDoneOpen.add(gid); render(); }
 function sxShelfToggle(id){ sxShelfOpen = sxShelfOpen === id ? null : id; render(); }
-function sxToLibrary(id, gid){ splitAndMoveEpisodic("tv", id, "season", "library", [gid]); }
+function sxToLibrary(id, gid){ splitAndMoveEpisodic(sxCat, id, "season", "library", [gid]); }
 
 /* ---------- v1.8.4 — Library Movies filter ----------
    Each slider steps through the distinct values that actually exist (so a year
@@ -5611,7 +5577,7 @@ function setLibGroup(v){ libGroup=v; localStorage.setItem("expedition-libgroup",
 function toggleLibGroupDir(){ libGroupDir = libGroupDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libgroupdir",libGroupDir); renderLibraryTab(libTab); }
 function libSortValue(category, item, key){
   if(key==="hype"){
-    if(category==="movies"||category==="tv") return itemRating(item)==null ? -1 : itemRating(item);
+    if(category==="movies"||isShowCat(category)) return itemRating(item)==null ? -1 : itemRating(item);
     return item.hype||0;
   }
   if(key==="length") return libRemainingMin(category,item); // v1.8.2 — remaining, same as grouping
@@ -5678,11 +5644,11 @@ function renderLibraryTab(category){
   const prevSearch = $("libSearch");
   const wasFocused = !!prevSearch && document.activeElement===prevSearch;
   const caret = wasFocused ? prevSearch.selectionStart : null;
-  const isRate = category==="movies" || category==="tv";
+  const isRate = category==="movies" || isShowCat(category);
   const unlinkedN = isRate ? unlinkedQueue(category).length : 0;
   const addLabels = { games:"+ Add Game", movies:"+ Add Movie", manga:"+ Add Manga", anime:"+ Add Anime", tv:"+ Add Show" };
 
-  const isMovies = category==="movies", isTv = category==="tv";
+  const isMovies = category==="movies", isTv = isShowCat(category);
   const base = isMovies ? list.filter(libFilterPass) : list;   // v1.8.4 — Filter menu applies to Movies
   const fN = isMovies ? libFilterCount() : 0;
   let html = fN
