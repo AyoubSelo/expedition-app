@@ -461,9 +461,15 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .pposter img.in{opacity:1}
 .pposter img.seen{opacity:1;transition:none}
 .prate{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.55);color:#0d0d0d}
-.prate.good{background:#58b774}
-.prate.mid{background:#e2b93b}
-.prate.low{background:#d9544a;color:#fff}
+/* v1.11.1 — rating colour scale. --rc fill, --rct text on the fill, --rcx text on dark, --rcbg/--rcbd soft tint */
+.rc-red{--rc:#d9544a;--rct:#fff;--rcx:#ea6b61;--rcbg:rgba(217,84,74,.14);--rcbd:rgba(217,84,74,.4)}
+.rc-orange{--rc:#ee8a3a;--rct:#1b1209;--rcx:#f29a52;--rcbg:rgba(238,138,58,.14);--rcbd:rgba(238,138,58,.4)}
+.rc-yellow{--rc:#e2b93b;--rct:#1b1409;--rcx:#e2b93b;--rcbg:rgba(226,185,59,.13);--rcbd:rgba(226,185,59,.38)}
+.rc-lime{--rc:#9bd35c;--rct:#0f1a08;--rcx:#a9dd6e;--rcbg:rgba(155,211,92,.13);--rcbd:rgba(155,211,92,.38)}
+.rc-green{--rc:#25965a;--rct:#fff;--rcx:#3fb072;--rcbg:rgba(37,150,90,.18);--rcbd:rgba(63,176,114,.45)}
+.rc-blue{--rc:#4b8df0;--rct:#fff;--rcx:#6aa3f5;--rcbg:rgba(75,141,240,.15);--rcbd:rgba(75,141,240,.42)}
+.rc-purple{--rc:#a06be8;--rct:#fff;--rcx:#b78af0;--rcbg:rgba(160,107,232,.16);--rcbd:rgba(160,107,232,.44)}
+.prate[class*="rc-"]{background:var(--rc);color:var(--rct)}
 .prate{cursor:pointer}
 .prate::after{content:"";position:absolute;inset:-8px}   /* v1.9.1 — bigger tap target, it opens the rating-source menu */
 .pinfo{margin-top:5px;padding:4px 2px;background:var(--panel2);border:1px solid var(--line-soft);border-radius:6px;text-align:center;white-space:nowrap;overflow:hidden;font-family:"IBM Plex Mono",monospace;font-size:clamp(6.5px,10cqw,10.5px);color:var(--muted)}
@@ -566,7 +572,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .tvs-l{margin-top:4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);white-space:nowrap}
 .tvs-l b{font-weight:600;color:var(--ink)}
 .tvs-l em,.tve-s{font-style:normal;font-weight:600}
-.tvs-l em.good,.tve-s.good{color:#58b774}.tvs-l em.mid,.tve-s.mid{color:#e2b93b}.tvs-l em.low,.tve-s.low{color:#d9544a}
+.tvs-l em[class*="rc-"],.tve-s[class*="rc-"]{color:var(--rcx)}
 .tve-wrap{margin-top:10px;padding:10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line-soft)}
 .tve-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin-bottom:6px}
 .tve-head b{color:var(--ink)}
@@ -577,7 +583,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .tve-t{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tve-bar{height:5px;border-radius:3px;background:var(--line);overflow:hidden}
 .tve-bar i{display:block;height:100%;border-radius:3px;background:var(--muted-dim)}
-.tve-bar i.good{background:#58b774}.tve-bar i.mid{background:#e2b93b}.tve-bar i.low{background:#d9544a}
+.tve-bar i[class*="rc-"]{background:var(--rc)}
 .tve-s{font-family:"IBM Plex Mono",monospace;font-size:11.5px;text-align:right}
 .tve.fb{opacity:.6}
 .tvs.done .tvs-p img{opacity:.55}
@@ -586,23 +592,38 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .tve-actions .btn{flex:1}
 /* v1.11.0 — Season TV: a show header, then every season as its own card hanging off it */
 .sx-show{margin-bottom:28px}
-.sx-band{position:relative;height:96px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#1a241e,#0f1612);border:1px solid var(--line)}
+.sx-band{position:relative;height:140px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#1a241e,#0f1612);border:1px solid var(--line)}
 .sx-band img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% var(--by,30%);opacity:0;transition:opacity .3s ease}
 .sx-band img.in,.sx-band img.seen{opacity:1}
 .sx-band .tvc-title{font-size:20px}
-.sx-seasons{position:relative;margin:0 0 0 12px;padding:2px 0 0 16px;border-left:2px solid var(--line)}
-.sx-card{position:relative;margin-top:12px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px}
-.sx-card::before{content:"";position:absolute;left:-24px;top:26px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+.sx-seasons{margin:0 0 0 12px;padding:0 0 0 28px}
+/* v1.11.1 — every season node draws its own piece of the connector, so the line stops exactly at the last season's dot and every dot sits dead-centre on it */
+.sxn{position:relative;margin-top:12px;--dy:26px}
+.sxn::before{content:"";position:absolute;left:-28px;top:-12px;bottom:0;width:2px;background:var(--line)}
+.sxn.last::before{bottom:auto;height:calc(12px + var(--dy) + 1px)}
+.sxn::after{content:"";position:absolute;left:-33px;top:calc(var(--dy) - 6px);width:12px;height:12px;box-sizing:border-box;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+.sxn.next::after{border-color:var(--brass);background:var(--brass)}
+.sxn.dn{--dy:20px}
+.sxn.dn::after{left:-31px;top:calc(var(--dy) - 4px);width:8px;height:8px;background:var(--line);border:0}
+.sx-card{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .sx-card.next{border-color:var(--brass)}
-.sx-card.next::before{border-color:var(--brass);background:var(--brass)}
+.sx-card.fin{cursor:default}
+.sx-chev{position:absolute;right:12px;top:10px;font-size:14px;line-height:1;color:var(--muted);transition:transform .2s ease;pointer-events:none}
+.sx-chev.up{transform:rotate(180deg)}
+.sx-band .sx-chev{top:auto;bottom:11px;color:#fff;opacity:.9;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.sx-show.col{margin-bottom:14px}
+.sx-in{animation:sxIn .28s ease-out both}
+.sx-out{animation:pdOut .15s both ease-in}
+@keyframes sxIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.sx-in,.sx-out{animation:none}}
 .sx-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px}
 .sx-poster{position:relative;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--bg);border:1px solid var(--line-soft)}
 .sx-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.sx-title{font-size:19px;line-height:1.15;color:var(--ink);margin-top:2px}
+.sx-title{font-size:19px;line-height:1.15;color:var(--ink);margin-top:2px;padding-right:22px}
 .sx-next{margin-top:6px;font-size:12.5px;line-height:1.4;color:var(--muted)}
 .sx-next b{color:var(--ink);font-weight:600}
 .sx-next em{font-style:normal;font-weight:600;font-family:"IBM Plex Mono",monospace}
-.sx-next em.good{color:#58b774}.sx-next em.mid{color:#e2b93b}.sx-next em.low{color:#d9544a}
+.sx-next em[class*="rc-"]{color:var(--rcx)}
 .sx-prog{margin-top:9px;font-size:11.5px;color:var(--muted)}
 .sx-bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:5px}
 .sx-bar i{display:block;height:100%;border-radius:3px;background:var(--brass);transition:width .35s ease}
@@ -612,22 +633,22 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .sxt{height:40px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;font-family:"IBM Plex Mono",monospace;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .sxt b{font-size:12px;font-weight:600;color:var(--ink)}
 .sxt i{font-style:normal;font-size:9.5px;color:var(--muted-dim)}
-.sxt.good{background:rgba(88,183,116,.13);border-color:rgba(88,183,116,.38)}.sxt.good i{color:#58b774}
-.sxt.mid{background:rgba(226,185,59,.12);border-color:rgba(226,185,59,.36)}.sxt.mid i{color:#e2b93b}
-.sxt.low{background:rgba(217,84,74,.13);border-color:rgba(217,84,74,.38)}.sxt.low i{color:#d9544a}
+.sxt[class*="rc-"]{background:var(--rcbg);border-color:var(--rcbd)}.sxt[class*="rc-"] i{color:var(--rcx)}
 .sxt.w{background:var(--brass);border-color:var(--brass)}
 .sxt.w b,.sxt.w i{color:#1b1409}
+.sxt.w[class*="rc-"]{background:var(--rc);border-color:var(--rc)}
+.sxt.w[class*="rc-"] b,.sxt.w[class*="rc-"] i{color:var(--rct)}
 .sxt.nx{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass)}
 .sxt.pop{animation:sxPop .3s ease}
 @keyframes sxPop{0%{transform:scale(.78)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
 .sx-tiles-hint{margin-top:8px;font-size:11px;color:var(--muted-dim)}
-.sx-done{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--line-soft);background:var(--panel2);font-size:12.5px;color:var(--muted);cursor:pointer;position:relative}
-.sx-done::before{content:"";position:absolute;left:-24px;top:50%;margin-top:-4px;width:8px;height:8px;border-radius:50%;background:var(--line)}
+.sx-done{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--line-soft);background:var(--panel2);font-size:12.5px;color:var(--muted);cursor:pointer;position:relative}
+.sx-done+.sx-card{margin-top:8px}
 .sx-done .ok{flex:0 0 auto;width:18px;height:18px;border-radius:50%;background:#58b774;color:#08140c;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .sx-done b{color:var(--ink);font-weight:600}
 .sx-done .sp{flex:1}
 .sx-done em{font-style:normal;font-family:"IBM Plex Mono",monospace;font-weight:600}
-.sx-done em.good{color:#58b774}.sx-done em.mid{color:#e2b93b}.sx-done em.low{color:#d9544a}
+.sx-done em[class*="rc-"]{color:var(--rcx)}
 .sx-card.fin{opacity:.92}
 .sx-panel{margin-top:10px;padding:12px;border-radius:12px;background:var(--panel2);border:1px solid var(--brass)}
 .sx-panel .pn{font-size:18px}
@@ -1093,7 +1114,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.11.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.11.1"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -2017,6 +2038,7 @@ const TAB_ORDER = ["overview","games","movies","tv","anime","manga"];
 function switchTab(t){
   const oldIdx = TAB_ORDER.indexOf(activeTab);
   const newIdx = TAB_ORDER.indexOf(t);
+  if(t === "tv" && activeTab !== "tv") sxInit = false;   // v1.11.1 — back on Season TV: recommended show open again
   activeTab = t;
   localStorage.setItem("expedition-tab", t);
   render();
@@ -4271,7 +4293,12 @@ function posterImgHtml(item, idx, w){
   const seen = posterSeen.has(url);
   return `<img alt="${esc(item.name)}" class="${seen?"seen":""}" ${idx<12 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${url}" onload="this.classList.add('in');posterSeen.add(this.src)" onerror="this.remove()">`;
 }
-function ratingClass(r){ return r==null ? "" : (r>=80 ? "good" : (r>=70 ? "mid" : "low")); }
+// v1.11.1 — one colour scale for every rating in the app: <60 red, 60-69 orange, 70-79 yellow,
+// 80-84 light green, 85-89 dark green, 90-94 blue, 95+ purple.
+function ratingClass(r){
+  if(r==null) return "";
+  return r>=95 ? "rc-purple" : r>=90 ? "rc-blue" : r>=85 ? "rc-green" : r>=80 ? "rc-lime" : r>=70 ? "rc-yellow" : r>=60 ? "rc-orange" : "rc-red";
+}
 function moviePosterCard(item, idx, opts){
   const open = libOpenMovie === item.id;
   const prog = (opts && opts.progress && item.length>0 && item.watched>0)
@@ -5147,6 +5174,9 @@ function bdSave(){
    back to just before it. Unwatched tiles are tinted by the episode's score, so the peaks
    (and dips) ahead are visible. Scores come from the same device cache as the Library. */
 let sxDoneOpen = new Set(), sxShelfOpen = null, sxPop = null;
+// v1.11.1 — what's expanded lives in JS (never in the DOM). On each visit to the page only the
+// recommended show is open, and inside it only its first unfinished season; after that your taps rule.
+let sxInit = false, sxShowOpen = new Set(), sxSeasonOpen = new Set(), sxAnim = null, sxBusy = false;
 const sxEnsured = new Set();
 function sxPickShow(list){
   if(!list.length) return null;
@@ -5181,22 +5211,28 @@ function sxHeaderHtml(){
     <div class="sf-segs">${segs.map(p => `<div class="sf-seg"><i style="width:${(p * 100).toFixed(0)}%"></i></div>`).join("")}</div>
   </div>`;
 }
-function sxBandHtml(item, entry, rows){
+function sxNextGid(it){
+  const rows = tvSeasonRows(it, tvEntry(it));
+  const r = rows.find(r => { const g = (it.groups || []).find(x => x.id === r.gid); return g && g.total > 0 && g.watched < g.total; });
+  return r ? r.gid : null;
+}
+function sxBandHtml(item, entry, rows, open){
   const url = item.backdropPath ? `${TMDB_IMG}w780${item.backdropPath}` : "", by = item.backdropY == null ? 30 : item.backdropY;
-  return `<div class="sx-band" style="--by:${by}%">
+  const left = (item.groups || []).reduce((a, g) => a + Math.max(0, (g.total || 0) - (g.watched || 0)), 0);
+  return `<div class="sx-band" style="--by:${by}%" onclick="sxToggleShow('${item.id}')">
     ${url ? `<img alt="" class="${posterSeen.has(url) ? "seen" : ""}" src="${url}" onload="this.classList.add('in');posterSeen.add(this.src)" onerror="this.remove()">` : ""}
     <div class="tvc-shade"></div>
     ${rateBadge(item, "tvc-rate")}
-    <div class="tvc-meta"><div class="tvc-title serif">${esc(item.name)}</div><div class="tvc-chip">${esc(sxSeasonsLabel(rows, entry))}</div></div>
+    <div class="tvc-meta"><div class="tvc-title serif">${esc(item.name)}</div><div class="tvc-chip">${esc(sxSeasonsLabel(rows, entry))}${left > 0 ? ` · ${left} ep left` : ""}</div></div>
+    <span class="sx-chev${open ? " up" : ""}">▾</span>
   </div>`;
 }
 function sxTilesHtml(item, g, eps){
   let h = "";
   for(let e = 1; e <= (g.total || 0); e++){
     const ep = eps.find(x => x.e === e), sc = ep ? tvEpScore(ep, item) : null;
-    const cls = e <= g.watched ? "w" : (e === g.watched + 1 ? "nx" : "");
-    const tint = sc && e > g.watched ? ratingClass(sc.v) : "";
-    h += `<button class="sxt ${cls} ${tint}${sxPop === g.id + ":" + e ? " pop" : ""}" onclick="sxTap('${item.id}','${g.id}',${e})" title="${ep && ep.t ? esc(ep.t) : "Episode " + e}"><b>${e}</b><i>${sc ? sc.v : "–"}</i></button>`;
+    const state = e <= g.watched ? "w" : (e === g.watched + 1 ? "nx" : "");
+    h += `<button class="sxt ${state} ${sc ? ratingClass(sc.v) : ""}${sxPop === g.id + ":" + e ? " pop" : ""}" onclick="event.stopPropagation();sxTap('${item.id}','${g.id}',${e})" title="${ep && ep.t ? esc(ep.t) : "Episode " + e}"><b>${e}</b><i>${sc ? sc.v : "–"}</i></button>`;
   }
   return `<div class="sx-tiles">${h}</div>`;
 }
@@ -5204,10 +5240,13 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
   const eps = (row.n != null && entry && entry.eps[row.n]) || [];
   const poster = (row.s && row.s.poster) || item.posterPath;
   const left = Math.max(0, (g.total || 0) - (g.watched || 0)), pct = g.total > 0 ? Math.min(100, g.watched / g.total * 100) : 0;
+  const open = finished || sxSeasonOpen.has(g.id);
   const nextEp = !finished && left > 0 ? eps.find(x => x.e === g.watched + 1) : null, sc = nextEp ? tvEpScore(nextEp, item) : null;
   const nextLine = finished ? `<div class="sx-next">All ${g.total} episodes watched.</div>`
     : `<div class="sx-next">${g.watched > 0 ? "Next" : "Start with"}: <b>E${g.watched + 1}</b>${nextEp && nextEp.t ? ` “${esc(nextEp.t)}”` : ""}${sc ? ` · <em class="${ratingClass(sc.v)}">${sc.v}</em>` : ""}</div>`;
-  return `<div class="sx-card${isNext ? " next" : ""}${finished ? " fin" : ""}">
+  const grid = open ? `<div class="sx-grid${sxAnim === "c:" + g.id ? " sx-in" : ""}">${sxTilesHtml(item, g, eps)}${isNext && !finished ? `<div class="sx-tiles-hint">Tap an episode to mark everything up to it as watched.</div>` : ""}</div>` : "";
+  return `<div class="sx-card${isNext ? " next" : ""}${finished ? " fin" : ""}"${finished ? "" : ` onclick="sxToggleSeason('${g.id}')"`}>
+    ${finished ? "" : `<span class="sx-chev${open ? " up" : ""}">▾</span>`}
     <div class="sx-row">
       <div class="sx-poster">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : ""}</div>
       <div>
@@ -5217,10 +5256,9 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
         <div class="sx-prog">${g.watched} / ${g.total} · ${finished ? "done" : fmtHM(left * (item.epLen || 0)) + " left"}<div class="sx-bar"><i style="width:${pct}%"></i></div></div>
       </div>
     </div>
-    ${finished || left <= 0 ? "" : `<div class="sx-btn"><button class="btn accent" style="--accent:${CAT.tv.color};--accent-text:${CAT.tv.text}" onclick="sxWatched('${item.id}','${g.id}')">✓ Watched</button></div>`}
-    ${sxTilesHtml(item, g, eps)}
-    ${isNext ? `<div class="sx-tiles-hint">Tap an episode to mark everything up to it as watched.</div>` : ""}
-    ${finished ? "" : `<div class="sf-links"><button onclick="openEpisodicModal('tv','${item.id}')">Edit</button><button onclick="sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`}
+    ${finished || left <= 0 ? "" : `<div class="sx-btn"><button class="btn accent" style="--accent:${CAT.tv.color};--accent-text:${CAT.tv.text}" onclick="event.stopPropagation();sxWatched('${item.id}','${g.id}')">✓ Watched</button></div>`}
+    ${grid}
+    ${finished ? "" : `<div class="sf-links"><button onclick="event.stopPropagation();openEpisodicModal('tv','${item.id}')">Edit</button><button onclick="event.stopPropagation();sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`}
   </div>`;
 }
 function sxDoneRow(item, row, g, entry){
@@ -5230,19 +5268,22 @@ function sxDoneRow(item, row, g, entry){
   return open ? head + sxSeasonCard(item, row, g, entry, false, true) : head;
 }
 function sxShowHtml(item, nextGid){
-  const entry = tvEntry(item), rows = tvSeasonRows(item, entry);
-  let inner = "";
-  if(!rows.length) inner = `<div class="tvc-note" style="padding:12px 0">No seasons added yet — edit this show to add some.</div><div class="sf-links"><button onclick="openEpisodicModal('tv','${item.id}')">Edit</button></div>`;
-  else rows.forEach(r => {
-    const g = (item.groups || []).find(x => x.id === r.gid); if(!g) return;
-    const fin = g.total > 0 && g.watched >= g.total;
-    inner += fin ? sxDoneRow(item, r, g, entry) : sxSeasonCard(item, r, g, entry, g.id === nextGid, false);
-  });
-  return `<section class="sx-show">
-    ${sxBandHtml(item, entry, rows)}
-    <div class="sx-seasons">${inner}</div>
-    <div class="sf-links"><button onclick="abandonItem('tv','${item.id}')">Abandon show</button><button onclick="removeEpisodic('tv','${item.id}')">Remove show</button></div>
-  </section>`;
+  const entry = tvEntry(item), rows = tvSeasonRows(item, entry), open = sxShowOpen.has(item.id);
+  let body = "";
+  if(open){
+    const list = rows.map(r => ({ r, g: (item.groups || []).find(x => x.id === r.gid) })).filter(x => x.g);
+    const inner = list.length
+      ? list.map((x, i) => {
+          const fin = x.g.total > 0 && x.g.watched >= x.g.total, isNext = !fin && x.g.id === nextGid;
+          return `<div class="sxn${fin ? " dn" : ""}${isNext ? " next" : ""}${i === list.length - 1 ? " last" : ""}">${fin ? sxDoneRow(item, x.r, x.g, entry) : sxSeasonCard(item, x.r, x.g, entry, isNext, false)}</div>`;
+        }).join("")
+      : `<div class="tvc-note" style="padding:12px 0">No seasons added yet — edit this show to add some.</div><div class="sf-links"><button onclick="openEpisodicModal('tv','${item.id}')">Edit</button></div>`;
+    body = `<div class="sx-body${sxAnim === "s:" + item.id ? " sx-in" : ""}">
+      <div class="sx-seasons">${inner}</div>
+      <div class="sf-links"><button onclick="abandonItem('tv','${item.id}')">Abandon show</button><button onclick="removeEpisodic('tv','${item.id}')">Remove show</button></div>
+    </div>`;
+  }
+  return `<section class="sx-show${open ? "" : " col"}" data-id="${item.id}">${sxBandHtml(item, entry, rows, open)}${body}</section>`;
 }
 function renderSeasonTv(){
   let html = sxHeaderHtml();
@@ -5255,10 +5296,14 @@ function renderSeasonTv(){
   const done = x => { const m = episodicMin(x); return m.goal > 0 && m.played >= m.goal; };
   const incomplete = live.filter(x => !done(x)), completed = live.filter(done).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   const pick = sxPickShow(incomplete);
+  if(!sxInit){
+    sxInit = true;
+    sxShowOpen = new Set(pick ? [pick.id] : []);
+    sxSeasonOpen = new Set(pick && sxNextGid(pick) ? [sxNextGid(pick)] : []);
+  }
   const order = incomplete.filter(x => x !== pick).sort((a, b) => ((episodicMin(b).played > 0) - (episodicMin(a).played > 0)) || (a.name || "").localeCompare(b.name || ""));
   if(pick) order.unshift(pick);
-  const nextOf = it => { const rows = tvSeasonRows(it, tvEntry(it)); const r = rows.find(r => { const g = (it.groups || []).find(x => x.id === r.gid); return g && g.total > 0 && g.watched < g.total; }); return r ? r.gid : null; };
-  order.forEach(it => { html += sxShowHtml(it, it === pick ? nextOf(it) : null); });
+  order.forEach(it => { html += sxShowHtml(it, it === pick ? sxNextGid(it) : null); });
   if(completed.length){
     html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check">✓</div></div></div>`).join("")}</div>`;
     const open = completed.find(m => m.id === sxShelfOpen);
@@ -5287,6 +5332,10 @@ function sxTap(id, gid, e){
   const before = g.watched || 0;
   g.watched = e <= before ? e - 1 : Math.min(e, g.total);   // tap a watched one to step back to just before it
   if(g.watched > before) logAction("tv", it.id, it.name, (g.watched - before) * (it.epLen || 0), "episode");
+  if(g.total > 0 && g.watched >= g.total && sxSeasonOpen.has(gid)){   // finished it — open the next season for you
+    sxSeasonOpen.delete(gid);
+    const nx = sxNextGid(it); if(nx) sxSeasonOpen.add(nx);
+  }
   sxPop = gid + ":" + e;
   persist();
   sxPop = null;
@@ -5294,6 +5343,23 @@ function sxTap(id, gid, e){
 function sxWatched(id, gid){
   const it = S.tv.find(x => x.id === id), g = it && (it.groups || []).find(x => x.id === gid);
   if(g && g.watched < g.total) sxTap(id, gid, g.watched + 1);
+}
+// Expand / collapse with a short fade; the DOM is rebuilt by render(), so the collapse plays first.
+function sxToggle(set, key, animKey, sel){
+  if(sxBusy) return;
+  const open = set.has(key);
+  const go = () => { if(open) set.delete(key); else { set.add(key); sxAnim = animKey; } render(); sxAnim = null; sxBusy = false; };
+  if(open){
+    const el = document.querySelector(sel);
+    if(el){ sxBusy = true; el.classList.remove("sx-in"); el.classList.add("sx-out"); setTimeout(go, 150); } else go();
+  } else go();
+}
+function sxToggleShow(id){ sxToggle(sxShowOpen, id, "s:" + id, `.sx-show[data-id="${id}"] .sx-body`); }
+function sxToggleSeason(gid){
+  const card = [...document.querySelectorAll(".sx-card")].find(c => c.getAttribute("onclick") === `sxToggleSeason('${gid}')`);
+  const grid = card && card.querySelector(".sx-grid");
+  if(grid) grid.dataset.k = gid;
+  sxToggle(sxSeasonOpen, gid, "c:" + gid, grid ? `.sx-grid[data-k="${gid}"]` : "#__none__");
 }
 function sxToggleDone(gid){ if(sxDoneOpen.has(gid)) sxDoneOpen.delete(gid); else sxDoneOpen.add(gid); render(); }
 function sxShelfToggle(id){ sxShelfOpen = sxShelfOpen === id ? null : id; render(); }
