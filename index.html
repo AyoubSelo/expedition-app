@@ -1130,7 +1130,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.12.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.12.1"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -2801,7 +2801,7 @@ const MediaDB = {
           const today = todayStr();
           // Specials (season 0) and seasons that haven't started airing yet are left out.
           out.seasons = (d.seasons || [])
-            .filter(s => s.season_number > 0 && s.episode_count > 0 && s.air_date && s.air_date <= today)
+            .filter(s => tmdbSeasonAired(s, today))
             .map(s => ({ number: s.season_number, episodes: s.episode_count, name: s.name || "" }));
           out.epLen = epLen;
           return out;
@@ -4801,6 +4801,9 @@ function allShows(){ return SHOW_CATS.reduce((a, c) => a.concat(S.library[c] || 
 function libCatOf(id){ return SHOW_CATS.find(c => (S.library[c] || []).some(x => x.id === id)) || null; }
 function nounFor(c){ return c === "movies" ? "movie" : (c === "anime" ? "anime" : "show"); }
 const GENERIC_SEASON = /^season\s*\d+$/i;
+// v1.12.1 — a real season has episodes and isn't dated in the future. Seasons TMDB lists with NO air
+// date at all (many One Piece arcs) still count — the old rule threw those away.
+function tmdbSeasonAired(s, today){ return s.season_number > 0 && s.episode_count > 0 && (!s.air_date || s.air_date <= today); }
 // TMDB's season names are arc names for many anime ("East Blue", "Alabasta"…) and plain
 // "Season N" otherwise. Anime keeps the arc name; everything else stays "Season N".
 function tmdbGroups(category, seasons){
@@ -4886,7 +4889,7 @@ async function tvFetchAll(item){
       creators: (d.created_by || []).slice(0, 2).map(c => c.name), cast: cast.slice(0, 5).map(c => c.name),
       imdbId: (d.external_ids && d.external_ids.imdb_id) || "", omdb: false, omdbErr: "", seasons: [], eps: {},
     };
-    const seasons = (d.seasons || []).filter(s => s.season_number > 0 && s.episode_count > 0 && s.air_date && s.air_date <= today);
+    const seasons = (d.seasons || []).filter(s => tmdbSeasonAired(s, today));
     for(const s of seasons){
       const n = s.season_number;
       entry.seasons.push({ n, poster: s.poster_path || null, count: s.episode_count, name: s.name || "" });
@@ -5049,7 +5052,7 @@ function tvBodyHtml(item){
     <div class="pd-foot tvc-foot">
       ${btnH("ghost", "pdView", item.id, "View poster")}${btnH("ghost", "openBackdropPicker", item.id, "Change image")}
       ${btnH("ghost", "tvMove", item.id, "To Season")}${btnH("ghost", "tvEdit", item.id, "Edit")}
-      <div class="full">${btnH("ghost danger", "tvRemove", item.id, "Remove").replace('class="btn small ghost danger"', 'class="btn small ghost danger" style="width:100%"')}</div>
+      ${item.tmdbId ? btnH("ghost", "tvSyncSeasons", item.id, "Sync with TMDB") : ""}${btnH("ghost danger", "tvRemove", item.id, "Remove")}
     </div>
   </div>`;
 }
@@ -5102,6 +5105,49 @@ function tvSeasonRemove(id, gid){
     const c = libCatOf(id); if(c) S.library[c] = S.library[c].filter(x => x.id !== id);
   }
   persist();
+}
+// Pulls the show's seasons/arcs from TMDB again and ADDS the ones this title is missing (and grows
+// an arc's episode count when TMDB has more, e.g. an airing arc). Existing progress is never lowered.
+async function tvSyncSeasons(id){
+  const item = titleById(id); if(!item || !item.tmdbId) return toast("Link it to TMDB first.");
+  const cat = SHOW_CATS.find(c => (S[c] || []).some(x => x.id === id) || (S.library[c] || []).some(x => x.id === id));
+  if(!cat) return;
+  toast("Checking TMDB…");
+  let d;
+  try{ d = await MediaDB.for(cat).details(cat, item.tmdbId); }catch(e){ return toast("Couldn't reach TMDB. Try again in a moment."); }
+  const seasons = (d.seasons || []).filter(x => x.episodes > 0);
+  if(!seasons.length) return toast("TMDB has no seasons for this one yet.");
+  const gs = (item.groups || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const numOf = g => {
+    const m = /season\s*(\d+)/i.exec(g.name || ""); if(m) return +m[1];
+    if(g.tmdbSeason != null) return +g.tmdbSeason;
+    const hit = seasons.find(x => x.name && normTitle(x.name) === normTitle(g.name));
+    return hit ? hit.number : null;
+  };
+  const have = new Map(); let grown = 0;
+  gs.forEach(g => { const n = numOf(g); if(n != null){ g.tmdbSeason = n; have.set(n, g); } });
+  seasons.forEach(x => { const g = have.get(x.number); if(g && x.episodes > g.total){ g.total = x.episodes; grown++; } });
+  const fresh = [];
+  tmdbGroups(cat, seasons).forEach(g => { if(!have.has(g.tmdbSeason)){ fresh.push(g); } });
+  if(!fresh.length){
+    if(grown) persist();
+    return toast(grown ? `Everything was there — updated ${grown} episode count${grown === 1 ? "" : "s"}.` : "Already matches TMDB — nothing missing.");
+  }
+  // keep the order TMDB uses: sort by season number; anything we can't number stays right after its neighbour
+  let last = 0; const keyed = gs.map(g => { const n = numOf(g); if(n != null) last = n; return { g, k: n != null ? n : last + 0.5 }; });
+  fresh.forEach(g => keyed.push({ g, k: g.tmdbSeason, fresh: true }));
+  keyed.sort((a, b) => a.k - b.k);
+  const furthest = keyed.reduce((m, x, i) => (x.g.watched > 0 && !x.fresh ? i : m), -1);
+  const before = keyed.filter((x, i) => x.fresh && i < furthest);
+  item.groups = keyed.map((x, i) => { x.g.order = i; return x.g; });
+  if(before.length && confirm(`${before.length} of the new ${groupsWord(item.groups)}${before.length === 1 ? "" : "s"} come${before.length === 1 ? "s" : ""} before the furthest one you've watched. Mark ${before.length === 1 ? "it" : "them"} as already watched?`)){
+    before.forEach(x => { x.g.watched = x.g.total; });
+  }
+  if(cat === "anime") item.groupType = groupTypeFor(cat, item.groups);
+  delete pdCache["t:" + item.tmdbId]; pdCacheSave();
+  persist();
+  tvFetchAll(item);   // episodes and scores for the new ones
+  toast(`Added ${fresh.length} missing ${groupsWord(item.groups)}${fresh.length === 1 ? "" : "s"} from TMDB.`);
 }
 function tvMove(id){ tvOpen = null; tvOpenSeason = null; openMoveModal(libCatOf(id), id, "library", "season"); render(); }
 function tvEdit(id){ openEpisodicModal(libCatOf(id), id, "library"); }
@@ -5295,7 +5341,7 @@ function sxShowHtml(item, nextGid, isHero){
       : `<div class="tvc-note" style="padding:12px 0">No seasons added yet — edit this show to add some.</div><div class="sf-links"><button onclick="openEpisodicModal('${sxCat}','${item.id}')">Edit</button></div>`;
     body = `<div class="sx-body${sxAnim === "s:" + item.id ? " sx-in" : ""}">
       <div class="sx-seasons">${inner}</div>
-      <div class="sf-links"><button onclick="abandonItem('${sxCat}','${item.id}')">Abandon ${nounFor(sxCat)}</button><button onclick="removeEpisodic('${sxCat}','${item.id}')">Remove ${nounFor(sxCat)}</button></div>
+      <div class="sf-links">${item.tmdbId ? `<button onclick="tvSyncSeasons('${item.id}')">Sync with TMDB</button>` : ""}<button onclick="abandonItem('${sxCat}','${item.id}')">Abandon ${nounFor(sxCat)}</button><button onclick="removeEpisodic('${sxCat}','${item.id}')">Remove ${nounFor(sxCat)}</button></div>
     </div>`;
   }
   return `<section class="sx-show${open ? "" : " col"}" data-id="${item.id}">${isHero ? sxHeroHtml(item, entry, rows, open, nextGid) : sxBandHtml(item, entry, rows, open)}${body}</section>`;
