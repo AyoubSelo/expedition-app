@@ -48,7 +48,9 @@ body{
 .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
 .wrap{max-width:640px;margin:0 auto;padding:22px 16px 110px}
 
-header{margin-bottom:18px}
+header{position:sticky;top:0;z-index:45;margin:-22px -16px 6px;padding:22px 16px 12px;background:transparent;transition:transform .26s ease,background .2s}
+header.stuck{background:rgba(13,19,16,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.05)}
+header.away{transform:translateY(-105%)}
 h1{margin:0;font-size:27px;font-weight:700;letter-spacing:.2px}
 .version-tag{font-size:11px;font-weight:500;color:var(--muted-dim);margin-left:7px;letter-spacing:.02em;vertical-align:middle}
 .tagline{color:var(--muted);font-size:12.5px;margin-top:4px}
@@ -302,9 +304,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .compact-row > div{flex:1 1 74px;min-width:74px}
 .compact-row > div > label{margin:0 0 6px}
 .compact-num-tiny{width:100%;text-align:center}
-.hype-row-compact{gap:3px}
-.hype-row-compact .hype-dot{width:24px;height:24px;font-size:10.5px;flex-shrink:0}
-.hype-row-compact .hype-label{margin-left:2px;white-space:nowrap;font-size:10.5px}
 
 /* v1.7.4 — game modal's Target hours/Played/DLC+Series row: all three cells
    share the exact same grid as the release-date row below it (same class),
@@ -329,10 +328,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
    instead of relying on stretch to infer it. */
 .name-row{display:flex;gap:8px;align-items:center}
 .name-row input{flex:1;height:46px}
-.series-toggle{position:relative;flex-shrink:0;width:46px;height:46px;display:flex;align-items:center;justify-content:center;
   border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:#7f9bc4;cursor:pointer}
-.series-toggle input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
-.series-toggle:has(input:checked){background:var(--teal);border-color:var(--teal);color:#0d1310}
 .compact-num-3{width:100%;text-align:center}
 
 /* v1.5.0 — tags */
@@ -606,11 +602,11 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .sx-chev.up{transform:rotate(180deg)}
 .sx-band .sx-chev{top:auto;bottom:11px;color:#fff;opacity:.9;text-shadow:0 1px 6px rgba(0,0,0,.8)}
 .sx-show.col{margin-bottom:14px}
-.sx-hero{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--brass);background:var(--panel2);box-shadow:0 0 0 1px rgba(217,162,86,.2),0 6px 16px -10px rgba(217,162,86,.3)}
+.sx-hero{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--brass);background:var(--panel2);box-shadow:0 0 0 1px rgba(217,162,86,.22),0 0 30px -4px rgba(217,162,86,.4),0 10px 34px -14px rgba(217,162,86,.35)}
 .sx-hero-img{position:relative;aspect-ratio:16/9;cursor:pointer;overflow:hidden;background:linear-gradient(135deg,#1a241e,#0f1612);-webkit-tap-highlight-color:transparent}
 .sx-hero-img>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% var(--by,30%);opacity:0;transition:opacity .3s ease}
 .sx-hero-img>img.in,.sx-hero-img>img.seen{opacity:1}
-.sx-hero-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,#182019 0%,rgba(24,32,25,.94) 14%,rgba(24,32,25,.6) 40%,rgba(24,32,25,.1) 72%)}   /* v1.12.0 — ends in the footer colour, so the image melts into it */
+.sx-hero-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,#182019 0%,rgba(24,32,25,.9) 9%,rgba(24,32,25,.55) 24%,rgba(24,32,25,0) 46%)}   /* v1.12.0 — ends in the footer colour, so the image melts into it */
 .sx-hero-tag{position:absolute;left:14px;top:13px;font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);text-shadow:0 1px 8px rgba(0,0,0,.85)}
 .sx-hero .sx-chev{top:12px;bottom:auto;color:#fff;opacity:.9;text-shadow:0 1px 6px rgba(0,0,0,.8)}
 .sx-hero-row{position:absolute;left:12px;right:12px;bottom:12px;display:grid;grid-template-columns:56px minmax(0,1fr);gap:11px;align-items:end;pointer-events:none}
@@ -627,7 +623,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .sx-hero-foot{padding:12px}
 .sx-hprog{font-size:11.5px;color:var(--muted);margin-bottom:10px}
 .sx-hero-foot .btn{width:100%}
-.sx-hero+.sx-body{padding-top:10px}   /* v1.12.2 — breathing room under the glow */
+.sx-hero+.sx-body{position:relative;z-index:1;padding-top:10px}   /* v1.12.2 — breathing room under the glow */
 .sx-hero+.sx-body .sx-seasons .sxn:first-child{margin-top:12px}
 .sx-hero+.sx-body .sx-seasons .sxn:first-child::before{top:-22px}
 .sx-in{animation:sxIn .28s ease-out both}
@@ -726,11 +722,11 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .sf-segs{display:flex;gap:3px;margin-top:10px}
 .sf-seg{flex:1 1 0;min-width:4px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
 .sf-seg i{display:block;height:100%;border-radius:3px;background:var(--brass)}
-.sf-hero{background:var(--panel2);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:22px}
+.sf-hero{background:var(--panel2);border:1px solid var(--brass);border-radius:16px;overflow:hidden;margin-bottom:22px;box-shadow:0 0 0 1px rgba(217,162,86,.22),0 0 30px -4px rgba(217,162,86,.4),0 10px 34px -14px rgba(217,162,86,.35)}
 .sf-band{position:relative;height:150px;background:#0e1411;overflow:hidden}
 .sf-band img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 25%}
 .sf-band img.ph{filter:blur(16px) brightness(.7);transform:scale(1.25)}
-.sf-band::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.08) 0%,var(--panel2) 100%)}
+.sf-band::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.06) 0%,transparent 50%,var(--panel2) 100%)}
 .sf-hero-row{display:flex;gap:12px;padding:0 14px;margin-top:-62px;position:relative;z-index:1}
 .sf-thumb{width:96px;flex-shrink:0;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.5)}
 .sf-hero-txt{flex:1;min-width:0;padding-top:68px}
@@ -894,33 +890,10 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <label>Title</label>
     <div class="name-row">
       <input id="mgname" placeholder="e.g. Berserk">
-      <label class="series-toggle" id="mg_seriesToggleWrap" title="Part of a series"><input id="mg_hasSeries" type="checkbox" onchange="toggleSeriesSection('mg')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
     </div>
     <div class="compact-row">
       <div style="flex:0 0 38px"><label>From vol</label><input id="mgfrom" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="1"></div>
       <div style="flex:0 0 38px"><label>To vol</label><input id="mgto" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="15"></div>
-      <div style="flex:0 0 54px" id="mg_yearCell"><label>Year</label><input id="mg_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 140px;min-width:140px" id="mg_hypeCell">
-        <label>Hype</label>
-        <div class="hype-row hype-row-compact">
-          <button type="button" class="hype-dot" data-prefix="mg" data-val="1" onclick="setHype('mg',1)">★</button>
-          <button type="button" class="hype-dot" data-prefix="mg" data-val="2" onclick="setHype('mg',2)">★</button>
-          <button type="button" class="hype-dot" data-prefix="mg" data-val="3" onclick="setHype('mg',3)">★</button>
-          <span class="hype-label" id="mg_hypeLabel">Not set</span>
-        </div>
-        <input type="hidden" id="mg_hype" value="0">
-      </div>
-    </div>
-    <div id="mg_seriesSection" class="field-row" style="display:none">
-      <label>Series</label>
-      <div class="row2">
-        <div><select id="mg_seriesId"></select></div>
-        <div><input id="mg_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
-      </div>
-    </div>
-    <div class="field-row" id="mg_tagsFieldRow">
-      <label>Tags</label>
-      <div class="tag-picker" id="mg_tagsRow"></div>
     </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('mangaModal')">Cancel</button>
@@ -937,21 +910,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <label id="epiNameLabel">Title</label>
     <div class="name-row">
       <input id="epiname" placeholder="e.g. Game of Thrones">
-      <label class="series-toggle" id="epi_seriesToggleWrap" title="Part of a series"><input id="epi_hasSeries" type="checkbox" onchange="toggleSeriesSection('epi')"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg></label>
     </div>
     <div class="compact-row">
       <div style="flex:0 0 48px"><label>Avg. ep (min)</label><input id="epilen" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="60"></div>
-      <div style="flex:0 0 54px" id="epi_yearCell"><label>Year</label><input id="epi_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:1 1 140px;min-width:140px" id="epi_hypeCell">
-        <label>Hype</label>
-        <div class="hype-row hype-row-compact">
-          <button type="button" class="hype-dot" data-prefix="epi" data-val="1" onclick="setHype('epi',1)">★</button>
-          <button type="button" class="hype-dot" data-prefix="epi" data-val="2" onclick="setHype('epi',2)">★</button>
-          <button type="button" class="hype-dot" data-prefix="epi" data-val="3" onclick="setHype('epi',3)">★</button>
-          <span class="hype-label" id="epi_hypeLabel">Not set</span>
-        </div>
-        <input type="hidden" id="epi_hype" value="0">
-      </div>
       <div style="flex:0 0 74px;display:none" id="epi_ratingCell"><label>Rating %</label><input id="epi_rating" class="compact-num-tiny" type="number" min="0" max="100" inputmode="numeric" placeholder="85"></div>
     </div>
     <div class="tmdb-row" id="epi_tmdbRow" style="display:none"><span class="tmdb-status" id="epi_tmdbStatus">Not linked to TMDB</span><button type="button" class="btn small" id="epi_tmdbBtn" onclick="openTmdbLink('epi')">Link</button></div>
@@ -966,17 +927,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div id="groupHeader" class="group-edit-head"></div>
     <div id="groupRows"></div>
     <button class="btn small" style="margin-top:6px" id="addGroupBtn" onclick="addGroupRow()">+ Add season</button>
-    <div id="epi_seriesSection" class="field-row" style="display:none">
-      <label>Series</label>
-      <div class="row2">
-        <div><select id="epi_seriesId"></select></div>
-        <div><input id="epi_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
-      </div>
-    </div>
-    <div class="field-row" id="epi_tagsFieldRow">
-      <label>Tags</label>
-      <div class="tag-picker" id="epi_tagsRow"></div>
-    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('epiModal')">Cancel</button>
       <button class="btn brass" onclick="saveEpisodic()">Save</button>
@@ -1092,6 +1042,13 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="actions"><button class="btn" onclick="closeModal('settingsModal')">Close</button></div>
   </div>
 </div>
+<div class="modal" id="apiModal">
+  <div class="sheet">
+    <h2 class="serif">API keys</h2>
+    <div id="apiBody"></div>
+    <div class="actions"><button class="btn" onclick="closeModal('apiModal')">Back</button></div>
+  </div>
+</div>
 
 <div class="pv" id="posterViewer" aria-hidden="true"><img id="pvImg" alt=""></div>
 
@@ -1178,7 +1135,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.13.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.13.1"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -2519,27 +2476,9 @@ function markWatched(id){
 /* ============ MANGA ============ */
 function openMangaModal(id=null, target="season"){
   editId = id; modalTarget = target; currentModalCategory = "manga";
-  let m = null;
-  if(id){
-    m = arrFor("manga",target).find(x=>x.id===id);
-    $("mangaFormTitle").textContent = "Edit manga";
-    $("mgname").value = m.name; $("mgfrom").value = m.fromVol; $("mgto").value = m.toVol;
-    fillRelease("mg", m.releaseDate); fillHype("mg", Math.min(3, m.hype||0));
-    currentModalTags = (m.tags||[]).slice();
-  } else {
-    $("mangaFormTitle").textContent = "New manga";
-    $("mgname").value = ""; $("mgfrom").value = ""; $("mgto").value = "";
-    fillRelease("mg", null); fillHype("mg", 0);
-    currentModalTags = [];
-  }
-  renderTagPicker("mg");
-  fillSeriesFields("mg", "manga", m);
-  const mgFinished = target==="season" && id && isSeasonItemDone("manga", m);
-  setVisible("mg_yearCell", !mgFinished);
-  setVisible("mg_seriesToggleWrap", !mgFinished);
-  setVisible("mg_tagsFieldRow", !mgFinished);
-  setVisible("mg_hypeCell", !mgFinished);
-  if(mgFinished) $("mg_seriesSection").style.display = "none";
+  const m = id ? arrFor("manga",target).find(x=>x.id===id) : null;
+  $("mangaFormTitle").textContent = m ? "Edit manga" : "New manga";
+  $("mgname").value = m ? m.name : ""; $("mgfrom").value = m ? m.fromVol : ""; $("mgto").value = m ? m.toVol : "";
   $("mangaModal").classList.add("show"); if(!id) $("mgname").focus();
 }
 function saveManga(){
@@ -2547,22 +2486,10 @@ function saveManga(){
   const fromVol = Math.max(1, +$("mgfrom").value || 0);
   const toVol = Math.max(fromVol, +$("mgto").value || 0);
   if(!name || fromVol<=0 || toVol<fromVol) return toast("Give it a title and a valid volume range.");
-  const releaseDate = readRelease("mg"); const hype = Math.min(3, readHype("mg"));
-  const seriesFields = readSeriesFields("mg");
-  if(seriesFields.partOfSeries){
-    const clash = seriesOrderConflict("manga", seriesFields.seriesId, seriesFields.seriesOrder, editId);
-    if(clash) return toast(`"${clash}" already has that series order number.`);
-  }
   const arr = arrFor("manga", modalTarget);
-  if(editId){
-    const m = arr.find(x=>x.id===editId);
-    const total = toVol-fromVol+1;
-    m.name = name; m.fromVol = fromVol; m.toVol = toVol; m.volsRead = Math.min(m.volsRead||0, total);
-    m.releaseDate = releaseDate; m.hype = hype; m.tags = currentModalTags.slice();
-    Object.assign(m, seriesFields);
-  } else {
-    arr.push({ id: uid(), name, fromVol, toVol, volsRead:0, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields });
-  }
+  const m = editId ? arr.find(x=>x.id===editId) : null;
+  if(m) Object.assign(m, { name, fromVol, toVol, volsRead: Math.min(m.volsRead||0, toVol-fromVol+1) });
+  else arr.push({ id: uid(), name, fromVol, toVol, volsRead:0, releaseDate:{ y:"", m:"", d:"" } });
   closeModal("mangaModal"); persist(); toast("Manga saved.");
 }
 function removeManga(id, target="season"){
@@ -2658,16 +2585,13 @@ function openEpisodicModal(category, id=null, target="season", prefill=null){
     $("epiname").value = e.name; $("epilen").value = e.epLen;
     groupTypeSel = e.groupType || "season";
     (e.groups||[]).forEach(g=>addGroupRow(g));
-    fillRelease("epi", e.releaseDate); fillHype("epi", Math.min(3, e.hype||0));
     $("epi_rating").value = e.rating == null ? "" : e.rating;
     modalTmdb = { id: e.tmdbId || null, posterPath: e.posterPath || null };
-    currentModalTags = (e.tags||[]).slice();
   } else {
     $("epiFormTitle").textContent = "New " + (isAnime ? "anime" : "show");
     groupTypeSel = "season";
     if(prefill && isShowCat(category)){
       $("epiname").value = prefill.title; $("epilen").value = prefill.epLen || "";
-      fillRelease("epi", null);
       $("epi_rating").value = prefill.rating == null ? "" : prefill.rating;
       modalTmdb = { id: prefill.id, posterPath: prefill.posterPath };
       const gs = tmdbGroups(category, prefill.seasons);
@@ -2675,24 +2599,15 @@ function openEpisodicModal(category, id=null, target="season", prefill=null){
       gs.forEach(g => addGroupRow({ ...g, id: "" }));
     } else {
       $("epiname").value = ""; $("epilen").value = "";
-      fillRelease("epi", null); $("epi_rating").value = "";
+      $("epi_rating").value = "";
     }
-    fillHype("epi", 0);
-    currentModalTags = [];
   }
   paintTmdbRow("epi");
-  renderTagPicker("epi");
   setGroupType(groupTypeSel);
   epiInitializing = false;
   const epiFinished = target==="season" && id && isSeasonItemDone(category, e);
-  setVisible("epi_yearCell", false);   // v1.12.2 — TV and anime no longer use a release date (TMDB's order rules)
-  // v1.12.0 — anime now works like TV: scores come from TMDB, no hype / tags / series in the form
-  setVisible("epi_seriesToggleWrap", false);
-  setVisible("epi_tagsFieldRow", false);
-  setVisible("epi_hypeCell", false);
   setVisible("epi_ratingCell", !epiFinished && !(e && e.ratings && Object.keys(e.ratings).length));
   setVisible("epi_tmdbRow", !epiFinished);
-  $("epi_seriesSection").style.display = "none";
   $("epiModal").classList.add("show"); if(!id && !prefill) $("epiname").focus();
 }
 function isNumberedMode(){ return epiCategory==="tv" || (epiCategory==="anime" && groupTypeSel==="season"); }
@@ -2754,18 +2669,14 @@ function saveEpisodic(){
     // instead of just landing wherever the merge happened to concatenate it.
     groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched, order: idx, ...(r.dataset.ts ? { tmdbSeason: +r.dataset.ts } : {}) });
   });
-  const releaseDate = readRelease("epi");
   const list = arrFor(epiCategory, epiTarget);
   const prev = editId ? list.find(x => x.id === editId) : null;
   const tmdbFields = { rating: readRating("epi_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) };
-  // hype / tags / series aren't edited any more (TV and anime use TMDB scores); whatever an older anime already has is kept untouched
-  const legacy = prev ? { hype: prev.hype || 0, tags: prev.tags || [], partOfSeries: !!prev.partOfSeries, seriesId: prev.seriesId || null, seriesOrder: prev.seriesOrder ?? null }
-                      : { hype: 0, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null };
   const gt = epiCategory === "anime" ? { groupType: groupTypeSel } : {};
   if(prev){
-    Object.assign(prev, { name, epLen, groups, releaseDate, ...legacy, ...tmdbFields, ...gt });
+    Object.assign(prev, { name, epLen, groups, ...tmdbFields, ...gt });
   } else {
-    const entry = { id: uid(), name, epLen, groups, releaseDate, ...legacy, ...tmdbFields, ...gt };
+    const entry = { id: uid(), name, epLen, groups, releaseDate:{ y:"", m:"", d:"" }, ...tmdbFields, ...gt };
     list.push(entry);
     if(entry.tmdbId) tvFetchAll(entry);
   }
@@ -2982,6 +2893,7 @@ function refreshTmdbModals(){
   if($("tmdbModal").classList.contains("show") && tmdbCtx) renderTmdbModal("");
   if($("matchModal").classList.contains("show") && matchCtx) renderMatchModal();
   if($("settingsModal").classList.contains("show")) $("settingsBody").innerHTML = settingsBodyHtml();
+  if($("apiModal").classList.contains("show")) $("apiBody").innerHTML = apiBodyHtml();
   if($("dataModal").classList.contains("show")) renderDataModal();
 }
 function tmdbErrorHtml(e){
@@ -4197,8 +4109,7 @@ function libraryOpenFn(category, id){
   if(category==="games") return `openGameModal(${id?`'${id}'`:"null"},'library')`;
   if(category==="movies") return `openTmdbSearch('movies','library','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
   if(isShowCat(category)) return `openTmdbSearch('${category}','library','add')`;
-  if(category==="manga") return id ? `openMangaModal('${id}','library')` : `openMgSearch('library','add')`;
-  return `openEpisodicModal('${category}',${id?`'${id}'`:"null"},'library')`;
+  return `openMgSearch('library','add')`;   // manga
 }
 function libraryRemoveFn(category, id){
   if(category==="games") return `removeGame('${id}','library')`;
@@ -4817,7 +4728,7 @@ function renderDataModal(){
   $("dataBody").innerHTML = `${tvBatch && tvBatch.note ? `<div class="tmdb-msg" style="padding:2px 0 8px">${esc(tvBatch.note)}</div>` : ""}
     <button class="data-row" onclick="dataGo('match')"><div><b>⇄ Link to TMDB</b><span>${unl ? `${unl} ${unl===1?w:wp} not linked yet` : `Every ${w} is linked`}</span></div><i>›</i></button>
     <button class="data-row" onclick="tvBatchStart(false)"><div><b>★ Fetch episode scores</b><span>${miss ? `${miss} linked ${miss===1?w:wp} without scores` : `Scores loaded for every linked ${w}`}</span></div><i>›</i></button>
-    ${linked ? `<button class="data-row" onclick="tvBatchStart(true)"><div><b>↻ Refresh all</b><span>Reload ${an ? "arcs" : "seasons"} and scores for ${linked} ${linked===1?w:wp}</span></div><i>›</i></button>` : ""}
+    ${linked ? `<button class="data-row" onclick="tvBatchStart(true)"><div><b>↻ Refresh all</b><span>Add missing ${an ? "arcs" : "seasons"}, reload scores for ${linked} ${linked===1?w:wp}</span></div><i>›</i></button>` : ""}
     <div class="hint" style="margin-top:12px">${omdbKey() ? "IMDb episode scores come from OMDb; episodes it doesn't have fall back to TMDB's score." : "No OMDb key yet, so episodes use TMDB's score. Add an OMDb key in Settings (⚙ top right) for IMDb episode scores."}</div>`;
 }
 function dataGo(which){ closeModal("dataModal"); if(which === "match") openMatchModal(dataCat); else openRatingsModal(); }
@@ -4835,8 +4746,10 @@ function settingsBodyHtml(){
       <div class="hint" style="margin:4px 0 0">Which site's score every title shows. You can still override a single title by tapping its rating circle.</div>
       <div class="rate-chips">${ratingSrcOptions().map(k => `<button class="rate-chip${k === cur ? " on" : ""}" onclick="setGlobalRatingSrc('${esc(k)}')">${esc(mdbLabel(k))}</button>`).join("")}</div>
       <div class="hint" style="margin:10px 0 0">A title with no score from that site falls back to Merged, then IMDb, then TMDB.</div></div>
-    <div class="set-sec"><div class="set-head"><b>API keys</b></div>${tmdbSettingsHtml()}${mdbSettingsHtml()}${omdbSettingsHtml()}</div>`;
+    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey"].filter(k => S.settings[k]).length} of 3 saved · TMDB, MDBList, OMDb</span></div><i>›</i></button></div>`;
 }
+function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml(); }
+function openApiModal(){ $("apiBody").innerHTML = apiBodyHtml(); $("apiModal").classList.add("show"); }
 function openSettingsModal(){ $("settingsBody").innerHTML = settingsBodyHtml(); $("settingsModal").classList.add("show"); }
 function setGlobalRatingSrc(k){
   const movies = allRated();
@@ -5068,7 +4981,7 @@ async function tvBatchStart(force){
     done++;
     tvBatch.text = `Show ${done} of ${q.length}: ${it.name}`;
     const el = $("tvProg"); if(el) el.textContent = tvBatch.text;
-    await tvFetchAll(it);
+    if(force && it.tmdbId) await tvSyncSeasons(it.id, true); else await tvFetchAll(it);
     if(tvErr[it.tmdbId] && tvErr[it.tmdbId].message === "bad-key") break;
     await sleep(100);
   }
@@ -5142,7 +5055,7 @@ function tvSeasonsHtml(item, entry){
   if(sel){
     const eps = sel.n != null && entry ? entry.eps[sel.n] : null;
     const g = sel.gid ? (item.groups || []).find(x => x.id === sel.gid) : null, seen = !!(g && g.total > 0 && g.watched >= g.total);
-    const acts = g ? `<div class="tve-actions"><button class="btn small ${seen ? "brass" : "ghost"}" onclick="tvSeasonWatched('${item.id}','${g.id}')">${seen ? "✅ Watched" : "☑ Mark as watched"}</button><button class="btn small ghost danger" onclick="tvSeasonRemove('${item.id}','${g.id}')">🗑 Remove season</button></div>` : "";
+    const acts = g ? `<div class="tve-actions"><button class="btn small ${seen ? "brass" : "ghost"}" onclick="tvSeasonWatched('${item.id}','${g.id}')">${seen ? "Watched" : "Mark as watched"}</button><button class="btn small ghost danger" onclick="tvSeasonRemove('${item.id}','${g.id}')">Remove season</button></div>` : "";
     if(!eps) panel = `<div class="tve-wrap"><div class="tve-head"><span><b>${esc(sel.label)}</b></span></div><div class="tvc-note">No episode info for this one — it isn't matched to a TMDB season.</div>${acts}</div>`;
     else {
       const avg = tvSeasonAvg(eps, item); let anyFb = false;
@@ -5170,8 +5083,8 @@ function tvBodyHtml(item){
     <div class="tvc-sec"><div class="tvc-lab">Seasons</div>${tvSeasonsHtml(item, entry)}${note}</div>
     <div class="pd-foot tvc-foot">
       ${btnH("ghost", "pdView", item.id, "View poster")}${btnH("ghost", "openBackdropPicker", item.id, "Change image")}
-      ${btnH("ghost", "tvMove", item.id, "To Season")}${btnH("ghost", "tvEdit", item.id, "Edit")}
-      ${item.tmdbId ? btnH("ghost", "tvSyncSeasons", item.id, "Sync with TMDB") : ""}${btnH("ghost danger", "tvRemove", item.id, "Remove")}
+      ${btnH("ghost", "tvMove", item.id, "To Season")}
+      ${btnH("ghost danger", "tvRemove", item.id, "Remove")}
     </div>
   </div>`;
 }
@@ -5227,15 +5140,16 @@ function tvSeasonRemove(id, gid){
 }
 // Pulls the show's seasons/arcs from TMDB again and ADDS the ones this title is missing (and grows
 // an arc's episode count when TMDB has more, e.g. an airing arc). Existing progress is never lowered.
-async function tvSyncSeasons(id){
-  const item = titleById(id); if(!item || !item.tmdbId) return toast("Link it to TMDB first.");
+async function tvSyncSeasons(id, quiet){
+  const say = quiet ? () => {} : toast;
+  const item = titleById(id); if(!item || !item.tmdbId) return say("Link it to TMDB first.");
   const cat = SHOW_CATS.find(c => (S[c] || []).some(x => x.id === id) || (S.library[c] || []).some(x => x.id === id));
   if(!cat) return;
-  toast("Checking TMDB…");
+  say("Checking TMDB…");
   let d;
-  try{ d = await MediaDB.for(cat).details(cat, item.tmdbId); }catch(e){ return toast("Couldn't reach TMDB. Try again in a moment."); }
+  try{ d = await MediaDB.for(cat).details(cat, item.tmdbId); }catch(e){ return say("Couldn't reach TMDB. Try again in a moment."); }
   const seasons = (d.seasons || []).filter(x => x.episodes > 0);
-  if(!seasons.length) return toast("TMDB has no seasons for this one yet.");
+  if(!seasons.length) return say("TMDB has no seasons for this one yet.");
   const gs = (item.groups || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const numOf = g => {
     const m = /season\s*(\d+)/i.exec(g.name || ""); if(m) return +m[1];
@@ -5253,8 +5167,8 @@ async function tvSyncSeasons(id){
   if(!fresh.length){
     delete pdCache["t:" + item.tmdbId]; pdCacheSave(); tvHealTried.clear();
     persist();
-    tvFetchAll(item);   // also reloads every episode name and score
-    return toast(isHalf ? "Refreshed this part's episode names and scores." : (grown ? `Updated ${grown} episode count${grown === 1 ? "" : "s"} and refreshed the episode data.` : "Nothing missing — refreshed the episode data."));
+    await tvFetchAll(item);   // also reloads every episode name and score
+    return say(isHalf ? "Refreshed this part's episode names and scores." : (grown ? `Updated ${grown} episode count${grown === 1 ? "" : "s"} and refreshed the episode data.` : "Nothing missing — refreshed the episode data."));
   }
   // keep the order TMDB uses: sort by season number; anything we can't number stays right after its neighbour
   let last = 0; const keyed = gs.map(g => { const n = numOf(g); if(n != null) last = n; return { g, k: n != null ? n : last + 0.5 }; });
@@ -5263,17 +5177,16 @@ async function tvSyncSeasons(id){
   const furthest = keyed.reduce((m, x, i) => (x.g.watched > 0 && !x.fresh ? i : m), -1);
   const before = keyed.filter((x, i) => x.fresh && i < furthest);
   item.groups = keyed.map((x, i) => { x.g.order = i; return x.g; });
-  if(before.length && confirm(`${before.length} of the new ${groupsWord(item.groups)}${before.length === 1 ? "" : "s"} come${before.length === 1 ? "s" : ""} before the furthest one you've watched. Mark ${before.length === 1 ? "it" : "them"} as already watched?`)){
+  if(before.length && !quiet && confirm(`${before.length} of the new ${groupsWord(item.groups)}${before.length === 1 ? "" : "s"} come${before.length === 1 ? "s" : ""} before the furthest one you've watched. Mark ${before.length === 1 ? "it" : "them"} as already watched?`)){
     before.forEach(x => { x.g.watched = x.g.total; });
   }
   if(cat === "anime") item.groupType = groupTypeFor(cat, item.groups);
   delete pdCache["t:" + item.tmdbId]; pdCacheSave(); tvHealTried.clear();
   persist();
-  tvFetchAll(item);   // episodes and scores for the new ones
-  toast(`Added ${fresh.length} missing ${groupsWord(item.groups)}${fresh.length === 1 ? "" : "s"} from TMDB.`);
+  await tvFetchAll(item);   // episodes and scores for the new ones
+  say(`Added ${fresh.length} missing ${groupsWord(item.groups)}${fresh.length === 1 ? "" : "s"} from TMDB.`);
 }
 function tvMove(id){ tvOpen = null; tvOpenSeason = null; openMoveModal(libCatOf(id), id, "library", "season"); render(); }
-function tvEdit(id){ openEpisodicModal(libCatOf(id), id, "library"); }
 function tvRemove(id){
   if(!confirm("Remove this title?")) return;
   tvOpen = null; tvOpenSeason = null;
@@ -5439,7 +5352,7 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
         <div class="sx-title serif">${esc(row.label)}</div>
         ${nextLine}
         <div class="sx-prog">${g.watched} / ${g.total} · ${finished ? "done" : fmtHM(left * (item.epLen || 0)) + " left"}<div class="sx-bar"><i style="width:${pct}%"></i></div></div>
-        ${!finished && entry && row.n == null ? `<div class="tvc-note">No episode info for this one — use “Sync with TMDB” at the bottom of the show.</div>` : ""}
+        ${!finished && entry && row.n == null ? `<div class="tvc-note">No episode info for this one — use ↻ Refresh all in the Data menu (Library page).</div>` : ""}
       </div>
     </div>
     ${finished || left <= 0 ? "" : `<div class="sx-btn"><button class="btn accent" style="--accent:${CAT[sxCat].color};--accent-text:${CAT[sxCat].text}" onclick="event.stopPropagation();sxWatched('${item.id}','${g.id}')">✓ Watched</button></div>`}
@@ -5465,7 +5378,7 @@ function sxShowHtml(item, nextGid, isHero){
       : `<div class="tvc-note" style="padding:12px 0">No seasons added yet — edit this show to add some.</div><div class="sf-links"><button onclick="openEpisodicModal('${sxCat}','${item.id}')">Edit</button></div>`;
     body = `<div class="sx-body${sxAnim === "s:" + item.id ? " sx-in" : ""}">
       <div class="sx-seasons">${inner}</div>
-      <div class="sf-links">${item.tmdbId ? `<button onclick="tvSyncSeasons('${item.id}')">Sync with TMDB</button>` : ""}<button onclick="abandonItem('${sxCat}','${item.id}')">Abandon ${nounFor(sxCat)}</button><button onclick="removeEpisodic('${sxCat}','${item.id}')">Remove ${nounFor(sxCat)}</button></div>
+      <div class="sf-links"><button onclick="abandonItem('${sxCat}','${item.id}')">Abandon ${nounFor(sxCat)}</button><button onclick="removeEpisodic('${sxCat}','${item.id}')">Remove ${nounFor(sxCat)}</button></div>
     </div>`;
   }
   return `<section class="sx-show${open ? "" : " col"}" data-id="${item.id}">${isHero ? sxHeroHtml(item, entry, rows, open, nextGid) : sxBandHtml(item, entry, rows, open)}${body}</section>`;
@@ -5744,8 +5657,7 @@ function mgPanelHtml(it){
   const { hi } = mgSeries(it);
   const sibs = mgSiblings(it);
   const lowerBound = sibs.filter(x => (x.toVol || 0) < i.from).reduce((m, x) => Math.max(m, (x.toVol || 0) + 1), 1);
-  const btns = [btnH("ghost", "mgViewCover", it.id, "View cover"), btnH("ghost", "mgMove", it.id, "To Season"), btnH("ghost", "mgEdit", it.id, "Edit"),
-    it.anilistId ? btnH("ghost", "mgRefreshOne", it.id, "Refresh") : btnH("ghost", "mgLink", it.id, "Link to AniList"), btnH("ghost danger", "mgRemove", it.id, "Remove")];
+  const btns = [btnH("ghost", "mgViewCover", it.id, "View cover"), btnH("ghost", "mgMove", it.id, "To Season"), !it.anilistId && btnH("ghost", "mgLink", it.id, "Link to AniList"), btnH("ghost danger", "mgRemove", it.id, "Remove")].filter(Boolean);
   return `<div class="mg-panel${enter}">
     <div class="mg-name serif">${esc(it.name)}</div>
     ${d && d.authors && d.authors.length ? `<div class="mg-by">${esc(d.authors.join(", "))}</div>` : ""}
@@ -5813,7 +5725,6 @@ function mgSetOut(id){
   persist(); toast(`Now ${v} volumes out.`);
 }
 function mgMove(id){ openMoveModal("manga", id, "library", "season"); }
-function mgEdit(id){ openMangaModal(id, "library"); }
 function mgRemove(id){ if(!confirm("Remove this manga?")) return; mgOpen = null; S.library.manga = S.library.manga.filter(x => x.id !== id); persist(); }
 function mgLink(id){ openMgSearch("library", "link", id); }
 function mgViewCover(id){
@@ -5852,12 +5763,6 @@ function mgApplyFresh(m){
     if(top && m.volumes > (top.toVol || 0)) top.toVol = m.volumes;
     mine.forEach(x => { x.ongoing = false; });
   }
-}
-async function mgRefreshOne(id){
-  const it = mgMangaAll().find(x => x.id === id); if(!it || !it.anilistId) return;
-  toast("Refreshing…");
-  try{ const d = await anilist(AL_DETAIL, { id: it.anilistId }); if(d.Media){ mgApplyFresh(d.Media); delete pdCache["a:" + it.anilistId]; pdCacheSave(); persist(); mgEnsureDetails(it); toast("Up to date."); } }
-  catch(e){ toast(alErrorText(e)); }
 }
 async function mgRefreshAll(){
   const list = mgMangaAll().filter(x => x.anilistId), ids = [...new Set(list.map(x => x.anilistId))];
@@ -6304,6 +6209,19 @@ document.querySelectorAll(".modal").forEach(function(m){
 });
 
 $("verTag").textContent = "v" + APP_VERSION;
+(function(){   // v1.13.1 — header hides while scrolling down, returns on any scroll up
+  const hd = document.querySelector("header"); let last = 0, tick = false;
+  const run = () => {
+    tick = false;
+    const y = window.scrollY, max = document.documentElement.scrollHeight - innerHeight;
+    hd.classList.toggle("stuck", y > 8);
+    if(y <= 8){ hd.classList.remove("away"); last = Math.max(0, y); return; }
+    if(y > max + 1 || Math.abs(y - last) < 6) return;   // ignore rubber-band bounce and tiny moves
+    hd.classList.toggle("away", y > last && y > 90);
+    last = y;
+  };
+  window.addEventListener("scroll", () => { if(!tick){ tick = true; requestAnimationFrame(run); } }, { passive: true });
+})();
 render();
 </script>
 
