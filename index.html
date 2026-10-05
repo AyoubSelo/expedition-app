@@ -671,6 +671,41 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .sx-panel{margin-top:10px;padding:12px;border-radius:12px;background:var(--panel2);border:1px solid var(--brass)}
 .sx-panel .pn{font-size:18px}
 .sx-panel .ps{margin-top:4px;font-size:12px;color:var(--muted)}
+/* v1.13.0 — Manga Library: two big covers per row, the open title's panel drops under its row */
+.mg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}
+.mgc{min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mgc-cover{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:linear-gradient(160deg,#233028,#121a15);border:1px solid var(--line);box-shadow:0 8px 20px -12px rgba(0,0,0,.8)}
+.mgc-cover::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(255,255,255,.08) 60%,transparent);z-index:2;pointer-events:none}   /* the "spine" */
+.mgc-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s ease}
+.mgc-cover img.in{opacity:1}
+.mgc-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;font-family:"Fraunces",Georgia,serif;font-size:15px;line-height:1.25;color:var(--muted)}
+.mgc.sel .mgc-cover{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass),0 8px 20px -12px rgba(0,0,0,.8)}
+.mgc .prate{top:8px;right:8px;z-index:3}
+.mgc-title{margin-top:9px;font-size:15px;line-height:1.2;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mgc-sub{margin-top:3px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.02em;color:var(--brass)}
+.mgm{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line);gap:1px}
+.mgm.mgm-c{height:5px;margin-top:7px;border-radius:3px}
+.mgm i{display:block;min-width:2px;height:100%}
+.mgm i[style*="--u"]{background-image:repeating-linear-gradient(90deg,transparent 0,transparent calc(var(--u) - 1px),rgba(0,0,0,.4) calc(var(--u) - 1px),rgba(0,0,0,.4) var(--u))}
+.mgm-skip{background-color:#3b463f}
+.mgm-lib{background-color:var(--brass)}
+.mgm-season{background-color:rgba(217,162,86,.12);box-shadow:inset 0 0 0 1.5px var(--brass)}
+.mgm-tail{background:repeating-linear-gradient(135deg,#4a5a4f 0 3px,transparent 3px 6px)}
+.mgm-leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:9px;font-size:11px;color:var(--muted)}
+.mgm-leg span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.mgm-leg u{display:inline-block;width:14px;height:8px;border-radius:2px;text-decoration:none}
+.mgm-leg u.lg-skip{background:#3b463f}.mgm-leg u.lg-lib{background:var(--brass)}.mgm-leg u.lg-season{background:rgba(217,162,86,.12);box-shadow:inset 0 0 0 1.5px var(--brass)}.mgm-leg u.lg-tail{background:repeating-linear-gradient(135deg,#4a5a4f 0 2px,transparent 2px 4px)}
+.mg-panel{grid-column:1/-1;border:1px solid var(--brass);border-radius:16px;background:var(--panel2);padding:14px}
+.mg-panel .mg-name{font-size:21px;line-height:1.15;color:var(--ink)}
+.mg-by{margin-top:4px;font-size:12px;color:var(--muted)}
+.mg-chips{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.mg-chip{font-family:"IBM Plex Mono",monospace;font-size:10.5px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.mg-chip.on{border-color:var(--brass);color:var(--brass)}
+.mg-ctl{display:flex;flex-direction:column;gap:10px}
+.mg-row label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+.mg-inp{display:flex;gap:8px}
+.mg-inp input{flex:1;min-width:0}
+.mg-hint{font-size:11px;color:var(--muted-dim);margin-top:4px;line-height:1.4}
 .tve-legend{margin-top:6px;font-size:11px;color:var(--muted-dim)}
 .tvc-foot{margin-top:12px}
 .tvc-foot .full{grid-column:1 / -1}
@@ -1024,6 +1059,17 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
+<!-- v1.13.0 — manga search / link / volume count (AniList) -->
+<div class="modal" id="mgModal">
+  <div class="sheet">
+    <h2 class="serif" id="mgmTitle">Add manga</h2>
+    <div class="hint" id="mgmHint"></div>
+    <div id="mgmBody"></div>
+    <div class="actions" id="mgmActions"></div>
+    <div class="tmdb-credit">Manga data and covers from AniList.</div>
+  </div>
+</div>
+
 <!-- v1.10.0 — change a show's banner image -->
 <div class="modal" id="bdModal">
   <div class="sheet">
@@ -1132,7 +1178,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.12.3"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.13.0"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -1232,6 +1278,11 @@ function normalizeState(raw){
     ...((cat==="movies"||cat==="tv")
       ? { partOfSeries:false, seriesId:null, seriesOrder:null } // v1.8.4 / v1.10.1 — the series system is gone for movies and TV
       : { partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null }),
+    // v1.13.0 — manga linked to AniList: id, cover, score (0-100) and whether it is still being published
+    ...(cat==="manga" ? {
+      anilistId: x.anilistId||null, malId: x.malId||null, coverUrl: x.coverUrl||null, ongoing: !!x.ongoing,
+      rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
+    } : {}),
     ...((cat==="movies"||cat==="tv"||cat==="anime") ? {
       rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
       tmdbId: x.tmdbId||null, posterPath: x.posterPath||null, tmdbSkip: !!x.tmdbSkip,
@@ -1940,7 +1991,7 @@ function openMoveModal(category, id, fromMode, toMode){
     const read = Math.min(item.volsRead||0, total);
     const unread = total - read;
     if(unread<=0){ toast("Every volume here is already read — nothing unread to move."); moveModalCtx = null; return; }
-    body = `<div class="hint">"${esc(item.name)}" has ${unread} unread volume${unread===1?"":"s"}${read ? ` (${read} already read)` : ""}. How many do you want to move to ${dir}? Only unread volumes move.</div>
+    body = `<div class="hint">"${esc(item.name)}" has ${unread} unread volume${unread===1?"":"s"}${read ? ` (${read} already read)` : ""}. How many do you want to move to ${dir}? Only unread volumes move — ${toMode==="season" ? "the first ones in line go" : "the last ones of this piece go back, right before the Library's"}.</div>
       <div class="field-row"><label>Volumes to move</label><input id="moveVolCount" type="number" min="1" max="${unread}" value="${unread}" inputmode="numeric"></div>`;
   } else {
     const groupWord = (category==="anime" && item.groupType==="arc") ? "arc" : "season";
@@ -2032,8 +2083,16 @@ function splitAndMoveManga(id, fromMode, toMode, volCount){
   // v1.8.2 — plain counts, no volume-order logic. The moved piece is `count`
   // unread volumes; the original just shrinks by that many and keeps its
   // progress. (The numbers are only labels: the last `count` of the range go.)
-  const movedPart = { ...item, id: uid(), fromVol: item.toVol - count + 1, toVol: item.toVol, volsRead: 0 };
-  item.toVol = item.toVol - count;
+  // v1.13.0 — one contiguous range: Library → Season takes the FIRST `count` volumes of the Library piece,
+  // Season → Library hands back the LAST `count` of the Season piece, so the pieces always stay side by side.
+  let movedPart;
+  if(toMode === "season"){
+    movedPart = { ...item, id: uid(), fromVol: item.fromVol, toVol: item.fromVol + count - 1, volsRead: 0 };
+    item.fromVol = item.fromVol + count;
+  } else {
+    movedPart = { ...item, id: uid(), fromVol: item.toVol - count + 1, toVol: item.toVol, volsRead: 0 };
+    item.toVol = item.toVol - count;
+  }
   if(!mergeIntoSibling("manga", toArr, movedPart)) toArr.push(movedPart);
   persist();
   toast(toMode==="library" ? "Moved to Library." : "Moved to Season.");
@@ -2085,7 +2144,7 @@ function switchLibTab(t){
   libTab = t;
   localStorage.setItem("expedition-libtab", t);
   libSearchQ = "";
-  libExpandedItems.clear(); libExpandedGroups.clear(); tvOpen = null; tvOpenSeason = null;
+  libExpandedItems.clear(); libExpandedGroups.clear(); tvOpen = null; tvOpenSeason = null; mgOpen = null;
   render();
   window.scrollTo(0,0);
   if(oldIdx!==-1 && newIdx!==-1 && oldIdx!==newIdx) playPageTransition(newIdx>oldIdx ? "right" : "left");
@@ -4138,7 +4197,7 @@ function libraryOpenFn(category, id){
   if(category==="games") return `openGameModal(${id?`'${id}'`:"null"},'library')`;
   if(category==="movies") return `openTmdbSearch('movies','library','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
   if(isShowCat(category)) return `openTmdbSearch('${category}','library','add')`;
-  if(category==="manga") return `openMangaModal(${id?`'${id}'`:"null"},'library')`;
+  if(category==="manga") return id ? `openMangaModal('${id}','library')` : `openMgSearch('library','add')`;
   return `openEpisodicModal('${category}',${id?`'${id}'`:"null"},'library')`;
 }
 function libraryRemoveFn(category, id){
@@ -4302,6 +4361,7 @@ function posterGridHtml(items, blockFn, opts){
 const btnH = (cls, fn, id, label, style) => `<button class="btn small ${cls}"${style?` style="${style}"`:""} onclick="${fn}('${id}')">${label}</button>`;
 function libraryList(category, items){
   if(isShowCat(category)) return `<div class="tv-list">${items.map(tvCard).join("")}</div>`;
+  if(category==="manga") return mgShelf(items);
   if(category!=="movies") return `<div class="lib-list">${items.map(x=>libraryRow(category,x)).join("")}</div>`;
   return posterGridHtml(items, (it, i, enter) => movieDetailBlock(it, i, enter,
     btnH("ghost","pdView",it.id,"View poster") + btnH("ghost","pdMove",it.id,"To Season") + btnH("ghost danger","pdRemove",it.id,"Remove")));
@@ -4734,9 +4794,10 @@ function sortDirPick(d){ const c = SORT_CTX[sortCtxName]; c.set(c.get().key, d);
 
 /* ---------- v1.9.1 — "Data" menu: TMDB links + ratings in one button (v1.10.0: Movies and TV) ---------- */
 let dataCat = "movies", tvBatch = null;
-function dataCount(cat){ return isShowCat(cat) ? unlinkedQueue(cat).length + tvQueue(false, cat).length : unlinkedQueue("movies").length + rtQueue(false).length; }
+function dataCount(cat){ if(cat === "manga") return mgUnlinked().length; return isShowCat(cat) ? unlinkedQueue(cat).length + tvQueue(false, cat).length : unlinkedQueue("movies").length + rtQueue(false).length; }
 function openDataModal(cat){ dataCat = cat || "movies"; tvBatch = null; renderDataModal(); $("dataModal").classList.add("show"); }
 function renderDataModal(){
+  if(dataCat === "manga") return renderMgDataModal();
   const tv = isShowCat(dataCat), an = dataCat === "anime", w = an ? "anime" : "show", wp = an ? "anime" : "shows";
   $("dataTitle").textContent = tv ? (an ? "Anime data" : "Show data") : "Movie data";
   $("dataHint").textContent = tv ? `Keep your ${wp} linked to TMDB and loaded with ${an ? "arcs" : "seasons"}, episodes and scores.` : "Keep your movies linked to TMDB and loaded with scores.";
@@ -5490,6 +5551,350 @@ function sxToggleDone(gid){ if(sxDoneOpen.has(gid)) sxDoneOpen.delete(gid); else
 function sxShelfToggle(id){ sxShelfOpen = sxShelfOpen === id ? null : id; render(); }
 function sxToLibrary(id, gid){ splitAndMoveEpisodic(sxCat, id, "season", "library", [gid]); }
 
+/* ---------- v1.13.0 — Manga Library (AniList) ----------
+   AniList's public GraphQL API: free, no key. A manga item keeps the volume-range model it always had
+   (fromVol..toVol, volsRead) and gains anilistId / coverUrl / rating / ongoing. AniList only knows a
+   series' volume count once it is finished, so for an ongoing one you type "volumes out so far" and
+   the volume map shows a hatched "not out yet" tail. Synopsis / authors live in the device cache. */
+let mgOpen = null;
+let mgS = { target: "library", mode: "add", linkId: null, q: "", results: [], pick: null, busy: false };
+let mgTimer = null, mgSeq = 0;
+const AL_URL = "https://graphql.anilist.co";
+const AL_SEARCH = `query($q:String){Page(perPage:14){media(search:$q,type:MANGA,sort:SEARCH_MATCH){id idMal format status volumes chapters averageScore startDate{year} title{romaji english} coverImage{large}}}}`;
+const AL_DETAIL = `query($id:Int){Media(id:$id,type:MANGA){id idMal status volumes chapters averageScore description(asHtml:false) coverImage{large extraLarge} startDate{year} staff(perPage:6,sort:RELEVANCE){edges{role node{name{full}}}}}}`;
+async function anilist(query, variables){
+  let res;
+  try{ res = await fetch(AL_URL, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify({ query, variables }) }); }
+  catch(e){ throw new Error("network"); }
+  if(res.status === 429) throw new Error("limit");
+  if(!res.ok) throw new Error("http-" + res.status);
+  const j = await res.json();
+  if(j.errors && j.errors.length) throw new Error("query");
+  return j.data;
+}
+function alErrorText(e){
+  const m = e && e.message;
+  return m === "network" ? "Couldn't reach AniList. Check your connection and try again." : (m === "limit" ? "AniList asked us to slow down — wait a minute and try again." : "AniList had a problem with that request. Try again in a moment.");
+}
+function alNorm(m){
+  return { id: m.id, malId: m.idMal || null, title: (m.title && (m.title.english || m.title.romaji)) || "Untitled", format: m.format, status: m.status,
+    volumes: m.volumes > 0 ? m.volumes : null, chapters: m.chapters || null, score: m.averageScore == null ? null : m.averageScore,
+    year: m.startDate && m.startDate.year || null, cover: m.coverImage && m.coverImage.large || null };
+}
+const AL_STATUS = { FINISHED: "Finished", RELEASING: "Publishing", NOT_YET_RELEASED: "Not out yet", CANCELLED: "Cancelled", HIATUS: "On hiatus" };
+function mgInfo(it){
+  const from = it.fromVol || 1, to = Math.max(from, it.toVol || from), total = to - from + 1, read = Math.min(it.volsRead || 0, total);
+  return { from, to, total, left: Math.max(0, total - read) };
+}
+function mgRange(it){ const i = mgInfo(it); return `Vol ${i.from}${i.to > i.from ? "–" + i.to : ""}${it.ongoing ? "+" : ""}`; }
+function mgMangaAll(){ return (S.library.manga || []).concat(S.manga || []); }
+function mgUnlinked(){ return mgMangaAll().filter(x => !x.anilistId && !x.abandoned); }
+function mgSiblings(it){ return it.originGroupId ? mgMangaAll().filter(x => x !== it && x.originGroupId === it.originGroupId) : []; }
+
+/* ----- search / link / add ----- */
+function openMgSearch(target, mode, linkId){
+  mgS = { target: target || "library", mode: mode || "add", linkId: linkId || null, q: "", results: [], pick: null, busy: false };
+  const it = mgS.linkId ? mgMangaAll().find(x => x.id === mgS.linkId) : null;
+  renderMgModal(it ? it.name : "");
+  $("mgModal").classList.add("show");
+}
+function renderMgModal(q){
+  const link = mgS.mode === "link";
+  $("mgmTitle").textContent = link ? "Link to AniList" : "Add manga";
+  if(mgS.pick){   // second step: how many volumes are out?
+    const r = mgS.pick;
+    $("mgmTitle").textContent = "How many volumes?";
+    $("mgmHint").textContent = `“${r.title}” is ${r.status === "CANCELLED" ? "cancelled" : "still being published"}, so AniList doesn't have a final volume count.`;
+    $("mgmBody").innerHTML = `<label>Volumes out so far</label><input id="mgmVols" type="number" min="1" inputmode="numeric" value="${r.volumes || ""}" placeholder="e.g. 107" onkeydown="if(event.key==='Enter'){event.preventDefault();mgConfirmVolumes();}">
+      <div class="mg-hint">It'll show as “Vol 1–${r.volumes || "N"}+” with a hatched “not out yet” tail on the volume map. When the series ends, Data → Refresh picks up the real total.</div>`;
+    $("mgmActions").innerHTML = `<button class="btn" onclick="mgS.pick=null;renderMgModal(mgS.q)">Back</button><button class="btn brass" onclick="mgConfirmVolumes()">Add</button>`;
+    setTimeout(() => { const el = $("mgmVols"); if(el) el.focus(); }, 60);
+    return;
+  }
+  $("mgmHint").textContent = link ? "Pick the right one — your volumes and progress stay exactly as they are." : "Search and tap the right one — finished series are added straight away.";
+  $("mgmBody").innerHTML = `<input id="mgmQuery" placeholder="Search manga on AniList…" value="${esc(q || "")}" oninput="mgQueryChanged()" onkeydown="if(event.key==='Enter'){event.preventDefault();mgRunSearch();}" autocomplete="off"><div id="mgmResults" class="tmdb-results"></div>`;
+  $("mgmActions").innerHTML = (link ? "" : `<button class="btn" onclick="mgManual()">Enter manually</button>`) + `<button class="btn" onclick="closeModal('mgModal')">Cancel</button>`;
+  if(q) mgRunSearch(); else setTimeout(() => { const el = $("mgmQuery"); if(el) el.focus(); }, 60);
+}
+function mgQueryChanged(){ clearTimeout(mgTimer); mgTimer = setTimeout(mgRunSearch, 450); }
+async function mgRunSearch(){
+  clearTimeout(mgTimer);
+  const input = $("mgmQuery"), box = $("mgmResults"); if(!input || !box) return;
+  const q = input.value.trim(); mgS.q = q;
+  if(q.length < 2){ box.innerHTML = ""; return; }
+  const seq = ++mgSeq;
+  box.innerHTML = `<div class="tmdb-msg">Searching…</div>`;
+  try{
+    const d = await anilist(AL_SEARCH, { q });
+    if(seq !== mgSeq) return;
+    mgS.results = ((d.Page && d.Page.media) || []).filter(m => m.format !== "NOVEL").map(alNorm);
+    box.innerHTML = mgS.results.length ? mgS.results.map((r, i) => {
+      const sub = [r.year, r.volumes ? `${r.volumes} vol${r.volumes === 1 ? "" : "s"}` : (r.chapters ? `${r.chapters} ch` : "volumes unknown"), AL_STATUS[r.status] || "", r.score != null ? "★ " + r.score : ""].filter(Boolean).join(" · ");
+      return `<div class="tmdb-res" onclick="mgPick(${i})"><div class="tmdb-poster">${r.cover ? `<img alt="" loading="lazy" src="${esc(r.cover)}" onerror="this.remove()">` : ""}</div><div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.title)}</div><div class="tmdb-res-sub">${esc(sub)}</div></div></div>`;
+    }).join("") : `<div class="tmdb-msg">No manga found for “${esc(q)}”.</div>`;
+  }catch(e){ if(seq === mgSeq) box.innerHTML = `<div class="tmdb-msg">${esc(alErrorText(e))}</div>`; }
+}
+function mgManual(){ closeModal("mgModal"); openMangaModal(null, mgS.target); }
+function mgApplyLink(it, r){
+  it.anilistId = r.id; it.malId = r.malId; it.coverUrl = r.cover || it.coverUrl;
+  if(r.score != null) it.rating = r.score;
+  it.ongoing = r.status !== "FINISHED" && r.status !== "CANCELLED";
+}
+function mgPick(i){
+  const r = mgS.results[i]; if(!r) return;
+  if(mgS.mode === "link"){
+    const it = mgMangaAll().find(x => x.id === mgS.linkId); if(!it) return closeModal("mgModal");
+    mgMangaAll().filter(x => x === it || (it.originGroupId && x.originGroupId === it.originGroupId)).forEach(x => mgApplyLink(x, r));
+    closeModal("mgModal"); persist(); toast("Linked to AniList.");
+    return;
+  }
+  if(mgMangaAll().some(x => x.anilistId === r.id)){ closeModal("mgModal"); return toast(`“${r.title}” is already on your list.`); }
+  if(r.status === "FINISHED" && r.volumes){ mgAdd(r, r.volumes, false); return; }
+  mgS.pick = r; renderMgModal(mgS.q);
+}
+function mgConfirmVolumes(){
+  const r = mgS.pick, n = Math.floor(+($("mgmVols") || {}).value || 0);
+  if(!r) return;
+  if(n < 1) return toast("Type how many volumes are out.");
+  mgAdd(r, n, r.status !== "CANCELLED");
+}
+function mgAdd(r, vols, ongoing){
+  S.library.manga.push({ id: uid(), name: r.title, fromVol: 1, toVol: vols, volsRead: 0, releaseDate: { y: r.year ? String(r.year) : "", m: "", d: "" },
+    hype: 0, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null, originGroupId: null,
+    anilistId: r.id, malId: r.malId, coverUrl: r.cover, rating: r.score, ongoing: !!ongoing });
+  closeModal("mgModal"); persist();
+  toast(`Added “${r.title}” to the Library.`);
+}
+
+/* ----- details (synopsis, authors) live in the device cache ----- */
+const tvErrMg = {};
+function mgDetail(it){ return it && it.anilistId ? (pdCache["a:" + it.anilistId] || null) : null; }
+async function mgEnsureDetails(it){
+  if(!it || !it.anilistId) return;
+  const key = "a:" + it.anilistId, c = pdCache[key];
+  if(c && Date.now() - c.at < 14 * 86400000) return;
+  try{
+    const d = await anilist(AL_DETAIL, { id: it.anilistId });
+    const m = d.Media; if(!m) return;
+    const by = []; ((m.staff && m.staff.edges) || []).forEach(e => { const n = e.node && e.node.name && e.node.name.full; if(n && !by.includes(n) && /story|art/i.test(e.role || "")) by.push(n); });
+    pdCache[key] = { v: 1, at: Date.now(), desc: String(m.description || "").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").trim(), authors: by.slice(0, 3),
+      status: m.status, volumes: m.volumes || null, chapters: m.chapters || null, xl: (m.coverImage && m.coverImage.extraLarge) || null };
+    pdCacheSave();
+    mgMangaAll().filter(x => x.anilistId === it.anilistId).forEach(x => { if(m.averageScore != null) x.rating = m.averageScore; if(m.coverImage && m.coverImage.large) x.coverUrl = m.coverImage.large; });
+    persist();
+  }catch(e){ tvErrMg[it.anilistId] = e; render(); }
+}
+// linked titles with no cover yet (e.g. just linked) get it in the background — once per visit
+const mgCoverTried = new Set();
+async function mgEnsureCovers(){
+  const list = (S.library.manga || []).filter(x => x.anilistId && !x.coverUrl && !mgCoverTried.has(x.anilistId));
+  let changed = false;
+  for(const it of list){
+    mgCoverTried.add(it.anilistId);
+    try{ const d = await anilist(AL_DETAIL, { id: it.anilistId }); const m = d.Media; if(m && m.coverImage){ mgMangaAll().filter(x => x.anilistId === it.anilistId).forEach(x => { x.coverUrl = m.coverImage.large; }); changed = true; } }catch(e){ break; }
+    await sleep(700);
+  }
+  if(changed) persist();
+}
+
+/* ----- the volume map ----- */
+function mgSeries(it){
+  const sib = mgSiblings(it);
+  const pieces = [{ a: it.fromVol || 1, b: Math.max(it.fromVol || 1, it.toVol || 1), k: "lib" }].concat(sib.map(x => ({ a: x.fromVol || 1, b: Math.max(x.fromVol || 1, x.toVol || 1), k: (S.manga || []).includes(x) ? "season" : "lib" })));
+  pieces.sort((x, y) => x.a - y.a);
+  return { pieces, hi: Math.max(...pieces.map(p => p.b)) };
+}
+function mgMapHtml(it, compact){
+  const { pieces, hi } = mgSeries(it);
+  const segs = []; let cur = 1;
+  pieces.forEach(p => { if(p.a > cur) segs.push({ a: cur, b: p.a - 1, k: "skip" }); segs.push(p); cur = p.b + 1; });
+  const tail = it.ongoing ? Math.max(2, Math.round(hi * 0.1)) : 0;
+  if(tail) segs.push({ a: hi + 1, b: hi + tail, k: "tail" });
+  const units = hi + tail;
+  const bar = segs.map(sg => {
+    const n = sg.b - sg.a + 1, w = (n / units * 100).toFixed(3);
+    const tick = units <= 90 && sg.k !== "tail" ? `;--u:${(100 / n).toFixed(3)}%` : "";
+    return `<i class="mgm-${sg.k}" style="width:${w}%${tick}" title="${sg.k === "tail" ? "not out yet" : "Vol " + sg.a + (sg.b > sg.a ? "–" + sg.b : "")}"></i>`;
+  }).join("");
+  if(compact) return `<div class="mgm mgm-c">${bar}</div>`;
+  const rg = sg => sg.a === sg.b ? `${sg.a}` : `${sg.a}–${sg.b}`;
+  const leg = segs.map(sg => sg.k === "skip" ? `<span><u class="lg-skip"></u>Read / skipped ${rg(sg)}</span>`
+    : sg.k === "season" ? `<span><u class="lg-season"></u>In Season ${rg(sg)}</span>`
+    : sg.k === "lib" ? `<span><u class="lg-lib"></u>Library ${rg(sg)}</span>` : `<span><u class="lg-tail"></u>Not out yet</span>`).join("");
+  return `<div class="mgm">${bar}</div><div class="mgm-leg">${leg}</div>`;
+}
+
+/* ----- the shelf ----- */
+function mgRateBadge(it){ return it.anilistId && it.rating != null ? `<div class="prate ${ratingClass(it.rating)}">${it.rating}</div>` : ""; }
+function mgCardHtml(it){
+  const i = mgInfo(it), sel = mgOpen === it.id;
+  return `<div class="mgc${sel ? " sel" : ""}" data-pid="${it.id}" onclick="mgToggle('${it.id}')">
+    <div class="mgc-cover"><div class="mgc-ph">${esc(it.name)}</div>${it.coverUrl ? `<img alt="" loading="lazy" src="${esc(it.coverUrl)}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}${mgRateBadge(it)}</div>
+    <div class="mgc-title serif">${esc(it.name)}</div>
+    <div class="mgc-sub">${mgRange(it)} · ${i.left} left</div>
+    ${mgMapHtml(it, true)}
+  </div>`;
+}
+function mgPanelHtml(it){
+  const i = mgInfo(it), d = mgDetail(it), enter = pdAnimateIn ? " pd-enter" : "";
+  const dim = t => `<span class="dim">${t}</span>`;
+  const desc = !it.anilistId ? dim("Not linked to AniList yet — tap “Link to AniList” below to get the cover, rating and synopsis.")
+    : (d ? (d.desc ? esc(d.desc) : "No synopsis on AniList.") : (tvErrMg[it.anilistId] ? dim("Couldn't load the details. Close and reopen to try again.") : dim("Loading…")));
+  const st = d && d.status ? AL_STATUS[d.status] : (it.anilistId ? (it.ongoing ? "Publishing" : "Finished") : "");
+  const { hi } = mgSeries(it);
+  const sibs = mgSiblings(it);
+  const lowerBound = sibs.filter(x => (x.toVol || 0) < i.from).reduce((m, x) => Math.max(m, (x.toVol || 0) + 1), 1);
+  const btns = [btnH("ghost", "mgViewCover", it.id, "View cover"), btnH("ghost", "mgMove", it.id, "To Season"), btnH("ghost", "mgEdit", it.id, "Edit"),
+    it.anilistId ? btnH("ghost", "mgRefreshOne", it.id, "Refresh") : btnH("ghost", "mgLink", it.id, "Link to AniList"), btnH("ghost danger", "mgRemove", it.id, "Remove")];
+  return `<div class="mg-panel${enter}">
+    <div class="mg-name serif">${esc(it.name)}</div>
+    ${d && d.authors && d.authors.length ? `<div class="mg-by">${esc(d.authors.join(", "))}</div>` : ""}
+    <div class="mg-chips">${st ? `<span class="mg-chip on">${esc(st)}</span>` : ""}<span class="mg-chip">${mgRange(it)} · ${i.total} vol${i.total === 1 ? "" : "s"}</span>${d && d.chapters ? `<span class="mg-chip">${d.chapters} ch</span>` : ""}${it.anilistId && it.rating != null ? `<span class="mg-chip">AniList ${it.rating}</span>` : ""}</div>
+    <div class="tvc-desc" style="margin-top:12px;height:104px">${desc}</div>
+    <div class="tvc-sec"><div class="tvc-lab">Volume map</div>${mgMapHtml(it, false)}</div>
+    <div class="tvc-sec mg-ctl">
+      <div class="mg-row"><label>Start from volume</label><div class="mg-inp"><input id="mgStart" type="number" inputmode="numeric" min="${lowerBound}" max="${i.to + 1}" value="${i.from}"><button class="btn small ghost" onclick="mgSetStart('${it.id}')">Set</button></div>
+        <div class="mg-hint">Already read the first few? Raise this to skip them (the map greys them out).</div></div>
+      ${it.ongoing ? `<div class="mg-row"><label>Volumes out so far</label><div class="mg-inp"><input id="mgOut" type="number" inputmode="numeric" min="${hi}" value="${hi}"><button class="btn small ghost" onclick="mgSetOut('${it.id}')">Update</button></div>
+        <div class="mg-hint">Still publishing — bump this when a new volume comes out.</div></div>` : ""}
+    </div>
+    <div class="pd-foot tvc-foot">${btns.join("")}</div>
+  </div>`;
+}
+function mgShelf(items){
+  const open = items.findIndex(x => x.id === mgOpen);
+  const cards = items.map(mgCardHtml);
+  if(open >= 0){ cards.splice(Math.min(cards.length, open - (open % 2) + 2), 0, mgPanelHtml(items[open])); }
+  return `<div class="mg-grid">${cards.join("")}</div>`;
+}
+function mgToggle(id){
+  if(pdBusy) return;
+  const wasOpen = mgOpen != null;
+  const go = () => {
+    mgOpen = mgOpen === id ? null : id;
+    pdAnimateIn = !!mgOpen;
+    const it = mgOpen ? S.library.manga.find(x => x.id === mgOpen) : null;
+    if(it){ delete tvErrMg[it.anilistId]; mgEnsureDetails(it); }
+    render();
+    pdAnimateIn = false; pdBusy = false;
+    if(mgOpen) setTimeout(mgScrollIntoView, 420);
+  };
+  if(wasOpen){
+    pdBusy = true;
+    const el = document.querySelector(".mg-panel"); if(el){ el.classList.remove("pd-enter"); el.classList.add("pd-leave"); }
+    setTimeout(go, 190);
+  } else go();
+}
+function mgScrollIntoView(){
+  const el = document.querySelector(".mg-panel"); if(!el) return;
+  const r = el.getBoundingClientRect(), vh = window.innerHeight;
+  if(r.top > vh * 0.55 || r.bottom > vh - 70) window.scrollBy({ top: Math.min(r.top - 90, r.bottom - vh + 90), behavior: "smooth" });
+}
+function mgSetStart(id){
+  const it = S.library.manga.find(x => x.id === id), el = $("mgStart"); if(!it || !el) return;
+  const v = Math.floor(+el.value || 0), i = mgInfo(it);
+  const lower = mgSiblings(it).filter(x => (x.toVol || 0) < i.from).reduce((m, x) => Math.max(m, (x.toVol || 0) + 1), 1);
+  if(v < lower) return toast(`It can't start before volume ${lower}.`);
+  if(v > i.to + 1) return toast(`It only goes up to volume ${i.to}.`);
+  if(v === i.to + 1){
+    if(!confirm(`That leaves nothing to read — remove “${it.name}” from the Library?`)) return;
+    mgOpen = null; S.library.manga = S.library.manga.filter(x => x.id !== id); persist(); return;
+  }
+  it.fromVol = v; it.volsRead = Math.min(it.volsRead || 0, it.toVol - v + 1);
+  persist(); toast(v === i.from ? "No change." : `Starts at volume ${v}.`);
+}
+function mgSetOut(id){
+  const it = S.library.manga.find(x => x.id === id), el = $("mgOut"); if(!it || !el) return;
+  const v = Math.floor(+el.value || 0), { hi } = mgSeries(it);
+  if(v < hi) return toast(`Volume ${hi} is already counted — it can only go up.`);
+  if(v === hi) return toast("No change.");
+  const holder = [it].concat(mgSiblings(it)).find(x => (x.toVol || 0) === hi) || it;   // the piece that holds the last volume
+  holder.toVol = v;
+  persist(); toast(`Now ${v} volumes out.`);
+}
+function mgMove(id){ openMoveModal("manga", id, "library", "season"); }
+function mgEdit(id){ openMangaModal(id, "library"); }
+function mgRemove(id){ if(!confirm("Remove this manga?")) return; mgOpen = null; S.library.manga = S.library.manga.filter(x => x.id !== id); persist(); }
+function mgLink(id){ openMgSearch("library", "link", id); }
+function mgViewCover(id){
+  const it = S.library.manga.find(x => x.id === id);
+  if(!it || !it.coverUrl) return toast("This title has no cover.");
+  const d = mgDetail(it), big = (d && d.xl) || it.coverUrl;
+  pvOpenId = id;
+  pv.s = 1; pv.tx = 0; pv.ty = 0; pv.pts.clear(); pv.pinch = null; pv.moved = false; pv.multi = false; pv.start = null;
+  const img = $("pvImg"); img.src = it.coverUrl;
+  pvApply(false);
+  pvEl().classList.add("show"); pvEl().setAttribute("aria-hidden", "false");
+  const b = new Image(); b.onload = () => { if(pvOpenId === id) img.src = b.src; }; b.src = big;
+}
+
+/* ----- Data menu for manga: refresh from AniList, auto-link by title ----- */
+let mgBatch = null;
+function renderMgDataModal(){
+  $("dataTitle").textContent = "Manga data";
+  $("dataHint").textContent = "Keep covers, ratings and finished-series volume counts up to date from AniList.";
+  if(mgBatch && mgBatch.running){
+    $("dataBody").innerHTML = `<div class="tmdb-msg" id="mgProg">${esc(mgBatch.text || "Starting…")}</div><div class="actions"><button class="btn" onclick="mgBatch.stop=true">Stop</button></div>`;
+    return;
+  }
+  const un = mgUnlinked().length, linked = mgMangaAll().filter(x => x.anilistId).length, ong = mgMangaAll().filter(x => x.anilistId && x.ongoing).length;
+  $("dataBody").innerHTML = `${mgBatch && mgBatch.note ? `<div class="tmdb-msg" style="padding:2px 0 8px">${esc(mgBatch.note)}</div>` : ""}
+    ${un ? `<button class="data-row" onclick="mgAutoLink()"><div><b>⇄ Auto-link by title</b><span>${un} manga not linked yet — links the ones whose title matches exactly</span></div><i>›</i></button>` : `<div class="tmdb-msg" style="padding:6px 0">Every manga is linked to AniList.</div>`}
+    ${linked ? `<button class="data-row" onclick="mgRefreshAll()"><div><b>↻ Refresh from AniList</b><span>Ratings and covers for ${linked} title${linked === 1 ? "" : "s"}${ong ? ` · ${ong} still publishing (volume totals update when they finish)` : ""}</span></div><i>›</i></button>` : ""}
+    ${un ? `<div class="hint" style="margin-top:12px">For the rest, open a title and tap “Link to AniList”.</div>` : ""}`;
+}
+function mgApplyFresh(m){
+  // m = AniList Media. Updates every piece of the same series; finished series get their real total.
+  const mine = mgMangaAll().filter(x => x.anilistId === m.id);
+  mine.forEach(x => { if(m.averageScore != null) x.rating = m.averageScore; if(m.coverImage && m.coverImage.large) x.coverUrl = m.coverImage.large; });
+  if(m.status === "FINISHED" && m.volumes > 0){
+    const top = mine.reduce((a, x) => (!a || (x.toVol || 0) > (a.toVol || 0)) ? x : a, null);
+    if(top && m.volumes > (top.toVol || 0)) top.toVol = m.volumes;
+    mine.forEach(x => { x.ongoing = false; });
+  }
+}
+async function mgRefreshOne(id){
+  const it = mgMangaAll().find(x => x.id === id); if(!it || !it.anilistId) return;
+  toast("Refreshing…");
+  try{ const d = await anilist(AL_DETAIL, { id: it.anilistId }); if(d.Media){ mgApplyFresh(d.Media); delete pdCache["a:" + it.anilistId]; pdCacheSave(); persist(); mgEnsureDetails(it); toast("Up to date."); } }
+  catch(e){ toast(alErrorText(e)); }
+}
+async function mgRefreshAll(){
+  const list = mgMangaAll().filter(x => x.anilistId), ids = [...new Set(list.map(x => x.anilistId))];
+  mgBatch = { running: true, stop: false, text: "Starting…" }; renderMgDataModal();
+  let done = 0, failed = 0;
+  for(const id of ids){
+    if(mgBatch.stop) break;
+    done++; mgBatch.text = `Title ${done} of ${ids.length}`; const el = $("mgProg"); if(el) el.textContent = mgBatch.text;
+    try{ const d = await anilist(AL_DETAIL, { id }); if(d.Media){ mgApplyFresh(d.Media); delete pdCache["a:" + id]; } }
+    catch(e){ failed++; if(e && e.message === "limit") break; }
+    await sleep(750);
+  }
+  pdCacheSave(); persist();
+  mgBatch = { running: false, note: failed ? `Done, but ${failed} couldn't be reached — try again later.` : `Done — ${ids.length} title${ids.length === 1 ? "" : "s"} refreshed.` };
+  renderMgDataModal();
+}
+async function mgAutoLink(){
+  const list = mgUnlinked();
+  mgBatch = { running: true, stop: false, text: "Starting…" }; renderMgDataModal();
+  let done = 0, linked = 0;
+  for(const it of list){
+    if(mgBatch.stop) break;
+    done++; mgBatch.text = `Title ${done} of ${list.length}: ${it.name}`; const el = $("mgProg"); if(el) el.textContent = mgBatch.text;
+    try{
+      const d = await anilist(AL_SEARCH, { q: it.name });
+      const res = ((d.Page && d.Page.media) || []).filter(m => m.format !== "NOVEL");
+      const want = normTitle(it.name);
+      const hit = res.find(m => m.title && (normTitle(m.title.english || "") === want || normTitle(m.title.romaji || "") === want));
+      if(hit){ mgApplyLink(it, alNorm(hit)); linked++; }
+    }catch(e){ if(e && e.message === "limit") break; }
+    await sleep(750);
+  }
+  persist();
+  mgBatch = { running: false, note: `Linked ${linked} of ${list.length}.${linked < list.length ? " Open the others and tap “Link to AniList”." : ""}` };
+  renderMgDataModal();
+}
+
 /* ---------- v1.8.4 — Library Movies filter ----------
    Each slider steps through the distinct values that actually exist (so a year
    with no titles is simply skipped). Handles are positions in that list; what
@@ -5687,6 +6092,7 @@ function toggleLibGroupDir(){ libGroupDir = libGroupDir==="asc"?"desc":"asc"; lo
 function libSortValue(category, item, key){
   if(key==="hype"){
     if(category==="movies"||isShowCat(category)) return itemRating(item)==null ? -1 : itemRating(item);
+    if(category==="manga") return (item.anilistId && item.rating != null) ? item.rating : -1;   // v1.13.0
     return item.hype||0;
   }
   if(key==="length") return libRemainingMin(category,item); // v1.8.2 — remaining, same as grouping
@@ -5757,7 +6163,7 @@ function renderLibraryTab(category){
   const unlinkedN = isRate ? unlinkedQueue(category).length : 0;
   const addLabels = { games:"+ Add Game", movies:"+ Add Movie", manga:"+ Add Manga", anime:"+ Add Anime", tv:"+ Add Show" };
 
-  const isMovies = category==="movies", isTv = isShowCat(category);
+  const isMovies = category==="movies", isTv = isShowCat(category), isManga = category==="manga";
   const base = isMovies ? list.filter(libFilterPass) : list;   // v1.8.4 — Filter menu applies to Movies
   const fN = isMovies ? libFilterCount() : 0;
   let html = fN
@@ -5772,7 +6178,7 @@ function renderLibraryTab(category){
   }
 
   html += `<div class="lib-controls">
-    ${(isMovies || isTv) ? sortBtnHtml("lib") : `<div class="lib-control">
+    ${(isMovies || isTv || isManga) ? sortBtnHtml("lib") : `<div class="lib-control">
       <select onchange="setLibSort(this.value)">
         <option value="name" ${libSort==="name"?"selected":""}>Sort: Name</option>
         <option value="date" ${libSort==="date"?"selected":""}>Sort: Release date</option>
@@ -5781,7 +6187,7 @@ function renderLibraryTab(category){
       </select>
       <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
     </div>`}
-    ${isMovies ? `<button class="lib-tags-btn${fN?" active":""}" onclick="openFilterModal()" title="Filter movies"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14l-5.2 6.2v4.6l-3.6 1.7v-6.3z"/></svg> Filter${fN?` (${fN})`:""}</button>` : isTv ? "" : `<div class="lib-control">
+    ${isMovies ? `<button class="lib-tags-btn${fN?" active":""}" onclick="openFilterModal()" title="Filter movies"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14l-5.2 6.2v4.6l-3.6 1.7v-6.3z"/></svg> Filter${fN?` (${fN})`:""}</button>` : (isTv || isManga) ? "" : `<div class="lib-control">
       <select onchange="setLibGroup(this.value)">
         <option value="none" ${libGroup==="none"?"selected":""}>Group: None</option>
         <option value="length" ${libGroup==="length"?"selected":""}>Group: Length</option>
@@ -5790,19 +6196,19 @@ function renderLibraryTab(category){
       </select>
       <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
     </div>`}
-    ${isRate ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
-    ${(isMovies || isTv) ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
-    ${(isMovies || isTv) ? `<button class="lib-tags-btn" onclick="openDataModal('${category}')" title="Link titles to TMDB and fetch ratings">${DATA_ICON} Data${dataCount(category)?` (${dataCount(category)})`:""}</button>` : ""}
+    ${(isRate || isManga) ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
+    ${(isMovies || isTv || isManga) ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
+    ${(isMovies || isTv || isManga) ? `<button class="lib-tags-btn" onclick="openDataModal('${category}')" title="Link titles and fetch ratings">${DATA_ICON} Data${dataCount(category)?` (${dataCount(category)})`:""}</button>` : ""}
   </div>`;
 
-  if(!isTv) html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
-  const q = isTv ? "" : libSearchQ.trim().toLowerCase();
+  if(!isTv && !isManga) html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
+  const q = (isTv || isManga) ? "" : libSearchQ.trim().toLowerCase();
   const filtered = q ? base.filter(x=>(x.name||"").toLowerCase().includes(q)) : base;
   const sorted = [...filtered].sort((a,b)=>libCompare(category,a,b,libSortKey(),libSortDir));
 
   if(!filtered.length){
     html += `<div class="empty"><span class="serif">No matches</span>Nothing in ${meta.label} matches ${q ? `"${esc(libSearchQ)}"` : "your filters"}${q && fN ? " with the current filters" : ""}.</div>`;
-  } else if(isMovies || isTv || libGroup==="none"){
+  } else if(isMovies || isTv || isManga || libGroup==="none"){
     html += libraryList(category, sorted);
   } else {
     const buckets = {};
@@ -5830,6 +6236,7 @@ function renderLibraryTab(category){
 
   $("app").innerHTML = html;
   if(isTv) setTimeout(tvEnsureBackdrops, 0);
+  if(isManga) setTimeout(mgEnsureCovers, 0);
   if(wasFocused){
     const ns = $("libSearch");
     if(ns){ ns.focus(); try{ ns.setSelectionRange(caret, caret); }catch(e){} }
