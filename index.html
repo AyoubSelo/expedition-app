@@ -1132,7 +1132,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.12.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.12.3"; // single source of truth for the version tag in the header
 const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
 // v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
 // with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
@@ -4930,8 +4930,9 @@ async function tvFetchAll(item){
     tvInflight.delete(id);
   }
 }
+function tvEpAt(eps, k){ return (eps || [])[k - 1] || null; }   // k-th episode of a season/arc, whatever TMDB numbers it
 function tvMapEpisodes(sd, today){
-  return (sd.episodes || []).map(e => ({ e: e.episode_number, t: e.name || "", m: (e.vote_count > 0 && e.air_date && e.air_date <= today) ? Math.round(e.vote_average * 10) : null }));
+  return (sd.episodes || []).slice().sort((a, b) => a.episode_number - b.episode_number).map(e => ({ e: e.episode_number, t: e.name || "", m: (e.vote_count > 0 && e.air_date && e.air_date <= today) ? Math.round(e.vote_average * 10) : null }));
 }
 // v1.12.2 — if a season we know about has no episode data (a request that failed once, or a cache from
 // before that season existed), fetch just that season again instead of leaving the tiles empty.
@@ -5327,8 +5328,8 @@ function sxHeroHtml(item, entry, rows, open, nextGid){
   const row = nextGid ? rows.find(r => r.gid === nextGid) : null, g = row ? gs.find(x => x.id === nextGid) : null;
   let nextLine = "", btn = "";
   if(row && g){
-    const list = (row.n != null && entry && entry.eps[row.n]) || [], ep = list.find(x => x.e === g.watched + 1), sc = ep ? tvEpScore(ep, item) : null;
-    const tag = `${esc(row.short)} · E${g.watched + 1}`;
+    const list = (row.n != null && entry && entry.eps[row.n]) || [], ep = tvEpAt(list, g.watched + 1), sc = ep ? tvEpScore(ep, item) : null;
+    const tag = `${esc(row.short)} · E${ep ? ep.e : g.watched + 1}`;
     nextLine = `<div class="n"><b>${tag}</b>${ep && ep.t ? ` “${esc(ep.t)}”` : ""}${sc ? ` · <em class="${ratingClass(sc.v)}">${sc.v}</em>` : ""}</div>`;
     btn = `<button class="btn accent wide" style="--accent:${CAT[sxCat].color};--accent-text:${CAT[sxCat].text}" onclick="event.stopPropagation();sxWatched('${item.id}','${nextGid}')">✓ Watched ${tag}</button>`;
   }
@@ -5353,9 +5354,9 @@ function sxHeroHtml(item, entry, rows, open, nextGid){
 function sxTilesHtml(item, g, eps){
   let h = "";
   for(let e = 1; e <= (g.total || 0); e++){
-    const ep = eps.find(x => x.e === e), sc = ep ? tvEpScore(ep, item) : null;
+    const ep = tvEpAt(eps, e), sc = ep ? tvEpScore(ep, item) : null;
     const state = e <= g.watched ? "w" : (e === g.watched + 1 ? "nx" : "");
-    h += `<button class="sxt ${state} ${sc ? ratingClass(sc.v) : ""}${sxPop === g.id + ":" + e ? " pop" : ""}" onclick="event.stopPropagation();sxTap('${item.id}','${g.id}',${e})" title="${ep && ep.t ? esc(ep.t) : "Episode " + e}"><b>${e}</b><i>${sc ? sc.v : "–"}</i></button>`;
+    h += `<button class="sxt ${state} ${sc ? ratingClass(sc.v) : ""}${sxPop === g.id + ":" + e ? " pop" : ""}" onclick="event.stopPropagation();sxTap('${item.id}','${g.id}',${e})" title="${ep && ep.t ? esc(ep.t) : "Episode " + e}"><b>${ep ? ep.e : e}</b><i>${sc ? sc.v : "–"}</i></button>`;
   }
   return `<div class="sx-tiles">${h}</div>`;
 }
@@ -5364,9 +5365,9 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
   const poster = (row.s && row.s.poster) || item.posterPath;
   const left = Math.max(0, (g.total || 0) - (g.watched || 0)), pct = g.total > 0 ? Math.min(100, g.watched / g.total * 100) : 0;
   const open = finished || sxSeasonOpen.has(g.id);
-  const nextEp = !finished && left > 0 ? eps.find(x => x.e === g.watched + 1) : null, sc = nextEp ? tvEpScore(nextEp, item) : null;
+  const nextEp = !finished && left > 0 ? tvEpAt(eps, g.watched + 1) : null, sc = nextEp ? tvEpScore(nextEp, item) : null;
   const nextLine = finished ? `<div class="sx-next">All ${g.total} episodes watched.</div>`
-    : `<div class="sx-next">${g.watched > 0 ? "Next" : "Start with"}: <b>E${g.watched + 1}</b>${nextEp && nextEp.t ? ` “${esc(nextEp.t)}”` : ""}${sc ? ` · <em class="${ratingClass(sc.v)}">${sc.v}</em>` : ""}</div>`;
+    : `<div class="sx-next">${g.watched > 0 ? "Next" : "Start with"}: <b>E${nextEp ? nextEp.e : g.watched + 1}</b>${nextEp && nextEp.t ? ` “${esc(nextEp.t)}”` : ""}${sc ? ` · <em class="${ratingClass(sc.v)}">${sc.v}</em>` : ""}</div>`;
   const links = finished ? "" : `<div class="sf-links"><button onclick="event.stopPropagation();openEpisodicModal('${sxCat}','${item.id}')">Edit</button><button onclick="event.stopPropagation();sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`;
   const grid = open ? `<div class="sx-grid${sxAnim === "c:" + g.id ? " sx-in" : ""}">${sxTilesHtml(item, g, eps)}${finished ? "" : `<div class="sx-tiles-hint">Tap an episode to mark everything up to it as watched.</div>`}${links}</div>` : "";
   return `<div class="sx-card${isNext ? " next" : ""}${finished ? " fin" : ""}"${finished ? "" : ` onclick="sxToggleSeason('${g.id}')"`}>
