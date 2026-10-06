@@ -246,13 +246,9 @@ select{
 
 /* episode groups (shows/anime) — visible by default, not collapsed */
 .groups{border-top:1px solid var(--line-soft);margin-top:13px;padding-top:12px}
-.stepper{display:flex;align-items:center;gap:8px;margin-top:6px}
-.stepper button{
   width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);
   color:var(--ink);font-size:14px;line-height:1;cursor:pointer;font-family:inherit;
 }
-.stepper button:hover{border-color:var(--accent)}
-.stepper span{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);min-width:52px;text-align:center}
 
 .empty{text-align:center;color:var(--muted);padding:48px 20px;border:1px dashed var(--line);border-radius:var(--radius-lg)}
 .empty .serif{font-size:19px;color:var(--ink);display:block;margin-bottom:6px}
@@ -281,22 +277,18 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .dlc-section > b{font-size:13px}
 .check{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--ink);text-transform:none;font-weight:500}
 
-/* v1.3.0 — release date + hype fields (shared by all add/edit modals) */
+/* v1.3.0 — release date fields (shared by all add/edit modals) */
 .field-row{margin-top:14px}
 .field-row > label{display:block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .release-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .release-field{display:flex;flex-direction:column;gap:4px}
 .release-field input{width:100%;text-align:center}
 .release-field span{font-size:9.5px;color:var(--muted-dim);text-align:center}
-.hype-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.hype-dot{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted-dim);font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:14px;cursor:pointer}
-.hype-dot.on{background:var(--brass);color:#1a1006;border-color:var(--brass)}
-.hype-label{font-size:11.5px;color:var(--muted);margin-left:4px}
 
-/* v1.7.1 — compact rows: number field(s) side by side with a hype block, used
+/* v1.7.1 — compact rows: number field(s) side by side, used
    to shorten the movie/tv/anime/manga edit forms.
    v1.7.5 — v1.7.4's "fix" actually widened the row's total content past what
-   fits on a real phone, so the whole hype cell wrapped to its own line
+   fits on a real phone, so the last cell wrapped to its own line
    (flex-wrap was the culprit). Wrapping is now disabled for this row and the
    per-modal cell widths (set inline in each modal's HTML) were recalculated
    with real margin to spare, so it can't happen again. */
@@ -366,7 +358,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .account-row{display:flex;gap:8px;margin-top:10px}
 .account-row .btn{flex:1}
 
-/* v1.3.0 — Library book. v1.4.0: sort/group controls, compact hype line. v1.5.0: single-line
+/* v1.3.0 — Library book. v1.4.0: sort/group controls, v1.5.0: single-line
    segments, tap-to-expand cards, square edit button, collapsible groups, tags button */
 .lib-head{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);margin-bottom:10px}
 .lib-head b{color:var(--ink)}
@@ -691,6 +683,17 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .mgm-leg span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .mgm-leg u{display:inline-block;width:14px;height:8px;border-radius:2px;text-decoration:none}
 .mgm-leg u.lg-skip{background:#3b463f}.mgm-leg u.lg-lib{background:var(--brass)}.mgm-leg u.lg-season{background:rgba(217,162,86,.12);box-shadow:inset 0 0 0 1.5px var(--brass)}.mgm-leg u.lg-tail{background:repeating-linear-gradient(135deg,#4a5a4f 0 2px,transparent 2px 4px)}
+.mg-hero{overflow:hidden}
+.mg-hero .sx-hero-img{cursor:default}
+.mg-hero .sx-hero-img>img.bg{filter:blur(18px) brightness(.62);transform:scale(1.3)}
+.mg-hero .sx-hero-row{grid-template-columns:78px minmax(0,1fr)}
+.mg-hero .sx-hero-poster{pointer-events:auto;cursor:pointer}
+.mg-hero .sx-hero-poster::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(255,255,255,.08) 60%,transparent);z-index:2;pointer-events:none}
+.mgs{display:flex;gap:3px;margin-top:12px}
+.mgs b{flex:1 1 0;min-width:3px;height:26px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font:600 9.5px "IBM Plex Mono",monospace;color:var(--muted-dim);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mgs b.r{background:var(--brass);border-color:var(--brass);color:#1a1006}
+.mgs b.n{border-color:var(--brass);color:var(--brass)}
+.mgc-done .mgc-cover{opacity:.55}
 .mg-panel{grid-column:1/-1;border:1px solid var(--brass);border-radius:16px;background:var(--panel2);padding:14px}
 .mg-panel .mg-name{font-size:21px;line-height:1.15;color:var(--ink)}
 .mg-by{margin-top:4px;font-size:12px;color:var(--muted)}
@@ -836,18 +839,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         <div><select id="g_seriesId"></select></div>
         <div><input id="g_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
-    </div>
-    <div class="field-row" id="g_hypeFieldRow">
-      <label>Hype level</label>
-      <div class="hype-row">
-        <button type="button" class="hype-dot" data-prefix="g" data-val="1" onclick="setHype('g',1)">★</button>
-        <button type="button" class="hype-dot" data-prefix="g" data-val="2" onclick="setHype('g',2)">★</button>
-        <button type="button" class="hype-dot" data-prefix="g" data-val="3" onclick="setHype('g',3)">★</button>
-        <button type="button" class="hype-dot" data-prefix="g" data-val="4" onclick="setHype('g',4)">★</button>
-        <button type="button" class="hype-dot" data-prefix="g" data-val="5" onclick="setHype('g',5)">★</button>
-        <span class="hype-label" id="g_hypeLabel">Not set</span>
-      </div>
-      <input type="hidden" id="g_hype" value="0">
     </div>
     <div class="field-row" id="g_tagsFieldRow">
       <label>Tags</label>
@@ -1135,12 +1126,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.13.1"; // single source of truth for the version tag in the header
-const HYPE_LABELS = ["Curious","Interested","Excited","Hyped","Essential"];
-// v1.7.3 — movies/tv/anime/manga use a 3-star hype scale instead of games' 5,
-// with its own label set (games' 5-label set doesn't map cleanly onto 3 dots).
-const HYPE_LABELS_3 = ["Curious","Excited","Essential"];
-const HYPE_3_PREFIXES = new Set(["mv","epi","mg"]);
+const APP_VERSION = "1.14.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
 // v1.7.4 — line-icons for Tags/Series, replacing the 🏷/📖 emoji so they match
@@ -1200,8 +1186,8 @@ const fmtElapsed = ms => {
 };
 
 // v1.3.0: every item, in both the Season book and the new Library book, gets
-// two extra optional fields — releaseDate ({y,m,d}, all strings, any/all can
-// be blank) and hype (0-5, 0 = not set). normGames/normSimple below apply
+// an extra optional field — releaseDate ({y,m,d}, all strings, any/all can
+// be blank). normGames/normSimple below apply
 // those defaults uniformly so items can move between Season and Library
 // (moveItem) without ever hitting a missing field.
 const NAMED_LIST_CATS = ["games","movies","tv","anime","manga"];
@@ -1221,16 +1207,8 @@ function normalizeTags(raw){
 }
 function normalizeState(raw){
   raw = raw || {};
-  // v1.7.3 — movies/tv/anime/manga are capped to a 3-star hype scale (see
-  // HYPE_LABELS_3); clamp on load too so any pre-existing 4-5 star values
-  // from before this update don't linger unseen.
-  const HYPE_MAX_3 = new Set(["movies","tv","anime","manga"]);
-  // v1.8.0 — movies and TV no longer use hype at all (hype is forced to 0);
-  // they carry a TMDB rating (0-100 | null) plus the permanent tmdbId link and
-  // the poster path instead. Anime/manga keep their 3-star hype.
   const withExtras = (x, cat) => ({
     releaseDate: x.releaseDate || {y:"",m:"",d:""},
-    hype: (cat==="movies"||cat==="tv") ? 0 : (HYPE_MAX_3.has(cat) ? Math.min(3, x.hype||0) : (x.hype||0)),
     tags: (cat==="movies"||cat==="tv") ? [] : (Array.isArray(x.tags) ? x.tags : []), // v1.8.1 — movies/TV no longer use tags
     ...((cat==="movies"||cat==="tv")
       ? { partOfSeries:false, seriesId:null, seriesOrder:null } // v1.8.4 / v1.10.1 — the series system is gone for movies and TV
@@ -1251,9 +1229,10 @@ function normalizeState(raw){
     } : {}),
   });
   const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
-    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g,"games")}));
+    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g,"games")})).map(g => (delete g.hype, g));   // v1.14.0 — hype is gone; old values are dropped on load
   const normSimple = (list, cat) => (list||[]).map(x => {
     const item = {...x, id:x.id||uid(), originGroupId:x.originGroupId||null, ...withExtras(x,cat)};
+    delete item.hype;
     // v1.7.3 — retroactively stamp a persistent `order` onto every season/arc
     // group for titles that existed before v1.7.2, so they get the same
     // split/merge-safe ordering that newly-saved titles get automatically.
@@ -1316,27 +1295,7 @@ function fmtReleaseDate(rd, category){
   if(category && category!=="games") return rd.y;
   return [rd.d, rd.m, rd.y].filter(Boolean).join("/");
 }
-/* ---------- shared release-date / hype field helpers (all add/edit modals) ---------- */
-function setHype(prefix, val){
-  const hidden = $(prefix+"_hype");
-  const next = (+hidden.value||0)===val ? 0 : val;
-  hidden.value = next;
-  paintHype(prefix, next);
-}
-function paintHype(prefix, val){
-  document.querySelectorAll('.hype-dot[data-prefix="'+prefix+'"]').forEach(d=>{
-    d.classList.toggle("on", +d.dataset.val <= val && val>0);
-  });
-  const lbl = $(prefix+"_hypeLabel");
-  const labels = HYPE_3_PREFIXES.has(prefix) ? HYPE_LABELS_3 : HYPE_LABELS;
-  if(lbl) lbl.textContent = val>0 ? labels[val-1] : "Not set";
-}
-function fillHype(prefix, val){
-  val = val||0;
-  $(prefix+"_hype").value = val;
-  paintHype(prefix, val);
-}
-function readHype(prefix){ return +($(prefix+"_hype").value) || 0; }
+/* ---------- shared release-date field helpers (all add/edit modals) ---------- */
 function fillRelease(prefix, rd){
   rd = rd || {};
   $(prefix+"_ry").value = rd.y||"";
@@ -1849,8 +1808,6 @@ function scrubFinishedMeta(item){
   if(item.releaseDate && (item.releaseDate.y||item.releaseDate.m||item.releaseDate.d)){
     item.releaseDate = { y:null, m:null, d:null };
   }
-  // v1.7.5 — hype is scrubbed too, same as tags/series/release date.
-  if(item.hype) item.hype = 0;
 }
 function scrubFinishedSeasonItems(){
   ["games","movies","tv","anime","manga"].forEach(cat=>{
@@ -1912,7 +1869,7 @@ function restoreItem(category, id){
   persist(); toast("Restored — back in the mix.");
 }
 // v1.3.0 — move an item between the Season book and the Library book. Same
-// object shape either way (normalizeState guarantees releaseDate/hype on both),
+// object shape either way (normalizeState guarantees releaseDate on both),
 // so this is just a splice from one array to the other.
 function moveItem(category, id, fromMode, toMode){
   const fromArr = fromMode==="library" ? S.library[category] : S[category];
@@ -2139,13 +2096,13 @@ function openGameModal(id=null, target="season"){
     $("gname").value = g.name; $("goal").value = g.goal; $("played").value = g.played;
     $("hasDlc").checked = !!g.hasDlc;
     (g.dlcs||[]).forEach(addDlcRow);
-    fillRelease("g", g.releaseDate); fillHype("g", g.hype);
+    fillRelease("g", g.releaseDate);
     currentModalTags = (g.tags||[]).slice();
   } else {
     $("formTitle").textContent = "New game";
     $("gname").value = ""; $("goal").value = ""; $("played").value = 0;
     $("hasDlc").checked = false;
-    fillRelease("g", null); fillHype("g", 0);
+    fillRelease("g", null);
     currentModalTags = [];
   }
   renderTagPicker("g");
@@ -2159,7 +2116,6 @@ function openGameModal(id=null, target="season"){
   setVisible("g_tagsFieldRow", !gFinished);
   setVisible("g_seriesHalf", !gFinished);
   setVisible("g_dlcSeriesDivider", !gFinished);
-  setVisible("g_hypeFieldRow", !gFinished);
   if(gFinished) $("g_seriesSection").style.display = "none";
   $("g_dlcSeriesLabel").textContent = gFinished ? "DLC" : "DLC · Series";
   $("gameModal").classList.add("show"); if(!id) $("gname").focus();
@@ -2186,7 +2142,6 @@ function saveGame(){
   const played = Math.min(goal, Math.max(0, +$("played").value || 0));
   const hasDlc = $("hasDlc").checked;
   const releaseDate = readRelease("g");
-  const hype = readHype("g");
   const seriesFields = readSeriesFields("g");
   if(seriesFields.partOfSeries){
     const clash = seriesOrderConflict("games", seriesFields.seriesId, seriesFields.seriesOrder, editId);
@@ -2212,10 +2167,10 @@ function saveGame(){
       const playedVal = nd.type==="time" ? Math.min(match.played||0, nd.goal||match.played||0) : 0;
       return { ...nd, played: playedVal, done: match.done||false, timerStart: match.timerStart||null };
     });
-    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
+    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, tags: currentModalTags.slice(), ...seriesFields, lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
     checkAutoComplete(g);
   } else {
-    arr.push({ id: uid(), name, goal, played, hasDlc, dlcs, releaseDate, hype, tags: currentModalTags.slice(), ...seriesFields, lastPlayed: modalTarget==="season" && played<goal, timerStart:null });
+    arr.push({ id: uid(), name, goal, played, hasDlc, dlcs, releaseDate, tags: currentModalTags.slice(), ...seriesFields, lastPlayed: modalTarget==="season" && played<goal, timerStart:null });
   }
   closeModal("gameModal"); persist(); toast("Entry saved.");
 }
@@ -2448,11 +2403,11 @@ function saveMovie(){
   const arr = arrFor("movies", modalTarget);
   if(editId){
     const m = arr.find(x=>x.id===editId);
-    m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.hype = 0; m.tags = [];
+    m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.tags = [];
     Object.assign(m, seriesFields, tmdbFields);
   } else {
     newId = uid();
-    arr.push({ id: newId, name, length, watched:0, releaseDate, hype:0, tags: [], ...seriesFields, ...tmdbFields });
+    arr.push({ id: newId, name, length, watched:0, releaseDate, tags: [], ...seriesFields, ...tmdbFields });
   }
   const savedTarget = modalTarget;
   closeModal("movieModal"); persist(); toast("Movie saved.");
@@ -2499,73 +2454,91 @@ function removeManga(id, target="season"){
     persist();
   }
 }
-function stepManga(id, delta){
-  const m = S.manga.find(x=>x.id===id);
-  const total = Math.max(0, m.toVol - m.fromVol + 1);
-  const before = m.volsRead||0;
-  m.volsRead = Math.max(0, Math.min(total, before+delta));
-  if(m.volsRead > before) logAction("manga", m.id, m.name, (m.volsRead-before)*60, "volume");
+/* ============ MANGA — Season page (v1.14.0) ============ */
+let mgSOpen = null;
+const mgSDone = m => { const t = mangaMin(m); return t.goal > 0 && t.played >= t.goal; };
+function mgHeroPick(list){   // most recommendation points; ties go to a started one, then rating
+  const pts = x => (x.recoPoints || RECO_BASE_POINTS);
+  return list.slice().sort((a, b) => (pts(b) - pts(a)) || ((b.volsRead > 0) - (a.volsRead > 0)) || ((b.rating || 0) - (a.rating || 0)) || (a.name || "").localeCompare(b.name || ""))[0] || null;
+}
+function mgTap(id, k){   // tap a volume: read up to it, or (if already read) step back to just before it. Each new volume is logged to the archive straight away.
+  const m = S.manga.find(x => x.id === id); if(!m) return;
+  const before = Math.min(m.volsRead || 0, mgInfo(m).total);
+  m.volsRead = k <= before ? k - 1 : k;
+  if(m.volsRead > before) logAction("manga", m.id, m.name, (m.volsRead - before) * 60, "volume");
   persist();
 }
-function finishManga(id){
-  const m = S.manga.find(x=>x.id===id);
-  const total = Math.max(0, m.toVol - m.fromVol + 1);
-  const before = m.volsRead||0;
-  const delta = total - before;
-  m.volsRead = total;
-  if(delta>0) logAction("manga", m.id, m.name, delta*60, "finished");
-  persist(); toast("Marked finished 📖");
+function mgSStrip(m){
+  const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total);
+  if(i.total > 24) return `<div class="mgm mgm-c" style="margin-top:12px">${r ? `<i class="mgm-lib" style="width:${r / i.total * 100}%"></i>` : ""}</div>`;
+  let h = "";
+  for(let k = 1; k <= i.total; k++) h += `<b class="${k <= r ? "r" : k === r + 1 ? "n" : ""}" onclick="event.stopPropagation();mgTap('${m.id}',${k})">${i.total <= 14 ? i.from + k - 1 : ""}</b>`;
+  return `<div class="mgs">${h}</div>`;
 }
-function mangaCard(m){
-  const total = Math.max(0, m.toVol - m.fromVol + 1);
-  const {goal,played} = mangaMin(m);
-  const pct = goal ? played/goal*100 : 0;
-  const done = pct >= 100 && goal>0;
-  const volsRead = m.volsRead||0;
-  const volsLeftN = Math.max(0, total-volsRead);
-  return `<article class="entry cat-manga${done?" complete":""}" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}">
-    ${done ? `<div class="stamp"><b>✓</b><span>FINISHED</span></div>` : ""}
-    <div class="entry-top">
-      <div><div class="entry-name serif"${nameFlowRoot(done)}>${nameClipSpacer(done, false)}${esc(m.name)}</div><div class="entry-meta mono">VOL ${m.fromVol}–${m.toVol} · ${total} VOLUME${total===1?"":"S"}</div></div>
-      <div class="entry-pct">${done?"✓":pct.toFixed(0)+"%"}</div>
-    </div>
-    <div class="gauge"><div class="gauge-fill" style="width:${Math.min(100,pct)}%"></div></div>
-    <div class="entry-stats">
-      <div><div class="played">${volsRead}<span style="color:var(--muted);font-weight:400"> / ${total} vol</span></div><div class="entry-meta2">${done?"Fully read":"Read so far"}</div></div>
-      <div class="remaining">${done?"Done":volsLeftN+" vol left"}</div>
-    </div>
-    ${!done ? `<div class="stepper">
-      <button onclick="stepManga('${m.id}',-1)">−</button>
-      <span>volumes</span>
-      <button onclick="stepManga('${m.id}',1)">+</button>
-    </div>
-    <div class="controls">
-      <button class="btn small" onclick="stepManga('${m.id}',5)">+5 vol</button>
-      <button class="btn accent" onclick="finishManga('${m.id}')">✓ Mark finished</button>
-    </div>` : ""}
-    <div class="entry-foot"><span></span><div class="foot-links">${!done ? `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>` : ""}<button onclick="${moveButtonHandler('manga',m.id,'season','library')}">To Library</button><button onclick="openMangaModal('${m.id}')">Edit</button><button onclick="removeManga('${m.id}')">Remove</button></div></div>
-  </article>`;
+function mgSLinks(m){
+  return `<div class="sf-links">${mgSDone(m) ? "" : `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>`}<button onclick="moveButtonHandler('manga','${m.id}','season','library')">To Library</button><button onclick="openMangaModal('${m.id}','season')">Edit</button><button onclick="removeManga('${m.id}','season')">Remove</button></div>`;
 }
+const mgReadBtn = (m, vol, k) => `<button class="btn accent wide" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}" onclick="mgTap('${m.id}',${k})">✓ Read Vol ${vol}</button>`;
+function mgHeroHtml(m){
+  const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), cur = i.from + r, cv = m.coverUrl ? esc(m.coverUrl) : "";
+  return `<div class="sx-hero mg-hero">
+    <div class="sx-hero-img">
+      ${cv ? `<img class="bg" alt="" src="${cv}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}
+      <div class="sx-hero-shade"></div>
+      <div class="sx-hero-tag">Read next</div>
+      <div class="sx-hero-row">
+        <div class="sx-hero-poster" onclick="mgViewCover('${m.id}')">${cv ? `<img alt="" src="${cv}" onerror="this.remove()">` : `<div class="mgc-ph" style="font-size:11px;padding:6px">${esc(m.name)}</div>`}${mgRateBadge(m)}</div>
+        <div class="sx-hero-info"><div class="t serif">${esc(m.name)}</div><div class="n"><b>Vol ${cur}</b> · ${r} of ${i.total} read</div><div class="s">${mgRange(m)} · ${i.left} left</div></div>
+      </div>
+    </div>
+    <div class="sx-hero-foot">${mgReadBtn(m, cur, r + 1)}${mgSStrip(m)}${mgSLinks(m)}</div>
+  </div>`;
+}
+function mgSCardHtml(m){
+  const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), done = mgSDone(m);
+  return `<div class="mgc${mgSOpen === m.id ? " sel" : ""}${done ? " mgc-done" : ""}" onclick="mgSToggle('${m.id}')">
+    <div class="mgc-cover"><div class="mgc-ph">${esc(m.name)}</div>${m.coverUrl ? `<img alt="" loading="lazy" src="${esc(m.coverUrl)}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}${mgRateBadge(m)}</div>
+    <div class="mgc-title serif">${esc(m.name)}</div>
+    <div class="mgc-sub">${mgRange(m)} · ${done ? "read" : i.left + " left"}</div>
+    <div class="mgm mgm-c">${r ? `<i class="mgm-lib" style="width:${r / i.total * 100}%"></i>` : ""}</div>
+  </div>`;
+}
+function mgSPanelHtml(m){
+  const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total);
+  return `<div class="mg-panel">
+    <div class="mg-name serif">${esc(m.name)}</div>
+    <div class="mg-chips"><span class="mg-chip">${mgRange(m)} · ${i.total} vol${i.total === 1 ? "" : "s"}</span><span class="mg-chip on">${r} read</span></div>
+    ${mgSDone(m) ? "" : `<div style="margin-top:12px">${mgReadBtn(m, i.from + r, r + 1)}</div>`}${mgSStrip(m)}${mgSLinks(m)}
+  </div>`;
+}
+function mgSGrid(items){
+  const open = items.findIndex(x => x.id === mgSOpen), cards = items.map(mgSCardHtml);
+  if(open >= 0) cards.splice(Math.min(cards.length, open - (open % 2) + 2), 0, mgSPanelHtml(items[open]));
+  return `<div class="mg-grid">${cards.join("")}</div>`;
+}
+function mgSToggle(id){ mgSOpen = mgSOpen === id ? null : id; render(); }
 function renderManga(){
-  const totals = categoryTotals("manga");
-  let html = statbar("manga", totals, {label:"volumes", value:activeVolumeCount()});
-  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}" onclick="openMangaModal()">+ Add Manga</button></div>`;
+  const live = S.manga.filter(x => !x.abandoned);
+  let tot = 0, read = 0; const segs = [];
+  live.forEach(m => { const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total); tot += i.total; read += r; segs.push(i.total ? r / i.total : 0); });
+  let html = `<div class="sf-head">
+    <div class="sf-line"><b>${read}</b> of ${tot} volumes <span class="dot">·</span> <b>${tot - read}</b> left <span class="dot">·</span> <b>${tot ? Math.round(read / tot * 100) : 100}%</b></div>
+    <div class="sf-segs">${segs.map(p => `<div class="sf-seg"><i style="width:${(p * 100).toFixed(0)}%"></i></div>`).join("")}</div>
+  </div>
+  <div class="btn-row" style="margin-bottom:16px"><button class="btn accent wide" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}" onclick="openMgSearch('season','add')">+ Add Manga</button></div>`;
   if(!S.manga.length){
-    html += `<div class="empty"><span class="serif">No manga yet</span>Add a title and the volume range you're planning to read this season.</div>`;
+    html += `<div class="empty"><span class="serif">No manga yet</span>Add a title, or move one over from the Library.</div>`;
     $("app").innerHTML = html; return;
   }
-  html += `<div class="list-head"><b>ENTRIES</b>${sortDropdown("manga")}</div>`;
-  const {incomplete, completed} = splitSorted("manga", S.manga, mangaMin);
-  incomplete.forEach(m=> html += mangaCard(m));
-  if(completed.length){
-    html += `<div class="marginalia">finished</div>`;
-    completed.forEach(m=> html += mangaCard(m));
-  }
-  const abandonedManga = S.manga.filter(m=>m.abandoned);
-  if(abandonedManga.length){
-    html += `<div class="marginalia">abandoned</div>`;
-    abandonedManga.forEach(m=> html += abandonedCard("manga", m));
-  }
+  const byName = (a, b) => (a.name || "").localeCompare(b.name || "");
+  const todo = live.filter(x => !mgSDone(x)), pick = mgHeroPick(todo);
+  const rest = todo.filter(x => x !== pick).sort((a, b) => ((b.volsRead > 0) - (a.volsRead > 0)) || byName(a, b));
+  const cleared = live.filter(mgSDone).sort(byName);
+  if(pick) html += `<div style="margin-bottom:22px">${mgHeroHtml(pick)}</div>`;
+  if(rest.length) html += mgSGrid(rest);
+  if(cleared.length) html += `<div class="marginalia sf-sec">cleared</div>${mgSGrid(cleared)}`;
+  const gone = S.manga.filter(m => m.abandoned);
+  if(gone.length){ html += `<div class="marginalia">abandoned</div>`; gone.forEach(m => html += abandonedCard("manga", m)); }
   $("app").innerHTML = html;
 }
 
@@ -2985,7 +2958,7 @@ function tmdbAddDirect(category, target, d){
   const exists = (S.library[category] || []).concat(S[category] || []).some(x => x.tmdbId === d.id);
   if(exists){ toast(`“${d.title}” is already on your list.`); return true; }
   const releaseDate = category === "movies" ? { y: d.year ? String(d.year) : "", m: "", d: "" } : { y: "", m: "", d: "" };   // v1.12.2 — no date for TV / anime
-  const base = { id: uid(), name: d.title, releaseDate, hype: 0, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null,
+  const base = { id: uid(), name: d.title, releaseDate, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null,
     rating: d.rating == null ? null : d.rating, tmdbId: d.id, posterPath: d.posterPath || null, tmdbSkip: false };
   const where = target === "library" ? "the Library" : "this season";
   if(category === "movies"){
@@ -3266,7 +3239,7 @@ function importData(){
         if(!Array.isArray(x.games) && !Array.isArray(x.movies) && !x.library) throw 0;
         const keepKey = S.settings.tmdbKey, keepMdb = S.settings.mdbKey, keepOmdb = S.settings.omdbKey;
         S = normalizeState(x); if(!S.settings.tmdbKey) S.settings.tmdbKey = keepKey; if(!S.settings.mdbKey) S.settings.mdbKey = keepMdb; if(!S.settings.omdbKey) S.settings.omdbKey = keepOmdb; // backups never carry keys, so keep this device's
-        // v1.3.0: routes through the same normalizer as load(), so Library + releaseDate/hype come along for the ride
+        // v1.3.0: routes through the same normalizer as load(), so Library + releaseDate comes along for the ride
         persist(); toast("Backup restored.");
       }catch(e){ toast("That file doesn't look right."); }
     };
@@ -3443,12 +3416,6 @@ function statbar(cat, totals, extra){
 // v1.6.0 — the small counts shown in each stat bar next to "active"
 function activeDlcCount(){
   return (S.games||[]).filter(g=>!g.abandoned).reduce((a,g)=> a + (g.dlcs||[]).filter(d=>!dlcCleared(d)).length, 0);
-}
-function activeVolumeCount(){
-  return (S.manga||[]).filter(m=>!m.abandoned).reduce((a,m)=>{
-    const total = Math.max(0, (m.toVol||0)-(m.fromVol||0)+1);
-    return a + Math.max(0, total-(m.volsRead||0));
-  }, 0);
 }
 
 /* ============ Smart recommendation engine ============
@@ -4093,15 +4060,13 @@ function libSubLine(category, item){
   if(total<=0) return "No length set";
   return played>0 ? `${fmtHrs(Math.max(0,total-played))}H remaining` : `${fmtHrs(total)}H target`;
 }
-// The "!" flags ANY missing info, not just release date — release date and
-// hype apply to every category, plus whatever else that category treats as
+// The "!" flags ANY missing info, not just release date — release date applies to every category, plus whatever else that category treats as
 // its own "core" detail (episodic groups can be saved empty, since
 // saveEpisodic doesn't require any; games/movies/manga always have their
 // numeric core set at save time, so there's nothing further to check there).
 function libraryMissingFields(category, item){
   const missing = [];
   if(!hasReleaseDate(item.releaseDate, category)) missing.push(category==="games" ? "release date" : "release year");
-  if(!item.hype) missing.push("hype level");
   if(category==="anime" && !(item.groups && item.groups.length)) missing.push("episode count");
   return missing;
 }
@@ -4119,7 +4084,7 @@ function libraryRemoveFn(category, id){
 // v1.5.0 — one compact "seg | seg | seg" line per card instead of three
 // stacked lines, so a bigger library fits more titles on screen. Games with
 // DLC fold the DLC hours into a combined "total" figure (main remaining +
-// timed DLC goals) and add a DLC-count segment right before the hype segment.
+// timed DLC goals) and add a DLC-count segment at the end.
 function libSegments(category, item){
   const segs = [];
   const dateStr = fmtReleaseDate(item.releaseDate, category);
@@ -4143,8 +4108,6 @@ function libSegments(category, item){
     const eps = (item.groups||[]).reduce((a,g)=>a+(g.total||0),0);
     if(eps) segs.push(`${eps} Ep`);
   }
-  const hype = item.hype||0;
-  segs.push(hype>0 ? `⭐ ${hype}` : `☆ –`);
   return segs;
 }
 // v1.5.0 — tap a card to expand it in place: category-specific breakdown
@@ -4671,11 +4634,12 @@ function ratingPick(k){
 }
 
 /* ---------- v1.9.1 — custom sort menu (Library Movies + Season Movies) ---------- */
-const SORT_OPTS = [["name","Name"],["date","Release date"],["hype","Rating"],["length","Length"]];
-const SORT_DIR_LABELS = { name:["A → Z","Z → A"], date:["Oldest first","Newest first"], hype:["Lowest first","Highest first"], length:["Shortest first","Longest first"] };
+const SORT_OPTS = [["name","Name"],["date","Release date"],["rating","Rating"],["length","Length"]];
+const SORT_DIR_LABELS = { name:["A → Z","Z → A"], date:["Oldest first","Newest first"], rating:["Lowest first","Highest first"], length:["Shortest first","Longest first"] };
 const SORT_ICON = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v13M6 16.5l-2.6-2.6M6 16.5l2.6-2.6M14 16.5v-13M14 3.5l-2.6 2.6M14 3.5l2.6 2.6"/></svg>`;
 const DATA_ICON = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="5" rx="6" ry="2.5"/><path d="M4 5v10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V5M4 10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5"/></svg>`;
 let sfSort = localStorage.getItem("expedition-sfsort") || "length";        // Season Movies — default keeps the old "most remaining first"
+if(sfSort === "hype") sfSort = "rating";
 let sfSortDir = localStorage.getItem("expedition-sfsortdir") || "desc";
 function libSortKey(){ return (isShowCat(libTab) && libSort === "date") ? "name" : libSort; }
 const SORT_CTX = {
@@ -5572,11 +5536,12 @@ function mgConfirmVolumes(){
   mgAdd(r, n, r.status !== "CANCELLED");
 }
 function mgAdd(r, vols, ongoing){
-  S.library.manga.push({ id: uid(), name: r.title, fromVol: 1, toVol: vols, volsRead: 0, releaseDate: { y: r.year ? String(r.year) : "", m: "", d: "" },
-    hype: 0, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null, originGroupId: null,
+  const toSeason = mgS.target === "season";
+  (toSeason ? S.manga : S.library.manga).push({ id: uid(), name: r.title, fromVol: 1, toVol: vols, volsRead: 0, releaseDate: { y: r.year ? String(r.year) : "", m: "", d: "" },
+    tags: [], partOfSeries: false, seriesId: null, seriesOrder: null, originGroupId: null,
     anilistId: r.id, malId: r.malId, coverUrl: r.cover, rating: r.score, ongoing: !!ongoing });
   closeModal("mgModal"); persist();
-  toast(`Added “${r.title}” to the Library.`);
+  toast(`Added “${r.title}” to ${toSeason ? "this season" : "the Library"}.`);
 }
 
 /* ----- details (synopsis, authors) live in the device cache ----- */
@@ -5986,19 +5951,19 @@ function libraryRow(category, item){
    Shared across every category page rather than per-category — simplest
    mental model ("however I last set it, that's how every page looks") and
    avoids five separate persisted settings for what's really one preference. */
-let libSort = localStorage.getItem("expedition-libsort") || "name";       // name | date | hype | length
+let libSort = localStorage.getItem("expedition-libsort") || "name";       // name | date | rating | length
 let libSortDir = localStorage.getItem("expedition-libsortdir") || "asc";  // asc | desc — order of items
-let libGroup = localStorage.getItem("expedition-libgroup") || "none";     // none | length | hype | year
+let libGroup = localStorage.getItem("expedition-libgroup") || "none";     // none | length | year
+if(libSort === "hype") libSort = "rating"; if(libGroup === "hype") libGroup = "none";   // v1.14.0 — old saved choices
 let libGroupDir = localStorage.getItem("expedition-libgroupdir") || "asc";// asc | desc — order of the groups themselves
 function setLibSort(v){ libSort=v; localStorage.setItem("expedition-libsort",v); renderLibraryTab(libTab); }
 function toggleLibSortDir(){ libSortDir = libSortDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libsortdir",libSortDir); renderLibraryTab(libTab); }
 function setLibGroup(v){ libGroup=v; localStorage.setItem("expedition-libgroup",v); libExpandedGroups.clear(); renderLibraryTab(libTab); }
 function toggleLibGroupDir(){ libGroupDir = libGroupDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libgroupdir",libGroupDir); renderLibraryTab(libTab); }
 function libSortValue(category, item, key){
-  if(key==="hype"){
-    if(category==="movies"||isShowCat(category)) return itemRating(item)==null ? -1 : itemRating(item);
-    if(category==="manga") return (item.anilistId && item.rating != null) ? item.rating : -1;   // v1.13.0
-    return item.hype||0;
+  if(key==="rating"){
+    if(category==="manga") return (item.anilistId && item.rating != null) ? item.rating : -1;
+    return itemRating(item)==null ? -1 : itemRating(item);   // games have no rating, so they all tie
   }
   if(key==="length") return libRemainingMin(category,item); // v1.8.2 — remaining, same as grouping
   if(key==="date"){
@@ -6023,14 +5988,10 @@ function libGroupKey(category, item, groupBy){
     if(hrs<50) return "Long (25–50h)";
     return "Gigantic (50h+)";
   }
-  if(groupBy==="hype"){
-    const labels = category==="games" ? HYPE_LABELS : HYPE_LABELS_3;
-    return item.hype>0 ? `${labels[item.hype-1]} (${item.hype})` : "Not rated";
-  }
   if(groupBy==="year") return (item.releaseDate && item.releaseDate.y) ? item.releaseDate.y : "No year set";
   return null;
 }
-// Groups get their own sensible order (size for length, 1-5 for hype,
+// Groups get their own sensible order (size for length,
 // chronological for year) rather than alphabetical — the group-order arrow
 // flips that order, but the "nothing set" bucket always stays last so it
 // doesn't jump to the top on every toggle.
@@ -6040,14 +6001,6 @@ function libGroupOrderKeys(groupBy, dir, presentKeys, category){
     let order = LENGTH_GROUP_ORDER.filter(k=>present.has(k));
     if(dir==="desc") order.reverse();
     if(present.has("No length set")) order.push("No length set");
-    return order;
-  }
-  if(groupBy==="hype"){
-    const labels = category==="games" ? HYPE_LABELS : HYPE_LABELS_3;
-    const maxHype = category==="games" ? 5 : 3;
-    let order = Array.from({length:maxHype},(_,i)=>i+1).map(n=>`${labels[n-1]} (${n})`).filter(k=>present.has(k));
-    if(dir==="desc") order.reverse();
-    if(present.has("Not rated")) order.push("Not rated");
     return order;
   }
   if(groupBy==="year"){
@@ -6087,7 +6040,7 @@ function renderLibraryTab(category){
       <select onchange="setLibSort(this.value)">
         <option value="name" ${libSort==="name"?"selected":""}>Sort: Name</option>
         <option value="date" ${libSort==="date"?"selected":""}>Sort: Release date</option>
-        <option value="hype" ${libSort==="hype"?"selected":""}>Sort: ${isRate?"Rating":"Hype"}</option>
+        ${isRate ? `<option value="rating" ${libSort==="rating"?"selected":""}>Sort: Rating</option>` : ""}
         <option value="length" ${libSort==="length"?"selected":""}>Sort: Length</option>
       </select>
       <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
@@ -6096,7 +6049,6 @@ function renderLibraryTab(category){
       <select onchange="setLibGroup(this.value)">
         <option value="none" ${libGroup==="none"?"selected":""}>Group: None</option>
         <option value="length" ${libGroup==="length"?"selected":""}>Group: Length</option>
-        <option value="hype" ${libGroup==="hype"?"selected":""}>Group: ${isRate?"Rating":"Hype"}</option>
         <option value="year" ${libGroup==="year"?"selected":""}>Group: Year</option>
       </select>
       <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
