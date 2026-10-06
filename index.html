@@ -266,12 +266,9 @@ label{display:block;color:var(--muted);font-size:11.5px;font-weight:600;text-tra
 input,select.field{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:15px;font-family:inherit}
 input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.radio-row{display:flex;gap:8px;margin-top:2px}
-.radio-opt{
   flex:1;border:1px solid var(--line);border-radius:10px;padding:9px;text-align:center;
   font-size:12.5px;cursor:pointer;color:var(--muted);
 }
-.radio-opt.sel{border-color:var(--accent);color:var(--accent);background:rgba(217,166,86,.06)}
 .dlc-section{border-top:1px solid var(--line);margin-top:16px;padding-top:14px;display:none}
 .dlc-section.open{display:block}
 .dlc-section > b{font-size:13px}
@@ -286,7 +283,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .release-field span{font-size:9.5px;color:var(--muted-dim);text-align:center}
 
 /* v1.7.1 — compact rows: number field(s) side by side, used
-   to shorten the movie/tv/anime/manga edit forms.
+   to shorten the manga and game edit forms.
    v1.7.5 — v1.7.4's "fix" actually widened the row's total content past what
    fits on a real phone, so the last cell wrapped to its own line
    (flex-wrap was the culprit). Wrapping is now disabled for this row and the
@@ -295,7 +292,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .compact-row{display:flex;gap:6px;align-items:flex-end;margin-top:14px}
 .compact-row > div{flex:1 1 74px;min-width:74px}
 .compact-row > div > label{margin:0 0 6px}
-.compact-num-tiny{width:100%;text-align:center}
 
 /* v1.7.4 — game modal's Target hours/Played/DLC+Series row: all three cells
    share the exact same grid as the release-date row below it (same class),
@@ -304,7 +300,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
    v1.7.5 — restored the standard top margin (this row was sitting flush
    against the title field with no breathing room). */
 .triple-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
-.triple-grid.two-col{grid-template-columns:1fr 1fr}
 .triple-grid > div > label{margin:0 0 6px}
 .check-combo{display:flex;align-items:stretch;justify-content:center;height:44px;
   border:1px solid var(--line);border-radius:10px;background:var(--bg);overflow:hidden}
@@ -394,21 +389,11 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .lib-exp-actions .btn{flex:none}
 .check input{width:auto}
 .dlc-edit{display:grid;grid-template-columns:1.3fr .8fr .7fr auto;gap:6px;margin:8px 0}
-.group-edit{display:grid;gap:6px;margin:6px 0;align-items:center}
-.group-edit.numbered{grid-template-columns:.55fr .85fr .85fr auto}
-.group-edit.named{grid-template-columns:1.6fr .8fr .8fr auto}
-.group-edit-head{display:grid;gap:6px;margin-top:12px;padding:0 1px;color:var(--muted-dim);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em}
-.group-edit-head.numbered{grid-template-columns:.55fr .85fr .85fr auto}
-.group-edit-head.named{grid-template-columns:1.6fr .8fr .8fr auto}
-.group-edit-head span:last-child{width:26px}
 .dlc-edit select{width:100%}
 .actions{display:flex;gap:8px;margin-top:20px}
 .actions .btn{flex:1;text-align:center}
 
 /* v1.8.0 — TMDB search / match modals, rating cell, settings box */
-.tmdb-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
-.tmdb-status{font-size:11.5px;color:var(--muted)}
-.tmdb-status.linked{color:var(--moss)}
 .tmdb-results{margin-top:12px;display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto}
 .tmdb-res{display:flex;gap:10px;align-items:flex-start;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px;cursor:pointer}
 .tmdb-res:hover,.tmdb-res:active{border-color:var(--brass)}
@@ -851,28 +836,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
-<!-- movie modal -->
-<div class="modal" id="movieModal">
-  <div class="sheet">
-    <h2 class="serif" id="movieFormTitle">New movie</h2>
-    <div class="hint">Length is in minutes — your watched progress shows as hours and minutes automatically.</div>
-    <label>Title</label>
-    <div class="name-row">
-      <input id="mname" placeholder="e.g. Blade Runner 2049">
-    </div>
-    <div class="compact-row">
-      <div style="flex:0 0 48px"><label>Length (min)</label><input id="mlength" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="107"></div>
-      <div style="flex:0 0 54px" id="mv_yearCell"><label>Year</label><input id="mv_ry" class="compact-num-tiny" type="number" inputmode="numeric" placeholder="YYYY"></div>
-      <div style="flex:0 0 74px" id="mv_ratingCell"><label>Rating %</label><input id="mv_rating" class="compact-num-tiny" type="number" min="0" max="100" inputmode="numeric" placeholder="85"></div>
-    </div>
-    <div class="tmdb-row" id="mv_tmdbRow"><span class="tmdb-status" id="mv_tmdbStatus">Not linked to TMDB</span><button type="button" class="btn small" id="mv_tmdbBtn" onclick="openTmdbLink('mv')">Link</button></div>
-    <div class="actions">
-      <button class="btn" onclick="closeModal('movieModal')">Cancel</button>
-      <button class="btn brass" onclick="saveMovie()">Save movie</button>
-    </div>
-  </div>
-</div>
-
 <!-- manga modal -->
 <div class="modal" id="mangaModal">
   <div class="sheet">
@@ -894,37 +857,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 </div>
 
 <!-- episodic modal (tv shows + anime) -->
-<div class="modal" id="epiModal">
-  <div class="sheet">
-    <h2 class="serif" id="epiFormTitle">New show</h2>
-    <div class="hint" id="epiHint">Saved to this device only.</div>
-    <label id="epiNameLabel">Title</label>
-    <div class="name-row">
-      <input id="epiname" placeholder="e.g. Game of Thrones">
-    </div>
-    <div class="compact-row">
-      <div style="flex:0 0 48px"><label>Avg. ep (min)</label><input id="epilen" class="compact-num-tiny" type="number" min="1" inputmode="numeric" placeholder="60"></div>
-      <div style="flex:0 0 74px;display:none" id="epi_ratingCell"><label>Rating %</label><input id="epi_rating" class="compact-num-tiny" type="number" min="0" max="100" inputmode="numeric" placeholder="85"></div>
-    </div>
-    <div class="tmdb-row" id="epi_tmdbRow" style="display:none"><span class="tmdb-status" id="epi_tmdbStatus">Not linked to TMDB</span><button type="button" class="btn small" id="epi_tmdbBtn" onclick="openTmdbLink('epi')">Link</button></div>
-    <div id="groupTypeRow" style="display:none">
-      <label>Grouped by</label>
-      <div class="radio-row">
-        <div class="radio-opt" id="optSeason" onclick="setGroupType('season')">Seasons</div>
-        <div class="radio-opt" id="optArc" onclick="setGroupType('arc')">Arcs</div>
-      </div>
-    </div>
-    <label id="groupsLabel">Seasons</label>
-    <div id="groupHeader" class="group-edit-head"></div>
-    <div id="groupRows"></div>
-    <button class="btn small" style="margin-top:6px" id="addGroupBtn" onclick="addGroupRow()">+ Add season</button>
-    <div class="actions">
-      <button class="btn" onclick="closeModal('epiModal')">Cancel</button>
-      <button class="btn brass" onclick="saveEpisodic()">Save</button>
-    </div>
-  </div>
-</div>
-
 <!-- session modal (games + movies manual time) -->
 <div class="modal" id="tmdbModal">
   <div class="sheet">
@@ -1126,7 +1058,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.14.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.14.1"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
 // v1.7.4 — line-icons for Tags/Series, replacing the 🏷/📖 emoji so they match
@@ -1222,7 +1154,7 @@ function normalizeState(raw){
       rating: (x.rating===null||x.rating===undefined||x.rating==="") ? null : Math.max(0, Math.min(100, +x.rating||0)),
       tmdbId: x.tmdbId||null, posterPath: x.posterPath||null, tmdbSkip: !!x.tmdbSkip,
       // v1.10.0 — TV banner image + which part of it the collapsed card shows (0-100, top to bottom)
-      ...((cat==="tv"||cat==="anime") ? { backdropPath: x.backdropPath||null, backdropY: (x.backdropY===0||x.backdropY) ? Math.max(0, Math.min(100, +x.backdropY||0)) : null } : {}),
+      ...((cat==="tv"||cat==="anime"||cat==="movies") ? { backdropPath: x.backdropPath||null, backdropY: (x.backdropY===0||x.backdropY) ? Math.max(0, Math.min(100, +x.backdropY||0)) : null } : {}),
       // v1.8.5 — scores from MDBList by source ({merged, imdb, letterboxd, ...}, each 0-100).
       // v1.9.1 — ratingSrc = which source this one title shows (null = follow the global setting).
       ratings: (x.ratings && typeof x.ratings === "object") ? x.ratings : null, ratingsAt: x.ratingsAt||0, ratingSrc: (typeof x.ratingSrc === "string" && x.ratingSrc) ? x.ratingSrc : null,
@@ -1274,12 +1206,11 @@ let S = load();
 ensureSeason();
 localStorage.setItem(KEY, JSON.stringify(S));
 let activeTab = localStorage.getItem("expedition-tab") || "overview";
-let editId = null, sessionCtx = null, epiCategory = null, groupTypeSel = "season", epiInitializing = false;
+let editId = null, sessionCtx = null;
 // v1.3.0 — Library book: a second, standalone backlog alongside the season one.
 let mode = localStorage.getItem("expedition-mode") || "season"; // "season" | "library"
 let libTab = localStorage.getItem("expedition-libtab") || "games";
 let modalTarget = "season"; // which book the currently-open modal reads/writes: "season" | "library"
-let epiTarget = "season";
 let libSearchQ = "";
 function arrFor(cat, target){ return target==="library" ? S.library[cat] : S[cat]; }
 // v1.4.0: only Games keep the full Y/M/D release date — every other category
@@ -2361,58 +2292,6 @@ function gameCard(g){
 }
 
 /* ============ MOVIES ============ */
-function openMovieModal(id=null, target="season", prefill=null){
-  editId = id; modalTarget = target; currentModalCategory = "movies";
-  modalTmdb = { id: null, posterPath: null };
-  let m = null;
-  if(id){
-    m = arrFor("movies",target).find(x=>x.id===id);
-    $("movieFormTitle").textContent = "Edit movie";
-    $("mname").value = m.name; $("mlength").value = m.length;
-    fillRelease("mv", m.releaseDate);
-    $("mv_rating").value = m.rating == null ? "" : m.rating;
-    modalTmdb = { id: m.tmdbId || null, posterPath: m.posterPath || null };
-  } else {
-    $("movieFormTitle").textContent = "New movie";
-    if(prefill){
-      $("mname").value = prefill.title; $("mlength").value = prefill.runtime || "";
-      fillRelease("mv", { y: prefill.year || "" });
-      $("mv_rating").value = prefill.rating == null ? "" : prefill.rating;
-      modalTmdb = { id: prefill.id, posterPath: prefill.posterPath };
-    } else {
-      $("mname").value = ""; $("mlength").value = "";
-      fillRelease("mv", null); $("mv_rating").value = "";
-    }
-  }
-  paintTmdbRow("mv");
-  const mvFinished = target==="season" && id && isSeasonItemDone("movies", m);
-  setVisible("mv_yearCell", !mvFinished);
-  setVisible("mv_ratingCell", !mvFinished && !(m && m.ratings && Object.keys(m.ratings).length));   // v1.9.1 — scores from the sources replace the typed number
-  setVisible("mv_tmdbRow", !mvFinished);
-  $("movieModal").classList.add("show"); if(!id && !prefill) $("mname").focus();
-}
-function saveMovie(){
-  const name = $("mname").value.trim();
-  const length = +$("mlength").value;
-  if(!name || length <= 0) return toast("Give it a title and a length.");
-  const releaseDate = readRelease("mv");
-  const rField = readRating("mv_rating");
-  const tmdbFields = { rating: rField, tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) };
-  let newId = null;
-  const seriesFields = { partOfSeries:false, seriesId:null, seriesOrder:null }; // v1.8.4 — movies no longer use series
-  const arr = arrFor("movies", modalTarget);
-  if(editId){
-    const m = arr.find(x=>x.id===editId);
-    m.name = name; m.length = length; m.watched = Math.min(m.watched, length); m.releaseDate = releaseDate; m.tags = [];
-    Object.assign(m, seriesFields, tmdbFields);
-  } else {
-    newId = uid();
-    arr.push({ id: newId, name, length, watched:0, releaseDate, tags: [], ...seriesFields, ...tmdbFields });
-  }
-  const savedTarget = modalTarget;
-  closeModal("movieModal"); persist(); toast("Movie saved.");
-  if(newId) mdbAutoFetch("movies", newId, savedTarget);   // new title: pull its MDBList scores in the background
-}
 function removeMovie(id, target="season"){
   if(confirm("Remove this movie?")){
     if(target==="library") S.library.movies = S.library.movies.filter(x=>x.id!==id);
@@ -2454,6 +2333,55 @@ function removeManga(id, target="season"){
     persist();
   }
 }
+/* ============ MANGADEX — one cover per volume (v1.14.1) ============ */
+const MDX_IMG = "https://uploads.mangadex.org/covers/";
+const mdxTried = new Set(), alBannerTried = new Set();
+let mgExtrasBusy = false;
+async function mdxLookup(m){   // → { id, c: { "1": "file.jpg", … }, at } ; matched through the AniList link MangaDex keeps on each title
+  const j = async p => { const r = await fetch("https://api.mangadex.org" + p); if(!r.ok) throw new Error("mdx " + r.status); return r.json(); };
+  const found = await j(`/manga?title=${encodeURIComponent(m.name)}&limit=10`);
+  const hit = (found.data || []).find(x => x.attributes && x.attributes.links && String(x.attributes.links.al) === String(m.anilistId));
+  if(!hit) return { id: null, c: null, at: Date.now() };
+  const c = {}, rank = {};
+  for(let off = 0; off < 300; off += 100){
+    const d = await j(`/cover?manga[]=${hit.id}&limit=100&offset=${off}&order[volume]=asc`);
+    (d.data || []).forEach(x => {
+      const a = x.attributes || {}, v = a.volume; if(v == null || !a.fileName) return;
+      const rk = a.locale === "ja" ? 0 : a.locale === "en" ? 1 : 2;   // original Japanese covers first
+      if(!(v in c) || rk < rank[v]){ c[v] = a.fileName; rank[v] = rk; }
+    });
+    if((d.data || []).length < 100) break;
+    await sleep(250);
+  }
+  return { id: hit.id, c: Object.keys(c).length ? c : null, at: Date.now() };
+}
+async function mdxRefresh(anilistId){
+  const list = mgMangaAll().filter(x => x.anilistId === anilistId); if(!list[0]) return;
+  try{ const r = await mdxLookup(list[0]); list.forEach(x => { x.mdx = r; }); }catch(e){ /* offline or blocked — covers fall back to AniList's */ }
+}
+function mgVolCover(m, vol){   // the cover of that volume, else the nearest earlier one, else AniList's series cover
+  const x = m.mdx;
+  if(x && x.id && x.c){
+    const keys = Object.keys(x.c).map(Number).filter(n => !isNaN(n)).sort((a, b) => a - b);
+    if(keys.length){ const k = keys.filter(n => n <= vol).pop(); return `${MDX_IMG}${x.id}/${x.c[k == null ? keys[0] : k]}.512.jpg`; }
+  }
+  return m.coverUrl || "";
+}
+async function mgEnsureExtras(){   // Season titles: pull the AniList banner and the MangaDex covers once, in the background
+  if(mgExtrasBusy) return; mgExtrasBusy = true;
+  const same = id => mgMangaAll().filter(x => x.anilistId === id);
+  let changed = false;
+  for(const id of [...new Set(S.manga.filter(x => !x.abandoned && x.anilistId).map(x => x.anilistId))]){
+    if(same(id)[0].bannerUrl === undefined && !alBannerTried.has(id)){
+      alBannerTried.add(id);
+      try{ const d = await anilist(AL_DETAIL, { id }); if(d.Media){ mgApplyFresh(d.Media); changed = true; } }catch(e){}
+    }
+    if(!same(id).some(x => x.mdx) && !mdxTried.has(id)){ mdxTried.add(id); await mdxRefresh(id); changed = true; }
+  }
+  mgExtrasBusy = false;
+  if(changed) persist();
+}
+
 /* ============ MANGA — Season page (v1.14.0) ============ */
 let mgSOpen = null;
 const mgSDone = m => { const t = mangaMin(m); return t.goal > 0 && t.played >= t.goal; };
@@ -2476,14 +2404,15 @@ function mgSStrip(m){
   return `<div class="mgs">${h}</div>`;
 }
 function mgSLinks(m){
-  return `<div class="sf-links">${mgSDone(m) ? "" : `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>`}<button onclick="moveButtonHandler('manga','${m.id}','season','library')">To Library</button><button onclick="openMangaModal('${m.id}','season')">Edit</button><button onclick="removeManga('${m.id}','season')">Remove</button></div>`;
+  return `<div class="sf-links">${mgSDone(m) ? "" : `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>`}${mgSDone(m) ? "" : `<button onclick="openMoveModal('manga','${m.id}','season','library')">To Library</button>`}<button onclick="openMangaModal('${m.id}','season')">Edit</button><button onclick="removeManga('${m.id}','season')">Remove</button></div>`;
 }
 const mgReadBtn = (m, vol, k) => `<button class="btn accent wide" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}" onclick="mgTap('${m.id}',${k})">✓ Read Vol ${vol}</button>`;
 function mgHeroHtml(m){
-  const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), cur = i.from + r, cv = m.coverUrl ? esc(m.coverUrl) : "";
+  const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), cur = i.from + r, cv = esc(mgVolCover(m, cur)), bn = m.bannerUrl ? esc(m.bannerUrl) : "";
   return `<div class="sx-hero mg-hero">
     <div class="sx-hero-img">
       ${cv ? `<img class="bg" alt="" src="${cv}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}
+      ${bn ? `<img class="bd" alt="" src="${bn}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}
       <div class="sx-hero-shade"></div>
       <div class="sx-hero-tag">Read next</div>
       <div class="sx-hero-row">
@@ -2495,9 +2424,9 @@ function mgHeroHtml(m){
   </div>`;
 }
 function mgSCardHtml(m){
-  const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), done = mgSDone(m);
+  const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), done = mgSDone(m), cv = mgVolCover(m, i.from + Math.min(r, i.total - 1));
   return `<div class="mgc${mgSOpen === m.id ? " sel" : ""}${done ? " mgc-done" : ""}" onclick="mgSToggle('${m.id}')">
-    <div class="mgc-cover"><div class="mgc-ph">${esc(m.name)}</div>${m.coverUrl ? `<img alt="" loading="lazy" src="${esc(m.coverUrl)}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}${mgRateBadge(m)}</div>
+    <div class="mgc-cover"><div class="mgc-ph">${esc(m.name)}</div>${cv ? `<img alt="" loading="lazy" src="${esc(cv)}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}${mgRateBadge(m)}</div>
     <div class="mgc-title serif">${esc(m.name)}</div>
     <div class="mgc-sub">${mgRange(m)} · ${done ? "read" : i.left + " left"}</div>
     <div class="mgm mgm-c">${r ? `<i class="mgm-lib" style="width:${r / i.total * 100}%"></i>` : ""}</div>
@@ -2540,121 +2469,10 @@ function renderManga(){
   const gone = S.manga.filter(m => m.abandoned);
   if(gone.length){ html += `<div class="marginalia">abandoned</div>`; gone.forEach(m => html += abandonedCard("manga", m)); }
   $("app").innerHTML = html;
+  setTimeout(mgEnsureExtras, 0);
 }
 
 /* ============ TV + ANIME (episodic) ============ */
-function openEpisodicModal(category, id=null, target="season", prefill=null){
-  modalTmdb = { id: null, posterPath: null };
-  editId = id; epiCategory = category; epiTarget = target; modalTarget = target; currentModalCategory = category;
-  epiInitializing = true;
-  $("groupRows").innerHTML = "";
-  const isAnime = category === "anime";
-  $("groupTypeRow").style.display = isAnime ? "block" : "none";
-  $("epiHint").textContent = isAnime ? "Track by season or by arc — your call." : "Each season gets its own episode count, just like DLC for games.";
-  let e = null;
-  if(id){
-    e = arrFor(category,target).find(x=>x.id===id);
-    $("epiFormTitle").textContent = "Edit " + (isAnime ? "anime" : "show");
-    $("epiname").value = e.name; $("epilen").value = e.epLen;
-    groupTypeSel = e.groupType || "season";
-    (e.groups||[]).forEach(g=>addGroupRow(g));
-    $("epi_rating").value = e.rating == null ? "" : e.rating;
-    modalTmdb = { id: e.tmdbId || null, posterPath: e.posterPath || null };
-  } else {
-    $("epiFormTitle").textContent = "New " + (isAnime ? "anime" : "show");
-    groupTypeSel = "season";
-    if(prefill && isShowCat(category)){
-      $("epiname").value = prefill.title; $("epilen").value = prefill.epLen || "";
-      $("epi_rating").value = prefill.rating == null ? "" : prefill.rating;
-      modalTmdb = { id: prefill.id, posterPath: prefill.posterPath };
-      const gs = tmdbGroups(category, prefill.seasons);
-      groupTypeSel = groupTypeFor(category, gs);
-      gs.forEach(g => addGroupRow({ ...g, id: "" }));
-    } else {
-      $("epiname").value = ""; $("epilen").value = "";
-      $("epi_rating").value = "";
-    }
-  }
-  paintTmdbRow("epi");
-  setGroupType(groupTypeSel);
-  epiInitializing = false;
-  const epiFinished = target==="season" && id && isSeasonItemDone(category, e);
-  setVisible("epi_ratingCell", !epiFinished && !(e && e.ratings && Object.keys(e.ratings).length));
-  setVisible("epi_tmdbRow", !epiFinished);
-  $("epiModal").classList.add("show"); if(!id && !prefill) $("epiname").focus();
-}
-function isNumberedMode(){ return epiCategory==="tv" || (epiCategory==="anime" && groupTypeSel==="season"); }
-function numFromName(name){ const m = /(\d+)\s*$/.exec(name||""); return m ? m[1] : ""; }
-function updateGroupHeader(){
-  const numbered = isNumberedMode();
-  const head = $("groupHeader");
-  head.className = "group-edit-head " + (numbered ? "numbered" : "named");
-  head.innerHTML = numbered
-    ? `<span>No.</span><span>Watched</span><span>Episodes</span><span></span>`
-    : `<span>Arc name</span><span>Watched</span><span>Episodes</span><span></span>`;
-}
-function setGroupType(v){
-  const changed = v !== groupTypeSel;
-  groupTypeSel = v;
-  $("optSeason").classList.toggle("sel", v==="season");
-  $("optArc").classList.toggle("sel", v==="arc");
-  const label = v==="arc" ? "Arc" : "Season";
-  $("groupsLabel").textContent = label + "s";
-  $("addGroupBtn").textContent = "+ Add " + label.toLowerCase();
-  if(changed && !epiInitializing && $("groupRows").children.length){
-    $("groupRows").innerHTML = "";
-    toast("Switched grouping — re-add your entries.");
-  }
-  updateGroupHeader();
-}
-function addGroupRow(d={name:"",total:0,watched:0,id:""}){
-  const numbered = isNumberedMode();
-  const row = document.createElement("div");
-  row.className = "group-edit " + (numbered ? "numbered" : "named");
-  row.dataset.id = d.id || "";
-  row.dataset.ts = d.tmdbSeason != null ? d.tmdbSeason : "";   // which TMDB season this one is (arc names don't say)
-  const nameField = numbered
-    ? `<input class="gn" type="number" min="1" inputmode="numeric" placeholder="1" value="${esc(numFromName(d.name))}">`
-    : `<input class="gn" placeholder="e.g. Romance Dawn" value="${esc(d.name)}">`;
-  row.innerHTML = `${nameField}
-    <input class="gw" type="number" min="0" inputmode="numeric" placeholder="0" value="${d.watched||0}">
-    <input class="gt" type="number" min="0" inputmode="numeric" placeholder="10" value="${d.total||""}">
-    <button class="btn small" onclick="this.parentNode.remove()">×</button>`;
-  $("groupRows").appendChild(row);
-  updateGroupHeader();
-}
-function saveEpisodic(){
-  const name = $("epiname").value.trim();
-  const epLen = +$("epilen").value;
-  if(!name || epLen <= 0) return toast("Give it a title and an episode length.");
-  const numbered = isNumberedMode();
-  const groups = [];
-  document.querySelectorAll(".group-edit").forEach((r,idx)=>{
-    const rawName = r.querySelector(".gn").value.trim();
-    const total = Math.max(0, +r.querySelector(".gt").value || 0);
-    let watched = Math.max(0, +r.querySelector(".gw").value || 0);
-    watched = Math.min(watched, total);
-    if(!rawName || total <= 0) return;
-    const finalName = numbered ? ("Season " + rawName) : rawName;
-    // v1.7.2 — `order` is the group's true position (assigned fresh from the
-    // modal's row order on every save) so a season/arc keeps its correct spot
-    // even after being split off to the other book and merged back later,
-    // instead of just landing wherever the merge happened to concatenate it.
-    groups.push({ id: r.dataset.id || uid(), name: finalName, total, watched, order: idx, ...(r.dataset.ts ? { tmdbSeason: +r.dataset.ts } : {}) });
-  });
-  const list = arrFor(epiCategory, epiTarget);
-  const prev = editId ? list.find(x => x.id === editId) : null;
-  const tmdbFields = { rating: readRating("epi_rating"), tmdbId: modalTmdb.id, posterPath: modalTmdb.posterPath, ...(modalTmdb.id ? { tmdbSkip:false } : {}) };
-  const gt = epiCategory === "anime" ? { groupType: groupTypeSel } : {};
-  if(prev){
-    Object.assign(prev, { name, epLen, groups, ...tmdbFields, ...gt });
-  } else {
-    const entry = { id: uid(), name, epLen, groups, releaseDate:{ y:"", m:"", d:"" }, ...tmdbFields, ...gt };
-    list.push(entry);
-    if(entry.tmdbId) tvFetchAll(entry);
-  }
-  closeModal("epiModal"); persist(); toast("Saved.");
-}
 function removeEpisodic(category, id, target="season"){
   if(confirm("Remove this entry?")){
     if(target==="library") S.library[category] = S.library[category].filter(x=>x.id!==id);
@@ -2761,30 +2579,10 @@ const MediaDB = {
   for(category){ return Object.values(this.providers).find(p => p.categories.includes(category)) || null; },
 };
 
-let modalTmdb = { id: null, posterPath: null }; // link state of whichever movie/show modal is open
-let tmdbCtx = null;                              // { category, target, mode: "add" | "link" }
+let tmdbCtx = null;                              // { category, target }
 let tmdbResults = [], tmdbSearchSeq = 0, tmdbSearchTimer = null;
 let matchCtx = null, matchSeq = 0;
 
-function readRating(id){
-  const raw = ($(id).value || "").trim();
-  if(raw === "") return null;
-  const n = Math.round(+raw);
-  return isNaN(n) ? null : Math.max(0, Math.min(100, n));
-}
-function paintTmdbRow(prefix){
-  const linked = !!modalTmdb.id;
-  const st = $(prefix + "_tmdbStatus"), btn = $(prefix + "_tmdbBtn");
-  if(!st || !btn) return;
-  st.textContent = linked ? "✓ Linked to TMDB" : "Not linked to TMDB";
-  st.classList.toggle("linked", linked);
-  btn.textContent = linked ? "Change" : "Link";
-}
-function openTmdbLink(prefix){
-  const category = prefix === "mv" ? "movies" : epiCategory;
-  const name = ($(prefix === "mv" ? "mname" : "epiname").value || "").trim();
-  openTmdbSearch(category, modalTarget, "link", name);
-}
 
 /* ----- TMDB key (stored in S.settings so it syncs to every device) ----- */
 function tmdbKeyFormHtml(){
@@ -2891,17 +2689,15 @@ function tmdbResultHtml(r, i, pickFn){
 
 /* ----- search-and-add modal ----- */
 function openTmdbSearch(category, target, mode, initialQuery){
-  tmdbCtx = { category, target: target || "season", mode: mode || "add" };
+  tmdbCtx = { category, target: target || "season" };
   renderTmdbModal(initialQuery || "");
   $("tmdbModal").classList.add("show");
 }
 function renderTmdbModal(q){
-  const { category, mode } = tmdbCtx;
+  const { category } = tmdbCtx;
   const noun = nounFor(category);
-  $("tmdbTitle").textContent = mode === "link" ? "Link to TMDB" : "Add " + noun;
-  $("tmdbHint").textContent = mode === "link"
-    ? "Pick the right one — the name and your progress stay as they are; missing details get filled in."
-    : "Search and tap the right one — it's added straight away.";
+  $("tmdbTitle").textContent = "Add " + noun;
+  $("tmdbHint").textContent = "Search and tap the right one — it's added straight away.";
   const actions = $("tmdbActions");
   if(!MediaDB.for(category).key()){
     $("tmdbBody").innerHTML = tmdbKeyFormHtml();
@@ -2909,9 +2705,7 @@ function renderTmdbModal(q){
     $("tmdbBody").innerHTML = `<input id="tmdbQuery" placeholder="Search ${noun}s on TMDB…" value="${esc(q)}" oninput="tmdbQueryChanged()" onkeydown="if(event.key==='Enter'){event.preventDefault();runTmdbSearch();}" autocomplete="off"><div id="tmdbResults" class="tmdb-results"></div>`;
     if(q) runTmdbSearch(); else setTimeout(()=>{ const el = $("tmdbQuery"); if(el) el.focus(); }, 60);
   }
-  actions.innerHTML = mode === "link"
-    ? `<button class="btn" onclick="closeModal('tmdbModal')">Cancel</button>`
-    : `<button class="btn" onclick="tmdbManual()">Enter manually</button><button class="btn" onclick="closeModal('tmdbModal')">Cancel</button>`;
+  actions.innerHTML = `<button class="btn" onclick="closeModal('tmdbModal')">Cancel</button>`;
 }
 function tmdbQueryChanged(){
   clearTimeout(tmdbSearchTimer);
@@ -2943,17 +2737,13 @@ async function tmdbPick(i){
   const box = $("tmdbResults");
   box.innerHTML = `<div class="tmdb-msg">Loading details…</div>`;
   try{
-    const { category, target, mode } = tmdbCtx;
+    const { category, target } = tmdbCtx;
     const d = await MediaDB.for(category).details(category, r.id);
     closeModal("tmdbModal");
-    if(mode === "link") applyTmdbToOpenModal(category, d);
-    else if(tmdbAddDirect(category, target, d)) { /* added */ }
-    else if(category === "movies") openMovieModal(null, target, d);       // TMDB has no runtime / episode info yet — fill it in by hand
-    else openEpisodicModal(category, null, target, d);
+    if(!tmdbAddDirect(category, target, d)) toast(`TMDB has no ${category === "movies" ? "runtime" : "season info"} for “${d.title}” yet, so it was skipped.`);
   }catch(e){ box.innerHTML = tmdbErrorHtml(e); }
 }
-// v1.10.1 — tapping a result adds the title right away (no edit form). Returns false when TMDB
-// doesn't know enough (no runtime / no episode info) so the form can open for the missing bits.
+// Tapping a result adds the title right away. Returns false when TMDB doesn't know enough (no runtime / no episode info).
 function tmdbAddDirect(category, target, d){
   const exists = (S.library[category] || []).concat(S[category] || []).some(x => x.tmdbId === d.id);
   if(exists){ toast(`“${d.title}” is already on your list.`); return true; }
@@ -2976,36 +2766,9 @@ function tmdbAddDirect(category, target, d){
   tvFetchAll(item);   // seasons' episodes, cast and scores load in the background
   return true;
 }
-function tmdbManual(){
-  const { category, target } = tmdbCtx;
-  closeModal("tmdbModal");
-  if(category === "movies") openMovieModal(null, target);
-  else openEpisodicModal(category, null, target);
-}
 // Link mode: fill the already-open edit modal. Never touches the name, and
 // only fills length / seasons when they're empty, so nothing you typed or any
 // watched progress gets overwritten.
-function applyTmdbToOpenModal(category, d){
-  modalTmdb = { id: d.id, posterPath: d.posterPath };
-  if(category === "movies"){
-    if(!($("mv_ry").value || "").trim() && d.year) $("mv_ry").value = d.year;
-    if(!(+$("mlength").value) && d.runtime) $("mlength").value = d.runtime;
-    $("mv_rating").value = d.rating == null ? "" : d.rating;
-    paintTmdbRow("mv");
-  } else {
-    if(!(+$("epilen").value) && d.epLen) $("epilen").value = d.epLen;
-    if(!$("groupRows").children.length){
-      const gs = tmdbGroups(category, d.seasons);
-      if(gs.length){
-        if(groupTypeFor(category, gs) === "arc" && groupTypeSel !== "arc") setGroupType("arc");
-        gs.forEach(g => addGroupRow({ ...g, id: "" }));
-      }
-    }
-    $("epi_rating").value = d.rating == null ? "" : d.rating;
-    paintTmdbRow("epi");
-  }
-  toast("Linked to TMDB.");
-}
 
 /* ----- match-my-Library tool -----
    Walks through titles that have no tmdbId yet. "Auto-match" only links the
@@ -3847,12 +3610,12 @@ function heroTagText(m){
 }
 function movieHeroHtml(m){
   const ex = heroEntry(m);
-  const back = ex && ex.backdrop ? `${TMDB_IMG}w780${ex.backdrop}` : "";
+  const back = m.backdropPath ? `${TMDB_IMG}w780${m.backdropPath}` : (ex && ex.backdrop ? `${TMDB_IMG}w780${ex.backdrop}` : "");
   const bandSrc = back || (m.posterPath ? `${TMDB_IMG}w342${m.posterPath}` : "");
   const pct = m.length > 0 ? Math.min(100, m.watched / m.length * 100) : 0;
   const accent = `--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}`;
   return `<section class="sf-hero">
-    <div class="sf-band" id="heroBand" data-id="${m.id}">${bandSrc ? `<img class="${back?"":"ph"}" alt="" src="${bandSrc}" onerror="this.remove()">` : ""}</div>
+    <div class="sf-band" id="heroBand" data-id="${m.id}">${bandSrc ? `<img class="${back?"":"ph"}" alt="" src="${bandSrc}"${m.backdropY != null ? ` style="object-position:50% ${m.backdropY}%"` : ""} onerror="this.remove()">` : ""}</div>
     <div class="sf-hero-row">
       <div class="pposter sf-thumb" data-pid="${m.id}" onclick="pdView('${m.id}')">
         <div class="pph"><span>${esc(m.name)}</span></div>
@@ -3872,7 +3635,7 @@ function movieHeroHtml(m){
         <button class="btn accent" onclick="markWatched('${m.id}')">✓ Mark watched</button>
         <button class="btn" onclick="openSessionModal('movies','${m.id}')">Log session</button>
       </div>
-      <div class="sf-links"><button onclick="pdSfEdit('${m.id}')">Edit</button><button onclick="pdSfMove('${m.id}')">To Library</button><button onclick="abandonItem('movies','${m.id}')">Abandon</button></div>
+      <div class="sf-links"><button onclick="openBackdropPicker('${m.id}','movie')">Change backdrop</button><button onclick="pdSfMove('${m.id}')">To Library</button><button onclick="abandonItem('movies','${m.id}')">Abandon</button></div>
     </div>
   </section>`;
 }
@@ -3916,7 +3679,6 @@ function miniPosterCard(m, idx){
     <div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, idx, "w342")}<div class="sf-check">✓</div></div>
   </div>`;
 }
-function pdSfEdit(id){ openMovieModal(id, "season"); }
 function pdSfMove(id){ libOpenMovie = null; moveItem("movies", id, "season", "library"); }
 function pdSfWatched(id){ libOpenMovie = null; markWatched(id); }
 function pdSfLog(id){ openSessionModal("movies", id); }
@@ -3942,7 +3704,7 @@ function renderMovies(){
   const accent = `--accent:${CAT.movies.color};--accent-text:${CAT.movies.text}`;
   const seasonBlock = (it, i, enter) => movieDetailBlock(it, i, enter,
     btnH("accent","pdSfWatched",it.id,"✓ Mark watched",accent) + btnH("ghost","pdSfLog",it.id,"Log session"),
-    btnH("ghost","pdView",it.id,"View poster") + btnH("ghost","pdSfEdit",it.id,"Edit") + btnH("ghost","pdSfMove",it.id,"To Library") + btnH("ghost","pdSfAbandon",it.id,"Abandon"));
+    btnH("ghost","pdView",it.id,"View poster") + btnH("ghost","pdSfMove",it.id,"To Library") + btnH("ghost","pdSfAbandon",it.id,"Abandon"));
   if(inProg.length){
     html += `<div class="marginalia sf-sec">in progress</div>` + posterGridHtml(inProg, seasonBlock, { progress:true });
   }
@@ -5160,29 +4922,30 @@ function tvRemove(id){
 
 /* ----- change a show's banner image (+ which slice of it the card shows) ----- */
 let bdCtx = null;
-function openBackdropPicker(id){
+function openBackdropPicker(id, kind = "tv"){   // kind: "tv" (shows + anime) or "movie"
   const it = titleById(id); if(!it) return;
-  if(!it.tmdbId) return toast("Link this show to TMDB first.");
-  bdCtx = { id, tmdbId: it.tmdbId, path: it.backdropPath || "", y: it.backdropY == null ? 30 : it.backdropY };
+  if(!it.tmdbId) return toast("Link this title to TMDB first.");
+  const path = it.backdropPath || (kind === "movie" && (heroEntry(it) || {}).backdrop) || "";
+  bdCtx = { id, kind, key: kind + it.tmdbId, tmdbId: it.tmdbId, path, y: it.backdropY == null ? 30 : it.backdropY };
   renderBdModal();
   $("bdModal").classList.add("show");
-  if(!(it.tmdbId in bdImgs)) bdLoadImages(it.tmdbId);
+  if(!(bdCtx.key in bdImgs)) bdLoadImages(bdCtx);
 }
-async function bdLoadImages(tmdbId){
+async function bdLoadImages(c){
   try{
-    const d = await MediaDB.providers.tmdb.api("/tv/" + tmdbId + "/images", { include_image_language: "en,null" });
+    const d = await MediaDB.providers.tmdb.api("/" + c.kind + "/" + c.tmdbId + "/images", { include_image_language: "en,null" });
     // textless images first (no baked-in titles), then by votes
-    bdImgs[tmdbId] = (d.backdrops || []).slice().sort((a, b) => ((a.iso_639_1 ? 1 : 0) - (b.iso_639_1 ? 1 : 0)) || ((b.vote_average || 0) - (a.vote_average || 0))).slice(0, 36).map(x => x.file_path);
-  }catch(e){ bdImgs[tmdbId] = null; }
-  if(bdCtx && bdCtx.tmdbId === tmdbId) renderBdModal();
+    bdImgs[c.key] = (d.backdrops || []).slice().sort((a, b) => ((a.iso_639_1 ? 1 : 0) - (b.iso_639_1 ? 1 : 0)) || ((b.vote_average || 0) - (a.vote_average || 0))).slice(0, 36).map(x => x.file_path);
+  }catch(e){ bdImgs[c.key] = null; }
+  if(bdCtx && bdCtx.key === c.key) renderBdModal();
 }
 function renderBdModal(){
   if(!bdCtx) return;
-  const list = bdImgs[bdCtx.tmdbId];
+  const list = bdImgs[bdCtx.key];
   const prev = bdCtx.path ? `<img alt="" src="${TMDB_IMG}w780${bdCtx.path}" style="object-position:50% ${bdCtx.y}%">` : "";
-  const grid = !(bdCtx.tmdbId in bdImgs) ? `<div class="tvc-note">Loading images…</div>`
+  const grid = !(bdCtx.key in bdImgs) ? `<div class="tvc-note">Loading images…</div>`
     : (list === null ? `<div class="tvc-note">Couldn't load the images. Check your connection and try again.</div>`
-    : (!list.length ? `<div class="tvc-note">TMDB has no other images for this show.</div>`
+    : (!list.length ? `<div class="tvc-note">TMDB has no other images for this title.</div>`
     : `<div class="bd-grid">${list.map(f => `<div class="bd-th${f === bdCtx.path ? " on" : ""}" onclick="bdPick('${f}')"><img alt="" loading="lazy" src="${TMDB_IMG}w300${f}"></div>`).join("")}</div>`));
   $("bdBody").innerHTML = `<label>Preview</label><div class="bd-prev" id="bdPrev">${prev}</div>
     <label>Position</label><input class="bd-range" type="range" min="0" max="100" value="${bdCtx.y}" oninput="bdSetY(this.value)">
@@ -5192,7 +4955,7 @@ function bdPick(f){ bdCtx.path = f; renderBdModal(); }
 function bdSetY(v){ bdCtx.y = +v; const im = document.querySelector("#bdPrev img"); if(im) im.style.objectPosition = `50% ${v}%`; }
 function bdSave(){
   if(!bdCtx) return closeModal("bdModal");
-  tvItemsFor(bdCtx.tmdbId).forEach(x => { x.backdropPath = bdCtx.path || null; x.backdropY = bdCtx.y; });
+  (bdCtx.kind === "movie" ? [titleById(bdCtx.id)].filter(Boolean) : tvItemsFor(bdCtx.tmdbId)).forEach(x => { x.backdropPath = bdCtx.path || null; x.backdropY = bdCtx.y; });
   closeModal("bdModal"); bdCtx = null;
   persist();
   toast("Banner updated.");
@@ -5306,7 +5069,7 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
   const nextEp = !finished && left > 0 ? tvEpAt(eps, g.watched + 1) : null, sc = nextEp ? tvEpScore(nextEp, item) : null;
   const nextLine = finished ? `<div class="sx-next">All ${g.total} episodes watched.</div>`
     : `<div class="sx-next">${g.watched > 0 ? "Next" : "Start with"}: <b>E${nextEp ? nextEp.e : g.watched + 1}</b>${nextEp && nextEp.t ? ` “${esc(nextEp.t)}”` : ""}${sc ? ` · <em class="${ratingClass(sc.v)}">${sc.v}</em>` : ""}</div>`;
-  const links = finished ? "" : `<div class="sf-links"><button onclick="event.stopPropagation();openEpisodicModal('${sxCat}','${item.id}')">Edit</button><button onclick="event.stopPropagation();sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`;
+  const links = finished ? "" : `<div class="sf-links"><button onclick="event.stopPropagation();sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`;
   const grid = open ? `<div class="sx-grid${sxAnim === "c:" + g.id ? " sx-in" : ""}">${sxTilesHtml(item, g, eps)}${finished ? "" : `<div class="sx-tiles-hint">Tap an episode to mark everything up to it as watched.</div>`}${links}</div>` : "";
   return `<div class="sx-card${isNext ? " next" : ""}${finished ? " fin" : ""}"${finished ? "" : ` onclick="sxToggleSeason('${g.id}')"`}>
     ${finished ? "" : `<span class="sx-chev${open ? " up" : ""}">▾</span>`}
@@ -5339,7 +5102,7 @@ function sxShowHtml(item, nextGid, isHero){
           const fin = x.g.total > 0 && x.g.watched >= x.g.total, isNext = !fin && x.g.id === nextGid;
           return `<div class="sxn${fin ? " dn" : ""}${isNext ? " next" : ""}${i === list.length - 1 ? " last" : ""}">${fin ? sxDoneRow(item, x.r, x.g, entry) : sxSeasonCard(item, x.r, x.g, entry, isNext, false)}</div>`;
         }).join("")
-      : `<div class="tvc-note" style="padding:12px 0">No seasons added yet — edit this show to add some.</div><div class="sf-links"><button onclick="openEpisodicModal('${sxCat}','${item.id}')">Edit</button></div>`;
+      : `<div class="tvc-note" style="padding:12px 0">TMDB has no season info for this show yet. Try ↻ Refresh all in the Data menu later.</div>`;
     body = `<div class="sx-body${sxAnim === "s:" + item.id ? " sx-in" : ""}">
       <div class="sx-seasons">${inner}</div>
       <div class="sf-links"><button onclick="abandonItem('${sxCat}','${item.id}')">Abandon ${nounFor(sxCat)}</button><button onclick="removeEpisodic('${sxCat}','${item.id}')">Remove ${nounFor(sxCat)}</button></div>
@@ -5438,7 +5201,7 @@ let mgS = { target: "library", mode: "add", linkId: null, q: "", results: [], pi
 let mgTimer = null, mgSeq = 0;
 const AL_URL = "https://graphql.anilist.co";
 const AL_SEARCH = `query($q:String){Page(perPage:14){media(search:$q,type:MANGA,sort:SEARCH_MATCH){id idMal format status volumes chapters averageScore startDate{year} title{romaji english} coverImage{large}}}}`;
-const AL_DETAIL = `query($id:Int){Media(id:$id,type:MANGA){id idMal status volumes chapters averageScore description(asHtml:false) coverImage{large extraLarge} startDate{year} staff(perPage:6,sort:RELEVANCE){edges{role node{name{full}}}}}}`;
+const AL_DETAIL = `query($id:Int){Media(id:$id,type:MANGA){id idMal status volumes chapters averageScore description(asHtml:false) coverImage{large extraLarge} bannerImage startDate{year} staff(perPage:6,sort:RELEVANCE){edges{role node{name{full}}}}}}`;
 async function anilist(query, variables){
   let res;
   try{ res = await fetch(AL_URL, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify({ query, variables }) }); }
@@ -5722,7 +5485,7 @@ function renderMgDataModal(){
 function mgApplyFresh(m){
   // m = AniList Media. Updates every piece of the same series; finished series get their real total.
   const mine = mgMangaAll().filter(x => x.anilistId === m.id);
-  mine.forEach(x => { if(m.averageScore != null) x.rating = m.averageScore; if(m.coverImage && m.coverImage.large) x.coverUrl = m.coverImage.large; });
+  mine.forEach(x => { if(m.averageScore != null) x.rating = m.averageScore; if(m.coverImage && m.coverImage.large) x.coverUrl = m.coverImage.large; x.bannerUrl = m.bannerImage || null; });
   if(m.status === "FINISHED" && m.volumes > 0){
     const top = mine.reduce((a, x) => (!a || (x.toVol || 0) > (a.toVol || 0)) ? x : a, null);
     if(top && m.volumes > (top.toVol || 0)) top.toVol = m.volumes;
@@ -5736,7 +5499,7 @@ async function mgRefreshAll(){
   for(const id of ids){
     if(mgBatch.stop) break;
     done++; mgBatch.text = `Title ${done} of ${ids.length}`; const el = $("mgProg"); if(el) el.textContent = mgBatch.text;
-    try{ const d = await anilist(AL_DETAIL, { id }); if(d.Media){ mgApplyFresh(d.Media); delete pdCache["a:" + id]; } }
+    try{ const d = await anilist(AL_DETAIL, { id }); if(d.Media){ mgApplyFresh(d.Media); delete pdCache["a:" + id]; await mdxRefresh(id); } }
     catch(e){ failed++; if(e && e.message === "limit") break; }
     await sleep(750);
   }
