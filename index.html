@@ -335,7 +335,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   -webkit-mask-image:linear-gradient(to bottom, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
   mask-image:linear-gradient(to bottom, transparent 0, black 16px, black calc(100% - 16px), transparent 100%);
   padding:4px 0}
-.tag-chip-static{display:inline-block;padding:3px 9px;border-radius:10px;background:var(--panel2);color:var(--muted);font-size:10.5px;margin:0 5px 5px 0}
 
 /* v1.3.0 — Season/Library mode toggle. v1.4.0: icons instead of emoji, plus header-top row for the account button */
 .header-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -364,29 +363,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .lib-dir-btn:disabled{opacity:.4;cursor:default}
 .lib-tags-btn{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 .lib-tags-btn:hover{color:var(--brass);border-color:var(--brass)}
-.lib-group{margin-bottom:10px}
-.lib-group-head{display:flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line);cursor:pointer}
-.lib-group-arrow{width:10px;flex-shrink:0;color:var(--muted-dim);font-size:9px}
-.lib-group-title{flex:1}
-.lib-group-count{color:var(--muted-dim)}
 .lib-search{width:100%;margin-bottom:12px}
-.lib-list{display:flex;flex-direction:column;gap:8px}
-.lib-row{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 11px;cursor:pointer}
-.lib-row.expanded{border-width:2px;padding:9px 10px}
-.lib-row-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--panel2);color:var(--accent);margin-top:1px}
-.lib-row-main{flex:1;min-width:0}
-.lib-row-name{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:14px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.28}
-.lib-row-sub{font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lib-row.expanded .lib-row-sub{white-space:normal;overflow:visible;text-overflow:clip}
-.lib-seg-div{color:var(--muted-dim)}
-.lib-warn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:#c1614a;color:#fff;font-size:10px;font-weight:800;margin-right:5px;flex-shrink:0}
-.lib-edit-btn{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:1px}
-.lib-edit-btn:hover{color:var(--brass);border-color:var(--brass)}
-.lib-exp{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:5px;cursor:default}
-.lib-exp-line{font-size:11.5px;color:var(--muted)}
-.lib-exp-tags{margin-top:2px}
-.lib-exp-actions{display:flex;gap:8px;margin-top:8px}
-.lib-exp-actions .btn{flex:none}
 .check input{width:auto}
 .dlc-edit{display:grid;grid-template-columns:1.3fr .8fr .7fr auto;gap:6px;margin:8px 0}
 .dlc-edit select{width:100%}
@@ -760,6 +737,65 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .tab.on .mono-badge{border-color:var(--tabcolor);color:var(--tabcolor);background:rgba(255,255,255,.03)}
 .tab span{font-size:9.5px;color:var(--muted-dim);letter-spacing:.02em}
 .tab.on span{color:var(--tabcolor);font-weight:600}
+/* v1.15.0 — Games Library: a wall of covers; tapping one opens its backdrop across the row */
+.gm-cell{scroll-margin-top:84px}
+.gm-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:relative;margin-bottom:8px}
+.gm-cell{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gm-cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
+.gm-cell img.in{opacity:1}
+.gm-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;font-size:12px;color:var(--muted-dim)}
+.gm-shade{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(to top,rgba(8,12,10,.88),transparent);pointer-events:none;display:none}
+.gm-name{position:absolute;left:7px;right:7px;bottom:27px;font-size:11px;line-height:1.2;font-weight:600;color:#fff;text-shadow:0 1px 3px #000;display:none;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gm-cell.named .gm-shade{display:block}
+.gm-cell.named .gm-name{display:-webkit-box}
+.gm-chip{position:absolute;bottom:6px;font:600 10px "IBM Plex Mono",monospace;padding:2px 6px;border-radius:99px;background:rgba(8,12,10,.8);color:var(--ink);border:1px solid var(--line)}
+.gm-chip.l{left:6px}.gm-chip.r{right:6px;color:var(--brass)}
+.gm-row.open .gm-cell{opacity:0;pointer-events:none}
+.gm-bd{position:absolute;inset:0;z-index:3;border-radius:12px;overflow:hidden;background:var(--panel2);border:1px solid var(--brass);box-shadow:0 0 28px -6px rgba(217,162,86,.4);cursor:pointer}
+.gm-bd>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.gm-bd>img.blur{filter:blur(16px) brightness(.6);transform:scale(1.3)}
+.gm-bd-shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,12,10,.92) 0%,rgba(8,12,10,.4) 40%,rgba(8,12,10,0) 72%)}
+.gm-bd-t{position:absolute;left:14px;right:56px;bottom:12px}
+.gm-bd-t .n{font-size:21px;line-height:1.1;color:#fff;text-shadow:0 2px 8px #000}
+.gm-bd-t .s{font:500 11px "IBM Plex Mono",monospace;color:var(--brass);margin-top:4px}
+@keyframes gmFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes gmFadeOut{from{opacity:1}to{opacity:0}}
+@keyframes gmGrow{from{grid-template-rows:0fr;opacity:0}to{grid-template-rows:1fr;opacity:1}}
+.gm-row.open.enter .gm-cell{animation:gmFadeOut .3s ease both}
+.gm-row.open.enter .gm-bd{animation:gmFadeIn .42s ease .06s both}
+.gm-row.open.leave .gm-cell{animation:gmFadeIn .26s ease both}
+.gm-row.open.leave .gm-bd{animation:gmFadeOut .24s ease both}
+.gm-info{display:grid;grid-template-rows:1fr;margin-bottom:10px}
+.gm-info.enter{animation:gmGrow .45s cubic-bezier(.22,.8,.24,1) both}
+.gm-info.leave{animation:gmGrow .25s ease reverse both}
+.gm-info-in{min-height:0;overflow:hidden}
+.gm-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:2px}
+.gm-meta{font-size:12px;color:var(--muted);line-height:1.5}
+.gm-meta b{color:var(--ink);font-weight:600}
+.gm-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.gm-chipx{font:600 10.5px "IBM Plex Mono",monospace;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.gm-desc{font-size:13px;line-height:1.55;color:var(--ink);margin-top:8px;white-space:pre-line}
+.gm-desc.clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.gm-more{background:none;border:0;color:var(--brass);padding:4px 0;font-size:12px}
+.gm-goal{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px}
+.gm-goal>span{flex:1}.gm-goal input{width:90px;height:34px}
+.gm-hint{color:var(--muted-dim);font-size:11px;margin-left:6px}
+.gm-sub{font:600 10.5px "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin:14px 0 4px}
+.gm-dlc{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line-soft)}
+.gm-acts{margin-top:14px;flex-wrap:wrap}
+.gm-rail{position:fixed;right:1px;top:96px;bottom:92px;width:14px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;font:600 9px "IBM Plex Mono",monospace;color:var(--muted);z-index:30}
+.gm-rail span{cursor:pointer;padding:0 2px}
+.gm-thumb{width:84px;height:48px;flex-shrink:0;border-radius:6px;overflow:hidden;background:var(--bg);border:1px solid var(--line-soft)}
+.gm-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.tmdb-res.dim{opacity:.5;cursor:default}
+.gm-pend{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px}
+.gm-pend-name{font-weight:600;margin-bottom:4px}
+.gm-cand{display:block;width:100%;text-align:left;background:none;border:1px solid var(--line-soft);border-radius:8px;color:var(--ink);padding:7px 9px;margin-top:5px;font-size:13px}
+.gm-cand.skip{color:var(--muted)}
+.gm-bdgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:56vh;overflow-y:auto;margin-top:12px}
+.gm-bdopt{aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer}
+.gm-bdopt.on{border-color:var(--brass)}
+.gm-bdopt img{width:100%;height:100%;object-fit:cover;display:block}
 </style>
 </head>
 <body>
@@ -865,6 +901,40 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div id="tmdbBody"></div>
     <div class="actions" id="tmdbActions"></div>
     <div class="tmdb-credit">This product uses the TMDB API but is not endorsed or certified by TMDB.</div>
+  </div>
+</div>
+
+<div class="modal" id="rawgModal">
+  <div class="sheet">
+    <h2 class="serif">Add game</h2>
+    <input id="rawgQ" placeholder="Search RAWG…" autocomplete="off" oninput="rawgTyped()">
+    <div class="tmdb-results" id="rawgRes"></div>
+    <div class="actions"><button class="btn" onclick="rawgManual()">Enter manually</button><button class="btn" onclick="closeModal('rawgModal')">Cancel</button></div>
+    <div class="tmdb-credit">Game data from <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</div>
+  </div>
+</div>
+<div class="modal" id="gmHoursModal">
+  <div class="sheet">
+    <h2 class="serif">Target hours</h2>
+    <div class="hint"><b id="gmHoursName"></b> has no playtime on RAWG. How many hours do you want to set as the target? You can change it later.</div>
+    <input id="gmHoursIn" type="number" min="0" step=".5" inputmode="decimal" placeholder="Hours">
+    <div class="actions"><button class="btn accent" onclick="gmHoursOk()">Add game</button><button class="btn" onclick="closeModal('gmHoursModal')">Cancel</button></div>
+  </div>
+</div>
+<div class="modal" id="gmDataModal">
+  <div class="sheet">
+    <h2 class="serif">Game data</h2>
+    <div id="gmDataBody"></div>
+    <div class="actions"><button class="btn" onclick="closeModal('gmDataModal')">Close</button></div>
+    <div class="tmdb-credit">Game data from <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</div>
+  </div>
+</div>
+<div class="modal" id="gmBdModal">
+  <div class="sheet">
+    <h2 class="serif">Change backdrop</h2>
+    <div id="gmBdBody"></div>
+    <div class="actions"><button class="btn" onclick="closeModal('gmBdModal')">Close</button></div>
+    <div class="tmdb-credit">Images from RAWG.</div>
   </div>
 </div>
 
@@ -1058,9 +1128,8 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.14.3"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.15.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
-const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
 // v1.7.4 — line-icons for Tags/Series, replacing the 🏷/📖 emoji so they match
 // the app's other hand-drawn icons (thin stroke, single accent color).
 const TAG_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10.9 2.7h4.4a1 1 0 0 1 1 1v4.4a1 1 0 0 1-.3.7l-8 8a1 1 0 0 1-1.4 0L2 12.2a1 1 0 0 1 0-1.4l8-8a1 1 0 0 1 .9-.1z"/><circle cx="13.3" cy="6.3" r="1" fill="currentColor" stroke="none"/></svg>`;
@@ -1193,7 +1262,7 @@ function normalizeState(raw){
       anime: normSimple(rawLib.anime,"anime"),
       manga: normSimple(rawLib.manga,"manga"),
     },
-    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || "") },
+    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), rawgKey: String((raw.settings && raw.settings.rawgKey) || "") },
     updatedAt: raw.updatedAt || 0,
   };
 }
@@ -1216,16 +1285,6 @@ function arrFor(cat, target){ return target==="library" ? S.library[cat] : S[cat
 // v1.4.0: only Games keep the full Y/M/D release date — every other category
 // only ever collects the year now (the month/day inputs were removed from
 // those modals), so these two helpers take the category into account.
-function hasReleaseDate(rd, category){
-  if(!rd) return false;
-  if(category && category!=="games") return !!rd.y;
-  return !!(rd.y||rd.m||rd.d);
-}
-function fmtReleaseDate(rd, category){
-  if(!hasReleaseDate(rd, category)) return "";
-  if(category && category!=="games") return rd.y;
-  return [rd.d, rd.m, rd.y].filter(Boolean).join("/");
-}
 /* ---------- shared release-date field helpers (all add/edit modals) ---------- */
 function fillRelease(prefix, rd){
   rd = rd || {};
@@ -1265,11 +1324,6 @@ function renderTagPicker(prefix){
     return;
   }
   el.innerHTML = tags.map(t=>`<button type="button" class="tag-chip ${currentModalTags.includes(t.id)?'on':''}" onclick="toggleModalTag('${prefix}','${t.id}')">${esc(t.name)}</button>`).join("");
-}
-function tagNames(category, item){
-  if(!item.tags || !item.tags.length) return [];
-  const list = S.tags[category] || [];
-  return item.tags.map(id => (list.find(t=>t.id===id)||{}).name).filter(Boolean);
 }
 let currentTagsModalCategory = "games";
 function openTagsModal(category){
@@ -1819,10 +1873,6 @@ function moveItem(category, id, fromMode, toMode){
 // split happens, so if a piece is later moved into a book that already holds
 // its sibling, they merge back into one row instead of sitting side by side —
 // that's what makes "move it back" land in its original place automatically.
-function moveButtonHandler(category, id, fromMode, toMode){
-  if(category==="tv" || category==="anime" || category==="manga") return `openMoveModal('${category}','${id}','${fromMode}','${toMode}')`;
-  return `moveItem('${category}','${id}','${fromMode}','${toMode}')`;
-}
 let moveModalCtx = null;
 function openMoveModal(category, id, fromMode, toMode){
   const item = (fromMode==="library" ? S.library[category] : S[category]).find(x=>x.id===id);
@@ -1989,7 +2039,7 @@ function switchLibTab(t){
   libTab = t;
   localStorage.setItem("expedition-libtab", t);
   libSearchQ = "";
-  libExpandedItems.clear(); libExpandedGroups.clear(); tvOpen = null; tvOpenSeason = null; mgOpen = null;
+  tvOpen = null; tvOpenSeason = null; mgOpen = null;
   render();
   window.scrollTo(0,0);
   if(oldIdx!==-1 && newIdx!==-1 && oldIdx!==newIdx) playPageTransition(newIdx>oldIdx ? "right" : "left");
@@ -3012,7 +3062,7 @@ function addSession(){
 /* ---------- backup ---------- */
 function exportData(){
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([JSON.stringify({...S, settings:{...S.settings, tmdbKey:"", mdbKey:"", omdbKey:""}},null,2)], {type:"application/json"}));
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({...S, settings:{...S.settings, tmdbKey:"", mdbKey:"", omdbKey:"", rawgKey:""}},null,2)], {type:"application/json"}));
   a.download = "expedition-backup.json";
   a.click();
   toast("Backup saved.");
@@ -3026,8 +3076,8 @@ function importData(){
       try{
         const x = JSON.parse(r.result);
         if(!Array.isArray(x.games) && !Array.isArray(x.movies) && !x.library) throw 0;
-        const keepKey = S.settings.tmdbKey, keepMdb = S.settings.mdbKey, keepOmdb = S.settings.omdbKey;
-        S = normalizeState(x); if(!S.settings.tmdbKey) S.settings.tmdbKey = keepKey; if(!S.settings.mdbKey) S.settings.mdbKey = keepMdb; if(!S.settings.omdbKey) S.settings.omdbKey = keepOmdb; // backups never carry keys, so keep this device's
+        const keepKey = S.settings.tmdbKey, keepMdb = S.settings.mdbKey, keepOmdb = S.settings.omdbKey, keepRawg = S.settings.rawgKey;
+        S = normalizeState(x); if(!S.settings.tmdbKey) S.settings.tmdbKey = keepKey; if(!S.settings.mdbKey) S.settings.mdbKey = keepMdb; if(!S.settings.omdbKey) S.settings.omdbKey = keepOmdb; if(!S.settings.rawgKey) S.settings.rawgKey = keepRawg; // backups never carry keys, so keep this device's
         // v1.3.0: routes through the same normalizer as load(), so Library + releaseDate comes along for the ride
         persist(); toast("Backup restored.");
       }catch(e){ toast("That file doesn't look right."); }
@@ -3828,14 +3878,9 @@ function libRemainingMin(category, item){
   const {total, played} = itemMinutes(category, item);
   return Math.max(0, total-played);
 }
-function fmtHrs(mins){ return fmtN(Math.round(mins/6)/10); }
 // v1.7.1 — total runtime of a group of Library titles, shown next to the
 // title count on each group header. Same per-category formatting as a single
 // row's length (movies as "2H 25M", everything else as decimal hours).
-function fmtGroupLength(category, mins){
-  if(mins<=0) return null;
-  return category==="movies" ? fmtHrMin(mins) : `${fmtHrs(mins)}H`;
-}
 // v1.6.0 — movies show "2H 25M" instead of a decimal like "2.4H"; games/manga
 // keep the decimal-hour style since that's what was actually asked for.
 function fmtHrMin(mins){
@@ -3844,110 +3889,24 @@ function fmtHrMin(mins){
   if(m<=0) return `${h}H`;
   return `${h}H ${m}M`;
 }
-function libSubLine(category, item){
-  const {total, played} = itemMinutes(category, item);
-  if(total<=0) return "No length set";
-  return played>0 ? `${fmtHrs(Math.max(0,total-played))}H remaining` : `${fmtHrs(total)}H target`;
-}
 // The "!" flags ANY missing info, not just release date — release date applies to every category, plus whatever else that category treats as
 // its own "core" detail (episodic groups can be saved empty, since
 // saveEpisodic doesn't require any; games/movies/manga always have their
 // numeric core set at save time, so there's nothing further to check there).
-function libraryMissingFields(category, item){
-  const missing = [];
-  if(!hasReleaseDate(item.releaseDate, category)) missing.push(category==="games" ? "release date" : "release year");
-  if(category==="anime" && !(item.groups && item.groups.length)) missing.push("episode count");
-  return missing;
-}
 function libraryOpenFn(category, id){
-  if(category==="games") return `openGameModal(${id?`'${id}'`:"null"},'library')`;
+  if(category==="games") return id ? `openGameModal('${id}','library')` : "openRawgSearch()";
   if(category==="movies") return `openTmdbSearch('movies','library','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
   if(isShowCat(category)) return `openTmdbSearch('${category}','library','add')`;
   return `openMgSearch('library','add')`;   // manga
-}
-function libraryRemoveFn(category, id){
-  if(category==="games") return `removeGame('${id}','library')`;
-  if(category==="manga") return `removeManga('${id}','library')`;
-  return `removeEpisodic('${category}','${id}','library')`;
 }
 // v1.5.0 — one compact "seg | seg | seg" line per card instead of three
 // stacked lines, so a bigger library fits more titles on screen. Games with
 // DLC fold the DLC hours into a combined "total" figure (main remaining +
 // timed DLC goals) and add a DLC-count segment at the end.
-function libSegments(category, item){
-  const segs = [];
-  const dateStr = fmtReleaseDate(item.releaseDate, category);
-  if(category==="games"){
-    const hasDlcs = item.hasDlc && item.dlcs && item.dlcs.length;
-    if(hasDlcs){
-      segs.push(`${fmtHrs(libRemainingMin(category,item))}H total`);
-    } else {
-      segs.push(libSubLine(category,item));
-    }
-    if(dateStr) segs.push(esc(dateStr));
-    if(hasDlcs) segs.push(`${item.dlcs.length} DLC${item.dlcs.length===1?"":"s"}`);
-  } else if(category==="manga"){
-    segs.push(libSubLine(category,item));
-    if(dateStr) segs.push(esc(dateStr));
-  } else {
-    const groupWord = (category==="anime" && item.groupType==="arc") ? "arc" : "season";
-    const n = (item.groups||[]).length;
-    segs.push(n ? `${n} ${groupWord}${n===1?"":"s"}` : `No ${groupWord}s yet`);
-    if(dateStr) segs.push(esc(dateStr));
-    const eps = (item.groups||[]).reduce((a,g)=>a+(g.total||0),0);
-    if(eps) segs.push(`${eps} Ep`);
-  }
-  return segs;
-}
 // v1.5.0 — tap a card to expand it in place: category-specific breakdown
 // (DLCs for games, per-season/arc episode counts for tv/anime, watched/read
 // progress for movies/manga), tags, and the To Season / Remove actions that
 // used to always be visible now only show up here.
-function libraryExpanded(category, item){
-  let html = `<div class="lib-exp" onclick="event.stopPropagation()">`;
-  if(category==="games"){
-    html += `<div class="lib-exp-line">Main game: ${fmtN(item.played||0)}H played of ${fmtN(item.goal||0)}H</div>`;
-    if(item.hasDlc && item.dlcs && item.dlcs.length){
-      html += item.dlcs.map(d => d.type==="time"
-        ? `<div class="lib-exp-line">↳ ${esc(d.name)}: ${fmtN(d.played||0)}H / ${fmtN(d.goal||0)}H</div>`
-        : `<div class="lib-exp-line">↳ ${esc(d.name)}: ${d.done?"Done":"Checklist, not done"}</div>`
-      ).join("");
-    }
-  } else if(category==="manga"){
-    const total = Math.max(0, (item.toVol||0)-(item.fromVol||0)+1);
-    html += `<div class="lib-exp-line">${item.volsRead||0} / ${total} volumes read</div>`;
-  } else {
-    html += (item.groups && item.groups.length)
-      ? item.groups.map(g=>`<div class="lib-exp-line">${esc(g.name)}: ${g.watched||0} / ${g.total||0} episodes</div>`).join("")
-      : `<div class="lib-exp-line">No seasons/arcs added yet.</div>`;
-  }
-  {
-    const names = tagNames(category, item);
-    html += names.length
-      ? `<div class="lib-exp-tags">${names.map(n=>`<span class="tag-chip-static">${esc(n)}</span>`).join("")}</div>`
-      : `<div class="lib-exp-line" style="color:var(--muted-dim)">No tags</div>`;
-  }
-  if(item.partOfSeries && item.seriesId){
-    const s = (S.series[category]||[]).find(x=>x.id===item.seriesId);
-    if(s) html += `<div class="lib-exp-line"><span style="color:#7f9bc4;display:inline-flex;vertical-align:-2px;margin-right:4px">${SERIES_ICON_SVG}</span>${esc(s.name)}${item.seriesOrder!=null ? ` — #${item.seriesOrder}` : ""}</div>`;
-  }
-  html += `<div class="lib-exp-actions">
-    <button class="btn small ghost" onclick="${moveButtonHandler(category,item.id,'library','season')}">To Season</button>
-    <button class="btn small ghost" onclick="${libraryRemoveFn(category,item.id)}">Remove</button>
-  </div>`;
-  html += `</div>`;
-  return html;
-}
-let libExpandedItems = new Set();  // ids of Library cards currently expanded
-let libExpandedGroups = new Set(); // group keys currently expanded (per libGroupKey)
-function toggleLibItem(id){
-  if(libExpandedItems.has(id)) libExpandedItems.delete(id); else libExpandedItems.add(id);
-  renderLibraryTab(libTab);
-}
-function toggleLibGroup(key){
-  if(libExpandedGroups.has(key)) libExpandedGroups.delete(key); else libExpandedGroups.add(key);
-  renderLibraryTab(libTab);
-}
 // v1.8.3 — a Library movie as a poster card. Posters are NOT stored in the
 // app's data (only the small posterPath is); they're fetched from TMDB's image
 // server each time the app opens and cached by the browser. The first rows
@@ -4022,10 +3981,275 @@ function posterGridHtml(items, blockFn, opts){
   return `<div class="poster-grid">${rows(items.slice(0,rowStart),0)}${rows(items.slice(rowStart,openIdx),rowStart)}${blockFn(items[openIdx], openIdx, enter)}${rows(items.slice(openIdx+1),openIdx+1)}</div>`;
 }
 const btnH = (cls, fn, id, label, style) => `<button class="btn small ${cls}"${style?` style="${style}"`:""} onclick="${fn}('${id}')">${label}</button>`;
+/* ============ GAMES — RAWG data, the cover wall and its backdrop (v1.15.0) ============ */
+const rawgKey = () => ((S.settings && S.settings.rawgKey) || "").trim();
+async function rawgApi(path, params){
+  const k = rawgKey(); if(!k) throw new Error("no-key");
+  let r; try{ r = await fetch(`https://api.rawg.io/api${path}?${new URLSearchParams({ key: k, ...(params || {}) })}`); }catch(e){ throw new Error("net"); }
+  if(r.status === 401 || r.status === 403) throw new Error("bad-key");
+  if(r.status === 429) throw new Error("limit");
+  if(!r.ok) throw new Error("http " + r.status);
+  return r.json();
+}
+const rawgErr = e => ({ "no-key": "Add your RAWG key in Settings → API keys.", "bad-key": "RAWG rejected the key.", "limit": "RAWG's monthly limit was reached.", "net": "Couldn't reach RAWG. Check your connection." }[e && e.message] || "Something went wrong talking to RAWG.");
+const rawgThumb = (url, w) => url && url.includes("/media/") && !url.includes("/media/resize/") ? url.replace("/media/", "/media/resize/" + w + "/-/") : (url || "");
+const gmNorm = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "");
+const GM_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function gmFmtDate(rd){
+  if(!rd || !rd.y) return "";
+  const mi = +rd.m;
+  return [rd.d && mi ? +rd.d : "", mi >= 1 && mi <= 12 ? GM_MONTHS[mi - 1] : "", rd.y].filter(Boolean).join(" ");
+}
+function rawgDateParts(str){ const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(str || ""); return m ? { y: m[1], m: String(+m[2]), d: String(+m[3]) } : { y: "", m: "", d: "" }; }
+async function rawgGameData(id){   // details + the Steam link (its portrait cover comes from the Steam app id)
+  const [d, st] = await Promise.all([rawgApi("/games/" + id), rawgApi("/games/" + id + "/stores").catch(() => ({ results: [] }))]);
+  const hit = (st.results || []).map(x => /store\.steampowered\.com\/app\/(\d+)/.exec(x.url || "")).find(Boolean);
+  const steamId = hit ? hit[1] : null;
+  return {
+    rawgId: d.id, rawgName: d.name, description: (d.description_raw || "").trim(),
+    developer: (d.developers || []).map(x => x.name).join(", "), publisher: (d.publishers || []).map(x => x.name).join(", "),
+    metacritic: d.metacritic || null, genres: (d.genres || []).map(x => x.name), playtime: d.playtime || 0,
+    steamId, posterUrl: steamId ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${steamId}/library_600x900.jpg` : "",
+    backdropUrl: d.background_image || "", released: d.released || "",
+  };
+}
+function rawgApply(g, x){   // fills the game; your hours, played time, DLC, tags and series are never touched
+  Object.assign(g, { rawgId: x.rawgId, description: x.description, developer: x.developer, publisher: x.publisher, genres: x.genres, steamId: x.steamId, posterUrl: x.posterUrl, rawgPlaytime: x.playtime });
+  if(x.backdropUrl && !g.backdropCustom) g.backdropUrl = x.backdropUrl;   // a backdrop you picked yourself stays
+  if(x.metacritic != null){ g.metacritic = x.metacritic; g.rating = x.metacritic; }
+  if(x.released && !(g.releaseDate && g.releaseDate.y)) g.releaseDate = rawgDateParts(x.released);
+}
+function rawgSettingsHtml(){
+  const has = !!rawgKey();
+  return `<div class="tmdb-settings">
+    <div class="tmdb-set-head"><b>RAWG · games</b><span class="entry-meta2">${has ? "Key saved" : "No key yet"}</span></div>
+    ${has ? "" : `<div class="hint" style="margin:4px 0 8px">Free key from <a href="https://rawg.io/apidocs" target="_blank" rel="noopener">rawg.io/apidocs</a>. It lets you search games and fills in covers, descriptions, scores and release dates.</div>`}
+    <input id="setRawgKey" placeholder="${has ? "Paste a new key to replace it" : "Paste your RAWG key"}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="account-row"><button class="btn small ghost" onclick="saveRawgKey()">Save and test</button>${has ? `<button class="btn small ghost" onclick="clearRawgKey()">Remove</button>` : ""}</div>
+    <div class="tmdb-credit">Game data from <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</div>
+  </div>`;
+}
+async function saveRawgKey(){
+  const v = ($("setRawgKey").value || "").trim(); if(!v) return toast("Paste the key first.");
+  try{
+    const r = await fetch(`https://api.rawg.io/api/games?key=${encodeURIComponent(v)}&page_size=1`);
+    if(r.status === 401 || r.status === 403) return toast("RAWG rejected that key.");
+    if(!r.ok) throw new Error(r.status);
+    await r.json();
+  }catch(e){ return toast("Couldn't reach RAWG. Check the key and your connection."); }
+  S.settings.rawgKey = v; persist(); refreshTmdbModals(); toast("RAWG connected.");
+}
+function clearRawgKey(){ if(!confirm("Remove the RAWG key?")) return; S.settings.rawgKey = ""; persist(); refreshTmdbModals(); }
+
+/* ---- add a game ---- */
+const gmAllGames = () => S.library.games.concat(S.games);
+function gmHave(){ const all = gmAllGames(); return { ids: new Set(all.map(g => g.rawgId).filter(Boolean)), names: new Set(all.map(g => gmNorm(g.name))) }; }
+let rawgTimer = null, rawgSeq = 0, gmHoursCtx = null;
+function openRawgSearch(){
+  if(!rawgKey()) return toast("Add your RAWG key first: Settings → API keys.");
+  $("rawgQ").value = ""; $("rawgRes").innerHTML = `<div class="tvc-note">Type a game name.</div>`;
+  $("rawgModal").classList.add("show"); $("rawgQ").focus();
+}
+function rawgManual(){ closeModal("rawgModal"); openGameModal(null, "library"); }
+function rawgTyped(){ clearTimeout(rawgTimer); rawgTimer = setTimeout(rawgRunSearch, 350); }
+async function rawgRunSearch(){
+  const q = $("rawgQ").value.trim(), seq = ++rawgSeq;
+  if(q.length < 2){ $("rawgRes").innerHTML = `<div class="tvc-note">Type a game name.</div>`; return; }
+  $("rawgRes").innerHTML = `<div class="tvc-note">Searching…</div>`;
+  try{
+    const d = await rawgApi("/games", { search: q, page_size: 10, exclude_additions: true });
+    if(seq !== rawgSeq) return;
+    const have = gmHave(), rs = d.results || [];
+    $("rawgRes").innerHTML = rs.length ? rs.map(r => {
+      const owned = have.ids.has(r.id) || have.names.has(gmNorm(r.name));
+      return `<div class="tmdb-res${owned ? " dim" : ""}" ${owned ? "" : `onclick="rawgPick(${r.id})"`}>
+        <div class="gm-thumb">${r.background_image ? `<img alt="" loading="lazy" src="${esc(rawgThumb(r.background_image, 420))}" onerror="this.remove()">` : ""}</div>
+        <div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.name)}</div><div class="tmdb-res-sub">${[(r.released || "").slice(0, 4), r.metacritic ? "MC " + r.metacritic : "", owned ? "In your list" : ""].filter(Boolean).join(" · ")}</div></div>
+      </div>`;
+    }).join("") : `<div class="tvc-note">No games found.</div>`;
+  }catch(e){ if(seq === rawgSeq) $("rawgRes").innerHTML = `<div class="tvc-note">${esc(rawgErr(e))}</div>`; }
+}
+async function rawgPick(id){
+  toast("Adding…");
+  let x; try{ x = await rawgGameData(id); }catch(e){ return toast(rawgErr(e)); }
+  closeModal("rawgModal");
+  if(x.playtime > 0) return gmAdd(x, x.playtime);
+  gmHoursCtx = x; $("gmHoursName").textContent = x.rawgName; $("gmHoursIn").value = "";
+  $("gmHoursModal").classList.add("show"); $("gmHoursIn").focus();
+}
+function gmHoursOk(){
+  const h = +$("gmHoursIn").value; if(!(h > 0)) return toast("Enter the target hours (above 0).");
+  closeModal("gmHoursModal"); gmAdd(gmHoursCtx, h);
+}
+function gmAdd(x, hours){
+  const g = { id: uid(), name: x.rawgName, goal: hours, played: 0, hasDlc: false, dlcs: [], releaseDate: { y: "", m: "", d: "" }, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null, lastPlayed: false, timerStart: null };
+  rawgApply(g, x); S.library.games.push(g); persist(); toast(`Added “${g.name}”.`);
+}
+
+/* ---- Data menu: match the games you already have, refresh them all ---- */
+let gmBatch = null, gmPending = [];
+const gmSkipped = new Set();
+const gmUnmatched = () => gmAllGames().filter(g => !g.rawgId && !gmSkipped.has(g.id)).length;
+function openGameDataModal(){ gmDataRender(); $("gmDataModal").classList.add("show"); }
+function gmDataRender(){
+  const all = gmAllGames(), matched = all.filter(g => g.rawgId).length, un = gmUnmatched(), run = gmBatch && gmBatch.running;
+  let h = !rawgKey() ? `<div class="hint">Add your RAWG key first: Settings → API keys.</div>` : `<div class="hint"><b>${matched}</b> of ${all.length} games matched to RAWG.</div>`;
+  if(run) h += `<div class="tvc-note">Working… ${gmBatch.done} of ${gmBatch.total}</div>`;
+  else if(rawgKey()){
+    if(un) h += `<button class="data-row" onclick="gmMatchRun(false)"><div><b>Match ${un} game${un === 1 ? "" : "s"}</b><span>Find them on RAWG and fill in covers, descriptions and dates. Your hours, DLC and series stay as they are.</span></div><i>›</i></button>`;
+    if(matched) h += `<button class="data-row" onclick="gmMatchRun(true)"><div><b>↻ Refresh all</b><span>Reload the data of the ${matched} matched games.</span></div><i>›</i></button>`;
+    if(gmBatch && gmBatch.failed) h += `<div class="tvc-note">${gmBatch.failed} couldn't be reached. Run it again to retry.</div>`;
+  }
+  if(gmPending.length) h += `<div class="set-head" style="margin-top:14px"><b>Needs your pick (${gmPending.length})</b></div>` + gmPending.map(p => `<div class="gm-pend"><div class="gm-pend-name">${esc(p.name)}</div>${p.cands.map(c => `<button class="gm-cand" onclick="gmPendPick('${p.id}',${c.id})">${esc(c.name)}${c.year ? ` (${c.year})` : ""}</button>`).join("")}${p.cands.length ? "" : `<div class="tvc-note">No results on RAWG.</div>`}<button class="gm-cand skip" onclick="gmPendSkip('${p.id}')">Skip this one</button></div>`).join("");
+  $("gmDataBody").innerHTML = h;
+}
+async function gmMatchRun(refresh){
+  if(gmBatch && gmBatch.running) return;
+  const all = gmAllGames(), todo = refresh ? all.filter(g => g.rawgId) : all.filter(g => !g.rawgId && !gmSkipped.has(g.id) && !gmPending.some(p => p.id === g.id));
+  gmBatch = { running: true, done: 0, total: todo.length, failed: 0 }; gmDataRender();
+  for(const g of todo){
+    try{
+      if(refresh) rawgApply(g, await rawgGameData(g.rawgId));
+      else{
+        const d = await rawgApi("/games", { search: g.name, search_precise: true, exclude_additions: true, page_size: 6 });
+        const rs = d.results || [], hit = rs.find(r => gmNorm(r.name) === gmNorm(g.name));
+        if(hit) rawgApply(g, await rawgGameData(hit.id));
+        else gmPending.push({ id: g.id, name: g.name, cands: rs.slice(0, 5).map(r => ({ id: r.id, name: r.name, year: (r.released || "").slice(0, 4) })) });
+      }
+    }catch(e){
+      gmBatch.failed++;
+      if(["no-key", "bad-key", "limit"].includes(e && e.message)){ toast(rawgErr(e)); break; }
+    }
+    gmBatch.done++; gmDataRender(); await sleep(180);
+  }
+  gmBatch.running = false; persist(); gmDataRender();
+}
+async function gmPendPick(gid, rid){
+  const g = gmAllGames().find(x => x.id === gid); if(!g) return;
+  try{ rawgApply(g, await rawgGameData(rid)); }catch(e){ return toast(rawgErr(e)); }
+  gmPending = gmPending.filter(p => p.id !== gid); persist(); gmDataRender();
+}
+function gmPendSkip(gid){ gmSkipped.add(gid); gmPending = gmPending.filter(p => p.id !== gid); gmDataRender(); }
+
+/* ---- the cover wall ---- */
+let gmOpen = null, gmAnim = null, gmBusy = false, gmGoalEdit = null;
+const gmMore = new Set();
+function gmFb(img){   // cover failed to load: try the next source, last resort is the backdrop with the title on top
+  const l = (img.dataset.fb || "").split("|").filter(Boolean), cell = img.closest(".gm-cell");
+  if(!l.length){ img.remove(); if(cell) cell.classList.add("named"); return; }
+  img.dataset.fb = l.slice(1).join("|"); img.src = l[0];
+  if(l.length === 1 && cell) cell.classList.add("named");
+}
+let gmAnchor = {};   // game id → letter, set on the first game of each letter so the A–Z rail can jump there
+function gmCellHtml(g){
+  const r = itemRating(g), len = g.goal ? fmtN(g.goal) + "h" : "", n = (g.dlcs || []).length;
+  const chain = [g.posterUrl, g.steamId && `https://cdn.akamai.steamstatic.com/steam/apps/${g.steamId}/library_600x900.jpg`, rawgThumb(g.backdropUrl, 640)].filter(Boolean);
+  return `<div class="gm-cell${g.posterUrl ? "" : " named"}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')">
+    <div class="gm-ph">${esc(g.name)}</div>
+    ${chain.length ? `<img alt="" loading="lazy" src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onload="this.classList.add('in')" onerror="gmFb(this)">` : ""}
+    <div class="gm-shade"></div><div class="gm-name">${esc(g.name)}</div>
+    ${r != null ? `<div class="prate ${ratingClass(r)}">${r}</div>` : ""}
+    ${len ? `<div class="gm-chip l">${len}</div>` : ""}${n ? `<div class="gm-chip r">+${n}</div>` : ""}
+  </div>`;
+}
+function gmBackdropHtml(g){
+  const bd = rawgThumb(g.backdropUrl, 1280), r = itemRating(g), y = g.releaseDate && g.releaseDate.y;
+  return `<div class="gm-bd" onclick="gmToggle('${g.id}')">
+    ${bd ? `<img alt="" src="${esc(bd)}" onerror="this.remove()">` : (g.posterUrl ? `<img class="blur" alt="" src="${esc(g.posterUrl)}" onerror="this.remove()">` : "")}
+    <div class="gm-bd-shade"></div>
+    ${r != null ? `<div class="prate tvc-rate ${ratingClass(r)}">${r}</div>` : ""}
+    <div class="gm-bd-t"><div class="n serif">${esc(g.name)}</div>${y ? `<div class="s">${y}${g.goal ? " · " + fmtN(g.goal) + "h" : ""}</div>` : ""}</div>
+  </div>`;
+}
+function gmInfoHtml(g){
+  const dlcs = g.dlcs || [], more = gmMore.has(g.id), desc = g.description || "", date = gmFmtDate(g.releaseDate);
+  const who = [g.developer ? `<b>${esc(g.developer)}</b>` : "", g.publisher && g.publisher !== g.developer ? `published by ${esc(g.publisher)}` : ""].filter(Boolean).join(" · ");
+  const goal = gmGoalEdit === g.id
+    ? `<input id="gmGoalIn" type="number" min="0" step=".5" inputmode="decimal" value="${g.goal || ""}" onclick="event.stopPropagation()"><button class="btn small accent" onclick="gmGoalSave('${g.id}')">Save</button><button class="btn small ghost" onclick="gmGoalEdit=null;render()">Cancel</button>`
+    : `<span>Target <b>${g.goal ? fmtN(g.goal) + "h" : "not set"}</b>${g.rawgPlaytime ? ` <span class="gm-hint">RAWG average ${g.rawgPlaytime}h</span>` : ""}</span><button class="btn small ghost" onclick="gmGoalStart('${g.id}')">Edit</button>`;
+  return `<div class="gm-info${gmAnim === "in" ? " enter" : ""}"><div class="gm-info-in"><div class="gm-panel">
+    <div class="gm-meta">${who || "No developer info yet"}${date ? `<br>${date}` : ""}</div>
+    ${(g.genres || []).length ? `<div class="gm-chips">${g.genres.slice(0, 5).map(x => `<span class="gm-chipx">${esc(x)}</span>`).join("")}</div>` : ""}
+    ${desc ? `<div class="gm-desc${more ? "" : " clamp"}">${esc(desc)}</div>${desc.length > 240 ? `<button class="gm-more" onclick="gmToggleMore('${g.id}')">${more ? "Less" : "More"}</button>` : ""}` : `<div class="gm-meta">${g.rawgId ? "RAWG has no description for this one." : "Not matched to RAWG yet. Use the Data button to match it."}</div>`}
+    <div class="gm-goal">${goal}</div>
+    ${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="gm-dlc"><span>${esc(d.name)}</span><span>${d.type === "check" ? "checklist" : fmtN(d.goal || 0) + "h"}</span></div>`).join("")}` : ""}
+    <div class="btn-row gm-acts">${btnH("accent", "gmMove", g.id, "To Season", `--accent:${CAT.games.color};--accent-text:${CAT.games.text}`)}${btnH("ghost", "gmBackdrop", g.id, "Change backdrop")}${btnH("ghost", "gmEdit", g.id, "Edit")}${btnH("ghost danger", "gmRemove", g.id, "Remove")}</div>
+  </div></div></div>`;
+}
+function gmSectionHtml(items){
+  let html = "";
+  for(let i = 0; i < items.length; i += 3){
+    const row = items.slice(i, i + 3), open = row.find(x => x.id === gmOpen);
+    html += `<div class="gm-row${open ? " open" + (gmAnim === "in" ? " enter" : "") : ""}">${row.map(gmCellHtml).join("")}${open ? gmBackdropHtml(open) : ""}</div>${open ? gmInfoHtml(open) : ""}`;
+  }
+  return html;
+}
+function gmLibraryHtml(items){
+  gmAnchor = {};
+  if(libSortKey() !== "name") return gmSectionHtml(items);
+  const seen = new Set();
+  items.forEach(g => {
+    const c = (String(g.name || "").normalize("NFD").replace(/[^A-Za-z0-9]/g, "")[0] || "#").toUpperCase(), L = /[A-Z]/.test(c) ? c : "num";
+    if(!seen.has(L)){ seen.add(L); gmAnchor[g.id] = L; }
+  });
+  const rail = items.length > 30 ? `<div class="gm-rail">${[...seen].map(L => `<span onclick="gmJump('${L}')">${L === "num" ? "#" : L}</span>`).join("")}</div>` : "";
+  return gmSectionHtml(items) + rail;
+}
+function gmJump(L){ const el = document.getElementById("gmL_" + L); if(el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+function gmToggle(id){
+  if(gmBusy) return;
+  const opened = gmOpen != null, same = gmOpen === id;
+  const go = () => {
+    gmOpen = same ? null : id; gmAnim = gmOpen ? "in" : null; gmGoalEdit = null;
+    render(); gmAnim = null; gmBusy = false;
+    if(gmOpen) setTimeout(gmScrollIntoView, 120);
+  };
+  if(opened){
+    gmBusy = true;
+    document.querySelectorAll(".gm-row.open,.gm-info").forEach(e => e.classList.add("leave"));
+    setTimeout(go, 250);
+  }else go();
+}
+function gmScrollIntoView(){
+  const el = document.querySelector(".gm-row.open"); if(!el) return;
+  const top = el.getBoundingClientRect().top;
+  if(top < 70 || top > innerHeight * .45) window.scrollBy({ top: top - 84, behavior: "smooth" });
+}
+function gmToggleMore(id){ if(gmMore.has(id)) gmMore.delete(id); else gmMore.add(id); render(); }
+function gmGoalStart(id){ gmGoalEdit = id; render(); setTimeout(() => { const el = $("gmGoalIn"); if(el){ el.focus(); el.select(); } }, 30); }
+function gmGoalSave(id){
+  const g = S.library.games.find(x => x.id === id), v = +$("gmGoalIn").value;
+  if(!g || !(v > 0)) return toast("Enter hours above 0.");
+  g.goal = v; g.played = Math.min(g.played || 0, v); gmGoalEdit = null; persist();
+}
+function gmMove(id){ gmOpen = null; moveItem("games", id, "library", "season"); }
+function gmEdit(id){ openGameModal(id, "library"); }
+function gmRemove(id){ removeGame(id, "library"); }
+let gmBdCtx = null;
+async function gmBackdrop(id){
+  const g = S.library.games.find(x => x.id === id); if(!g) return;
+  if(!g.rawgId) return toast("Match this game to RAWG first (Data button).");
+  gmBdCtx = { id, list: null }; gmBdRender(); $("gmBdModal").classList.add("show");
+  try{
+    const d = await rawgApi(`/games/${g.rawgId}/screenshots`, { page_size: 30 });
+    gmBdCtx.list = [g.backdropUrl, ...(d.results || []).map(x => x.image)].filter((u, i, a) => u && a.indexOf(u) === i);
+  }catch(e){ gmBdCtx.list = []; toast(rawgErr(e)); }
+  gmBdRender();
+}
+function gmBdRender(){
+  const c = gmBdCtx, g = c && S.library.games.find(x => x.id === c.id); if(!g) return;
+  $("gmBdBody").innerHTML = c.list == null ? `<div class="tvc-note">Loading images…</div>` : !c.list.length ? `<div class="tvc-note">RAWG has no other images for this game.</div>`
+    : `<div class="gm-bdgrid">${c.list.map((u, i) => `<div class="gm-bdopt${u === g.backdropUrl ? " on" : ""}" onclick="gmBdPick(${i})"><img loading="lazy" alt="" src="${esc(rawgThumb(u, 420))}"></div>`).join("")}</div>`;
+}
+function gmBdPick(i){
+  const g = gmBdCtx && S.library.games.find(x => x.id === gmBdCtx.id); if(!g) return;
+  g.backdropUrl = gmBdCtx.list[i]; g.backdropCustom = true; closeModal("gmBdModal"); persist(); toast("Backdrop updated.");
+}
+
 function libraryList(category, items){
   if(isShowCat(category)) return `<div class="tv-list">${items.map(tvCard).join("")}</div>`;
   if(category==="manga") return mgShelf(items);
-  if(category!=="movies") return `<div class="lib-list">${items.map(x=>libraryRow(category,x)).join("")}</div>`;
+  if(category==="games") return gmLibraryHtml(items);
   return posterGridHtml(items, (it, i, enter) => movieDetailBlock(it, i, enter,
     btnH("ghost","pdView",it.id,"View poster") + btnH("ghost","pdMove",it.id,"To Season") + btnH("ghost danger","pdRemove",it.id,"Remove")));
 }
@@ -4499,9 +4723,9 @@ function settingsBodyHtml(){
       <div class="hint" style="margin:4px 0 0">Which site's score every title shows. You can still override a single title by tapping its rating circle.</div>
       <div class="rate-chips">${ratingSrcOptions().map(k => `<button class="rate-chip${k === cur ? " on" : ""}" onclick="setGlobalRatingSrc('${esc(k)}')">${esc(mdbLabel(k))}</button>`).join("")}</div>
       <div class="hint" style="margin:10px 0 0">A title with no score from that site falls back to Merged, then IMDb, then TMDB.</div></div>
-    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey","mdxProxy"].filter(k => S.settings[k]).length} of 4 saved · TMDB, MDBList, OMDb, MangaDex</span></div><i>›</i></button></div>`;
+    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey","mdxProxy","rawgKey"].filter(k => S.settings[k]).length} of 5 saved · TMDB, MDBList, OMDb, MangaDex, RAWG</span></div><i>›</i></button></div>`;
 }
-function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml() + mdxSettingsHtml(); }
+function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml() + mdxSettingsHtml() + rawgSettingsHtml(); }
 function openApiModal(){ $("apiBody").innerHTML = apiBodyHtml(); $("apiModal").classList.add("show"); }
 function openSettingsModal(){ $("settingsBody").innerHTML = settingsBodyHtml(); $("settingsModal").classList.add("show"); }
 function setGlobalRatingSrc(k){
@@ -5721,21 +5945,6 @@ async function pdLoadExtras(item){
   }catch(e){ pdErr[item.tmdbId] = (e && e.message) || "error"; }
   pdFill(item);
 }
-function libraryRow(category, item){
-  const meta = CAT[category];
-  const missing = libraryMissingFields(category, item);
-  const expanded = libExpandedItems.has(item.id);
-  const segLine = libSegments(category, item).join(` <span class="lib-seg-div">·</span> `);
-  return `<div class="lib-row ${expanded?'expanded':''}" ${expanded?`style="border-color:${meta.color}"`:""} onclick="toggleLibItem('${item.id}')">
-    <div class="lib-row-icon" style="--accent:${meta.color}">${iconBadge(category)}</div>
-    <div class="lib-row-main">
-      <div class="lib-row-name serif">${missing.length ? `<span class="lib-warn" title="Missing: ${esc(missing.join(", "))}">!</span>` : ""}${esc(item.name)}</div>
-      <div class="lib-row-sub">${segLine}</div>
-      ${expanded ? libraryExpanded(category,item) : ""}
-    </div>
-    <button class="lib-edit-btn" onclick="event.stopPropagation(); ${libraryOpenFn(category,item.id)}" title="Edit">${EDIT_ICON_SVG}</button>
-  </div>`;
-}
 
 /* ---------- library sort + group controls (v1.4.0) ----------
    Shared across every category page rather than per-category — simplest
@@ -5743,13 +5952,9 @@ function libraryRow(category, item){
    avoids five separate persisted settings for what's really one preference. */
 let libSort = localStorage.getItem("expedition-libsort") || "name";       // name | date | rating | length
 let libSortDir = localStorage.getItem("expedition-libsortdir") || "asc";  // asc | desc — order of items
-let libGroup = localStorage.getItem("expedition-libgroup") || "none";     // none | length | year
-if(libSort === "hype") libSort = "rating"; if(libGroup === "hype") libGroup = "none";   // v1.14.0 — old saved choices
-let libGroupDir = localStorage.getItem("expedition-libgroupdir") || "asc";// asc | desc — order of the groups themselves
+if(libSort === "hype") libSort = "rating";   // v1.14.0 — old saved choice
 function setLibSort(v){ libSort=v; localStorage.setItem("expedition-libsort",v); renderLibraryTab(libTab); }
 function toggleLibSortDir(){ libSortDir = libSortDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libsortdir",libSortDir); renderLibraryTab(libTab); }
-function setLibGroup(v){ libGroup=v; localStorage.setItem("expedition-libgroup",v); libExpandedGroups.clear(); renderLibraryTab(libTab); }
-function toggleLibGroupDir(){ libGroupDir = libGroupDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libgroupdir",libGroupDir); renderLibraryTab(libTab); }
 function libSortValue(category, item, key){
   if(key==="rating"){
     if(category==="manga") return (item.anilistId && item.rating != null) ? item.rating : -1;
@@ -5766,40 +5971,6 @@ function libCompare(category, a, b, key, dir){
   const va = libSortValue(category,a,key), vb = libSortValue(category,b,key);
   const cmp = typeof va==="string" ? va.localeCompare(vb) : va-vb;
   return dir==="desc" ? -cmp : cmp;
-}
-const LENGTH_GROUP_ORDER = ["Short (under 10h)","Medium (10–25h)","Long (25–50h)","Gigantic (50h+)"];
-function libGroupKey(category, item, groupBy){
-  if(groupBy==="length"){
-    const mins = libRemainingMin(category,item);
-    if(mins<=0 && itemMinutes(category,item).total<=0) return "No length set";
-    const hrs = mins/60;
-    if(hrs<10) return "Short (under 10h)";
-    if(hrs<25) return "Medium (10–25h)";
-    if(hrs<50) return "Long (25–50h)";
-    return "Gigantic (50h+)";
-  }
-  if(groupBy==="year") return (item.releaseDate && item.releaseDate.y) ? item.releaseDate.y : "No year set";
-  return null;
-}
-// Groups get their own sensible order (size for length,
-// chronological for year) rather than alphabetical — the group-order arrow
-// flips that order, but the "nothing set" bucket always stays last so it
-// doesn't jump to the top on every toggle.
-function libGroupOrderKeys(groupBy, dir, presentKeys, category){
-  const present = new Set(presentKeys);
-  if(groupBy==="length"){
-    let order = LENGTH_GROUP_ORDER.filter(k=>present.has(k));
-    if(dir==="desc") order.reverse();
-    if(present.has("No length set")) order.push("No length set");
-    return order;
-  }
-  if(groupBy==="year"){
-    let years = [...present].filter(k=>k!=="No year set").sort((a,b)=>a-b);
-    if(dir==="desc") years.reverse();
-    if(present.has("No year set")) years.push("No year set");
-    return years;
-  }
-  return [...presentKeys];
 }
 function renderLibraryTab(category){
   const meta = CAT[category];
@@ -5830,22 +6001,15 @@ function renderLibraryTab(category){
       <select onchange="setLibSort(this.value)">
         <option value="name" ${libSort==="name"?"selected":""}>Sort: Name</option>
         <option value="date" ${libSort==="date"?"selected":""}>Sort: Release date</option>
-        ${isRate ? `<option value="rating" ${libSort==="rating"?"selected":""}>Sort: Rating</option>` : ""}
+        ${(isRate || category==="games") ? `<option value="rating" ${libSort==="rating"?"selected":""}>Sort: Rating</option>` : ""}
         <option value="length" ${libSort==="length"?"selected":""}>Sort: Length</option>
       </select>
       <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
     </div>`}
-    ${isMovies ? `<button class="lib-tags-btn${fN?" active":""}" onclick="openFilterModal()" title="Filter movies"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14l-5.2 6.2v4.6l-3.6 1.7v-6.3z"/></svg> Filter${fN?` (${fN})`:""}</button>` : (isTv || isManga) ? "" : `<div class="lib-control">
-      <select onchange="setLibGroup(this.value)">
-        <option value="none" ${libGroup==="none"?"selected":""}>Group: None</option>
-        <option value="length" ${libGroup==="length"?"selected":""}>Group: Length</option>
-        <option value="year" ${libGroup==="year"?"selected":""}>Group: Year</option>
-      </select>
-      <button class="lib-dir-btn" onclick="toggleLibGroupDir()" title="Flip group order" ${libGroup==="none"?"disabled":""}>${libGroupDir==="asc"?"↑":"↓"}</button>
-    </div>`}
+    ${isMovies ? `<button class="lib-tags-btn${fN?" active":""}" onclick="openFilterModal()" title="Filter movies"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14l-5.2 6.2v4.6l-3.6 1.7v-6.3z"/></svg> Filter${fN?` (${fN})`:""}</button>` : ""}
     ${(isRate || isManga) ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
     ${(isMovies || isTv || isManga) ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
-    ${(isMovies || isTv || isManga) ? `<button class="lib-tags-btn" onclick="openDataModal('${category}')" title="Link titles and fetch ratings">${DATA_ICON} Data${dataCount(category)?` (${dataCount(category)})`:""}</button>` : ""}
+    ${category==="games" ? `<button class="lib-tags-btn" onclick="openGameDataModal()" title="Match games to RAWG">${DATA_ICON} Data${gmUnmatched() ? ` (${gmUnmatched()})` : ""}</button>` : (isMovies || isTv || isManga) ? `<button class="lib-tags-btn" onclick="openDataModal('${category}')" title="Link titles and fetch ratings">${DATA_ICON} Data${dataCount(category)?` (${dataCount(category)})`:""}</button>` : ""}
   </div>`;
 
   if(!isTv && !isManga) html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
@@ -5855,30 +6019,8 @@ function renderLibraryTab(category){
 
   if(!filtered.length){
     html += `<div class="empty"><span class="serif">No matches</span>Nothing in ${meta.label} matches ${q ? `"${esc(libSearchQ)}"` : "your filters"}${q && fN ? " with the current filters" : ""}.</div>`;
-  } else if(isMovies || isTv || isManga || libGroup==="none"){
-    html += libraryList(category, sorted);
   } else {
-    const buckets = {};
-    sorted.forEach(item=>{
-      const key = libGroupKey(category, item, libGroup);
-      (buckets[key] = buckets[key]||[]).push(item);
-    });
-    const orderedKeys = libGroupOrderKeys(libGroup, libGroupDir, Object.keys(buckets), category);
-    html += orderedKeys.map(key => {
-      const isOpen = libExpandedGroups.has(key);
-      const safeKey = key.replace(/'/g,"\\'");
-      const groupMins = buckets[key].reduce((a,x)=>a+libRemainingMin(category,x),0);
-      const groupLenLabel = fmtGroupLength(category, groupMins);
-      return `
-      <div class="lib-group">
-        <div class="lib-group-head" onclick="toggleLibGroup('${safeKey}')">
-          <span class="lib-group-arrow">${isOpen?'▾':'▸'}</span>
-          <span class="lib-group-title">${esc(key)}</span>
-          <span class="lib-group-count">${buckets[key].length}${groupLenLabel?' · '+groupLenLabel:''}</span>
-        </div>
-        ${isOpen ? libraryList(category, buckets[key]) : ""}
-      </div>`;
-    }).join("");
+    html += libraryList(category, sorted);
   }
 
   $("app").innerHTML = html;
