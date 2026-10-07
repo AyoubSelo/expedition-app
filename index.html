@@ -1058,7 +1058,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.14.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.14.2"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 const EDIT_ICON_SVG = `<svg viewBox="0 0 20 20" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 3.4l3.4 3.4-9.7 9.7-4.1 1 1-4.1z"/></svg>`;
 // v1.7.4 — line-icons for Tags/Series, replacing the 🏷/📖 emoji so they match
@@ -1193,7 +1193,7 @@ function normalizeState(raw){
       anime: normSimple(rawLib.anime,"anime"),
       manga: normSimple(rawLib.manga,"manga"),
     },
-    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || "") },
+    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || "") },
     updatedAt: raw.updatedAt || 0,
   };
 }
@@ -2335,10 +2335,11 @@ function removeManga(id, target="season"){
 }
 /* ============ MANGADEX — one cover per volume (v1.14.1) ============ */
 const MDX_IMG = "https://uploads.mangadex.org/covers/";
+const mgImgErr = (m, cv) => m.coverUrl && cv !== m.coverUrl ? `onerror="this.onerror=function(){this.remove()};this.src='${esc(m.coverUrl)}'"` : `onerror="this.remove()"`;
 const mdxTried = new Set(), alBannerTried = new Set();
 let mgExtrasBusy = false;
 async function mdxLookup(m){   // → { id, c: { "1": "file.jpg", … }, at } ; matched through the AniList link MangaDex keeps on each title
-  const j = async p => { const r = await fetch("https://api.mangadex.org" + p); if(!r.ok) throw new Error("mdx " + r.status); return r.json(); };
+  const j = async p => { const r = await fetch(mdxBase() + p); if(!r.ok) throw new Error("mdx " + r.status); return r.json(); };
   const found = await j(`/manga?title=${encodeURIComponent(m.name)}&limit=10`);
   const hit = (found.data || []).find(x => x.attributes && x.attributes.links && String(x.attributes.links.al) === String(m.anilistId));
   if(!hit) return { id: null, c: null, at: Date.now() };
@@ -2356,7 +2357,7 @@ async function mdxLookup(m){   // → { id, c: { "1": "file.jpg", … }, at } ; 
   return { id: hit.id, c: Object.keys(c).length ? c : null, at: Date.now() };
 }
 async function mdxRefresh(anilistId){
-  const list = mgMangaAll().filter(x => x.anilistId === anilistId); if(!list[0]) return;
+  const list = mgMangaAll().filter(x => x.anilistId === anilistId); if(!list[0] || !mdxBase()) return;
   try{ const r = await mdxLookup(list[0]); list.forEach(x => { x.mdx = r; }); }catch(e){ /* offline or blocked — covers fall back to AniList's */ }
 }
 function mgVolCover(m, vol){   // the cover of that volume, else the nearest earlier one, else AniList's series cover
@@ -2376,7 +2377,7 @@ async function mgEnsureExtras(){   // Season titles: pull the AniList banner and
       alBannerTried.add(id);
       try{ const d = await anilist(AL_DETAIL, { id }); if(d.Media){ mgApplyFresh(d.Media); changed = true; } }catch(e){}
     }
-    if(!same(id).some(x => x.mdx) && !mdxTried.has(id)){ mdxTried.add(id); await mdxRefresh(id); changed = true; }
+    if(mdxBase() && !same(id).some(x => x.mdx) && !mdxTried.has(id)){ mdxTried.add(id); await mdxRefresh(id); changed = true; }
   }
   mgExtrasBusy = false;
   if(changed) persist();
@@ -2411,12 +2412,12 @@ function mgHeroHtml(m){
   const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), cur = i.from + r, cv = esc(mgVolCover(m, cur)), bn = m.bannerUrl ? esc(m.bannerUrl) : "";
   return `<div class="sx-hero mg-hero">
     <div class="sx-hero-img">
-      ${cv ? `<img class="bg" alt="" src="${cv}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}
+      ${cv ? `<img class="bg" alt="" src="${cv}" onload="this.classList.add('in')" ${mgImgErr(m, cv)}>` : ""}
       ${bn ? `<img class="bd" alt="" src="${bn}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}
       <div class="sx-hero-shade"></div>
       <div class="sx-hero-tag">Read next</div>
       <div class="sx-hero-row">
-        <div class="sx-hero-poster" onclick="mgViewCover('${m.id}')">${cv ? `<img alt="" src="${cv}" onerror="this.remove()">` : `<div class="mgc-ph" style="font-size:11px;padding:6px">${esc(m.name)}</div>`}${mgRateBadge(m)}</div>
+        <div class="sx-hero-poster" onclick="mgViewCover('${m.id}')">${cv ? `<img alt="" src="${cv}" ${mgImgErr(m, cv)}>` : `<div class="mgc-ph" style="font-size:11px;padding:6px">${esc(m.name)}</div>`}${mgRateBadge(m)}</div>
         <div class="sx-hero-info"><div class="t serif">${esc(m.name)}</div><div class="n"><b>Vol ${cur}</b> · ${r} of ${i.total} read</div><div class="s">${mgRange(m)} · ${i.left} left</div></div>
       </div>
     </div>
@@ -2426,7 +2427,7 @@ function mgHeroHtml(m){
 function mgSCardHtml(m){
   const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), done = mgSDone(m), cv = mgVolCover(m, i.from + Math.min(r, i.total - 1));
   return `<div class="mgc${mgSOpen === m.id ? " sel" : ""}${done ? " mgc-done" : ""}" onclick="mgSToggle('${m.id}')">
-    <div class="mgc-cover"><div class="mgc-ph">${esc(m.name)}</div>${cv ? `<img alt="" loading="lazy" src="${esc(cv)}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}${mgRateBadge(m)}</div>
+    <div class="mgc-cover"><div class="mgc-ph">${esc(m.name)}</div>${cv ? `<img alt="" loading="lazy" src="${esc(cv)}" onload="this.classList.add('in')" ${mgImgErr(m, cv)}>` : ""}${mgRateBadge(m)}</div>
     <div class="mgc-title serif">${esc(m.name)}</div>
     <div class="mgc-sub">${mgRange(m)} · ${done ? "read" : i.left + " left"}</div>
     <div class="mgm mgm-c">${r ? `<i class="mgm-lib" style="width:${r / i.total * 100}%"></i>` : ""}</div>
@@ -2606,6 +2607,31 @@ function tmdbSettingsHtml(){
     <div class="account-row"><button class="btn small ghost" onclick="saveTmdbKey('settings')">Save key</button>${has ? `<button class="btn small ghost" onclick="clearTmdbKey()">Remove key</button>` : ""}</div>
     <div class="tmdb-credit">${TMDB_CREDIT}</div>
   </div>`;
+}
+function mdxBase(){ return ((S.settings && S.settings.mdxProxy) || "").trim().replace(/\/+$/, ""); }
+function mdxSettingsHtml(){
+  const has = !!mdxBase();
+  return `<div class="tmdb-settings">
+    <div class="tmdb-set-head"><b>MangaDex · volume covers</b><span class="entry-meta2">${has ? "Proxy saved" : "No proxy yet"}</span></div>
+    ${has ? "" : `<div class="hint" style="margin:4px 0 8px">MangaDex doesn't allow websites to call it directly, so this needs your own free Cloudflare Worker (mangadex-proxy.js). Paste its address here. Without it, manga just use the AniList cover.</div>`}
+    <input id="setMdxProxy" placeholder="${has ? "Paste a new address to replace it" : "https://your-worker.workers.dev"}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="account-row"><button class="btn small ghost" onclick="saveMdxProxy()">Save and test</button>${has ? `<button class="btn small ghost" onclick="clearMdxProxy()">Remove</button>` : ""}</div>
+    <div class="tmdb-credit">Covers come from MangaDex.</div>
+  </div>`;
+}
+async function saveMdxProxy(){
+  const el = $("setMdxProxy"), v = el ? el.value.trim().replace(/\/+$/, "") : "";
+  if(!/^https:\/\/[^\s/]+(\/\S*)?$/.test(v)) return toast("Paste the full https:// address of your worker.");
+  try{
+    const r = await fetch(v + "/manga?limit=1"); if(!r.ok) throw new Error(r.status);
+    const d = await r.json(); if(!d || !Array.isArray(d.data)) throw new Error("bad reply");
+  }catch(e){ return toast("Couldn't reach MangaDex through that address. Check the worker code and the URL."); }
+  S.settings.mdxProxy = v; mdxTried.clear(); persist(); refreshTmdbModals();
+  toast("MangaDex connected. Volume covers will load in the background.");
+}
+function clearMdxProxy(){
+  if(!confirm("Remove the MangaDex proxy address?")) return;
+  S.settings.mdxProxy = ""; persist(); refreshTmdbModals();
 }
 function omdbKey(){ return ((S.settings && S.settings.omdbKey) || "").trim(); }
 function omdbSettingsHtml(){
@@ -3656,8 +3682,9 @@ function heroFill(m){
   const band = document.getElementById("heroBand");
   if(!band || band.dataset.id !== m.id) return;
   const ex = pdCache["m:" + m.tmdbId]; if(!ex) return;
-  if(ex.backdrop){
-    const url = `${TMDB_IMG}w780${ex.backdrop}`;
+  const bdPath = m.backdropPath || ex.backdrop;   // a backdrop you picked wins over TMDB's default
+  if(bdPath){
+    const url = `${TMDB_IMG}w780${bdPath}`;
     let img = band.querySelector("img");
     if(!img || img.getAttribute("src") !== url){
       const pre = new Image();
@@ -4472,9 +4499,9 @@ function settingsBodyHtml(){
       <div class="hint" style="margin:4px 0 0">Which site's score every title shows. You can still override a single title by tapping its rating circle.</div>
       <div class="rate-chips">${ratingSrcOptions().map(k => `<button class="rate-chip${k === cur ? " on" : ""}" onclick="setGlobalRatingSrc('${esc(k)}')">${esc(mdbLabel(k))}</button>`).join("")}</div>
       <div class="hint" style="margin:10px 0 0">A title with no score from that site falls back to Merged, then IMDb, then TMDB.</div></div>
-    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey"].filter(k => S.settings[k]).length} of 3 saved · TMDB, MDBList, OMDb</span></div><i>›</i></button></div>`;
+    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey","mdxProxy"].filter(k => S.settings[k]).length} of 4 saved · TMDB, MDBList, OMDb, MangaDex</span></div><i>›</i></button></div>`;
 }
-function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml(); }
+function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml() + mdxSettingsHtml(); }
 function openApiModal(){ $("apiBody").innerHTML = apiBodyHtml(); $("apiModal").classList.add("show"); }
 function openSettingsModal(){ $("settingsBody").innerHTML = settingsBodyHtml(); $("settingsModal").classList.add("show"); }
 function setGlobalRatingSrc(k){
