@@ -915,6 +915,14 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <div class="tmdb-credit">Game data from <a href="https://www.igdb.com" target="_blank" rel="noopener">IGDB.com</a>.</div>
   </div>
 </div>
+<div class="modal" id="gmRateModal">
+  <div class="sheet">
+    <h2 class="serif">Rating</h2>
+    <div class="hint" id="gmRateHint"></div>
+    <input id="gmRateIn" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="0 – 100">
+    <div class="actions"><button class="btn accent" onclick="gmRateSave()">Save</button><button class="btn" id="gmRateReset" onclick="gmRateReset()">Reset</button><button class="btn" onclick="closeModal('gmRateModal')">Cancel</button></div>
+  </div>
+</div>
 <div class="modal" id="gmBdModal">
   <div class="sheet">
     <h2 class="serif">Change backdrop</h2>
@@ -1098,7 +1106,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.15.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.15.3"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -3914,7 +3922,7 @@ async function igdbGameData(id){
 function igdbApply(g, x){   // fills the game; your hours, played time, DLC and series are never touched
   Object.assign(g, { igdbId: x.igdbId, description: x.description, developer: x.developer, publisher: x.publisher, genres: x.genres, coverId: x.coverId, igdbHours: x.hours });
   if(x.backdropId && !g.backdropCustom) g.backdropId = x.backdropId;   // a backdrop you picked yourself stays
-  if(x.score != null) g.rating = x.score;
+  if(x.score != null){ g.igdbScore = x.score; if(!g.ratingCustom) g.rating = x.score; }
   if(x.released && !(g.releaseDate && g.releaseDate.y)) g.releaseDate = igdbDateParts(x.released);
 }
 function igdbSettingsHtml(){
@@ -4046,7 +4054,7 @@ function gmCellHtml(g, i, hidden){
     <div class="gm-ph">${esc(g.name)}</div>
     ${chain.length ? `<img alt="" loading="${i > 29 ? "lazy" : "eager"}" src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onerror="gmFb(this)">` : ""}
     <div class="gm-shade"></div><div class="gm-name">${esc(g.name)}</div>
-    ${r != null ? `<div class="prate ${ratingClass(r)}">${r}</div>` : ""}
+    ${r != null ? `<div class="prate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
     ${len ? `<div class="gm-chip l">${len}</div>` : ""}${n ? `<div class="gm-chip r">+${n}</div>` : ""}
   </div>`;
 }
@@ -4055,7 +4063,7 @@ function gmBackdropHtml(g){
   return `<div class="gm-bd" onclick="gmToggle('${g.id}')">
     ${bd ? `<img alt="" src="${esc(bd)}" onerror="this.remove()">` : (cv ? `<img class="blur" alt="" src="${esc(cv)}" onerror="this.remove()">` : "")}
     <div class="gm-bd-shade"></div>
-    ${r != null ? `<div class="prate tvc-rate ${ratingClass(r)}">${r}</div>` : ""}
+    ${r != null ? `<div class="prate tvc-rate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
     <div class="gm-bd-t"><div class="n serif">${esc(g.name)}</div>${y ? `<div class="s">${y}${g.goal ? " · " + fmtN(g.goal) + "h" : ""}</div>` : ""}</div>
   </div>`;
 }
@@ -4070,88 +4078,100 @@ function gmInfoHtml(g){
     ${(g.genres || []).length ? `<div class="gm-chips">${g.genres.slice(0, 5).map(x => `<span class="gm-chipx">${esc(x)}</span>`).join("")}</div>` : ""}
     ${desc ? `<div class="gm-desc${more ? "" : " clamp"}">${esc(desc)}</div>${desc.length > 240 ? `<button class="gm-more" onclick="gmToggleMore('${g.id}')">${more ? "Less" : "More"}</button>` : ""}` : `<div class="gm-meta">${g.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet. Use the Data button to match it."}</div>`}
     <div class="gm-goal">${goal}</div>
+    <div class="gm-goal"><span>Rating <b>${itemRating(g) != null ? itemRating(g) : "none"}</b>${g.ratingCustom ? ` <span class="gm-hint">your own</span>` : g.igdbScore != null ? ` <span class="gm-hint">IGDB critics</span>` : ""}</span><button class="btn small ghost" onclick="gmRate('${g.id}')">${itemRating(g) != null ? "Edit" : "Set"}</button></div>
     ${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="gm-dlc"><span>${esc(d.name)}</span><span>${d.type === "check" ? "checklist" : fmtN(d.goal || 0) + "h"}</span></div>`).join("")}` : ""}
     <div class="btn-row gm-acts">${btnH("accent", "gmMove", g.id, "To Season", `--accent:${CAT.games.color};--accent-text:${CAT.games.text}`)}${btnH("ghost", "gmBackdrop", g.id, "Change backdrop")}${btnH("ghost", "gmEdit", g.id, "Edit")}${btnH("ghost danger", "gmRemove", g.id, "Remove")}</div>
   </div></div></div>`;
 }
-const GM_MOVE = 430, GM_REVEAL = 540, GM_INFO = 420, GM_EASE = "cubic-bezier(.22,.8,.24,1)";
-let gmItemIds = [];
+const GM_ROOM = 200, GM_REVEAL = 400, GM_FADE = 300, GM_INFO = 420, GM_EASE = "cubic-bezier(.22,.8,.24,1)";
+let gmItemIds = [], gmPad = 0;
 function gmBlockHtml(g){ return `<div class="gm-open" data-id="${g.id}">${gmBackdropHtml(g)}${gmInfoHtml(g)}</div>`; }
 function gmWallHtml(items){   // one grid: the open game's backdrop block sits where the game was, everything else flows around it
   const oi = gmOpen ? items.findIndex(x => x.id === gmOpen) : -1;
   gmItemIds = items.map(x => x.id);
-  return `<div class="gm-wall" id="gmWall">${items.map((g, i) => i === oi ? gmBlockHtml(g) + gmCellHtml(g, i, true) : gmCellHtml(g, i)).join("")}</div>`;
+  return `<div class="gm-wall" id="gmWall">${items.map((g, i) => i === oi ? gmBlockHtml(g) + gmCellHtml(g, i, true) : gmCellHtml(g, i)).join("")}</div><div id="gmSpacer"></div>`;
 }
 const gmWallEl = () => document.getElementById("gmWall");
-function gmRects(wall){
-  const m = new Map(), r0 = wall.getBoundingClientRect();
-  wall.querySelectorAll(".gm-cell:not(.gm-hid)").forEach(c => { const r = c.getBoundingClientRect(); m.set(c.dataset.pid, { x: r.left - r0.left, y: r.top - r0.top, w: r.width, h: r.height }); });
+function gmRects(wall){   // where every visible cover is on screen right now
+  const m = new Map();
+  wall.querySelectorAll(".gm-cell:not(.gm-hid)").forEach(c => { const r = c.getBoundingClientRect(); m.set(c.dataset.pid, { x: r.left, y: r.top, w: r.width, h: r.height }); });
   return m;
 }
-function gmFlip(wall, before, skipId, dur){   // slide every other cover from where it was to where it is now
-  const r0 = wall.getBoundingClientRect();
+function gmFlip(wall, before, dur){   // slide every cover from where it was to where it is now
+  const near = y => y > -300 && y < innerHeight + 300;
   wall.querySelectorAll(".gm-cell:not(.gm-hid)").forEach(c => {
-    const b = before.get(c.dataset.pid); if(!b || c.dataset.pid === skipId) return;
-    const r = c.getBoundingClientRect(), dx = b.x - (r.left - r0.left), dy = b.y - (r.top - r0.top);
-    if(dx || dy) c.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: "none" }], { duration: dur, easing: GM_EASE });
+    const b = before.get(c.dataset.pid); if(!b) return;
+    const r = c.getBoundingClientRect(), dx = b.x - r.left, dy = b.y - r.top;
+    if((dx || dy) && (near(b.y) || near(r.top))) c.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: "none" }], { duration: dur, easing: GM_EASE });
   });
 }
-function gmGhost(wall, cell, rect){   // a stand-in for the poster that can travel and fade on its own
+function gmGhost(wall, cell, rect){   // a stand-in for the poster that can fade on its own
   const gh = cell.cloneNode(true);
   gh.classList.remove("gm-hid"); ["id", "data-pid", "onclick"].forEach(a => gh.removeAttribute(a));
   Object.assign(gh.style, { position: "absolute", left: rect.x + "px", top: rect.y + "px", width: rect.w + "px", height: rect.h + "px", margin: "0", zIndex: "5", pointerEvents: "none" });
   wall.appendChild(gh); return gh;
 }
+function gmSetPad(px){ gmPad = Math.max(0, Math.round(px)); const sp = document.getElementById("gmSpacer"); if(sp) sp.style.height = gmPad + "px"; }
+function gmHold(el, wantTop){   // after a layout change, scroll so that el is back at wantTop on screen. If the page is now too short for that, keep the empty room at the bottom: it shrinks as you scroll up
+  const root = document.documentElement, want = Math.max(0, el.getBoundingClientRect().top + window.scrollY - wantTop);   // page coordinates: the browser may already have clamped the scroll
+  gmSetPad(want + innerHeight - (root.scrollHeight - gmPad));
+  window.scrollTo({ top: want, behavior: "instant" });
+}
+window.addEventListener("scroll", () => {
+  if(!gmPad) return;
+  const need = Math.max(0, window.scrollY + innerHeight - (document.documentElement.scrollHeight - gmPad));
+  if(need < gmPad) gmSetPad(need);
+}, { passive: true });
 function gmOpenAnim(id){
   const wall = gmWallEl(), cell = wall && wall.querySelector(`.gm-cell[data-pid="${id}"]`), g = S.library.games.find(x => x.id === id);
   if(!cell || !g) return;
   gmBusy = true;
-  const before = gmRects(wall), o = before.get(id), W = wall.getBoundingClientRect().width;
+  const before = gmRects(wall), o = before.get(id), wr0 = wall.getBoundingClientRect(), W = wr0.width, ox = o.x - wr0.left;
   const tmp = document.createElement("div"); tmp.innerHTML = gmBlockHtml(g);
   const block = tmp.firstElementChild, bd = block.querySelector(".gm-bd"), info = block.querySelector(".gm-info");
   bd.style.opacity = "0"; info.style.display = "none";
   cell.before(block); cell.classList.add("gm-hid");
   gmOpen = id; gmGoalEdit = null;
-  const wr = wall.getBoundingClientRect(), br = bd.getBoundingClientRect(), dy = (br.top - wr.top) - o.y, ghost = gmGhost(wall, cell, o);
-  gmFlip(wall, before, id, GM_MOVE);   // 1. the others make room and the poster drops to the backdrop's row, keeping its column
-  if(dy) ghost.animate([{ transform: "translateY(0)" }, { transform: `translateY(${dy}px)` }], { duration: GM_MOVE, easing: GM_EASE, fill: "forwards" });
-  setTimeout(() => {   // 2. the poster fades out and the backdrop opens from where it stood, the picture itself never moving
-    ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 340, easing: "ease-in", fill: "forwards" }).onfinish = () => ghost.remove();
+  gmHold(bd, o.y);   // the backdrop opens exactly where the poster stands: covers above slide up, covers below slide down, your view doesn't move
+  const wr = wall.getBoundingClientRect(), br = bd.getBoundingClientRect(), ghost = gmGhost(wall, cell, { x: ox, y: br.top - wr.top, w: o.w, h: o.h });
+  gmFlip(wall, before, GM_ROOM);
+  setTimeout(() => {   // the poster fades out and the backdrop opens from where it stood, the picture itself never moving
+    ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: GM_FADE, easing: "ease-in", fill: "forwards" }).onfinish = () => ghost.remove();
     bd.style.opacity = "";
-    bd.animate([{ clipPath: `inset(0px ${W - (o.x + o.w)}px 0px ${o.x}px round 10px)` }, { clipPath: "inset(0px 0px 0px 0px round 12px)" }], { duration: GM_REVEAL, easing: GM_EASE, fill: "backwards" })
+    bd.animate([{ clipPath: `inset(0px ${W - (ox + o.w)}px 0px ${ox}px round 10px)` }, { clipPath: "inset(0px 0px 0px 0px round 12px)" }], { duration: GM_REVEAL, easing: GM_EASE, fill: "backwards" })
       .onfinish = () => bd.animate([{ boxShadow: "0 0 0 0 rgba(217,162,86,0)" }, { boxShadow: getComputedStyle(bd).boxShadow }], { duration: 300 });
-    gmScrollIntoView();
-  }, GM_MOVE);
-  setTimeout(() => { info.style.display = ""; info.classList.add("enter"); }, GM_MOVE + GM_REVEAL * .55);   // 3. the details unfold underneath
-  setTimeout(() => { gmBusy = false; }, GM_MOVE + GM_REVEAL * .55 + GM_INFO);
+  }, GM_ROOM);
+  setTimeout(() => { info.style.display = ""; info.classList.add("enter"); }, GM_ROOM + GM_REVEAL * .55);   // the details unfold underneath
+  setTimeout(() => { gmBusy = false; }, GM_ROOM + GM_REVEAL * .55 + GM_INFO);
 }
 function gmCloseAnim(){   // the same thing backwards
   const wall = gmWallEl(), block = wall && wall.querySelector(".gm-open"); if(!block) return;
   gmBusy = true;
   const id = block.dataset.id, cell = wall.querySelector(`.gm-cell[data-pid="${id}"]`), bd = block.querySelector(".gm-bd"), info = block.querySelector(".gm-info");
   const W = wall.getBoundingClientRect().width, cw = (W - 16) / 3, x = (Math.max(0, gmItemIds.indexOf(id)) % 3) * (cw + 8);
+  gmSetPad(gmPad + info.getBoundingClientRect().height);   // the details are about to fold away: hold the page height so the view isn't pulled up
   info.classList.remove("enter"); info.classList.add("leave");
   setTimeout(() => {
-    const wr = wall.getBoundingClientRect(), br = bd.getBoundingClientRect(), rect = { x, y: br.top - wr.top, w: cw, h: br.height };
-    const ghost = gmGhost(wall, cell, rect); ghost.style.opacity = "0";
+    const wr = wall.getBoundingClientRect(), br = bd.getBoundingClientRect(), ghost = gmGhost(wall, cell, { x, y: br.top - wr.top, w: cw, h: br.height });
+    ghost.style.opacity = "0";
     bd.animate([{ clipPath: "inset(0px 0px 0px 0px round 12px)" }, { clipPath: `inset(0px ${W - (x + cw)}px 0px ${x}px round 10px)` }], { duration: GM_REVEAL, easing: GM_EASE, fill: "forwards" });
-    ghost.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 340, delay: GM_REVEAL - 300, easing: "ease-out", fill: "forwards" });
-    setTimeout(() => {   // the poster is back where the backdrop narrowed to: it goes home while the rest slides back
-      const before = gmRects(wall);
-      block.remove(); cell.classList.remove("gm-hid"); cell.style.visibility = "hidden"; gmOpen = null; gmGoalEdit = null;
-      const wr2 = wall.getBoundingClientRect(), cr = cell.getBoundingClientRect();
-      gmFlip(wall, before, id, GM_MOVE);
-      ghost.animate([{ transform: "translate(0,0)" }, { transform: `translate(${(cr.left - wr2.left) - rect.x}px,${(cr.top - wr2.top) - rect.y}px)` }], { duration: GM_MOVE, easing: GM_EASE, fill: "forwards" })
-        .onfinish = () => { cell.style.visibility = ""; ghost.remove(); gmBusy = false; };
+    ghost.animate([{ opacity: 0 }, { opacity: 1 }], { duration: GM_FADE, delay: GM_REVEAL - GM_FADE, easing: "ease-out", fill: "forwards" });
+    setTimeout(() => {   // the poster is back in the backdrop's spot: it stays there on screen while the others slide home
+      const gr = ghost.getBoundingClientRect(), before = gmRects(wall);
+      before.set(id, { x: gr.left, y: gr.top, w: gr.width, h: gr.height });
+      block.remove(); cell.classList.remove("gm-hid"); gmOpen = null; gmGoalEdit = null;
+      gmHold(cell, gr.top); ghost.remove();
+      gmFlip(wall, before, GM_ROOM);
+      gmBusy = false;
     }, GM_REVEAL);
   }, 280);
 }
 function gmSwitch(id){   // another game while one is open: close the old one at once, open the new one with the animation
   const wall = gmWallEl(), block = wall.querySelector(".gm-open"), target = wall.querySelector(`.gm-cell[data-pid="${id}"]`);
-  if(block){
+  if(block && target){
     const top0 = target.getBoundingClientRect().top, old = wall.querySelector(`.gm-cell[data-pid="${block.dataset.id}"]`);
     block.remove(); if(old) old.classList.remove("gm-hid");
-    window.scrollBy({ top: target.getBoundingClientRect().top - top0, behavior: "instant" });
+    gmHold(target, top0);
   }
   gmOpen = null; gmOpenAnim(id);
 }
@@ -4163,7 +4183,7 @@ function gmToggle(id){
   else{ gmOpen = null; gmOpenAnim(id); }
 }
 function gmLibraryHtml(items){
-  gmAnchor = {};
+  gmAnchor = {}; gmPad = 0;
   if(libSortKey() !== "name") return gmWallHtml(items);
   const seen = new Set();
   items.forEach(g => {
@@ -4174,11 +4194,6 @@ function gmLibraryHtml(items){
   return gmWallHtml(items) + rail;
 }
 function gmJump(L){ const el = document.getElementById("gmL_" + L); if(el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
-function gmScrollIntoView(){
-  const el = document.querySelector(".gm-bd"); if(!el) return;
-  const top = el.getBoundingClientRect().top;
-  if(top < 70 || top > innerHeight * .5) window.scrollBy({ top: top - 84, behavior: "smooth" });
-}
 function gmToggleMore(id){ if(gmMore.has(id)) gmMore.delete(id); else gmMore.add(id); render(); }
 function gmGoalStart(id){ gmGoalEdit = id; render(); setTimeout(() => { const el = $("gmGoalIn"); if(el){ el.focus(); el.select(); } }, 30); }
 function gmGoalSave(id){
@@ -4189,6 +4204,24 @@ function gmGoalSave(id){
 function gmMove(id){ gmOpen = null; moveItem("games", id, "library", "season"); }
 function gmEdit(id){ openGameModal(id, "library"); }
 function gmRemove(id){ removeGame(id, "library"); }
+let gmRateId = null;
+function gmRate(id){   // your own rating, e.g. the Metacritic score typed in by hand
+  const g = gmAllGames().find(x => x.id === id); if(!g) return;
+  gmRateId = id;
+  $("gmRateHint").innerHTML = `<b>${esc(g.name)}</b><br>${g.igdbScore != null ? `IGDB's critic score is ${g.igdbScore}. ` : ""}Enter your own, for example the Metacritic score.`;
+  $("gmRateIn").value = g.rating != null ? g.rating : "";
+  $("gmRateReset").textContent = g.igdbScore != null ? "Use IGDB's" : "Clear"; $("gmRateReset").style.display = (g.ratingCustom || g.rating != null) ? "" : "none";
+  $("gmRateModal").classList.add("show"); $("gmRateIn").focus(); $("gmRateIn").select();
+}
+function gmRateSave(){
+  const g = gmAllGames().find(x => x.id === gmRateId), v = $("gmRateIn").value.trim();
+  if(!g || v === "" || !(+v >= 0 && +v <= 100)) return toast("Enter a rating from 0 to 100.");
+  g.rating = Math.round(+v); g.ratingCustom = true; closeModal("gmRateModal"); persist();
+}
+function gmRateReset(){
+  const g = gmAllGames().find(x => x.id === gmRateId); if(!g) return;
+  g.ratingCustom = false; g.rating = g.igdbScore != null ? g.igdbScore : null; closeModal("gmRateModal"); persist();
+}
 let gmBdCtx = null;
 async function gmBackdrop(id){
   const g = S.library.games.find(x => x.id === id); if(!g) return;
