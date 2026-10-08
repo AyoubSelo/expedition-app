@@ -318,17 +318,13 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:#7f9bc4;cursor:pointer}
 .compact-num-3{width:100%;text-align:center}
 
-/* v1.5.0 — tags */
-.tag-picker{display:flex;flex-wrap:wrap;gap:6px}
-.tag-chip{padding:6px 11px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit}
-.tag-chip.on{background:var(--teal);color:#0d1310;border-color:var(--teal)}
 .tag-empty{font-size:12px;color:var(--muted-dim)}
 .tag-manage-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;position:relative;background:var(--bg)}
 .tag-manage-row.dragging{background:var(--panel2);box-shadow:0 6px 16px rgba(0,0,0,.28);border-radius:10px;opacity:.94;z-index:5}
 .move-group-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:40vh;overflow-y:auto}
 .tag-manage-row input{flex:1}
 .drag-handle{cursor:grab;touch-action:none;user-select:none;color:var(--muted);font-size:17px;line-height:1;padding:6px 2px;flex-shrink:0}
-/* v1.7.2 — caps the Tags/Series manage list to ~8 rows tall with its own
+/* v1.7.2 — caps the Series manage list to ~8 rows tall with its own
    scroll, so a long list scrolls in place instead of pushing the whole modal
    around; the mask fades the top/bottom edge to hint there's more to scroll. */
 .scroll-mask{max-height:404px;overflow-y:auto;
@@ -353,7 +349,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .account-row .btn{flex:1}
 
 /* v1.3.0 — Library book. v1.4.0: sort/group controls, v1.5.0: single-line
-   segments, tap-to-expand cards, square edit button, collapsible groups, tags button */
+   segments, tap-to-expand cards, square edit button, collapsible groups */
 .lib-head{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);margin-bottom:10px}
 .lib-head b{color:var(--ink)}
 .lib-controls{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
@@ -750,8 +746,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .gm-cell.named .gm-name{display:-webkit-box}
 .gm-chip{position:absolute;bottom:6px;font:600 10px "IBM Plex Mono",monospace;padding:2px 6px;border-radius:99px;background:rgba(8,12,10,.8);color:var(--ink);border:1px solid var(--line)}
 .gm-chip.l{left:6px}.gm-chip.r{right:6px;color:var(--brass)}
-.gm-row.open .gm-cell{opacity:0;pointer-events:none}
-.gm-bd{position:absolute;inset:0;z-index:3;border-radius:12px;overflow:hidden;background:var(--panel2);border:1px solid var(--brass);box-shadow:0 0 28px -6px rgba(217,162,86,.4);cursor:pointer}
+.gm-bd{position:relative;aspect-ratio:2.09/1;margin-bottom:8px;border-radius:12px;overflow:hidden;background:var(--panel2);border:1px solid var(--brass);box-shadow:0 0 28px -6px rgba(217,162,86,.4);cursor:pointer}
 .gm-bd>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .gm-bd>img.blur{filter:blur(16px) brightness(.6);transform:scale(1.3)}
 .gm-bd-shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,12,10,.92) 0%,rgba(8,12,10,.4) 40%,rgba(8,12,10,0) 72%)}
@@ -761,10 +756,8 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 @keyframes gmFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes gmFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes gmGrow{from{grid-template-rows:0fr;opacity:0}to{grid-template-rows:1fr;opacity:1}}
-.gm-row.open.enter .gm-cell{animation:gmFadeOut .3s ease both}
-.gm-row.open.enter .gm-bd{animation:gmFadeIn .42s ease .06s both}
-.gm-row.open.leave .gm-cell{animation:gmFadeIn .26s ease both}
-.gm-row.open.leave .gm-bd{animation:gmFadeOut .24s ease both}
+.gm-bd.enter{animation:gmFadeIn .4s ease both}
+.gm-bd.leave{animation:gmFadeOut .24s ease both}
 .gm-info{display:grid;grid-template-rows:1fr;margin-bottom:10px}
 .gm-info.enter{animation:gmGrow .45s cubic-bezier(.22,.8,.24,1) both}
 .gm-info.leave{animation:gmGrow .25s ease reverse both}
@@ -785,7 +778,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .gm-acts{margin-top:14px;flex-wrap:wrap}
 .gm-rail{position:fixed;right:1px;top:96px;bottom:92px;width:14px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;font:600 9px "IBM Plex Mono",monospace;color:var(--muted);z-index:30}
 .gm-rail span{cursor:pointer;padding:0 2px}
-.gm-thumb{width:84px;height:48px;flex-shrink:0;border-radius:6px;overflow:hidden;background:var(--bg);border:1px solid var(--line-soft)}
+.gm-thumb{width:46px;height:64px;flex-shrink:0;border-radius:6px;overflow:hidden;background:var(--bg);border:1px solid var(--line-soft)}
 .gm-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .tmdb-res.dim{opacity:.5;cursor:default}
 .gm-pend{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px}
@@ -861,10 +854,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
         <div><input id="g_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
       </div>
     </div>
-    <div class="field-row" id="g_tagsFieldRow">
-      <label>Tags</label>
-      <div class="tag-picker" id="g_tagsRow"></div>
-    </div>
     <div class="actions">
       <button class="btn" onclick="closeModal('gameModal')">Cancel</button>
       <button class="btn brass" onclick="saveGame()">Save entry</button>
@@ -904,19 +893,19 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
-<div class="modal" id="rawgModal">
+<div class="modal" id="gmAddModal">
   <div class="sheet">
     <h2 class="serif">Add game</h2>
-    <input id="rawgQ" placeholder="Search RAWG…" autocomplete="off" oninput="rawgTyped()">
-    <div class="tmdb-results" id="rawgRes"></div>
-    <div class="actions"><button class="btn" onclick="rawgManual()">Enter manually</button><button class="btn" onclick="closeModal('rawgModal')">Cancel</button></div>
-    <div class="tmdb-credit">Game data from <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</div>
+    <input id="gmAddQ" placeholder="Search IGDB…" autocomplete="off" oninput="gmTyped()">
+    <div class="tmdb-results" id="gmAddRes"></div>
+    <div class="actions"><button class="btn" onclick="gmAddManual()">Enter manually</button><button class="btn" onclick="closeModal('gmAddModal')">Cancel</button></div>
+    <div class="tmdb-credit">Game data from <a href="https://www.igdb.com" target="_blank" rel="noopener">IGDB.com</a>.</div>
   </div>
 </div>
 <div class="modal" id="gmHoursModal">
   <div class="sheet">
     <h2 class="serif">Target hours</h2>
-    <div class="hint"><b id="gmHoursName"></b> has no playtime on RAWG. How many hours do you want to set as the target? You can change it later.</div>
+    <div class="hint"><b id="gmHoursName"></b> has no time-to-beat on IGDB. How many hours do you want to set as the target? You can change it later.</div>
     <input id="gmHoursIn" type="number" min="0" step=".5" inputmode="decimal" placeholder="Hours">
     <div class="actions"><button class="btn accent" onclick="gmHoursOk()">Add game</button><button class="btn" onclick="closeModal('gmHoursModal')">Cancel</button></div>
   </div>
@@ -926,7 +915,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <h2 class="serif">Game data</h2>
     <div id="gmDataBody"></div>
     <div class="actions"><button class="btn" onclick="closeModal('gmDataModal')">Close</button></div>
-    <div class="tmdb-credit">Game data from <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</div>
+    <div class="tmdb-credit">Game data from <a href="https://www.igdb.com" target="_blank" rel="noopener">IGDB.com</a>.</div>
   </div>
 </div>
 <div class="modal" id="gmBdModal">
@@ -934,7 +923,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <h2 class="serif">Change backdrop</h2>
     <div id="gmBdBody"></div>
     <div class="actions"><button class="btn" onclick="closeModal('gmBdModal')">Close</button></div>
-    <div class="tmdb-credit">Images from RAWG.</div>
+    <div class="tmdb-credit">Images from <a href="https://www.igdb.com" target="_blank" rel="noopener">IGDB.com</a>.</div>
   </div>
 </div>
 
@@ -1080,23 +1069,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
-<!-- tags modal (v1.5.0) — v1.7.0: one list per category now, not shared -->
-<div class="modal" id="tagsModal">
-  <div class="sheet">
-    <h2 class="serif">Tags</h2>
-    <div class="hint">Create tags for this category, then mark titles with them from each title's Edit menu. Handy later for the Season Picker.</div>
-    <div id="tagsModalBody"></div>
-    <div class="row2" style="margin-top:12px">
-      <input id="newTagName" placeholder="New tag name" onkeydown="if(event.key==='Enter') addTag()">
-      <button class="btn brass" onclick="addTag()">Add</button>
-    </div>
-    <div class="actions">
-      <button class="btn" onclick="closeModal('tagsModal')">Done</button>
-    </div>
-  </div>
-</div>
-
-<!-- series modal (v1.7.0) — one named list per category, mirrors Tags -->
+<!-- series modal (v1.7.0) — one named list per category, one named list per category -->
 <div class="modal" id="seriesModal">
   <div class="sheet">
     <h2 class="serif">Series</h2>
@@ -1128,11 +1101,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.15.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.15.1"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
-// v1.7.4 — line-icons for Tags/Series, replacing the 🏷/📖 emoji so they match
-// the app's other hand-drawn icons (thin stroke, single accent color).
-const TAG_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10.9 2.7h4.4a1 1 0 0 1 1 1v4.4a1 1 0 0 1-.3.7l-8 8a1 1 0 0 1-1.4 0L2 12.2a1 1 0 0 1 0-1.4l8-8a1 1 0 0 1 .9-.1z"/><circle cx="13.3" cy="6.3" r="1" fill="currentColor" stroke="none"/></svg>`;
+// line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
 const CAT = {
   overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
@@ -1159,7 +1130,7 @@ function iconBadge(cat){
 
 const $ = id => document.getElementById(id);
 // v1.7.4 — hide/show a modal field block by id; used to strip the now-
-// irrelevant options (release date, series, tags) out of a Season title's
+// irrelevant options (release date, series) out of a Season title's
 // edit menu once it's finished, since that data is auto-scrubbed anyway.
 const setVisible = (id, show) => { const el = $(id); if(el) el.style.display = show ? "" : "none"; };
 const uid = () => Math.random().toString(36).slice(2,9);
@@ -1198,19 +1169,10 @@ function normalizeNamedList(raw){
   NAMED_LIST_CATS.forEach(c=>{ out[c] = Array.isArray(raw[c]) ? raw[c].map(t=>({id:t.id||uid(),name:t.name||""})) : []; });
   return out;
 }
-// v1.7.0: tags used to be one shared list across every category. Splitting them
-// per-category, per the request — and since the only tags that existed so far
-// were made while editing games, the whole old list migrates straight into
-// "games" rather than being lost or scattered.
-function normalizeTags(raw){
-  if(Array.isArray(raw)) return { games: raw.map(t=>({id:t.id||uid(),name:t.name||""})), movies:[], tv:[], anime:[], manga:[] };
-  return normalizeNamedList(raw);
-}
 function normalizeState(raw){
   raw = raw || {};
   const withExtras = (x, cat) => ({
     releaseDate: x.releaseDate || {y:"",m:"",d:""},
-    tags: (cat==="movies"||cat==="tv") ? [] : (Array.isArray(x.tags) ? x.tags : []), // v1.8.1 — movies/TV no longer use tags
     ...((cat==="movies"||cat==="tv")
       ? { partOfSeries:false, seriesId:null, seriesOrder:null } // v1.8.4 / v1.10.1 — the series system is gone for movies and TV
       : { partOfSeries: !!x.partOfSeries, seriesId: x.seriesId||null, seriesOrder: (x.seriesOrder===0||x.seriesOrder) ? x.seriesOrder : null }),
@@ -1230,10 +1192,10 @@ function normalizeState(raw){
     } : {}),
   });
   const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
-    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g,"games")})).map(g => (delete g.hype, g));   // v1.14.0 — hype is gone; old values are dropped on load
+    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g,"games")})).map(g => (delete g.hype, delete g.tags, g));   // v1.14.0 — hype is gone; old values are dropped on load
   const normSimple = (list, cat) => (list||[]).map(x => {
     const item = {...x, id:x.id||uid(), originGroupId:x.originGroupId||null, ...withExtras(x,cat)};
-    delete item.hype;
+    delete item.hype; delete item.tags;
     // v1.7.3 — retroactively stamp a persistent `order` onto every season/arc
     // group for titles that existed before v1.7.2, so they get the same
     // split/merge-safe ordering that newly-saved titles get automatically.
@@ -1248,7 +1210,6 @@ function normalizeState(raw){
     seasonStart: raw.seasonStart || "",
     archive: raw.archive || [],
     sessionLog: raw.sessionLog || [],
-    tags: (()=>{ const t = normalizeTags(raw.tags); t.movies = []; t.tv = []; return t; })(),
     series: (()=>{ const s = normalizeNamedList(raw.series); s.movies = []; return s; })(),
     games: normGames(raw.games),
     movies: normSimple(raw.movies,"movies"),
@@ -1262,7 +1223,7 @@ function normalizeState(raw){
       anime: normSimple(rawLib.anime,"anime"),
       manga: normSimple(rawLib.manga,"manga"),
     },
-    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), rawgKey: String((raw.settings && raw.settings.rawgKey) || "") },
+    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), igdbProxy: String((raw.settings && raw.settings.igdbProxy) || "") },
     updatedAt: raw.updatedAt || 0,
   };
 }
@@ -1302,81 +1263,9 @@ function readRelease(prefix){
   };
 }
 
-/* ---------- v1.5.0 — Tags. v1.7.0: per-category ----------
-   S.tags[category] is its own list ({id,name}) — a "dark" tag made while
-   editing a game only shows up for games, not movies. Items just carry an
-   array of tag ids in item.tags, scoped to their own category's list.
-   Deleting a tag scrubs its id out of every item (Season + Library) in that
-   category so nothing is left pointing at a tag that no longer exists. */
-let currentModalTags = [];        // tag ids selected in whichever add/edit modal is currently open
 let currentModalCategory = "games"; // which category's tag/series lists the open modal should read from
-function toggleModalTag(prefix, tagId){
-  const idx = currentModalTags.indexOf(tagId);
-  if(idx>=0) currentModalTags.splice(idx,1); else currentModalTags.push(tagId);
-  renderTagPicker(prefix);
-}
-function renderTagPicker(prefix){
-  const el = $(prefix+"_tagsRow");
-  if(!el) return;
-  const tags = S.tags[currentModalCategory] || [];
-  if(!tags.length){
-    el.innerHTML = `<div class="tag-empty">No tags yet — add some from the "Tags" button on this category's Library page.</div>`;
-    return;
-  }
-  el.innerHTML = tags.map(t=>`<button type="button" class="tag-chip ${currentModalTags.includes(t.id)?'on':''}" onclick="toggleModalTag('${prefix}','${t.id}')">${esc(t.name)}</button>`).join("");
-}
-let currentTagsModalCategory = "games";
-function openTagsModal(category){
-  currentTagsModalCategory = category;
-  renderTagsModalBody();
-  $("tagsModal").classList.add("show");
-}
-function renderTagsModalBody(){
-  const body = $("tagsModalBody");
-  const list = S.tags[currentTagsModalCategory];
-  body.classList.toggle("scroll-mask", list.length>8);
-  if(!list.length){
-    body.innerHTML = `<div class="tag-empty">No tags yet. Add your first one below.</div>`;
-  } else {
-    body.innerHTML = list.map(t=>`
-      <div class="tag-manage-row" data-id="${t.id}">
-        <span class="drag-handle" title="Drag to reorder">⠿</span>
-        <input value="${esc(t.name)}" onchange="renameTag('${t.id}',this.value)">
-        <button class="lib-dir-btn" onclick="deleteTag('${t.id}')" title="Delete tag">✕</button>
-      </div>
-    `).join("");
-    bindManageRowDrag(body, list, renderTagsModalBody);
-  }
-}
-function addTag(){
-  const input = $("newTagName");
-  const name = input.value.trim();
-  if(!name) return;
-  const cat = currentTagsModalCategory;
-  if(S.tags[cat].some(t=>t.name.toLowerCase()===name.toLowerCase())) return toast("That tag already exists.");
-  S.tags[cat].push({ id: uid(), name });
-  input.value = "";
-  persist();
-  renderTagsModalBody();
-}
-function renameTag(id, name){
-  name = name.trim();
-  const t = S.tags[currentTagsModalCategory].find(x=>x.id===id);
-  if(!t || !name) { renderTagsModalBody(); return; }
-  t.name = name;
-  persist();
-}
-function deleteTag(id){
-  if(!confirm("Delete this tag? It will be removed from every title that has it.")) return;
-  const cat = currentTagsModalCategory;
-  S.tags[cat] = S.tags[cat].filter(t=>t.id!==id);
-  const scrub = list => list.forEach(x => { if(x.tags) x.tags = x.tags.filter(tid=>tid!==id); });
-  scrub(S[cat]); scrub(S.library[cat]);
-  persist();
-  renderTagsModalBody();
-}
 
-/* ---------- v1.7.2 — drag-to-reorder for the Tags/Series manage lists ----------
+/* ---------- v1.7.2 — drag-to-reorder for the Series manage list ----------
    Pointer Events (not native HTML5 drag) so it works with touch on the phone,
    not just mouse. The dragged row follows the finger via a translateY that's
    recomputed against its own "natural" (untransformed) position every move,
@@ -1461,7 +1350,7 @@ function bindManageRowDrag(container, list, afterReorder){
 }
 
 /* ---------- v1.7.0 — Series ----------
-   Same shape as Tags (per-category named list), but for grouping titles that
+   A per-category named list, for grouping titles that
    belong to the same series/saga with an order number. A title opts in via
    partOfSeries + picks one series (seriesId) + a position (seriesOrder).
    Two titles in the same category+series can't share an order number. */
@@ -1771,7 +1660,7 @@ function mangaMin(m){
 }
 const MIN_FN = { games:gameMin, movies:movieMin, tv:episodicMin, anime:episodicMin, manga:mangaMin };
 
-/* v1.7.1 — once a Season title is fully finished, its tags/series link/release
+/* v1.7.1 — once a Season title is fully finished, its series link/release
    date aren't shown anywhere again (the eventual archive record only keeps the
    name and the hours/units cleared), so clear them the moment it finishes
    rather than carrying them around dead until the next quarter rollover. */
@@ -1786,7 +1675,6 @@ function isSeasonItemDone(category, item){
   return true;
 }
 function scrubFinishedMeta(item){
-  if(item.tags && item.tags.length) item.tags = [];
   if(item.partOfSeries || item.seriesId || item.seriesOrder!=null){
     item.partOfSeries = false; item.seriesId = null; item.seriesOrder = null;
   }
@@ -2078,23 +1966,19 @@ function openGameModal(id=null, target="season"){
     $("hasDlc").checked = !!g.hasDlc;
     (g.dlcs||[]).forEach(addDlcRow);
     fillRelease("g", g.releaseDate);
-    currentModalTags = (g.tags||[]).slice();
   } else {
     $("formTitle").textContent = "New game";
     $("gname").value = ""; $("goal").value = ""; $("played").value = 0;
     $("hasDlc").checked = false;
     fillRelease("g", null);
-    currentModalTags = [];
   }
-  renderTagPicker("g");
   fillSeriesFields("g", "games", g);
   toggleDlcSection();
-  // v1.7.4 — a finished Season game has already had its tags/series/release
+  // v1.7.4 — a finished Season game has already had its series/release
   // date scrubbed (see scrubFinishedMeta); hide those same fields here so the
   // edit menu doesn't dangle empty, irrelevant controls.
   const gFinished = target==="season" && id && isSeasonItemDone("games", g);
   setVisible("g_releaseRow", !gFinished);
-  setVisible("g_tagsFieldRow", !gFinished);
   setVisible("g_seriesHalf", !gFinished);
   setVisible("g_dlcSeriesDivider", !gFinished);
   if(gFinished) $("g_seriesSection").style.display = "none";
@@ -2148,10 +2032,10 @@ function saveGame(){
       const playedVal = nd.type==="time" ? Math.min(match.played||0, nd.goal||match.played||0) : 0;
       return { ...nd, played: playedVal, done: match.done||false, timerStart: match.timerStart||null };
     });
-    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, tags: currentModalTags.slice(), ...seriesFields, lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
+    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, ...seriesFields, lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
     checkAutoComplete(g);
   } else {
-    arr.push({ id: uid(), name, goal, played, hasDlc, dlcs, releaseDate, tags: currentModalTags.slice(), ...seriesFields, lastPlayed: modalTarget==="season" && played<goal, timerStart:null });
+    arr.push({ id: uid(), name, goal, played, hasDlc, dlcs, releaseDate, ...seriesFields, lastPlayed: modalTarget==="season" && played<goal, timerStart:null });
   }
   closeModal("gameModal"); persist(); toast("Entry saved.");
 }
@@ -2824,7 +2708,7 @@ function tmdbAddDirect(category, target, d){
   const exists = (S.library[category] || []).concat(S[category] || []).some(x => x.tmdbId === d.id);
   if(exists){ toast(`“${d.title}” is already on your list.`); return true; }
   const releaseDate = category === "movies" ? { y: d.year ? String(d.year) : "", m: "", d: "" } : { y: "", m: "", d: "" };   // v1.12.2 — no date for TV / anime
-  const base = { id: uid(), name: d.title, releaseDate, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null,
+  const base = { id: uid(), name: d.title, releaseDate, partOfSeries: false, seriesId: null, seriesOrder: null,
     rating: d.rating == null ? null : d.rating, tmdbId: d.id, posterPath: d.posterPath || null, tmdbSkip: false };
   const where = target === "library" ? "the Library" : "this season";
   if(category === "movies"){
@@ -3062,7 +2946,7 @@ function addSession(){
 /* ---------- backup ---------- */
 function exportData(){
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([JSON.stringify({...S, settings:{...S.settings, tmdbKey:"", mdbKey:"", omdbKey:"", rawgKey:""}},null,2)], {type:"application/json"}));
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({...S, settings:{...S.settings, tmdbKey:"", mdbKey:"", omdbKey:""}},null,2)], {type:"application/json"}));
   a.download = "expedition-backup.json";
   a.click();
   toast("Backup saved.");
@@ -3076,8 +2960,8 @@ function importData(){
       try{
         const x = JSON.parse(r.result);
         if(!Array.isArray(x.games) && !Array.isArray(x.movies) && !x.library) throw 0;
-        const keepKey = S.settings.tmdbKey, keepMdb = S.settings.mdbKey, keepOmdb = S.settings.omdbKey, keepRawg = S.settings.rawgKey;
-        S = normalizeState(x); if(!S.settings.tmdbKey) S.settings.tmdbKey = keepKey; if(!S.settings.mdbKey) S.settings.mdbKey = keepMdb; if(!S.settings.omdbKey) S.settings.omdbKey = keepOmdb; if(!S.settings.rawgKey) S.settings.rawgKey = keepRawg; // backups never carry keys, so keep this device's
+        const keepKey = S.settings.tmdbKey, keepMdb = S.settings.mdbKey, keepOmdb = S.settings.omdbKey;
+        S = normalizeState(x); if(!S.settings.tmdbKey) S.settings.tmdbKey = keepKey; if(!S.settings.mdbKey) S.settings.mdbKey = keepMdb; if(!S.settings.omdbKey) S.settings.omdbKey = keepOmdb; // backups never carry keys, so keep this device's
         // v1.3.0: routes through the same normalizer as load(), so Library + releaseDate comes along for the ride
         persist(); toast("Backup restored.");
       }catch(e){ toast("That file doesn't look right."); }
@@ -3894,7 +3778,7 @@ function fmtHrMin(mins){
 // saveEpisodic doesn't require any; games/movies/manga always have their
 // numeric core set at save time, so there's nothing further to check there).
 function libraryOpenFn(category, id){
-  if(category==="games") return id ? `openGameModal('${id}','library')` : "openRawgSearch()";
+  if(category==="games") return id ? `openGameModal('${id}','library')` : "openGameSearch()";
   if(category==="movies") return `openTmdbSearch('movies','library','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
   if(isShowCat(category)) return `openTmdbSearch('${category}','library','add')`;
   return `openMgSearch('library','add')`;   // manga
@@ -3905,7 +3789,7 @@ function libraryOpenFn(category, id){
 // timed DLC goals) and add a DLC-count segment at the end.
 // v1.5.0 — tap a card to expand it in place: category-specific breakdown
 // (DLCs for games, per-season/arc episode counts for tv/anime, watched/read
-// progress for movies/manga), tags, and the To Season / Remove actions that
+// progress for movies/manga), and the To Season / Remove actions that
 // used to always be visible now only show up here.
 // v1.8.3 — a Library movie as a poster card. Posters are NOT stored in the
 // app's data (only the small posterPath is); they're fetched from TMDB's image
@@ -3981,18 +3865,22 @@ function posterGridHtml(items, blockFn, opts){
   return `<div class="poster-grid">${rows(items.slice(0,rowStart),0)}${rows(items.slice(rowStart,openIdx),rowStart)}${blockFn(items[openIdx], openIdx, enter)}${rows(items.slice(openIdx+1),openIdx+1)}</div>`;
 }
 const btnH = (cls, fn, id, label, style) => `<button class="btn small ${cls}"${style?` style="${style}"`:""} onclick="${fn}('${id}')">${label}</button>`;
-/* ============ GAMES — RAWG data, the cover wall and its backdrop (v1.15.0) ============ */
-const rawgKey = () => ((S.settings && S.settings.rawgKey) || "").trim();
-async function rawgApi(path, params){
-  const k = rawgKey(); if(!k) throw new Error("no-key");
-  let r; try{ r = await fetch(`https://api.rawg.io/api${path}?${new URLSearchParams({ key: k, ...(params || {}) })}`); }catch(e){ throw new Error("net"); }
-  if(r.status === 401 || r.status === 403) throw new Error("bad-key");
+/* ============ GAMES — IGDB data, the cover wall and its backdrop (v1.15.1) ============ */
+const igdbBase = () => ((S.settings && S.settings.igdbProxy) || "").trim().replace(/\/+$/, "");
+let igdbLast = 0;
+async function igdbApi(endpoint, query){   // IGDB takes a POST with a query; your worker adds the Twitch token and the browser headers
+  const base = igdbBase(); if(!base) throw new Error("no-proxy");
+  const wait = 270 - (Date.now() - igdbLast); if(wait > 0) await sleep(wait);   // IGDB allows about 4 requests a second
+  igdbLast = Date.now();
+  let r; try{ r = await fetch(`${base}/${endpoint}`, { method: "POST", headers: { "Content-Type": "text/plain" }, body: query }); }catch(e){ throw new Error("net"); }
+  if(r.status === 401 || r.status === 403) throw new Error("bad-auth");
   if(r.status === 429) throw new Error("limit");
   if(!r.ok) throw new Error("http " + r.status);
   return r.json();
 }
-const rawgErr = e => ({ "no-key": "Add your RAWG key in Settings → API keys.", "bad-key": "RAWG rejected the key.", "limit": "RAWG's monthly limit was reached.", "net": "Couldn't reach RAWG. Check your connection." }[e && e.message] || "Something went wrong talking to RAWG.");
-const rawgThumb = (url, w) => url && url.includes("/media/") && !url.includes("/media/resize/") ? url.replace("/media/", "/media/resize/" + w + "/-/") : (url || "");
+const igdbErr = e => ({ "no-proxy": "Add your IGDB worker address in Settings → API keys.", "bad-auth": "IGDB refused the request. Check the Client ID and Secret in your worker.", "limit": "IGDB is rate-limiting. Try again in a moment.", "net": "Couldn't reach your IGDB worker. Check the address and your connection." }[e && e.message] || "Something went wrong talking to IGDB.");
+const igdbImg = (id, size) => id ? `https://images.igdb.com/igdb/image/upload/t_${size}/${id}.jpg` : "";
+const igdbQ = s => String(s || "").replace(/["\\]/g, " ").trim();
 const gmNorm = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "");
 const GM_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 function gmFmtDate(rd){
@@ -4000,81 +3888,87 @@ function gmFmtDate(rd){
   const mi = +rd.m;
   return [rd.d && mi ? +rd.d : "", mi >= 1 && mi <= 12 ? GM_MONTHS[mi - 1] : "", rd.y].filter(Boolean).join(" ");
 }
-function rawgDateParts(str){ const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(str || ""); return m ? { y: m[1], m: String(+m[2]), d: String(+m[3]) } : { y: "", m: "", d: "" }; }
-async function rawgGameData(id){   // details + the Steam link (its portrait cover comes from the Steam app id)
-  const [d, st] = await Promise.all([rawgApi("/games/" + id), rawgApi("/games/" + id + "/stores").catch(() => ({ results: [] }))]);
-  const hit = (st.results || []).map(x => /store\.steampowered\.com\/app\/(\d+)/.exec(x.url || "")).find(Boolean);
-  const steamId = hit ? hit[1] : null;
+function igdbDateParts(sec){ if(!sec) return { y: "", m: "", d: "" }; const d = new Date(sec * 1000); return { y: String(d.getUTCFullYear()), m: String(d.getUTCMonth() + 1), d: String(d.getUTCDate()) }; }
+const igdbSearch = (q, limit) => igdbApi("games", `search "${igdbQ(q)}"; fields name,first_release_date,cover.image_id,aggregated_rating; where parent_game = null & version_parent = null; limit ${limit || 10};`);
+async function igdbGameData(id){
+  const [g] = await igdbApi("games", `fields name,summary,storyline,first_release_date,cover.image_id,artworks.image_id,screenshots.image_id,involved_companies.developer,involved_companies.publisher,involved_companies.company.name,genres.name,aggregated_rating,total_rating; where id = ${+id};`);
+  if(!g) throw new Error("http 404");
+  let t = null;
+  try{ [t] = await igdbApi("game_time_to_beats", `fields hastily,normally,completely; where game_id = ${+id};`); }
+  catch(e){ if(["no-proxy", "bad-auth", "limit"].includes(e && e.message)) throw e; }
+  const co = g.involved_companies || [], names = f => co.filter(x => x[f] && x.company).map(x => x.company.name).join(", ");
+  const sec = t && (t.normally || t.hastily || t.completely), score = g.aggregated_rating != null ? g.aggregated_rating : g.total_rating;
+  const art = (g.artworks && g.artworks[0]) || (g.screenshots && g.screenshots[0]);
   return {
-    rawgId: d.id, rawgName: d.name, description: (d.description_raw || "").trim(),
-    developer: (d.developers || []).map(x => x.name).join(", "), publisher: (d.publishers || []).map(x => x.name).join(", "),
-    metacritic: d.metacritic || null, genres: (d.genres || []).map(x => x.name), playtime: d.playtime || 0,
-    steamId, posterUrl: steamId ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${steamId}/library_600x900.jpg` : "",
-    backdropUrl: d.background_image || "", released: d.released || "",
+    igdbId: g.id, igdbName: g.name, description: (g.summary || g.storyline || "").trim(),
+    developer: names("developer"), publisher: names("publisher"), genres: (g.genres || []).map(x => x.name),
+    score: score != null ? Math.round(score) : null, hours: sec ? Math.max(1, Math.round(sec / 1800) / 2) : 0,
+    coverId: g.cover ? g.cover.image_id : "", backdropId: art ? art.image_id : "", released: g.first_release_date || null,
   };
 }
-function rawgApply(g, x){   // fills the game; your hours, played time, DLC, tags and series are never touched
-  Object.assign(g, { rawgId: x.rawgId, description: x.description, developer: x.developer, publisher: x.publisher, genres: x.genres, steamId: x.steamId, posterUrl: x.posterUrl, rawgPlaytime: x.playtime });
-  if(x.backdropUrl && !g.backdropCustom) g.backdropUrl = x.backdropUrl;   // a backdrop you picked yourself stays
-  if(x.metacritic != null){ g.metacritic = x.metacritic; g.rating = x.metacritic; }
-  if(x.released && !(g.releaseDate && g.releaseDate.y)) g.releaseDate = rawgDateParts(x.released);
+function igdbApply(g, x){   // fills the game; your hours, played time, DLC and series are never touched
+  Object.assign(g, { igdbId: x.igdbId, description: x.description, developer: x.developer, publisher: x.publisher, genres: x.genres, coverId: x.coverId, igdbHours: x.hours });
+  if(x.backdropId && !g.backdropCustom) g.backdropId = x.backdropId;   // a backdrop you picked yourself stays
+  if(x.score != null) g.rating = x.score;
+  if(x.released && !(g.releaseDate && g.releaseDate.y)) g.releaseDate = igdbDateParts(x.released);
 }
-function rawgSettingsHtml(){
-  const has = !!rawgKey();
+function igdbSettingsHtml(){
+  const has = !!igdbBase();
   return `<div class="tmdb-settings">
-    <div class="tmdb-set-head"><b>RAWG · games</b><span class="entry-meta2">${has ? "Key saved" : "No key yet"}</span></div>
-    ${has ? "" : `<div class="hint" style="margin:4px 0 8px">Free key from <a href="https://rawg.io/apidocs" target="_blank" rel="noopener">rawg.io/apidocs</a>. It lets you search games and fills in covers, descriptions, scores and release dates.</div>`}
-    <input id="setRawgKey" placeholder="${has ? "Paste a new key to replace it" : "Paste your RAWG key"}" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <div class="account-row"><button class="btn small ghost" onclick="saveRawgKey()">Save and test</button>${has ? `<button class="btn small ghost" onclick="clearRawgKey()">Remove</button>` : ""}</div>
-    <div class="tmdb-credit">Game data from <a href="https://rawg.io" target="_blank" rel="noopener">RAWG</a>.</div>
+    <div class="tmdb-set-head"><b>IGDB · games</b><span class="entry-meta2">${has ? "Worker saved" : "No worker yet"}</span></div>
+    ${has ? "" : `<div class="hint" style="margin:4px 0 8px">IGDB needs your own free Cloudflare Worker (igdb-proxy.js) that holds your Twitch Client ID and Secret. Paste its address here.</div>`}
+    <input id="setIgdbProxy" placeholder="${has ? "Paste a new address to replace it" : "https://your-igdb-worker.workers.dev"}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="account-row"><button class="btn small ghost" onclick="saveIgdbProxy()">Save and test</button>${has ? `<button class="btn small ghost" onclick="clearIgdbProxy()">Remove</button>` : ""}</div>
+    <div class="tmdb-credit">Game data from <a href="https://www.igdb.com" target="_blank" rel="noopener">IGDB.com</a>.</div>
   </div>`;
 }
-async function saveRawgKey(){
-  const v = ($("setRawgKey").value || "").trim(); if(!v) return toast("Paste the key first.");
+async function saveIgdbProxy(){
+  const v = ($("setIgdbProxy").value || "").trim().replace(/\/+$/, "");
+  if(!/^https:\/\/[^\s/]+(\/\S*)?$/.test(v)) return toast("Paste the full https:// address of your worker.");
   try{
-    const r = await fetch(`https://api.rawg.io/api/games?key=${encodeURIComponent(v)}&page_size=1`);
-    if(r.status === 401 || r.status === 403) return toast("RAWG rejected that key.");
+    const r = await fetch(v + "/games", { method: "POST", headers: { "Content-Type": "text/plain" }, body: "fields name; limit 1;" });
+    if(r.status === 401 || r.status === 403) return toast("The worker answered, but IGDB refused it. Check the Client ID and Secret.");
     if(!r.ok) throw new Error(r.status);
-    await r.json();
-  }catch(e){ return toast("Couldn't reach RAWG. Check the key and your connection."); }
-  S.settings.rawgKey = v; persist(); refreshTmdbModals(); toast("RAWG connected.");
+    if(!Array.isArray(await r.json())) throw new Error("bad reply");
+  }catch(e){ return toast("Couldn't reach IGDB through that address. Check the worker code and the URL."); }
+  S.settings.igdbProxy = v; persist(); refreshTmdbModals(); toast("IGDB connected.");
 }
-function clearRawgKey(){ if(!confirm("Remove the RAWG key?")) return; S.settings.rawgKey = ""; persist(); refreshTmdbModals(); }
+function clearIgdbProxy(){ if(!confirm("Remove the IGDB worker address?")) return; S.settings.igdbProxy = ""; persist(); refreshTmdbModals(); }
 
 /* ---- add a game ---- */
 const gmAllGames = () => S.library.games.concat(S.games);
-function gmHave(){ const all = gmAllGames(); return { ids: new Set(all.map(g => g.rawgId).filter(Boolean)), names: new Set(all.map(g => gmNorm(g.name))) }; }
-let rawgTimer = null, rawgSeq = 0, gmHoursCtx = null;
-function openRawgSearch(){
-  if(!rawgKey()) return toast("Add your RAWG key first: Settings → API keys.");
-  $("rawgQ").value = ""; $("rawgRes").innerHTML = `<div class="tvc-note">Type a game name.</div>`;
-  $("rawgModal").classList.add("show"); $("rawgQ").focus();
+function gmHave(){ const all = gmAllGames(); return { ids: new Set(all.map(g => g.igdbId).filter(Boolean)), names: new Set(all.map(g => gmNorm(g.name))) }; }
+let gmTimer = null, gmSeq = 0, gmHoursCtx = null;
+function openGameSearch(){
+  if(!igdbBase()) return toast("Add your IGDB worker first: Settings → API keys.");
+  $("gmAddQ").value = ""; $("gmAddRes").innerHTML = `<div class="tvc-note">Type a game name.</div>`;
+  $("gmAddModal").classList.add("show"); $("gmAddQ").focus();
 }
-function rawgManual(){ closeModal("rawgModal"); openGameModal(null, "library"); }
-function rawgTyped(){ clearTimeout(rawgTimer); rawgTimer = setTimeout(rawgRunSearch, 350); }
-async function rawgRunSearch(){
-  const q = $("rawgQ").value.trim(), seq = ++rawgSeq;
-  if(q.length < 2){ $("rawgRes").innerHTML = `<div class="tvc-note">Type a game name.</div>`; return; }
-  $("rawgRes").innerHTML = `<div class="tvc-note">Searching…</div>`;
+function gmAddManual(){ closeModal("gmAddModal"); openGameModal(null, "library"); }
+function gmTyped(){ clearTimeout(gmTimer); gmTimer = setTimeout(gmRunSearch, 350); }
+async function gmRunSearch(){
+  const q = $("gmAddQ").value.trim(), seq = ++gmSeq;
+  if(q.length < 2){ $("gmAddRes").innerHTML = `<div class="tvc-note">Type a game name.</div>`; return; }
+  $("gmAddRes").innerHTML = `<div class="tvc-note">Searching…</div>`;
   try{
-    const d = await rawgApi("/games", { search: q, page_size: 10, exclude_additions: true });
-    if(seq !== rawgSeq) return;
-    const have = gmHave(), rs = d.results || [];
-    $("rawgRes").innerHTML = rs.length ? rs.map(r => {
-      const owned = have.ids.has(r.id) || have.names.has(gmNorm(r.name));
-      return `<div class="tmdb-res${owned ? " dim" : ""}" ${owned ? "" : `onclick="rawgPick(${r.id})"`}>
-        <div class="gm-thumb">${r.background_image ? `<img alt="" loading="lazy" src="${esc(rawgThumb(r.background_image, 420))}" onerror="this.remove()">` : ""}</div>
-        <div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.name)}</div><div class="tmdb-res-sub">${[(r.released || "").slice(0, 4), r.metacritic ? "MC " + r.metacritic : "", owned ? "In your list" : ""].filter(Boolean).join(" · ")}</div></div>
+    const rs = await igdbSearch(q, 10);
+    if(seq !== gmSeq) return;
+    const have = gmHave();
+    $("gmAddRes").innerHTML = rs.length ? rs.map(r => {
+      const owned = have.ids.has(r.id) || have.names.has(gmNorm(r.name)), yr = r.first_release_date ? igdbDateParts(r.first_release_date).y : "";
+      return `<div class="tmdb-res${owned ? " dim" : ""}" ${owned ? "" : `onclick="gmPick(${r.id})"`}>
+        <div class="gm-thumb">${r.cover ? `<img alt="" loading="lazy" src="${esc(igdbImg(r.cover.image_id, "cover_small"))}" onerror="this.remove()">` : ""}</div>
+        <div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.name)}</div><div class="tmdb-res-sub">${[yr, r.aggregated_rating ? "★ " + Math.round(r.aggregated_rating) : "", owned ? "In your list" : ""].filter(Boolean).join(" · ")}</div></div>
       </div>`;
     }).join("") : `<div class="tvc-note">No games found.</div>`;
-  }catch(e){ if(seq === rawgSeq) $("rawgRes").innerHTML = `<div class="tvc-note">${esc(rawgErr(e))}</div>`; }
+  }catch(e){ if(seq === gmSeq) $("gmAddRes").innerHTML = `<div class="tvc-note">${esc(igdbErr(e))}</div>`; }
 }
-async function rawgPick(id){
+async function gmPick(id){
   toast("Adding…");
-  let x; try{ x = await rawgGameData(id); }catch(e){ return toast(rawgErr(e)); }
-  closeModal("rawgModal");
-  if(x.playtime > 0) return gmAdd(x, x.playtime);
-  gmHoursCtx = x; $("gmHoursName").textContent = x.rawgName; $("gmHoursIn").value = "";
+  let x; try{ x = await igdbGameData(id); }catch(e){ return toast(igdbErr(e)); }
+  closeModal("gmAddModal");
+  if(x.hours > 0) return gmAdd(x, x.hours);
+  gmHoursCtx = x; $("gmHoursName").textContent = x.igdbName; $("gmHoursIn").value = "";
   $("gmHoursModal").classList.add("show"); $("gmHoursIn").focus();
 }
 function gmHoursOk(){
@@ -4082,51 +3976,50 @@ function gmHoursOk(){
   closeModal("gmHoursModal"); gmAdd(gmHoursCtx, h);
 }
 function gmAdd(x, hours){
-  const g = { id: uid(), name: x.rawgName, goal: hours, played: 0, hasDlc: false, dlcs: [], releaseDate: { y: "", m: "", d: "" }, tags: [], partOfSeries: false, seriesId: null, seriesOrder: null, lastPlayed: false, timerStart: null };
-  rawgApply(g, x); S.library.games.push(g); persist(); toast(`Added “${g.name}”.`);
+  const g = { id: uid(), name: x.igdbName, goal: hours, played: 0, hasDlc: false, dlcs: [], releaseDate: { y: "", m: "", d: "" }, partOfSeries: false, seriesId: null, seriesOrder: null, lastPlayed: false, timerStart: null };
+  igdbApply(g, x); S.library.games.push(g); persist(); toast(`Added “${g.name}”.`);
 }
 
 /* ---- Data menu: match the games you already have, refresh them all ---- */
 let gmBatch = null, gmPending = [];
 const gmSkipped = new Set();
-const gmUnmatched = () => gmAllGames().filter(g => !g.rawgId && !gmSkipped.has(g.id)).length;
+const gmUnmatched = () => gmAllGames().filter(g => !g.igdbId && !gmSkipped.has(g.id)).length;
 function openGameDataModal(){ gmDataRender(); $("gmDataModal").classList.add("show"); }
 function gmDataRender(){
-  const all = gmAllGames(), matched = all.filter(g => g.rawgId).length, un = gmUnmatched(), run = gmBatch && gmBatch.running;
-  let h = !rawgKey() ? `<div class="hint">Add your RAWG key first: Settings → API keys.</div>` : `<div class="hint"><b>${matched}</b> of ${all.length} games matched to RAWG.</div>`;
+  const all = gmAllGames(), matched = all.filter(g => g.igdbId).length, un = gmUnmatched(), run = gmBatch && gmBatch.running;
+  let h = !igdbBase() ? `<div class="hint">Add your IGDB worker first: Settings → API keys.</div>` : `<div class="hint"><b>${matched}</b> of ${all.length} games matched to IGDB.</div>`;
   if(run) h += `<div class="tvc-note">Working… ${gmBatch.done} of ${gmBatch.total}</div>`;
-  else if(rawgKey()){
-    if(un) h += `<button class="data-row" onclick="gmMatchRun(false)"><div><b>Match ${un} game${un === 1 ? "" : "s"}</b><span>Find them on RAWG and fill in covers, descriptions and dates. Your hours, DLC and series stay as they are.</span></div><i>›</i></button>`;
+  else if(igdbBase()){
+    if(un) h += `<button class="data-row" onclick="gmMatchRun(false)"><div><b>Match ${un} game${un === 1 ? "" : "s"}</b><span>Find them on IGDB and fill in covers, descriptions and dates. Your hours, DLC and series stay as they are.</span></div><i>›</i></button>`;
     if(matched) h += `<button class="data-row" onclick="gmMatchRun(true)"><div><b>↻ Refresh all</b><span>Reload the data of the ${matched} matched games.</span></div><i>›</i></button>`;
     if(gmBatch && gmBatch.failed) h += `<div class="tvc-note">${gmBatch.failed} couldn't be reached. Run it again to retry.</div>`;
   }
-  if(gmPending.length) h += `<div class="set-head" style="margin-top:14px"><b>Needs your pick (${gmPending.length})</b></div>` + gmPending.map(p => `<div class="gm-pend"><div class="gm-pend-name">${esc(p.name)}</div>${p.cands.map(c => `<button class="gm-cand" onclick="gmPendPick('${p.id}',${c.id})">${esc(c.name)}${c.year ? ` (${c.year})` : ""}</button>`).join("")}${p.cands.length ? "" : `<div class="tvc-note">No results on RAWG.</div>`}<button class="gm-cand skip" onclick="gmPendSkip('${p.id}')">Skip this one</button></div>`).join("");
+  if(gmPending.length) h += `<div class="set-head" style="margin-top:14px"><b>Needs your pick (${gmPending.length})</b></div>` + gmPending.map(p => `<div class="gm-pend"><div class="gm-pend-name">${esc(p.name)}</div>${p.cands.map(c => `<button class="gm-cand" onclick="gmPendPick('${p.id}',${c.id})">${esc(c.name)}${c.year ? ` (${c.year})` : ""}</button>`).join("")}${p.cands.length ? "" : `<div class="tvc-note">No results on IGDB.</div>`}<button class="gm-cand skip" onclick="gmPendSkip('${p.id}')">Skip this one</button></div>`).join("");
   $("gmDataBody").innerHTML = h;
 }
 async function gmMatchRun(refresh){
   if(gmBatch && gmBatch.running) return;
-  const all = gmAllGames(), todo = refresh ? all.filter(g => g.rawgId) : all.filter(g => !g.rawgId && !gmSkipped.has(g.id) && !gmPending.some(p => p.id === g.id));
+  const all = gmAllGames(), todo = refresh ? all.filter(g => g.igdbId) : all.filter(g => !g.igdbId && !gmSkipped.has(g.id) && !gmPending.some(p => p.id === g.id));
   gmBatch = { running: true, done: 0, total: todo.length, failed: 0 }; gmDataRender();
   for(const g of todo){
     try{
-      if(refresh) rawgApply(g, await rawgGameData(g.rawgId));
+      if(refresh) igdbApply(g, await igdbGameData(g.igdbId));
       else{
-        const d = await rawgApi("/games", { search: g.name, search_precise: true, exclude_additions: true, page_size: 6 });
-        const rs = d.results || [], hit = rs.find(r => gmNorm(r.name) === gmNorm(g.name));
-        if(hit) rawgApply(g, await rawgGameData(hit.id));
-        else gmPending.push({ id: g.id, name: g.name, cands: rs.slice(0, 5).map(r => ({ id: r.id, name: r.name, year: (r.released || "").slice(0, 4) })) });
+        const rs = await igdbSearch(g.name, 6), hit = rs.find(r => gmNorm(r.name) === gmNorm(g.name));
+        if(hit) igdbApply(g, await igdbGameData(hit.id));
+        else gmPending.push({ id: g.id, name: g.name, cands: rs.slice(0, 5).map(r => ({ id: r.id, name: r.name, year: r.first_release_date ? igdbDateParts(r.first_release_date).y : "" })) });
       }
     }catch(e){
       gmBatch.failed++;
-      if(["no-key", "bad-key", "limit"].includes(e && e.message)){ toast(rawgErr(e)); break; }
+      if(["no-proxy", "bad-auth"].includes(e && e.message)){ toast(igdbErr(e)); break; }
     }
-    gmBatch.done++; gmDataRender(); await sleep(180);
+    gmBatch.done++; gmDataRender();
   }
   gmBatch.running = false; persist(); gmDataRender();
 }
-async function gmPendPick(gid, rid){
+async function gmPendPick(gid, iid){
   const g = gmAllGames().find(x => x.id === gid); if(!g) return;
-  try{ rawgApply(g, await rawgGameData(rid)); }catch(e){ return toast(rawgErr(e)); }
+  try{ igdbApply(g, await igdbGameData(iid)); }catch(e){ return toast(igdbErr(e)); }
   gmPending = gmPending.filter(p => p.id !== gid); persist(); gmDataRender();
 }
 function gmPendSkip(gid){ gmSkipped.add(gid); gmPending = gmPending.filter(p => p.id !== gid); gmDataRender(); }
@@ -4143,8 +4036,8 @@ function gmFb(img){   // cover failed to load: try the next source, last resort 
 let gmAnchor = {};   // game id → letter, set on the first game of each letter so the A–Z rail can jump there
 function gmCellHtml(g){
   const r = itemRating(g), len = g.goal ? fmtN(g.goal) + "h" : "", n = (g.dlcs || []).length;
-  const chain = [g.posterUrl, g.steamId && `https://cdn.akamai.steamstatic.com/steam/apps/${g.steamId}/library_600x900.jpg`, rawgThumb(g.backdropUrl, 640)].filter(Boolean);
-  return `<div class="gm-cell${g.posterUrl ? "" : " named"}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')">
+  const chain = [igdbImg(g.coverId, "cover_big"), igdbImg(g.backdropId, "screenshot_big")].filter(Boolean);
+  return `<div class="gm-cell${g.coverId ? "" : " named"}" data-pid="${g.id}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')">
     <div class="gm-ph">${esc(g.name)}</div>
     ${chain.length ? `<img alt="" loading="lazy" src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onload="this.classList.add('in')" onerror="gmFb(this)">` : ""}
     <div class="gm-shade"></div><div class="gm-name">${esc(g.name)}</div>
@@ -4153,9 +4046,9 @@ function gmCellHtml(g){
   </div>`;
 }
 function gmBackdropHtml(g){
-  const bd = rawgThumb(g.backdropUrl, 1280), r = itemRating(g), y = g.releaseDate && g.releaseDate.y;
-  return `<div class="gm-bd" onclick="gmToggle('${g.id}')">
-    ${bd ? `<img alt="" src="${esc(bd)}" onerror="this.remove()">` : (g.posterUrl ? `<img class="blur" alt="" src="${esc(g.posterUrl)}" onerror="this.remove()">` : "")}
+  const bd = igdbImg(g.backdropId, "screenshot_huge"), cv = igdbImg(g.coverId, "cover_big"), r = itemRating(g), y = g.releaseDate && g.releaseDate.y;
+  return `<div class="gm-bd${gmAnim === "in" ? " enter" : ""}" onclick="gmToggle('${g.id}')">
+    ${bd ? `<img alt="" src="${esc(bd)}" onerror="this.remove()">` : (cv ? `<img class="blur" alt="" src="${esc(cv)}" onerror="this.remove()">` : "")}
     <div class="gm-bd-shade"></div>
     ${r != null ? `<div class="prate tvc-rate ${ratingClass(r)}">${r}</div>` : ""}
     <div class="gm-bd-t"><div class="n serif">${esc(g.name)}</div>${y ? `<div class="s">${y}${g.goal ? " · " + fmtN(g.goal) + "h" : ""}</div>` : ""}</div>
@@ -4166,23 +4059,22 @@ function gmInfoHtml(g){
   const who = [g.developer ? `<b>${esc(g.developer)}</b>` : "", g.publisher && g.publisher !== g.developer ? `published by ${esc(g.publisher)}` : ""].filter(Boolean).join(" · ");
   const goal = gmGoalEdit === g.id
     ? `<input id="gmGoalIn" type="number" min="0" step=".5" inputmode="decimal" value="${g.goal || ""}" onclick="event.stopPropagation()"><button class="btn small accent" onclick="gmGoalSave('${g.id}')">Save</button><button class="btn small ghost" onclick="gmGoalEdit=null;render()">Cancel</button>`
-    : `<span>Target <b>${g.goal ? fmtN(g.goal) + "h" : "not set"}</b>${g.rawgPlaytime ? ` <span class="gm-hint">RAWG average ${g.rawgPlaytime}h</span>` : ""}</span><button class="btn small ghost" onclick="gmGoalStart('${g.id}')">Edit</button>`;
+    : `<span>Target <b>${g.goal ? fmtN(g.goal) + "h" : "not set"}</b>${g.igdbHours ? ` <span class="gm-hint">IGDB average ${fmtN(g.igdbHours)}h</span>` : ""}</span><button class="btn small ghost" onclick="gmGoalStart('${g.id}')">Edit</button>`;
   return `<div class="gm-info${gmAnim === "in" ? " enter" : ""}"><div class="gm-info-in"><div class="gm-panel">
     <div class="gm-meta">${who || "No developer info yet"}${date ? `<br>${date}` : ""}</div>
     ${(g.genres || []).length ? `<div class="gm-chips">${g.genres.slice(0, 5).map(x => `<span class="gm-chipx">${esc(x)}</span>`).join("")}</div>` : ""}
-    ${desc ? `<div class="gm-desc${more ? "" : " clamp"}">${esc(desc)}</div>${desc.length > 240 ? `<button class="gm-more" onclick="gmToggleMore('${g.id}')">${more ? "Less" : "More"}</button>` : ""}` : `<div class="gm-meta">${g.rawgId ? "RAWG has no description for this one." : "Not matched to RAWG yet. Use the Data button to match it."}</div>`}
+    ${desc ? `<div class="gm-desc${more ? "" : " clamp"}">${esc(desc)}</div>${desc.length > 240 ? `<button class="gm-more" onclick="gmToggleMore('${g.id}')">${more ? "Less" : "More"}</button>` : ""}` : `<div class="gm-meta">${g.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet. Use the Data button to match it."}</div>`}
     <div class="gm-goal">${goal}</div>
     ${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="gm-dlc"><span>${esc(d.name)}</span><span>${d.type === "check" ? "checklist" : fmtN(d.goal || 0) + "h"}</span></div>`).join("")}` : ""}
     <div class="btn-row gm-acts">${btnH("accent", "gmMove", g.id, "To Season", `--accent:${CAT.games.color};--accent-text:${CAT.games.text}`)}${btnH("ghost", "gmBackdrop", g.id, "Change backdrop")}${btnH("ghost", "gmEdit", g.id, "Edit")}${btnH("ghost danger", "gmRemove", g.id, "Remove")}</div>
   </div></div></div>`;
 }
-function gmSectionHtml(items){
-  let html = "";
-  for(let i = 0; i < items.length; i += 3){
-    const row = items.slice(i, i + 3), open = row.find(x => x.id === gmOpen);
-    html += `<div class="gm-row${open ? " open" + (gmAnim === "in" ? " enter" : "") : ""}">${row.map(gmCellHtml).join("")}${open ? gmBackdropHtml(open) : ""}</div>${open ? gmInfoHtml(open) : ""}`;
-  }
-  return html;
+function gmSectionHtml(items){   // like the movies grid: the open game takes a full-width block, everything else flows around it
+  const rows = arr => { let h = ""; for(let i = 0; i < arr.length; i += 3) h += `<div class="gm-row">${arr.slice(i, i + 3).map(gmCellHtml).join("")}</div>`; return h; };
+  const oi = gmOpen ? items.findIndex(x => x.id === gmOpen) : -1;
+  if(oi < 0) return rows(items);
+  const rs = Math.floor(oi / 3) * 3;
+  return rows(items.slice(0, rs)) + rows(items.slice(rs, oi)) + gmBackdropHtml(items[oi]) + gmInfoHtml(items[oi]) + rows(items.slice(oi + 1));
 }
 function gmLibraryHtml(items){
   gmAnchor = {};
@@ -4202,18 +4094,18 @@ function gmToggle(id){
   const go = () => {
     gmOpen = same ? null : id; gmAnim = gmOpen ? "in" : null; gmGoalEdit = null;
     render(); gmAnim = null; gmBusy = false;
-    if(gmOpen) setTimeout(gmScrollIntoView, 120);
+    if(gmOpen) setTimeout(gmScrollIntoView, 160);
   };
   if(opened){
     gmBusy = true;
-    document.querySelectorAll(".gm-row.open,.gm-info").forEach(e => e.classList.add("leave"));
+    document.querySelectorAll(".gm-bd,.gm-info").forEach(e => e.classList.add("leave"));
     setTimeout(go, 250);
   }else go();
 }
 function gmScrollIntoView(){
-  const el = document.querySelector(".gm-row.open"); if(!el) return;
+  const el = document.querySelector(".gm-bd"); if(!el) return;
   const top = el.getBoundingClientRect().top;
-  if(top < 70 || top > innerHeight * .45) window.scrollBy({ top: top - 84, behavior: "smooth" });
+  if(top < 70 || top > innerHeight * .5) window.scrollBy({ top: top - 84, behavior: "smooth" });
 }
 function gmToggleMore(id){ if(gmMore.has(id)) gmMore.delete(id); else gmMore.add(id); render(); }
 function gmGoalStart(id){ gmGoalEdit = id; render(); setTimeout(() => { const el = $("gmGoalIn"); if(el){ el.focus(); el.select(); } }, 30); }
@@ -4228,22 +4120,22 @@ function gmRemove(id){ removeGame(id, "library"); }
 let gmBdCtx = null;
 async function gmBackdrop(id){
   const g = S.library.games.find(x => x.id === id); if(!g) return;
-  if(!g.rawgId) return toast("Match this game to RAWG first (Data button).");
+  if(!g.igdbId) return toast("Match this game to IGDB first (Data button).");
   gmBdCtx = { id, list: null }; gmBdRender(); $("gmBdModal").classList.add("show");
   try{
-    const d = await rawgApi(`/games/${g.rawgId}/screenshots`, { page_size: 30 });
-    gmBdCtx.list = [g.backdropUrl, ...(d.results || []).map(x => x.image)].filter((u, i, a) => u && a.indexOf(u) === i);
-  }catch(e){ gmBdCtx.list = []; toast(rawgErr(e)); }
+    const [d] = await igdbApi("games", `fields artworks.image_id,screenshots.image_id; where id = ${+g.igdbId};`);
+    gmBdCtx.list = [g.backdropId, ...((d && d.artworks) || []).map(x => x.image_id), ...((d && d.screenshots) || []).map(x => x.image_id)].filter((u, i, a) => u && a.indexOf(u) === i);
+  }catch(e){ gmBdCtx.list = []; toast(igdbErr(e)); }
   gmBdRender();
 }
 function gmBdRender(){
   const c = gmBdCtx, g = c && S.library.games.find(x => x.id === c.id); if(!g) return;
-  $("gmBdBody").innerHTML = c.list == null ? `<div class="tvc-note">Loading images…</div>` : !c.list.length ? `<div class="tvc-note">RAWG has no other images for this game.</div>`
-    : `<div class="gm-bdgrid">${c.list.map((u, i) => `<div class="gm-bdopt${u === g.backdropUrl ? " on" : ""}" onclick="gmBdPick(${i})"><img loading="lazy" alt="" src="${esc(rawgThumb(u, 420))}"></div>`).join("")}</div>`;
+  $("gmBdBody").innerHTML = c.list == null ? `<div class="tvc-note">Loading images…</div>` : !c.list.length ? `<div class="tvc-note">IGDB has no other images for this game.</div>`
+    : `<div class="gm-bdgrid">${c.list.map((u, i) => `<div class="gm-bdopt${u === g.backdropId ? " on" : ""}" onclick="gmBdPick(${i})"><img loading="lazy" alt="" src="${esc(igdbImg(u, "screenshot_med"))}"></div>`).join("")}</div>`;
 }
 function gmBdPick(i){
   const g = gmBdCtx && S.library.games.find(x => x.id === gmBdCtx.id); if(!g) return;
-  g.backdropUrl = gmBdCtx.list[i]; g.backdropCustom = true; closeModal("gmBdModal"); persist(); toast("Backdrop updated.");
+  g.backdropId = gmBdCtx.list[i]; g.backdropCustom = true; closeModal("gmBdModal"); persist(); toast("Backdrop updated.");
 }
 
 function libraryList(category, items){
@@ -4723,9 +4615,9 @@ function settingsBodyHtml(){
       <div class="hint" style="margin:4px 0 0">Which site's score every title shows. You can still override a single title by tapping its rating circle.</div>
       <div class="rate-chips">${ratingSrcOptions().map(k => `<button class="rate-chip${k === cur ? " on" : ""}" onclick="setGlobalRatingSrc('${esc(k)}')">${esc(mdbLabel(k))}</button>`).join("")}</div>
       <div class="hint" style="margin:10px 0 0">A title with no score from that site falls back to Merged, then IMDb, then TMDB.</div></div>
-    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey","mdxProxy","rawgKey"].filter(k => S.settings[k]).length} of 5 saved · TMDB, MDBList, OMDb, MangaDex, RAWG</span></div><i>›</i></button></div>`;
+    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey","mdxProxy","igdbProxy"].filter(k => S.settings[k]).length} of 5 saved · TMDB, MDBList, OMDb, MangaDex, IGDB</span></div><i>›</i></button></div>`;
 }
-function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml() + mdxSettingsHtml() + rawgSettingsHtml(); }
+function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml() + mdxSettingsHtml() + igdbSettingsHtml(); }
 function openApiModal(){ $("apiBody").innerHTML = apiBodyHtml(); $("apiModal").classList.add("show"); }
 function openSettingsModal(){ $("settingsBody").innerHTML = settingsBodyHtml(); $("settingsModal").classList.add("show"); }
 function setGlobalRatingSrc(k){
@@ -5552,7 +5444,7 @@ function mgConfirmVolumes(){
 function mgAdd(r, vols, ongoing){
   const toSeason = mgS.target === "season";
   (toSeason ? S.manga : S.library.manga).push({ id: uid(), name: r.title, fromVol: 1, toVol: vols, volsRead: 0, releaseDate: { y: r.year ? String(r.year) : "", m: "", d: "" },
-    tags: [], partOfSeries: false, seriesId: null, seriesOrder: null, originGroupId: null,
+    partOfSeries: false, seriesId: null, seriesOrder: null, originGroupId: null,
     anilistId: r.id, malId: r.malId, coverUrl: r.cover, rating: r.score, ongoing: !!ongoing });
   closeModal("mgModal"); persist();
   toast(`Added “${r.title}” to ${toSeason ? "this season" : "the Library"}.`);
@@ -6007,9 +5899,8 @@ function renderLibraryTab(category){
       <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
     </div>`}
     ${isMovies ? `<button class="lib-tags-btn${fN?" active":""}" onclick="openFilterModal()" title="Filter movies"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14l-5.2 6.2v4.6l-3.6 1.7v-6.3z"/></svg> Filter${fN?` (${fN})`:""}</button>` : ""}
-    ${(isRate || isManga) ? "" : `<button class="lib-tags-btn" onclick="openTagsModal('${category}')" title="Manage tags"><span style="color:#c9a24b;display:inline-flex">${TAG_ICON_SVG}</span> Tags</button>`}
     ${(isMovies || isTv || isManga) ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
-    ${category==="games" ? `<button class="lib-tags-btn" onclick="openGameDataModal()" title="Match games to RAWG">${DATA_ICON} Data${gmUnmatched() ? ` (${gmUnmatched()})` : ""}</button>` : (isMovies || isTv || isManga) ? `<button class="lib-tags-btn" onclick="openDataModal('${category}')" title="Link titles and fetch ratings">${DATA_ICON} Data${dataCount(category)?` (${dataCount(category)})`:""}</button>` : ""}
+    ${category==="games" ? `<button class="lib-tags-btn" onclick="openGameDataModal()" title="Match games to IGDB">${DATA_ICON} Data${gmUnmatched() ? ` (${gmUnmatched()})` : ""}</button>` : (isMovies || isTv || isManga) ? `<button class="lib-tags-btn" onclick="openDataModal('${category}')" title="Link titles and fetch ratings">${DATA_ICON} Data${dataCount(category)?` (${dataCount(category)})`:""}</button>` : ""}
   </div>`;
 
   if(!isTv && !isManga) html += `<input class="lib-search" id="libSearch" placeholder="Search ${meta.label.toLowerCase()}…" value="${esc(libSearchQ)}" oninput="libSearchQ=this.value; renderLibraryTab('${category}')">`;
