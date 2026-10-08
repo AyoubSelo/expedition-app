@@ -735,10 +735,11 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .tab.on span{color:var(--tabcolor);font-weight:600}
 /* v1.15.0 — Games Library: a wall of covers; tapping one opens its backdrop across the row */
 .gm-cell{scroll-margin-top:84px}
-.gm-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:relative;margin-bottom:8px}
+.gm-wall{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:relative}
+.gm-hid{display:none}
+.gm-open{grid-column:1/-1}
 .gm-cell{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
-.gm-cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
-.gm-cell img.in{opacity:1}
+.gm-cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .gm-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;font-size:12px;color:var(--muted-dim)}
 .gm-shade{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(to top,rgba(8,12,10,.88),transparent);pointer-events:none;display:none}
 .gm-name{position:absolute;left:7px;right:7px;bottom:27px;font-size:11px;line-height:1.2;font-weight:600;color:#fff;text-shadow:0 1px 3px #000;display:none;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -753,12 +754,8 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .gm-bd-t{position:absolute;left:14px;right:56px;bottom:12px}
 .gm-bd-t .n{font-size:21px;line-height:1.1;color:#fff;text-shadow:0 2px 8px #000}
 .gm-bd-t .s{font:500 11px "IBM Plex Mono",monospace;color:var(--brass);margin-top:4px}
-@keyframes gmFadeIn{from{opacity:0}to{opacity:1}}
-@keyframes gmFadeOut{from{opacity:1}to{opacity:0}}
 @keyframes gmGrow{from{grid-template-rows:0fr;opacity:0}to{grid-template-rows:1fr;opacity:1}}
-.gm-bd.enter{animation:gmFadeIn .4s ease both}
-.gm-bd.leave{animation:gmFadeOut .24s ease both}
-.gm-info{display:grid;grid-template-rows:1fr;margin-bottom:10px}
+.gm-info{display:grid;grid-template-rows:1fr}
 .gm-info.enter{animation:gmGrow .45s cubic-bezier(.22,.8,.24,1) both}
 .gm-info.leave{animation:gmGrow .25s ease reverse both}
 .gm-info-in{min-height:0;overflow:hidden}
@@ -1101,7 +1098,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.15.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.15.2"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -3889,7 +3886,15 @@ function gmFmtDate(rd){
   return [rd.d && mi ? +rd.d : "", mi >= 1 && mi <= 12 ? GM_MONTHS[mi - 1] : "", rd.y].filter(Boolean).join(" ");
 }
 function igdbDateParts(sec){ if(!sec) return { y: "", m: "", d: "" }; const d = new Date(sec * 1000); return { y: String(d.getUTCFullYear()), m: String(d.getUTCMonth() + 1), d: String(d.getUTCDate()) }; }
-const igdbSearch = (q, limit) => igdbApi("games", `search "${igdbQ(q)}"; fields name,first_release_date,cover.image_id,aggregated_rating; where parent_game = null & version_parent = null; limit ${limit || 10};`);
+async function igdbSearch(q, limit){   // main games plus remakes, remasters, expanded games, ports and standalone expansions (never DLC)
+  const head = `search "${igdbQ(q)}"; limit ${limit || 10}; fields name,first_release_date,cover.image_id,aggregated_rating`;
+  let err;
+  for(const t of [`${head},game_type.type; where game_type = (0,4,8,9,10,11);`, `${head}; where category = (0,4,8,9,10,11);`, `${head};`]){
+    try{ return await igdbApi("games", t); }catch(e){ if(!/^http 4/.test(e && e.message)) throw e; err = e; }   // an older/newer field name gets a 400: try the next form
+  }
+  throw err;
+}
+const gmKind = r => (r.game_type && r.game_type.type && r.game_type.type !== "Main Game") ? r.game_type.type : "";
 async function igdbGameData(id){
   const [g] = await igdbApi("games", `fields name,summary,storyline,first_release_date,cover.image_id,artworks.image_id,screenshots.image_id,involved_companies.developer,involved_companies.publisher,involved_companies.company.name,genres.name,aggregated_rating,total_rating; where id = ${+id};`);
   if(!g) throw new Error("http 404");
@@ -3958,7 +3963,7 @@ async function gmRunSearch(){
       const owned = have.ids.has(r.id) || have.names.has(gmNorm(r.name)), yr = r.first_release_date ? igdbDateParts(r.first_release_date).y : "";
       return `<div class="tmdb-res${owned ? " dim" : ""}" ${owned ? "" : `onclick="gmPick(${r.id})"`}>
         <div class="gm-thumb">${r.cover ? `<img alt="" loading="lazy" src="${esc(igdbImg(r.cover.image_id, "cover_small"))}" onerror="this.remove()">` : ""}</div>
-        <div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.name)}</div><div class="tmdb-res-sub">${[yr, r.aggregated_rating ? "★ " + Math.round(r.aggregated_rating) : "", owned ? "In your list" : ""].filter(Boolean).join(" · ")}</div></div>
+        <div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.name)}</div><div class="tmdb-res-sub">${[yr, gmKind(r), r.aggregated_rating ? "★ " + Math.round(r.aggregated_rating) : "", owned ? "In your list" : ""].filter(Boolean).join(" · ")}</div></div>
       </div>`;
     }).join("") : `<div class="tvc-note">No games found.</div>`;
   }catch(e){ if(seq === gmSeq) $("gmAddRes").innerHTML = `<div class="tvc-note">${esc(igdbErr(e))}</div>`; }
@@ -3994,7 +3999,7 @@ function gmDataRender(){
     if(matched) h += `<button class="data-row" onclick="gmMatchRun(true)"><div><b>↻ Refresh all</b><span>Reload the data of the ${matched} matched games.</span></div><i>›</i></button>`;
     if(gmBatch && gmBatch.failed) h += `<div class="tvc-note">${gmBatch.failed} couldn't be reached. Run it again to retry.</div>`;
   }
-  if(gmPending.length) h += `<div class="set-head" style="margin-top:14px"><b>Needs your pick (${gmPending.length})</b></div>` + gmPending.map(p => `<div class="gm-pend"><div class="gm-pend-name">${esc(p.name)}</div>${p.cands.map(c => `<button class="gm-cand" onclick="gmPendPick('${p.id}',${c.id})">${esc(c.name)}${c.year ? ` (${c.year})` : ""}</button>`).join("")}${p.cands.length ? "" : `<div class="tvc-note">No results on IGDB.</div>`}<button class="gm-cand skip" onclick="gmPendSkip('${p.id}')">Skip this one</button></div>`).join("");
+  if(gmPending.length) h += `<div class="set-head" style="margin-top:14px"><b>Needs your pick (${gmPending.length})</b></div>` + gmPending.map(p => `<div class="gm-pend"><div class="gm-pend-name">${esc(p.name)}</div>${p.cands.map(c => `<button class="gm-cand" onclick="gmPendPick('${p.id}',${c.id})">${esc(c.name)}${c.year ? ` (${c.year})` : ""}${c.kind ? ` · ${esc(c.kind)}` : ""}</button>`).join("")}${p.cands.length ? "" : `<div class="tvc-note">No results on IGDB.</div>`}<button class="gm-cand skip" onclick="gmPendSkip('${p.id}')">Skip this one</button></div>`).join("");
   $("gmDataBody").innerHTML = h;
 }
 async function gmMatchRun(refresh){
@@ -4005,9 +4010,9 @@ async function gmMatchRun(refresh){
     try{
       if(refresh) igdbApply(g, await igdbGameData(g.igdbId));
       else{
-        const rs = await igdbSearch(g.name, 6), hit = rs.find(r => gmNorm(r.name) === gmNorm(g.name));
-        if(hit) igdbApply(g, await igdbGameData(hit.id));
-        else gmPending.push({ id: g.id, name: g.name, cands: rs.slice(0, 5).map(r => ({ id: r.id, name: r.name, year: r.first_release_date ? igdbDateParts(r.first_release_date).y : "" })) });
+        const rs = await igdbSearch(g.name, 8), exact = rs.filter(r => gmNorm(r.name) === gmNorm(g.name));
+        if(exact.length === 1) igdbApply(g, await igdbGameData(exact[0].id));   // one clear match: take it. Several (say a game and its remake): you choose
+        else gmPending.push({ id: g.id, name: g.name, cands: [...exact, ...rs.filter(r => !exact.includes(r))].slice(0, 6).map(r => ({ id: r.id, name: r.name, year: r.first_release_date ? igdbDateParts(r.first_release_date).y : "", kind: gmKind(r) })) });
       }
     }catch(e){
       gmBatch.failed++;
@@ -4025,7 +4030,7 @@ async function gmPendPick(gid, iid){
 function gmPendSkip(gid){ gmSkipped.add(gid); gmPending = gmPending.filter(p => p.id !== gid); gmDataRender(); }
 
 /* ---- the cover wall ---- */
-let gmOpen = null, gmAnim = null, gmBusy = false, gmGoalEdit = null;
+let gmOpen = null, gmBusy = false, gmGoalEdit = null;
 const gmMore = new Set();
 function gmFb(img){   // cover failed to load: try the next source, last resort is the backdrop with the title on top
   const l = (img.dataset.fb || "").split("|").filter(Boolean), cell = img.closest(".gm-cell");
@@ -4034,12 +4039,12 @@ function gmFb(img){   // cover failed to load: try the next source, last resort 
   if(l.length === 1 && cell) cell.classList.add("named");
 }
 let gmAnchor = {};   // game id → letter, set on the first game of each letter so the A–Z rail can jump there
-function gmCellHtml(g){
+function gmCellHtml(g, i, hidden){
   const r = itemRating(g), len = g.goal ? fmtN(g.goal) + "h" : "", n = (g.dlcs || []).length;
   const chain = [igdbImg(g.coverId, "cover_big"), igdbImg(g.backdropId, "screenshot_big")].filter(Boolean);
-  return `<div class="gm-cell${g.coverId ? "" : " named"}" data-pid="${g.id}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')">
+  return `<div class="gm-cell${g.coverId ? "" : " named"}${hidden ? " gm-hid" : ""}" data-pid="${g.id}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')">
     <div class="gm-ph">${esc(g.name)}</div>
-    ${chain.length ? `<img alt="" loading="lazy" src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onload="this.classList.add('in')" onerror="gmFb(this)">` : ""}
+    ${chain.length ? `<img alt="" loading="${i > 29 ? "lazy" : "eager"}" src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onerror="gmFb(this)">` : ""}
     <div class="gm-shade"></div><div class="gm-name">${esc(g.name)}</div>
     ${r != null ? `<div class="prate ${ratingClass(r)}">${r}</div>` : ""}
     ${len ? `<div class="gm-chip l">${len}</div>` : ""}${n ? `<div class="gm-chip r">+${n}</div>` : ""}
@@ -4047,7 +4052,7 @@ function gmCellHtml(g){
 }
 function gmBackdropHtml(g){
   const bd = igdbImg(g.backdropId, "screenshot_huge"), cv = igdbImg(g.coverId, "cover_big"), r = itemRating(g), y = g.releaseDate && g.releaseDate.y;
-  return `<div class="gm-bd${gmAnim === "in" ? " enter" : ""}" onclick="gmToggle('${g.id}')">
+  return `<div class="gm-bd" onclick="gmToggle('${g.id}')">
     ${bd ? `<img alt="" src="${esc(bd)}" onerror="this.remove()">` : (cv ? `<img class="blur" alt="" src="${esc(cv)}" onerror="this.remove()">` : "")}
     <div class="gm-bd-shade"></div>
     ${r != null ? `<div class="prate tvc-rate ${ratingClass(r)}">${r}</div>` : ""}
@@ -4060,7 +4065,7 @@ function gmInfoHtml(g){
   const goal = gmGoalEdit === g.id
     ? `<input id="gmGoalIn" type="number" min="0" step=".5" inputmode="decimal" value="${g.goal || ""}" onclick="event.stopPropagation()"><button class="btn small accent" onclick="gmGoalSave('${g.id}')">Save</button><button class="btn small ghost" onclick="gmGoalEdit=null;render()">Cancel</button>`
     : `<span>Target <b>${g.goal ? fmtN(g.goal) + "h" : "not set"}</b>${g.igdbHours ? ` <span class="gm-hint">IGDB average ${fmtN(g.igdbHours)}h</span>` : ""}</span><button class="btn small ghost" onclick="gmGoalStart('${g.id}')">Edit</button>`;
-  return `<div class="gm-info${gmAnim === "in" ? " enter" : ""}"><div class="gm-info-in"><div class="gm-panel">
+  return `<div class="gm-info"><div class="gm-info-in"><div class="gm-panel">
     <div class="gm-meta">${who || "No developer info yet"}${date ? `<br>${date}` : ""}</div>
     ${(g.genres || []).length ? `<div class="gm-chips">${g.genres.slice(0, 5).map(x => `<span class="gm-chipx">${esc(x)}</span>`).join("")}</div>` : ""}
     ${desc ? `<div class="gm-desc${more ? "" : " clamp"}">${esc(desc)}</div>${desc.length > 240 ? `<button class="gm-more" onclick="gmToggleMore('${g.id}')">${more ? "Less" : "More"}</button>` : ""}` : `<div class="gm-meta">${g.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet. Use the Data button to match it."}</div>`}
@@ -4069,39 +4074,106 @@ function gmInfoHtml(g){
     <div class="btn-row gm-acts">${btnH("accent", "gmMove", g.id, "To Season", `--accent:${CAT.games.color};--accent-text:${CAT.games.text}`)}${btnH("ghost", "gmBackdrop", g.id, "Change backdrop")}${btnH("ghost", "gmEdit", g.id, "Edit")}${btnH("ghost danger", "gmRemove", g.id, "Remove")}</div>
   </div></div></div>`;
 }
-function gmSectionHtml(items){   // like the movies grid: the open game takes a full-width block, everything else flows around it
-  const rows = arr => { let h = ""; for(let i = 0; i < arr.length; i += 3) h += `<div class="gm-row">${arr.slice(i, i + 3).map(gmCellHtml).join("")}</div>`; return h; };
+const GM_MOVE = 430, GM_REVEAL = 540, GM_INFO = 420, GM_EASE = "cubic-bezier(.22,.8,.24,1)";
+let gmItemIds = [];
+function gmBlockHtml(g){ return `<div class="gm-open" data-id="${g.id}">${gmBackdropHtml(g)}${gmInfoHtml(g)}</div>`; }
+function gmWallHtml(items){   // one grid: the open game's backdrop block sits where the game was, everything else flows around it
   const oi = gmOpen ? items.findIndex(x => x.id === gmOpen) : -1;
-  if(oi < 0) return rows(items);
-  const rs = Math.floor(oi / 3) * 3;
-  return rows(items.slice(0, rs)) + rows(items.slice(rs, oi)) + gmBackdropHtml(items[oi]) + gmInfoHtml(items[oi]) + rows(items.slice(oi + 1));
+  gmItemIds = items.map(x => x.id);
+  return `<div class="gm-wall" id="gmWall">${items.map((g, i) => i === oi ? gmBlockHtml(g) + gmCellHtml(g, i, true) : gmCellHtml(g, i)).join("")}</div>`;
+}
+const gmWallEl = () => document.getElementById("gmWall");
+function gmRects(wall){
+  const m = new Map(), r0 = wall.getBoundingClientRect();
+  wall.querySelectorAll(".gm-cell:not(.gm-hid)").forEach(c => { const r = c.getBoundingClientRect(); m.set(c.dataset.pid, { x: r.left - r0.left, y: r.top - r0.top, w: r.width, h: r.height }); });
+  return m;
+}
+function gmFlip(wall, before, skipId, dur){   // slide every other cover from where it was to where it is now
+  const r0 = wall.getBoundingClientRect();
+  wall.querySelectorAll(".gm-cell:not(.gm-hid)").forEach(c => {
+    const b = before.get(c.dataset.pid); if(!b || c.dataset.pid === skipId) return;
+    const r = c.getBoundingClientRect(), dx = b.x - (r.left - r0.left), dy = b.y - (r.top - r0.top);
+    if(dx || dy) c.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: "none" }], { duration: dur, easing: GM_EASE });
+  });
+}
+function gmGhost(wall, cell, rect){   // a stand-in for the poster that can travel and fade on its own
+  const gh = cell.cloneNode(true);
+  gh.classList.remove("gm-hid"); ["id", "data-pid", "onclick"].forEach(a => gh.removeAttribute(a));
+  Object.assign(gh.style, { position: "absolute", left: rect.x + "px", top: rect.y + "px", width: rect.w + "px", height: rect.h + "px", margin: "0", zIndex: "5", pointerEvents: "none" });
+  wall.appendChild(gh); return gh;
+}
+function gmOpenAnim(id){
+  const wall = gmWallEl(), cell = wall && wall.querySelector(`.gm-cell[data-pid="${id}"]`), g = S.library.games.find(x => x.id === id);
+  if(!cell || !g) return;
+  gmBusy = true;
+  const before = gmRects(wall), o = before.get(id), W = wall.getBoundingClientRect().width;
+  const tmp = document.createElement("div"); tmp.innerHTML = gmBlockHtml(g);
+  const block = tmp.firstElementChild, bd = block.querySelector(".gm-bd"), info = block.querySelector(".gm-info");
+  bd.style.opacity = "0"; info.style.display = "none";
+  cell.before(block); cell.classList.add("gm-hid");
+  gmOpen = id; gmGoalEdit = null;
+  const wr = wall.getBoundingClientRect(), br = bd.getBoundingClientRect(), dy = (br.top - wr.top) - o.y, ghost = gmGhost(wall, cell, o);
+  gmFlip(wall, before, id, GM_MOVE);   // 1. the others make room and the poster drops to the backdrop's row, keeping its column
+  if(dy) ghost.animate([{ transform: "translateY(0)" }, { transform: `translateY(${dy}px)` }], { duration: GM_MOVE, easing: GM_EASE, fill: "forwards" });
+  setTimeout(() => {   // 2. the poster fades out and the backdrop opens from where it stood, the picture itself never moving
+    ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 340, easing: "ease-in", fill: "forwards" }).onfinish = () => ghost.remove();
+    bd.style.opacity = "";
+    bd.animate([{ clipPath: `inset(0px ${W - (o.x + o.w)}px 0px ${o.x}px round 10px)` }, { clipPath: "inset(0px 0px 0px 0px round 12px)" }], { duration: GM_REVEAL, easing: GM_EASE, fill: "backwards" })
+      .onfinish = () => bd.animate([{ boxShadow: "0 0 0 0 rgba(217,162,86,0)" }, { boxShadow: getComputedStyle(bd).boxShadow }], { duration: 300 });
+    gmScrollIntoView();
+  }, GM_MOVE);
+  setTimeout(() => { info.style.display = ""; info.classList.add("enter"); }, GM_MOVE + GM_REVEAL * .55);   // 3. the details unfold underneath
+  setTimeout(() => { gmBusy = false; }, GM_MOVE + GM_REVEAL * .55 + GM_INFO);
+}
+function gmCloseAnim(){   // the same thing backwards
+  const wall = gmWallEl(), block = wall && wall.querySelector(".gm-open"); if(!block) return;
+  gmBusy = true;
+  const id = block.dataset.id, cell = wall.querySelector(`.gm-cell[data-pid="${id}"]`), bd = block.querySelector(".gm-bd"), info = block.querySelector(".gm-info");
+  const W = wall.getBoundingClientRect().width, cw = (W - 16) / 3, x = (Math.max(0, gmItemIds.indexOf(id)) % 3) * (cw + 8);
+  info.classList.remove("enter"); info.classList.add("leave");
+  setTimeout(() => {
+    const wr = wall.getBoundingClientRect(), br = bd.getBoundingClientRect(), rect = { x, y: br.top - wr.top, w: cw, h: br.height };
+    const ghost = gmGhost(wall, cell, rect); ghost.style.opacity = "0";
+    bd.animate([{ clipPath: "inset(0px 0px 0px 0px round 12px)" }, { clipPath: `inset(0px ${W - (x + cw)}px 0px ${x}px round 10px)` }], { duration: GM_REVEAL, easing: GM_EASE, fill: "forwards" });
+    ghost.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 340, delay: GM_REVEAL - 300, easing: "ease-out", fill: "forwards" });
+    setTimeout(() => {   // the poster is back where the backdrop narrowed to: it goes home while the rest slides back
+      const before = gmRects(wall);
+      block.remove(); cell.classList.remove("gm-hid"); cell.style.visibility = "hidden"; gmOpen = null; gmGoalEdit = null;
+      const wr2 = wall.getBoundingClientRect(), cr = cell.getBoundingClientRect();
+      gmFlip(wall, before, id, GM_MOVE);
+      ghost.animate([{ transform: "translate(0,0)" }, { transform: `translate(${(cr.left - wr2.left) - rect.x}px,${(cr.top - wr2.top) - rect.y}px)` }], { duration: GM_MOVE, easing: GM_EASE, fill: "forwards" })
+        .onfinish = () => { cell.style.visibility = ""; ghost.remove(); gmBusy = false; };
+    }, GM_REVEAL);
+  }, 280);
+}
+function gmSwitch(id){   // another game while one is open: close the old one at once, open the new one with the animation
+  const wall = gmWallEl(), block = wall.querySelector(".gm-open"), target = wall.querySelector(`.gm-cell[data-pid="${id}"]`);
+  if(block){
+    const top0 = target.getBoundingClientRect().top, old = wall.querySelector(`.gm-cell[data-pid="${block.dataset.id}"]`);
+    block.remove(); if(old) old.classList.remove("gm-hid");
+    window.scrollBy({ top: target.getBoundingClientRect().top - top0, behavior: "instant" });
+  }
+  gmOpen = null; gmOpenAnim(id);
+}
+function gmToggle(id){
+  if(gmBusy) return;
+  const wall = gmWallEl(); if(!wall) return;
+  if(gmOpen === id && wall.querySelector(".gm-open")) gmCloseAnim();
+  else if(gmOpen && wall.querySelector(".gm-open")) gmSwitch(id);
+  else{ gmOpen = null; gmOpenAnim(id); }
 }
 function gmLibraryHtml(items){
   gmAnchor = {};
-  if(libSortKey() !== "name") return gmSectionHtml(items);
+  if(libSortKey() !== "name") return gmWallHtml(items);
   const seen = new Set();
   items.forEach(g => {
     const c = (String(g.name || "").normalize("NFD").replace(/[^A-Za-z0-9]/g, "")[0] || "#").toUpperCase(), L = /[A-Z]/.test(c) ? c : "num";
     if(!seen.has(L)){ seen.add(L); gmAnchor[g.id] = L; }
   });
   const rail = items.length > 30 ? `<div class="gm-rail">${[...seen].map(L => `<span onclick="gmJump('${L}')">${L === "num" ? "#" : L}</span>`).join("")}</div>` : "";
-  return gmSectionHtml(items) + rail;
+  return gmWallHtml(items) + rail;
 }
 function gmJump(L){ const el = document.getElementById("gmL_" + L); if(el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
-function gmToggle(id){
-  if(gmBusy) return;
-  const opened = gmOpen != null, same = gmOpen === id;
-  const go = () => {
-    gmOpen = same ? null : id; gmAnim = gmOpen ? "in" : null; gmGoalEdit = null;
-    render(); gmAnim = null; gmBusy = false;
-    if(gmOpen) setTimeout(gmScrollIntoView, 160);
-  };
-  if(opened){
-    gmBusy = true;
-    document.querySelectorAll(".gm-bd,.gm-info").forEach(e => e.classList.add("leave"));
-    setTimeout(go, 250);
-  }else go();
-}
 function gmScrollIntoView(){
   const el = document.querySelector(".gm-bd"); if(!el) return;
   const top = el.getBoundingClientRect().top;
