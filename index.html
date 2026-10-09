@@ -754,11 +754,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .gm-bd-t{position:absolute;left:14px;right:56px;bottom:12px}
 .gm-bd-t .n{font-size:21px;line-height:1.1;color:#fff;text-shadow:0 2px 8px #000}
 .gm-bd-t .s{font:500 11px "IBM Plex Mono",monospace;color:var(--brass);margin-top:4px}
-@keyframes gmGrow{from{grid-template-rows:0fr;opacity:0}to{grid-template-rows:1fr;opacity:1}}
-.gm-info{display:grid;grid-template-rows:1fr}
-.gm-info.enter{animation:gmGrow .45s cubic-bezier(.22,.8,.24,1) both}
-.gm-info.leave{animation:gmGrow .25s ease reverse both}
-.gm-info-in{min-height:0;overflow:hidden}
+.gm-info{overflow:hidden}
 .gm-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:2px}
 .gm-meta{font-size:12px;color:var(--muted);line-height:1.5}
 .gm-meta b{color:var(--ink);font-weight:600}
@@ -809,6 +805,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     </div>
   </header>
   <main id="app"></main>
+  <div id="gmSpacer"></div>
 </div>
 
 <nav class="tabbar" id="tabbar"></nav>
@@ -1106,7 +1103,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.15.3"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.15.4"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -2385,7 +2382,11 @@ function mgSGrid(items){
   if(open >= 0) cards.splice(Math.min(cards.length, open - (open % 2) + 2), 0, mgSPanelHtml(items[open]));
   return `<div class="mg-grid">${cards.join("")}</div>`;
 }
-function mgSToggle(id){ mgSOpen = mgSOpen === id ? null : id; render(); }
+function mgSToggle(id){
+  const sel = `[onclick="mgSToggle('${id}')"]`;
+  vf(sel, sel, mgSOpen === id ? [sel] : [sel, ".mg-panel"]);
+  mgSOpen = mgSOpen === id ? null : id; render();
+}
 function renderManga(){
   const live = S.manga.filter(x => !x.abandoned);
   let tot = 0, read = 0; const segs = [];
@@ -3447,8 +3448,11 @@ function archiveDetailHtml(games, movies, episodic, manga, abandoned){
   return html;
 }
 function toggleArchiveExpand(id){
-  const el = document.getElementById(id);
-  if(el) el.classList.toggle("open");
+  const el = document.getElementById(id); if(!el) return;
+  const closing = el.classList.contains("open");
+  if(closing) gmSetPad(gmPad + el.getBoundingClientRect().height);   // it is about to shrink: hold the page height so the view isn't pulled up
+  el.classList.toggle("open");
+  setTimeout(() => { vfFollow([el]); if(closing) setTimeout(vfSettle, GM_FOLLOW + 60); }, 380);   // once its own transition has finished
 }
 function currentSeasonCardHtml(snap){
   const label = quarterLabel(S.seasonStart) + " · In Progress";
@@ -3704,8 +3708,12 @@ function renderEpisodicTab(category){   // v1.12.0 — TV and anime share one Se
 // title between books, etc. all slide instead of jumping.
 function render(){
   const before = pdCaptureRects();
+  const key = mode + "|" + activeTab + "|" + libTab; if(key !== vfKey){ vfKey = key; gmSetPad(0); }   // a different page starts without leftover room
   renderCore();
+  const v = vfNext; vfNext = null;
+  if(v){ const el = v.after && document.querySelector(v.after); if(el && v.top != null) gmHold(el, v.top); }
   pdPlayFlip(before);
+  if(v && v.focus) vfFollow(v.focus);
 }
 function renderCore(){
   const scrollY = window.scrollY;
@@ -4083,13 +4091,61 @@ function gmInfoHtml(g){
     <div class="btn-row gm-acts">${btnH("accent", "gmMove", g.id, "To Season", `--accent:${CAT.games.color};--accent-text:${CAT.games.text}`)}${btnH("ghost", "gmBackdrop", g.id, "Change backdrop")}${btnH("ghost", "gmEdit", g.id, "Edit")}${btnH("ghost danger", "gmRemove", g.id, "Remove")}</div>
   </div></div></div>`;
 }
-const GM_ROOM = 200, GM_REVEAL = 400, GM_FADE = 300, GM_INFO = 420, GM_EASE = "cubic-bezier(.22,.8,.24,1)";
-let gmItemIds = [], gmPad = 0;
+/* ============ VIEW FIELD — the screen stays calm while things expand and collapse (v1.15.4) ============
+   The tapped item stays where it is on screen, the page never gets dragged when it shrinks (a little empty room is kept
+   at the bottom and melts away as you scroll up), and the screen glides to the middle of whatever opened or closed. */
+let gmPad = 0, gmScrolling = false, gmScrollRaf = 0, vfNext = null, vfKey = "";
+const GM_FOLLOW = 600;
+const vfCenterY = () => { const t = $("tabbar"); return (innerHeight - (t ? t.getBoundingClientRect().height : 70)) / 2; };   // the middle of the part of the screen you can see
+function gmSetPad(px){ gmPad = Math.max(0, Math.round(px)); const sp = document.getElementById("gmSpacer"); if(sp) sp.style.height = gmPad + "px"; }
+function vfSettle(){ gmSetPad(window.scrollY + innerHeight - (document.documentElement.scrollHeight - gmPad)); }   // keep only the room the current scroll position needs
+function gmStopScroll(){ cancelAnimationFrame(gmScrollRaf); if(gmScrolling){ gmScrolling = false; vfSettle(); } }
+function gmScrollTo(top, dur){   // quick while far, slowing as it arrives
+  cancelAnimationFrame(gmScrollRaf);
+  const from = window.scrollY, d = Math.max(0, top) - from;
+  if(Math.abs(d) < 2){ gmScrolling = false; return; }
+  gmScrolling = true; const t0 = performance.now();
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    window.scrollTo({ top: from + d * e, behavior: "instant" });
+    if(k < 1) gmScrollRaf = requestAnimationFrame(step); else { gmScrolling = false; vfSettle(); }
+  };
+  gmScrollRaf = requestAnimationFrame(step);
+}
+["touchstart", "wheel", "keydown"].forEach(ev => window.addEventListener(ev, gmStopScroll, { passive: true }));   // your finger always wins
+function gmHold(el, wantTop){   // after a layout change, scroll so that el is back at wantTop on screen. If the page is now too short for that, keep the empty room at the bottom
+  const root = document.documentElement, want = Math.max(0, el.getBoundingClientRect().top + window.scrollY - wantTop);   // page coordinates: the browser may already have clamped the scroll
+  gmSetPad(want + innerHeight - (root.scrollHeight - gmPad));
+  window.scrollTo({ top: want, behavior: "instant" });
+}
+window.addEventListener("scroll", () => {
+  if(!gmPad || gmScrolling || gmBusy) return;
+  const need = Math.max(0, window.scrollY + innerHeight - (document.documentElement.scrollHeight - gmPad));
+  if(need < gmPad) gmSetPad(need);
+}, { passive: true });
+function vfRect(sels){   // page-coordinate span of everything found (selectors or elements)
+  let t = Infinity, b = -Infinity;
+  sels.forEach(s => (typeof s === "string" ? [...document.querySelectorAll(s)] : [s]).forEach(el => { const r = el.getBoundingClientRect(); if(r.height){ t = Math.min(t, r.top + window.scrollY); b = Math.max(b, r.bottom + window.scrollY); } }));
+  return b > t ? { top: t, bottom: b } : null;
+}
+function vfFollow(sels, dur){   // glide so the middle of those elements ends up in the middle of the visible screen (or their top, if they're taller than the screen)
+  const r = vfRect(sels); if(!r) return;
+  const d = Math.max(0, Math.min((r.top + r.bottom) / 2 - vfCenterY(), r.top - 12)), need = d + innerHeight - (document.documentElement.scrollHeight - gmPad);
+  if(need > gmPad) gmSetPad(need);
+  gmScrollTo(d, dur || GM_FOLLOW);
+}
+function vf(beforeSel, afterSel, focus){   // a toggle calls this just before it re-renders: hold the tapped thing in place, then glide to the focus
+  const el = beforeSel && document.querySelector(beforeSel);
+  vfNext = { top: el ? el.getBoundingClientRect().top : null, after: afterSel || beforeSel, focus: focus || null };
+}
+
+const GM_ROOM = 200, GM_REVEAL = 400, GM_FADE = 300, GM_INFO = 300, GM_EASE = "cubic-bezier(.22,.8,.24,1)";
+let gmItemIds = [];
 function gmBlockHtml(g){ return `<div class="gm-open" data-id="${g.id}">${gmBackdropHtml(g)}${gmInfoHtml(g)}</div>`; }
 function gmWallHtml(items){   // one grid: the open game's backdrop block sits where the game was, everything else flows around it
   const oi = gmOpen ? items.findIndex(x => x.id === gmOpen) : -1;
   gmItemIds = items.map(x => x.id);
-  return `<div class="gm-wall" id="gmWall">${items.map((g, i) => i === oi ? gmBlockHtml(g) + gmCellHtml(g, i, true) : gmCellHtml(g, i)).join("")}</div><div id="gmSpacer"></div>`;
+  return `<div class="gm-wall" id="gmWall">${items.map((g, i) => i === oi ? gmBlockHtml(g) + gmCellHtml(g, i, true) : gmCellHtml(g, i)).join("")}</div>`;
 }
 const gmWallEl = () => document.getElementById("gmWall");
 function gmRects(wall){   // where every visible cover is on screen right now
@@ -4111,17 +4167,6 @@ function gmGhost(wall, cell, rect){   // a stand-in for the poster that can fade
   Object.assign(gh.style, { position: "absolute", left: rect.x + "px", top: rect.y + "px", width: rect.w + "px", height: rect.h + "px", margin: "0", zIndex: "5", pointerEvents: "none" });
   wall.appendChild(gh); return gh;
 }
-function gmSetPad(px){ gmPad = Math.max(0, Math.round(px)); const sp = document.getElementById("gmSpacer"); if(sp) sp.style.height = gmPad + "px"; }
-function gmHold(el, wantTop){   // after a layout change, scroll so that el is back at wantTop on screen. If the page is now too short for that, keep the empty room at the bottom: it shrinks as you scroll up
-  const root = document.documentElement, want = Math.max(0, el.getBoundingClientRect().top + window.scrollY - wantTop);   // page coordinates: the browser may already have clamped the scroll
-  gmSetPad(want + innerHeight - (root.scrollHeight - gmPad));
-  window.scrollTo({ top: want, behavior: "instant" });
-}
-window.addEventListener("scroll", () => {
-  if(!gmPad) return;
-  const need = Math.max(0, window.scrollY + innerHeight - (document.documentElement.scrollHeight - gmPad));
-  if(need < gmPad) gmSetPad(need);
-}, { passive: true });
 function gmOpenAnim(id){
   const wall = gmWallEl(), cell = wall && wall.querySelector(`.gm-cell[data-pid="${id}"]`), g = S.library.games.find(x => x.id === id);
   if(!cell || !g) return;
@@ -4129,34 +4174,47 @@ function gmOpenAnim(id){
   const before = gmRects(wall), o = before.get(id), wr0 = wall.getBoundingClientRect(), W = wr0.width, ox = o.x - wr0.left;
   const tmp = document.createElement("div"); tmp.innerHTML = gmBlockHtml(g);
   const block = tmp.firstElementChild, bd = block.querySelector(".gm-bd"), info = block.querySelector(".gm-info");
-  bd.style.opacity = "0"; info.style.display = "none";
+  bd.style.opacity = "0";
   cell.before(block); cell.classList.add("gm-hid");
   gmOpen = id; gmGoalEdit = null;
+  const H = info.getBoundingClientRect().height; info.style.display = "none";   // how tall the details will be once unfolded
   gmHold(bd, o.y);   // the backdrop opens exactly where the poster stands: covers above slide up, covers below slide down, your view doesn't move
   const wr = wall.getBoundingClientRect(), br = bd.getBoundingClientRect(), ghost = gmGhost(wall, cell, { x: ox, y: br.top - wr.top, w: o.w, h: o.h });
   gmFlip(wall, before, GM_ROOM);
+  // then the screen glides until the middle of backdrop + details is the middle of what you see
+  const Yb = br.top + window.scrollY, D = Math.max(0, Math.min(Yb + (br.height + 8 + H) / 2 - vfCenterY(), Yb - 12));
+  const need = Math.max(0, D + innerHeight - (document.documentElement.scrollHeight - gmPad + H));
+  gmSetPad(need + H);   // the details aren't unfolded yet: that room is given back as they do
+  gmScrollTo(D, GM_FOLLOW);
   setTimeout(() => {   // the poster fades out and the backdrop opens from where it stood, the picture itself never moving
     ghost.animate([{ opacity: 1 }, { opacity: 0 }], { duration: GM_FADE, easing: "ease-in", fill: "forwards" }).onfinish = () => ghost.remove();
     bd.style.opacity = "";
     bd.animate([{ clipPath: `inset(0px ${W - (ox + o.w)}px 0px ${ox}px round 10px)` }, { clipPath: "inset(0px 0px 0px 0px round 12px)" }], { duration: GM_REVEAL, easing: GM_EASE, fill: "backwards" })
       .onfinish = () => bd.animate([{ boxShadow: "0 0 0 0 rgba(217,162,86,0)" }, { boxShadow: getComputedStyle(bd).boxShadow }], { duration: 300 });
   }, GM_ROOM);
-  setTimeout(() => { info.style.display = ""; info.classList.add("enter"); }, GM_ROOM + GM_REVEAL * .55);   // the details unfold underneath
-  setTimeout(() => { gmBusy = false; }, GM_ROOM + GM_REVEAL * .55 + GM_INFO);
+  setTimeout(() => {   // the details unfold underneath, the way the backdrop opened
+    info.style.display = "";
+    info.animate([{ height: "0px", opacity: 0 }, { opacity: 1, offset: .6 }, { height: H + "px", opacity: 1 }], { duration: GM_INFO, easing: GM_EASE })
+      .onfinish = () => { gmSetPad(need); gmBusy = false; };
+  }, GM_ROOM + GM_REVEAL * .55);
 }
 function gmCloseAnim(){   // the same thing backwards
   const wall = gmWallEl(), block = wall && wall.querySelector(".gm-open"); if(!block) return;
   gmBusy = true;
   const id = block.dataset.id, cell = wall.querySelector(`.gm-cell[data-pid="${id}"]`), bd = block.querySelector(".gm-bd"), info = block.querySelector(".gm-info");
   const W = wall.getBoundingClientRect().width, cw = (W - 16) / 3, x = (Math.max(0, gmItemIds.indexOf(id)) % 3) * (cw + 8);
-  gmSetPad(gmPad + info.getBoundingClientRect().height);   // the details are about to fold away: hold the page height so the view isn't pulled up
-  info.classList.remove("enter"); info.classList.add("leave");
-  setTimeout(() => {
+  const br0 = bd.getBoundingClientRect(), ih = info.getBoundingClientRect().height, D = Math.max(0, br0.top + window.scrollY + br0.height / 2 - vfCenterY());
+  gmSetPad(gmPad + ih);   // the details are about to fold away: hold the page height so the view isn't pulled up
+  const need = D + innerHeight - document.documentElement.scrollHeight; if(need > 0) gmSetPad(gmPad + need);
+  gmScrollTo(D, GM_FOLLOW);   // the middle of the poster's spot goes to the middle of the screen
+  info.animate([{ height: ih + "px", opacity: 1 }, { height: "0px", opacity: 0 }], { duration: GM_INFO, easing: GM_EASE, fill: "forwards" });
+  setTimeout(() => {   // the backdrop starts folding back while the details are still closing
     const wr = wall.getBoundingClientRect(), br = bd.getBoundingClientRect(), ghost = gmGhost(wall, cell, { x, y: br.top - wr.top, w: cw, h: br.height });
     ghost.style.opacity = "0";
     bd.animate([{ clipPath: "inset(0px 0px 0px 0px round 12px)" }, { clipPath: `inset(0px ${W - (x + cw)}px 0px ${x}px round 10px)` }], { duration: GM_REVEAL, easing: GM_EASE, fill: "forwards" });
     ghost.animate([{ opacity: 0 }, { opacity: 1 }], { duration: GM_FADE, delay: GM_REVEAL - GM_FADE, easing: "ease-out", fill: "forwards" });
     setTimeout(() => {   // the poster is back in the backdrop's spot: it stays there on screen while the others slide home
+      gmStopScroll();
       const gr = ghost.getBoundingClientRect(), before = gmRects(wall);
       before.set(id, { x: gr.left, y: gr.top, w: gr.width, h: gr.height });
       block.remove(); cell.classList.remove("gm-hid"); gmOpen = null; gmGoalEdit = null;
@@ -4164,7 +4222,7 @@ function gmCloseAnim(){   // the same thing backwards
       gmFlip(wall, before, GM_ROOM);
       gmBusy = false;
     }, GM_REVEAL);
-  }, 280);
+  }, 120);
 }
 function gmSwitch(id){   // another game while one is open: close the old one at once, open the new one with the animation
   const wall = gmWallEl(), block = wall.querySelector(".gm-open"), target = wall.querySelector(`.gm-cell[data-pid="${id}"]`);
@@ -4259,23 +4317,23 @@ function libraryList(category, items){
 let libOpenMovie = null, pdBusy = false, pdAnimateIn = false;
 const pdErr = {};
 function pdCaptureRects(){
-  const m = new Map(), sy = window.scrollY;
-  document.querySelectorAll("[data-pid]").forEach(el => { const r = el.getBoundingClientRect(); m.set(el.dataset.pid, { left: r.left, top: r.top + sy, w: r.width, h: r.height }); });
+  const m = new Map();
+  document.querySelectorAll("[data-pid]").forEach(el => { const r = el.getBoundingClientRect(); m.set(el.dataset.pid, { left: r.left, top: r.top, w: r.width, h: r.height }); });
   return m;
 }
 function pdPlayFlip(before){
   if(!before || !before.size) return;
   if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const sy = window.scrollY, vh = window.innerHeight;
+  const vh = window.innerHeight;
   document.querySelectorAll("[data-pid]").forEach(el => {
     const o = before.get(el.dataset.pid); if(!o || !el.animate) return;
     const r = el.getBoundingClientRect();
-    const dx = o.left - r.left, dy = o.top - (r.top + sy);
+    const dx = o.left - r.left, dy = o.top - r.top;
     const sx = r.width > 0 ? o.w / r.width : 1, sc = r.height > 0 ? o.h / r.height : 1;
     const resized = Math.abs(sx - 1) > 0.04 || Math.abs(sc - 1) > 0.04;
     if(Math.abs(dx) < 1 && Math.abs(dy) < 1 && !resized) return;
     // skip posters that are far off-screen both before and after
-    const nowTop = r.top, oldTop = o.top - sy;
+    const nowTop = r.top, oldTop = o.top;
     if((nowTop > vh*2 || nowTop < -vh*2) && (oldTop > vh*2 || oldTop < -vh*2)) return;
     el.style.transformOrigin = "0 0";
     el.animate([{ transform: `translate(${dx}px,${dy}px)${resized ? ` scale(${sx},${sc})` : ""}` }, { transform: "none" }], { duration: 380, easing: "cubic-bezier(.22,.8,.24,1)" });
@@ -4288,13 +4346,13 @@ function pdToggle(id){
   const go = () => {
     libOpenMovie = libOpenMovie === id ? null : id;
     pdAnimateIn = !!libOpenMovie;
+    vf(`[data-pid="${id}"]`, null, libOpenMovie ? [".pd-block"] : [`[data-pid="${id}"]`]);
     render();
     pdAnimateIn = false;
     pdBusy = false;
     if(libOpenMovie){
       const it = movieById(libOpenMovie);
       if(it){ delete pdErr[it.tmdbId]; pdLoadExtras(it); }
-      setTimeout(pdScrollIntoView, 420);
     }
   };
   if(wasOpen){
@@ -4302,13 +4360,6 @@ function pdToggle(id){
     document.querySelectorAll(".pd-info,.pd-bar,.pd-foot").forEach(e => { e.classList.remove("pd-enter"); e.classList.add("pd-leave"); });
     setTimeout(go, 150);
   } else go();
-}
-function pdScrollIntoView(){
-  const el = document.querySelector(".pd-block"); if(!el) return;
-  const r = el.getBoundingClientRect(), vh = window.innerHeight;
-  const bottomLimit = vh - 100;   // keep clear of the tab bar
-  if(r.top < 12) window.scrollBy({ top: r.top - 12, behavior: "smooth" });
-  else if(r.bottom > bottomLimit) window.scrollBy({ top: Math.min(r.bottom - bottomLimit, r.top - 12), behavior: "smooth" });
 }
 /* ---------- v1.8.4 — full-screen poster viewer ----------
    Tap anywhere to close. Two fingers pinch-zoom (and pan while zoomed); one
@@ -5066,6 +5117,8 @@ function tvToggle(id){
   if(pdBusy) return;
   const wasOpen = tvOpen != null;
   const go = () => {
+    const tvWas = tvOpen === id, tvSel = `[data-pid="${id}"]`;
+    vf(tvWas ? ".tvc.open" : tvSel, tvWas ? tvSel : ".tvc.open", tvWas ? [tvSel] : [".tvc.open"]);
     tvOpen = tvOpen === id ? null : id;
     tvOpenSeason = null;
     pdAnimateIn = !!tvOpen;
@@ -5074,7 +5127,6 @@ function tvToggle(id){
     render();
     pdAnimateIn = false;
     pdBusy = false;
-    if(tvOpen) setTimeout(tvScrollIntoView, 420);
   };
   if(wasOpen){
     pdBusy = true;
@@ -5085,12 +5137,6 @@ function tvToggle(id){
     }
     setTimeout(go, 190);
   } else go();
-}
-function tvScrollIntoView(){
-  const el = document.querySelector(".tvc.open"); if(!el) return;
-  const r = el.getBoundingClientRect(), vh = window.innerHeight;
-  if(r.top < 12) window.scrollBy({ top: r.top - 12, behavior: "smooth" });
-  else if(r.top > vh - 260) window.scrollBy({ top: r.top - 12, behavior: "smooth" });
 }
 function tvPickSeason(key){
   tvOpenSeason = tvOpenSeason === key ? null : key;
@@ -5419,24 +5465,31 @@ function sxWatched(id, gid){
   if(g && g.watched < g.total) sxTap(id, gid, g.watched + 1);
 }
 // Expand / collapse with a short fade; the DOM is rebuilt by render(), so the collapse plays first.
-function sxToggle(set, key, animKey, sel){
+function sxToggle(set, key, animKey, sel, vfSel){
   if(sxBusy) return;
   const open = set.has(key);
-  const go = () => { if(open) set.delete(key); else { set.add(key); sxAnim = animKey; } render(); sxAnim = null; sxBusy = false; };
+  const go = () => { if(open) set.delete(key); else { set.add(key); sxAnim = animKey; } if(vfSel) vf(vfSel, vfSel, [vfSel]); render(); sxAnim = null; sxBusy = false; };
   if(open){
     const el = document.querySelector(sel);
     if(el){ sxBusy = true; el.classList.remove("sx-in"); el.classList.add("sx-out"); setTimeout(go, 150); } else go();
   } else go();
 }
-function sxToggleShow(id){ sxToggle(sxShowOpen, id, "s:" + id, `.sx-show[data-id="${id}"] .sx-body`); }
+function sxToggleShow(id){ sxToggle(sxShowOpen, id, "s:" + id, `.sx-show[data-id="${id}"] .sx-body`, `.sx-show[data-id="${id}"]`); }
 function sxToggleSeason(gid){
   const card = [...document.querySelectorAll(".sx-card")].find(c => c.getAttribute("onclick") === `sxToggleSeason('${gid}')`);
   const grid = card && card.querySelector(".sx-grid");
   if(grid) grid.dataset.k = gid;
-  sxToggle(sxSeasonOpen, gid, "c:" + gid, grid ? `.sx-grid[data-k="${gid}"]` : "#__none__");
+  sxToggle(sxSeasonOpen, gid, "c:" + gid, grid ? `.sx-grid[data-k="${gid}"]` : "#__none__", `.sx-card[onclick="sxToggleSeason('${gid}')"]`);
 }
-function sxToggleDone(gid){ if(sxDoneOpen.has(gid)) sxDoneOpen.delete(gid); else sxDoneOpen.add(gid); render(); }
-function sxShelfToggle(id){ sxShelfOpen = sxShelfOpen === id ? null : id; render(); }
+function sxToggleDone(gid){
+  const sel = `.sx-done[onclick="sxToggleDone('${gid}')"]`; vf(sel, sel, [sel]);
+  if(sxDoneOpen.has(gid)) sxDoneOpen.delete(gid); else sxDoneOpen.add(gid); render();
+}
+function sxShelfToggle(id){
+  const sel = `.sf-mini[onclick="sxShelfToggle('${id}')"]`;
+  vf(sel, sel, sxShelfOpen === id ? [sel] : [sel, ".sx-panel"]);
+  sxShelfOpen = sxShelfOpen === id ? null : id; render();
+}
 function sxToLibrary(id, gid){ splitAndMoveEpisodic(sxCat, id, "season", "library", [gid]); }
 
 /* ---------- v1.13.0 — Manga Library (AniList) ----------
@@ -5659,24 +5712,20 @@ function mgToggle(id){
   if(pdBusy) return;
   const wasOpen = mgOpen != null;
   const go = () => {
+    const mgSel = `[data-pid="${id}"]`;
+    vf(mgSel, mgSel, mgOpen === id ? [mgSel] : [mgSel, ".mg-panel"]);
     mgOpen = mgOpen === id ? null : id;
     pdAnimateIn = !!mgOpen;
     const it = mgOpen ? S.library.manga.find(x => x.id === mgOpen) : null;
     if(it){ delete tvErrMg[it.anilistId]; mgEnsureDetails(it); }
     render();
     pdAnimateIn = false; pdBusy = false;
-    if(mgOpen) setTimeout(mgScrollIntoView, 420);
   };
   if(wasOpen){
     pdBusy = true;
     const el = document.querySelector(".mg-panel"); if(el){ el.classList.remove("pd-enter"); el.classList.add("pd-leave"); }
     setTimeout(go, 190);
   } else go();
-}
-function mgScrollIntoView(){
-  const el = document.querySelector(".mg-panel"); if(!el) return;
-  const r = el.getBoundingClientRect(), vh = window.innerHeight;
-  if(r.top > vh * 0.55 || r.bottom > vh - 70) window.scrollBy({ top: Math.min(r.top - 90, r.bottom - vh + 90), behavior: "smooth" });
 }
 function mgSetStart(id){
   const it = S.library.manga.find(x => x.id === id), el = $("mgStart"); if(!it || !el) return;
