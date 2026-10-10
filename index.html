@@ -186,7 +186,6 @@ select{
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .entry.active{border-color:var(--accent)}
 .entry.complete{border-color:var(--moss)}
-.entry.timing{border-color:var(--rust)}
 .entry-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .entry-name{font-family:"Fraunces",serif;font-weight:600;font-size:17px;line-height:1.25}
 .entry-meta{color:var(--muted);font-size:11.5px;margin-top:3px}
@@ -212,16 +211,7 @@ select{
 .foot-links button{background:none;border:none;color:var(--muted);font-size:11.5px;font-family:inherit;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px}
 .foot-links button:hover{color:var(--ink)}
 
-/* timer */
-.timer-box{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  background:var(--bg);border:1px solid var(--rust);border-radius:12px;
-  padding:14px;margin-top:13px;
-}
-.timer-dot{width:8px;height:8px;border-radius:50%;background:var(--rust);animation:pulse 1.4s infinite}
-@media (prefers-reduced-motion: reduce){.timer-dot{animation:none}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.timer-time{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;letter-spacing:.02em}
 
 .stamp{
   position:absolute;top:-10px;right:14px;width:52px;height:52px;border-radius:50%;
@@ -767,7 +757,16 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .gm-goal>span{flex:1}.gm-goal input{width:90px;height:34px}
 .gm-hint{color:var(--muted-dim);font-size:11px;margin-left:6px}
 .gm-sub{font:600 10.5px "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin:14px 0 4px}
-.gm-dlc{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line-soft)}
+.gm-dlc{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line-soft)}
+.gm-dlc>span:first-child{flex:1;min-width:0}
+.gm-dlc input{width:70px;padding:6px 8px;font-size:13px}
+.gm-dlc .btn.small{padding:4px 9px;font-size:11px}
+.gm-dlcpick{max-height:46vh;overflow:auto;margin:6px 0 4px}
+.gm-dlcp{display:flex;align-items:center;gap:11px;padding:11px 4px;border-bottom:1px solid var(--line-soft);cursor:pointer}
+.gm-dlcp .ck{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--muted);flex:none;display:grid;place-items:center;font-size:14px;line-height:1;color:transparent}
+.gm-dlcp.on .ck{background:var(--brass);border-color:var(--brass);color:#1a1612}
+.gm-dlcp .nm{flex:1;min-width:0;font-size:14px}
+.gm-dlcp .sb{font-size:12px;color:var(--muted);margin-top:2px}
 .gm-acts{margin-top:14px;flex-wrap:wrap}
 .gm-rail{position:fixed;right:1px;top:96px;bottom:92px;width:14px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;font:600 9px "IBM Plex Mono",monospace;color:var(--muted);z-index:30}
 .gm-rail span{cursor:pointer;padding:0 2px}
@@ -811,72 +810,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 <nav class="tabbar" id="tabbar"></nav>
 
 <!-- game modal -->
-<div class="modal" id="gameModal">
-  <div class="sheet">
-    <h2 class="serif" id="formTitle">New game</h2>
-    <div class="hint">Target hours is just a starting estimate — playing past it expands the goal automatically. Only "Finished" truly completes it.</div>
-    <label>Game</label>
-    <input id="gname" placeholder="e.g. Metro Exodus">
-    <div class="triple-grid" id="g_statsGrid">
-      <div><label>Target hours</label><input id="goal" type="number" min=".1" step=".1" inputmode="decimal"></div>
-      <div><label>Played</label><input id="played" type="number" min="0" step=".1" value="0" inputmode="decimal"></div>
-      <div id="g_dlcSeriesWrap"><label id="g_dlcSeriesLabel">DLC · Series</label>
-        <div class="check-combo" id="g_dlcSeriesCell">
-          <label class="check-half" title="Has DLC"><input id="hasDlc" type="checkbox" onchange="toggleDlcSection()"></label>
-          <span class="check-divider" id="g_dlcSeriesDivider"></span>
-          <label class="check-half" title="Part of a series" id="g_seriesHalf"><input id="g_hasSeries" type="checkbox" onchange="toggleSeriesSection('g')"></label>
-        </div>
-      </div>
-    </div>
-    <div class="field-row" id="g_releaseRow">
-      <label>Release date</label>
-      <div class="release-row">
-        <div class="release-field"><input id="g_ry" type="number" inputmode="numeric" placeholder="YYYY"><span>Year</span></div>
-        <div class="release-field"><input id="g_rm" type="number" min="1" max="12" inputmode="numeric" placeholder="MM"><span>Month</span></div>
-        <div class="release-field"><input id="g_rd" type="number" min="1" max="31" inputmode="numeric" placeholder="DD"><span>Day</span></div>
-      </div>
-    </div>
-    <div id="dlcSection" class="dlc-section">
-      <b>DLC / extra content</b>
-      <div id="dlcRows"></div>
-      <button class="btn small" style="margin-top:6px" onclick="addDlcRow()">+ Add DLC</button>
-    </div>
-    <div id="g_seriesSection" class="field-row" style="display:none">
-      <label>Series</label>
-      <div class="row2">
-        <div><select id="g_seriesId"></select></div>
-        <div><input id="g_seriesOrder" type="number" min="1" inputmode="numeric" placeholder="Order #, e.g. 2"></div>
-      </div>
-    </div>
-    <div class="actions">
-      <button class="btn" onclick="closeModal('gameModal')">Cancel</button>
-      <button class="btn brass" onclick="saveGame()">Save entry</button>
-    </div>
-  </div>
-</div>
-
-<!-- manga modal -->
-<div class="modal" id="mangaModal">
-  <div class="sheet">
-    <h2 class="serif" id="mangaFormTitle">New manga</h2>
-    <div class="hint">Each volume counts as 60 minutes toward your stats.</div>
-    <label>Title</label>
-    <div class="name-row">
-      <input id="mgname" placeholder="e.g. Berserk">
-    </div>
-    <div class="compact-row">
-      <div style="flex:0 0 38px"><label>From vol</label><input id="mgfrom" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="1"></div>
-      <div style="flex:0 0 38px"><label>To vol</label><input id="mgto" class="compact-num-3" type="number" min="1" inputmode="numeric" placeholder="15"></div>
-    </div>
-    <div class="actions">
-      <button class="btn" onclick="closeModal('mangaModal')">Cancel</button>
-      <button class="btn brass" onclick="saveManga()">Save manga</button>
-    </div>
-  </div>
-</div>
-
-<!-- episodic modal (tv shows + anime) -->
-<!-- session modal (games + movies manual time) -->
 <div class="modal" id="tmdbModal">
   <div class="sheet">
     <h2 class="serif" id="tmdbTitle">Add movie</h2>
@@ -892,7 +825,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
     <h2 class="serif">Add game</h2>
     <input id="gmAddQ" placeholder="Search IGDB…" autocomplete="off" oninput="gmTyped()">
     <div class="tmdb-results" id="gmAddRes"></div>
-    <div class="actions"><button class="btn" onclick="gmAddManual()">Enter manually</button><button class="btn" onclick="closeModal('gmAddModal')">Cancel</button></div>
+    <div class="actions"><button class="btn" onclick="closeModal('gmAddModal')">Cancel</button></div>
     <div class="tmdb-credit">Game data from <a href="https://www.igdb.com" target="_blank" rel="noopener">IGDB.com</a>.</div>
   </div>
 </div>
@@ -929,6 +862,14 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
+<div class="modal" id="gmDlcModal">
+  <div class="sheet">
+    <h2 class="serif">DLC &amp; expansions</h2>
+    <div class="hint" id="gmDlcHint"></div>
+    <div class="gm-dlcpick" id="gmDlcList"></div>
+    <div class="actions"><button class="btn" onclick="gmDlcAll()">Select all</button><button class="btn" onclick="gmDlcSkip()">Skip</button><button class="btn accent" onclick="gmDlcDone()">Done</button></div>
+  </div>
+</div>
 <div class="modal" id="matchModal">
   <div class="sheet">
     <h2 class="serif" id="matchTitle">Match with TMDB</h2>
@@ -1072,21 +1013,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 </div>
 
 <!-- series modal (v1.7.0) — one named list per category, one named list per category -->
-<div class="modal" id="seriesModal">
-  <div class="sheet">
-    <h2 class="serif">Series</h2>
-    <div class="hint">Create named series here (e.g. "Life is Strange"), then mark titles as part of one from their Edit menu with an order number.</div>
-    <div id="seriesModalBody"></div>
-    <div class="row2" style="margin-top:12px">
-      <input id="newSeriesName" placeholder="New series name" onkeydown="if(event.key==='Enter') addSeries()">
-      <button class="btn brass" onclick="addSeries()">Add</button>
-    </div>
-    <div class="actions">
-      <button class="btn" onclick="closeModal('seriesModal')">Done</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <!-- move modal (v1.7.0) — partial move of seasons/arcs/volumes between books -->
@@ -1103,7 +1029,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.15.4"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.16.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1154,10 +1080,6 @@ function nameFlowRoot(done){
 }
 const fmtN = n => Number.isInteger(n) ? String(n) : n.toFixed(1);
 const fmtHM = mins => Math.floor(mins/60) + "h " + Math.round(mins%60) + "m";
-const fmtElapsed = ms => {
-  const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000), s = Math.floor((ms%60000)/1000);
-  return (h ? h+"h " : "") + String(m).padStart(2,"0") + "m " + String(s).padStart(2,"0") + "s";
-};
 
 // v1.3.0: every item, in both the Season book and the new Library book, gets
 // an extra optional field — releaseDate ({y,m,d}, all strings, any/all can
@@ -1193,8 +1115,12 @@ function normalizeState(raw){
       ratings: (x.ratings && typeof x.ratings === "object") ? x.ratings : null, ratingsAt: x.ratingsAt||0, ratingSrc: (typeof x.ratingSrc === "string" && x.ratingSrc) ? x.ratingSrc : null,
     } : {}),
   });
-  const normGames = list => (list||[]).map(g => ({...g, id:g.id||uid(), timerStart:g.timerStart||null,
-    dlcs:(g.dlcs||[]).map(d=>({...d,id:d.id||uid(),timerStart:d.timerStart||null})), ...withExtras(g,"games")})).map(g => (delete g.hype, delete g.tags, g));   // v1.14.0 — hype is gone; old values are dropped on load
+  // v1.16.0 — games: no timers; DLC only exists as IGDB-linked children (hand-typed DLC from before is dropped)
+  const normGames = list => (list||[]).map(g => {
+    const dlcs = (g.dlcs||[]).filter(d => d && d.igdbId).map(d => ({ id:d.id||uid(), igdbId:d.igdbId, name:d.name||"", type:"time", goal:+d.goal||0, played:+d.played||0, finished:!!d.finished, kind:d.kind||"" }));
+    const o = {...g, id:g.id||uid(), dlcs, hasDlc:dlcs.length>0, finished:!!g.finished, dlcAsked:!!g.dlcAsked, ...withExtras(g,"games")};
+    delete o.hype; delete o.tags; delete o.timerStart; return o;
+  });
   const normSimple = (list, cat) => (list||[]).map(x => {
     const item = {...x, id:x.id||uid(), originGroupId:x.originGroupId||null, ...withExtras(x,cat)};
     delete item.hype; delete item.tags;
@@ -1248,200 +1174,6 @@ function arrFor(cat, target){ return target==="library" ? S.library[cat] : S[cat
 // v1.4.0: only Games keep the full Y/M/D release date — every other category
 // only ever collects the year now (the month/day inputs were removed from
 // those modals), so these two helpers take the category into account.
-/* ---------- shared release-date field helpers (all add/edit modals) ---------- */
-function fillRelease(prefix, rd){
-  rd = rd || {};
-  $(prefix+"_ry").value = rd.y||"";
-  const rm = $(prefix+"_rm"), rdEl = $(prefix+"_rd");
-  if(rm) rm.value = rd.m||"";
-  if(rdEl) rdEl.value = rd.d||"";
-}
-function readRelease(prefix){
-  const rm = $(prefix+"_rm"), rdEl = $(prefix+"_rd");
-  return {
-    y: ($(prefix+"_ry").value||"").trim().slice(0,4),
-    m: rm ? (rm.value||"").trim().slice(0,2) : "",
-    d: rdEl ? (rdEl.value||"").trim().slice(0,2) : "",
-  };
-}
-
-let currentModalCategory = "games"; // which category's tag/series lists the open modal should read from
-
-/* ---------- v1.7.2 — drag-to-reorder for the Series manage list ----------
-   Pointer Events (not native HTML5 drag) so it works with touch on the phone,
-   not just mouse. The dragged row follows the finger via a translateY that's
-   recomputed against its own "natural" (untransformed) position every move,
-   so it stays correct even as the DOM reorders under it. Whichever sibling
-   gets displaced by a swap gets a short FLIP slide so the whole thing reads
-   as one continuous drag instead of a jump. */
-function flipMove(el, mutate){
-  const first = el.getBoundingClientRect();
-  mutate();
-  const last = el.getBoundingClientRect();
-  const dy = first.top - last.top;
-  if(dy){
-    el.style.transition = "none";
-    el.style.transform = `translateY(${dy}px)`;
-    requestAnimationFrame(()=>{
-      el.style.transition = "transform 160ms ease";
-      el.style.transform = "";
-    });
-  }
-}
-function bindManageRowDrag(container, list, afterReorder){
-  container.querySelectorAll(".tag-manage-row").forEach(row=>{
-    const handle = row.querySelector(".drag-handle");
-    if(!handle) return;
-    handle.addEventListener("pointerdown", function(e){
-      e.preventDefault();
-      try{ handle.setPointerCapture(e.pointerId); }catch(err){}
-      row.classList.add("dragging");
-      const initialClientY = e.clientY;
-      const initialNaturalTop = row.getBoundingClientRect().top;
-      let lastClientY = initialClientY;
-      function reposition(){
-        const saved = row.style.transform;
-        row.style.transform = "";
-        const naturalTopNow = row.getBoundingClientRect().top;
-        row.style.transform = saved;
-        const dy = lastClientY - initialClientY - (naturalTopNow - initialNaturalTop);
-        row.style.transform = `translateY(${dy}px)`;
-      }
-      reposition();
-      function onMove(ev){
-        lastClientY = ev.clientY;
-        reposition();
-        const rowRect = row.getBoundingClientRect();
-        const rowMid = rowRect.top + rowRect.height/2;
-        const rows = [...container.children];
-        const rowIdx = rows.indexOf(row);
-        for(let i=0;i<rows.length;i++){
-          const sib = rows[i];
-          if(sib===row) continue;
-          const sr = sib.getBoundingClientRect();
-          const sibMid = sr.top + sr.height/2;
-          if(i < rowIdx && rowMid < sibMid){
-            flipMove(sib, ()=>container.insertBefore(row, sib));
-            reposition();
-            break;
-          } else if(i > rowIdx && rowMid > sibMid){
-            flipMove(sib, ()=>container.insertBefore(row, sib.nextSibling));
-            reposition();
-            break;
-          }
-        }
-      }
-      function onUp(){
-        document.removeEventListener("pointermove", onMove);
-        document.removeEventListener("pointerup", onUp);
-        row.classList.remove("dragging");
-        row.style.transition = "transform 120ms ease";
-        row.style.transform = "";
-        const ids = [...container.children].map(r=>r.dataset.id);
-        const byId = new Map(list.map(x=>[x.id, x]));
-        const reordered = ids.map(id=>byId.get(id)).filter(Boolean);
-        list.length = 0;
-        list.push(...reordered);
-        persist();
-        setTimeout(()=>{ row.style.transition = ""; if(afterReorder) afterReorder(); }, 160);
-      }
-      document.addEventListener("pointermove", onMove);
-      document.addEventListener("pointerup", onUp);
-    });
-  });
-}
-
-/* ---------- v1.7.0 — Series ----------
-   A per-category named list, for grouping titles that
-   belong to the same series/saga with an order number. A title opts in via
-   partOfSeries + picks one series (seriesId) + a position (seriesOrder).
-   Two titles in the same category+series can't share an order number. */
-let currentSeriesModalCategory = "games";
-function openSeriesModal(category){
-  currentSeriesModalCategory = category;
-  renderSeriesModalBody();
-  $("seriesModal").classList.add("show");
-}
-function renderSeriesModalBody(){
-  const body = $("seriesModalBody");
-  const list = S.series[currentSeriesModalCategory];
-  body.classList.toggle("scroll-mask", list.length>8);
-  if(!list.length){
-    body.innerHTML = `<div class="tag-empty">No series yet. Add your first one below.</div>`;
-  } else {
-    body.innerHTML = list.map(s=>`
-      <div class="tag-manage-row" data-id="${s.id}">
-        <span class="drag-handle" title="Drag to reorder">⠿</span>
-        <input value="${esc(s.name)}" onchange="renameSeries('${s.id}',this.value)">
-        <button class="lib-dir-btn" onclick="deleteSeries('${s.id}')" title="Delete series">✕</button>
-      </div>
-    `).join("");
-    bindManageRowDrag(body, list, renderSeriesModalBody);
-  }
-}
-function addSeries(){
-  const input = $("newSeriesName");
-  const name = input.value.trim();
-  if(!name) return;
-  const cat = currentSeriesModalCategory;
-  if(S.series[cat].some(s=>s.name.toLowerCase()===name.toLowerCase())) return toast("That series already exists.");
-  S.series[cat].push({ id: uid(), name });
-  input.value = "";
-  persist();
-  renderSeriesModalBody();
-}
-function renameSeries(id, name){
-  name = name.trim();
-  const s = S.series[currentSeriesModalCategory].find(x=>x.id===id);
-  if(!s || !name){ renderSeriesModalBody(); return; }
-  s.name = name;
-  persist();
-}
-function deleteSeries(id){
-  if(!confirm("Delete this series? Titles marked as part of it will be unlinked, but otherwise untouched.")) return;
-  const cat = currentSeriesModalCategory;
-  S.series[cat] = S.series[cat].filter(s=>s.id!==id);
-  const scrub = list => list.forEach(x=>{ if(x.seriesId===id){ x.partOfSeries=false; x.seriesId=null; x.seriesOrder=null; } });
-  scrub(S[cat]); scrub(S.library[cat]);
-  persist();
-  renderSeriesModalBody();
-}
-function renderSeriesPicker(prefix, category){
-  const sel = $(prefix+"_seriesId");
-  if(!sel) return;
-  const list = S.series[category] || [];
-  sel.innerHTML = `<option value="">Choose a series…</option>` + list.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
-}
-function toggleSeriesSection(prefix){
-  const cb = $(prefix+"_hasSeries");
-  const sec = $(prefix+"_seriesSection");
-  if(cb && sec) sec.style.display = cb.checked ? "block" : "none";
-}
-function fillSeriesFields(prefix, category, item){
-  const cb = $(prefix+"_hasSeries");
-  renderSeriesPicker(prefix, category);
-  cb.checked = !!(item && item.partOfSeries);
-  $(prefix+"_seriesId").value = (item && item.seriesId) || "";
-  $(prefix+"_seriesOrder").value = (item && item.seriesOrder!=null) ? item.seriesOrder : "";
-  toggleSeriesSection(prefix);
-}
-function readSeriesFields(prefix){
-  const partOfSeries = $(prefix+"_hasSeries").checked;
-  const seriesId = partOfSeries ? ($(prefix+"_seriesId").value || null) : null;
-  const orderRaw = $(prefix+"_seriesOrder").value;
-  const seriesOrder = (partOfSeries && seriesId && orderRaw!=="") ? +orderRaw : null;
-  return { partOfSeries: !!(partOfSeries && seriesId), seriesId: (partOfSeries && seriesId) ? seriesId : null, seriesOrder };
-}
-// Checks every title in this category (both books) for a clash — same series,
-// same order number, different title. Returns the conflicting title's name,
-// or null if there's no conflict.
-function seriesOrderConflict(category, seriesId, order, excludeId){
-  if(!seriesId || order==null) return null;
-  const all = [...S[category], ...S.library[category]];
-  const hit = all.find(x => x.id!==excludeId && x.partOfSeries && x.seriesId===seriesId && x.seriesOrder===order);
-  return hit ? hit.name : null;
-}
-
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function toISODate(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function quarterStartFor(date){ const qm = Math.floor(date.getMonth()/3)*3; return new Date(date.getFullYear(), qm, 1); }
@@ -1638,7 +1370,7 @@ function seasonLengthDays(){
 }
 
 /* ---------- minute helpers per category ---------- */
-function gameMin(g){ return { goal:g.goal*60, played:g.played*60 }; }
+function gameMin(g){ return { goal:g.goal*60, played:(g.finished ? Math.max(g.played||0, g.goal||0) : (g.played||0))*60 }; }
 // v1.6.0 — timed-DLC minutes only (checklist DLCs have no length), used to fold
 // DLC time into the season-wide games totals/stat-bar without touching the
 // per-card gauge, which stays main-game-only so the existing "main cleared,
@@ -1646,7 +1378,7 @@ function gameMin(g){ return { goal:g.goal*60, played:g.played*60 }; }
 function dlcMin(g){
   let goal=0, played=0;
   if(g.hasDlc && g.dlcs && g.dlcs.length){
-    g.dlcs.forEach(d=>{ if(d.type==="time"){ goal += (d.goal||0)*60; played += (d.played||0)*60; } });
+    g.dlcs.forEach(d=>{ goal += (d.goal||0)*60; played += (d.finished ? Math.max(d.played||0, d.goal||0) : (d.played||0))*60; });
   }
   return { goal, played };
 }
@@ -1671,7 +1403,7 @@ function isSeasonItemDone(category, item){
   const {goal, played} = MIN_FN[category](item);
   if(!(goal>0 && played>=goal)) return false;
   if(category==="games"){
-    const hasDlcAny = item.hasDlc && (item.dlcs||[]).length>0;
+    const hasDlcAny = (item.dlcs||[]).length>0;
     return !hasDlcAny || allDlcCleared(item);
   }
   return true;
@@ -1751,8 +1483,7 @@ function moveItem(category, id, fromMode, toMode){
   const idx = fromArr.findIndex(x=>x.id===id);
   if(idx<0) return;
   const [item] = fromArr.splice(idx,1);
-  if(category==="games"){ item.timerStart = null; (item.dlcs||[]).forEach(d=>{ d.timerStart = null; }); } // never carry a running timer across books
-  const toArr = toMode==="library" ? S.library[category] : S[category];
+    const toArr = toMode==="library" ? S.library[category] : S[category];
   toArr.push(item);
   persist();
   toast(toMode==="library" ? "Moved to Library." : "Moved to Season.");
@@ -1957,112 +1688,23 @@ function renderTabBar(){
 }
 
 /* ============ GAMES ============ */
-function openGameModal(id=null, target="season"){
-  editId = id; modalTarget = target; currentModalCategory = "games";
-  $("dlcRows").innerHTML = "";
-  let g = null;
-  if(id){
-    g = arrFor("games",target).find(x=>x.id===id);
-    $("formTitle").textContent = "Edit game";
-    $("gname").value = g.name; $("goal").value = g.goal; $("played").value = g.played;
-    $("hasDlc").checked = !!g.hasDlc;
-    (g.dlcs||[]).forEach(addDlcRow);
-    fillRelease("g", g.releaseDate);
-  } else {
-    $("formTitle").textContent = "New game";
-    $("gname").value = ""; $("goal").value = ""; $("played").value = 0;
-    $("hasDlc").checked = false;
-    fillRelease("g", null);
-  }
-  fillSeriesFields("g", "games", g);
-  toggleDlcSection();
-  // v1.7.4 — a finished Season game has already had its series/release
-  // date scrubbed (see scrubFinishedMeta); hide those same fields here so the
-  // edit menu doesn't dangle empty, irrelevant controls.
-  const gFinished = target==="season" && id && isSeasonItemDone("games", g);
-  setVisible("g_releaseRow", !gFinished);
-  setVisible("g_seriesHalf", !gFinished);
-  setVisible("g_dlcSeriesDivider", !gFinished);
-  if(gFinished) $("g_seriesSection").style.display = "none";
-  $("g_dlcSeriesLabel").textContent = gFinished ? "DLC" : "DLC · Series";
-  $("gameModal").classList.add("show"); if(!id) $("gname").focus();
-}
-function toggleDlcSection(){ $("dlcSection").classList.toggle("open", $("hasDlc").checked); }
-function addDlcRow(d={id:"",name:"",type:"time",goal:0}){
-  const row = document.createElement("div");
-  row.className = "dlc-edit";
-  row.dataset.id = d.id || "";
-  const isCheck = d.type==="check";
-  row.innerHTML = `<input class="dn" placeholder="DLC name" value="${esc(d.name)}">
-    <select class="dt" onchange="const dg=this.closest('.dlc-edit').querySelector('.dg'); const c=this.value==='check'; dg.disabled=c; dg.style.display=c?'none':'';">
-      <option value="time" ${!isCheck?"selected":""}>Timed</option>
-      <option value="check" ${isCheck?"selected":""}>Checklist</option>
-    </select>
-    <input class="dg" type="number" min="0" step=".1" placeholder="Hours" value="${d.goal||""}" ${isCheck?"disabled":""} style="${isCheck?"display:none":""}">
-    <button class="btn small" onclick="this.parentNode.remove()">×</button>`;
-  $("dlcRows").appendChild(row);
-}
-function saveGame(){
-  const name = $("gname").value.trim();
-  const goal = +$("goal").value;
-  if(!name || goal <= 0) return toast("Give it a name and a target above 0.");
-  const played = Math.min(goal, Math.max(0, +$("played").value || 0));
-  const hasDlc = $("hasDlc").checked;
-  const releaseDate = readRelease("g");
-  const seriesFields = readSeriesFields("g");
-  if(seriesFields.partOfSeries){
-    const clash = seriesOrderConflict("games", seriesFields.seriesId, seriesFields.seriesOrder, editId);
-    if(clash) return toast(`"${clash}" already has that series order number.`);
-  }
-  const dlcs = [];
-  if(hasDlc){
-    document.querySelectorAll(".dlc-edit").forEach(r=>{
-      const n = r.querySelector(".dn").value.trim();
-      const type = r.querySelector(".dt").value;
-      if(!n) return;
-      dlcs.push({ id: r.dataset.id || uid(), name:n, type, goal: type==="time" ? Math.max(0, +r.querySelector(".dg").value || 0) : 0, played:0, done:false, timerStart:null });
-    });
-  }
-  const arr = arrFor("games", modalTarget);
-  if(modalTarget==="season") arr.forEach(g => g.lastPlayed = false);
-  if(editId){
-    const g = arr.find(x=>x.id===editId);
-    const oldDlcs = g.dlcs || [];
-    const mergedDlcs = dlcs.map(nd=>{
-      const match = oldDlcs.find(od=>od.id===nd.id);
-      if(!match) return nd;
-      const playedVal = nd.type==="time" ? Math.min(match.played||0, nd.goal||match.played||0) : 0;
-      return { ...nd, played: playedVal, done: match.done||false, timerStart: match.timerStart||null };
-    });
-    Object.assign(g, { name, goal, played, hasDlc, dlcs: mergedDlcs, releaseDate, ...seriesFields, lastPlayed: modalTarget==="season" ? played<goal : g.lastPlayed });
-    checkAutoComplete(g);
-  } else {
-    arr.push({ id: uid(), name, goal, played, hasDlc, dlcs, releaseDate, ...seriesFields, lastPlayed: modalTarget==="season" && played<goal, timerStart:null });
-  }
-  closeModal("gameModal"); persist(); toast("Entry saved.");
-}
-function checkAutoComplete(g){ if(g.goal>0 && g.played>=g.goal) g.lastPlayed = false; }
-function finishGameEarly(id){
-  const g = S.games.find(x=>x.id===id);
-  g.goal = Math.max(0.1, Math.round(g.played*10)/10);
-  g.played = g.goal;
-  g.lastPlayed = false;
+function finishGameEarly(id){   // target jumps to the playtime the launcher reports, and the game counts as cleared
+  const g = S.games.find(x=>x.id===id); if(!g) return;
+  g.goal = Math.max(0.1, Math.ceil((g.played||0)*10)/10);
+  g.finished = true; g.lastPlayed = false;
   persist(); toast(`Marked finished — target set to ${fmtN(g.goal)}h.`);
 }
-// v1.2.0: games use an *estimated* target, unlike other media's fixed runtime/
-// episode counts, so playing past it shouldn't silently finish the game —
-// only the "Finished" button should. If logged time pushes played past the
-// current goal, stretch the goal by 2h increments instead of capping played.
+// games use an *estimated* target, so playing past it never finishes a game on its own — the target
+// stretches by 2h instead, and only the Finished button clears it.
 function expandGoalIfNeeded(g){
   if(!(g.goal>0) || g.played<g.goal) return null;
   let added = 0;
   while(g.played >= g.goal){ g.goal = Math.round((g.goal+2)*10)/10; added += 2; }
-  return `Play time exceeded the target, ${added} hour${added===1?"":"s"} added.`;
+  return `Play time exceeded the target, ${added} hours added.`;
 }
 function finishDlcEarly(gameId, dlcId){
-  const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
-  d.goal = Math.max(0.1, Math.round((d.played||0)*10)/10);
-  d.played = d.goal;
+  const g = S.games.find(x=>x.id===gameId); const d = g && g.dlcs.find(x=>x.id===dlcId); if(!d) return;
+  d.goal = Math.max(0.1, Math.ceil((d.played||0)*10)/10); d.finished = true;
   persist(); toast("DLC marked finished.");
 }
 function removeGame(id, target="season"){
@@ -2071,10 +1713,6 @@ function removeGame(id, target="season"){
     else S.games = S.games.filter(g=>g.id!==id);
     persist();
   }
-}
-function toggleDlcDone(gameId, dlcId){
-  const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
-  d.done = !d.done; persist();
 }
 let dlcSectionsOpen = new Set(); // v1.7.0 — ids of games whose inline DLC list is expanded, tracked in JS
                                   // (not just a DOM class) so a full re-render — e.g. from starting a DLC
@@ -2086,80 +1724,12 @@ function toggleDlcsVisible(id){
   if(nowOpen) dlcSectionsOpen.add(id); else dlcSectionsOpen.delete(id);
 }
 
-/* timer */
-// v1.6.0 — timers can now run on a main game OR one of its timed DLCs, but
-// still only one at a time app-wide (same rule as before, just widened to
-// cover DLCs too).
-function getRunningTimer(){
-  for(const g of S.games){
-    if(g.timerStart) return { kind:"game", gameId:g.id, name:g.name, startTime:g.timerStart };
-    for(const d of (g.dlcs||[])){
-      if(d.timerStart) return { kind:"dlc", gameId:g.id, dlcId:d.id, name:g.name+" — "+d.name, startTime:d.timerStart };
-    }
-  }
-  return null;
-}
-function startTimer(id){
-  const running = getRunningTimer();
-  if(running && !(running.kind==="game" && running.gameId===id)) return toast(`Finish "${running.name}" first.`);
-  const g = S.games.find(x=>x.id===id);
-  g.timerStart = Date.now();
-  persist();
-}
-function stopTimer(id){
-  const g = S.games.find(x=>x.id===id);
-  if(!g.timerStart) return;
-  const elapsedMin = (Date.now()-g.timerStart)/60000;
-  const trimmed = elapsedMin*0.9;
-  g.played = g.played + trimmed/60;
-  g.timerStart = null;
-  S.games.forEach(x=>x.lastPlayed=false); g.lastPlayed = true;
-  const expandNote = expandGoalIfNeeded(g);
-  checkAutoComplete(g);
-  logAction("games", g.id, g.name, trimmed, "timer");
-  persist();
-  toast(`Logged ${fmtHM(Math.round(trimmed))} (10% trimmed for interruptions 😉)` + (expandNote ? ` — ${expandNote}` : ""));
-}
-function startDlcTimer(gameId, dlcId){
-  const running = getRunningTimer();
-  if(running && !(running.kind==="dlc" && running.gameId===gameId && running.dlcId===dlcId)) return toast(`Finish "${running.name}" first.`);
-  const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
-  d.timerStart = Date.now();
-  persist();
-}
-function stopDlcTimer(gameId, dlcId){
-  const g = S.games.find(x=>x.id===gameId); const d = g.dlcs.find(x=>x.id===dlcId);
-  if(!d.timerStart) return;
-  const elapsedMin = (Date.now()-d.timerStart)/60000;
-  const trimmed = elapsedMin*0.9;
-  d.played = (d.played||0) + trimmed/60;
-  d.timerStart = null;
-  logAction("games", g.id, `${d.name} (DLC of ${g.name})`, trimmed, "timer");
-  persist();
-  toast(`Logged ${fmtHM(Math.round(trimmed))} on ${d.name} (10% trimmed for interruptions 😉)`);
-}
-setInterval(()=>{
-  S.games.forEach(g=>{
-    if(g.timerStart){
-      const el = document.getElementById("timerDisplay-"+g.id);
-      if(el) el.textContent = fmtElapsed(Date.now()-g.timerStart);
-    }
-    (g.dlcs||[]).forEach(d=>{
-      if(d.timerStart){
-        const el = document.getElementById("dlcTimerDisplay-"+d.id);
-        if(el) el.textContent = fmtElapsed(Date.now()-d.timerStart);
-      }
-    });
-  });
-}, 1000);
-
-function dlcCleared(d){ return d.type==="check" ? !!d.done : (d.goal>0 && d.played>=d.goal); }
+function dlcCleared(d){ return !!d.finished || (d.goal>0 && d.played>=d.goal); }
 function combinedGamePct(g){
   const dlcs = g.dlcs||[];
   if(!dlcs.length) return null;
-  const timedDlcs = dlcs.filter(d=>d.type==="time");
   let totalGoal = g.goal||0, totalPlayed = Math.min(g.goal||0, g.played||0);
-  timedDlcs.forEach(d=>{ totalGoal += d.goal||0; totalPlayed += Math.min(d.goal||0, d.played||0); });
+  dlcs.forEach(d=>{ totalGoal += d.goal||0; totalPlayed += Math.min(d.goal||0, d.played||0); });
   if(totalGoal<=0) return null;
   return Math.min(100, totalPlayed/totalGoal*100);
 }
@@ -2167,40 +1737,24 @@ function gameCard(g){
   const {goal,played} = gameMin(g);
   const pct = goal ? played/goal*100 : 0;
   const done = pct >= 100;
-  const timing = !!g.timerStart;
-  const cls = "entry cat-games" + (g.lastPlayed && !timing ? " active":"") + (done?" complete":"") + (timing?" timing":"");
+  const cls = "entry cat-games" + (g.lastPlayed ? " active":"") + (done?" complete":"");
   const dlcs = g.dlcs||[];
-  const hasDlcAny = g.hasDlc && dlcs.length>0;
+  const hasDlcAny = dlcs.length>0;
   const dlcClearedCount = dlcs.filter(dlcCleared).length;
   const dlcAllCleared = hasDlcAny && allDlcCleared(g);
   const finalComplete = done && (!hasDlcAny || dlcAllCleared);
-  const dlcTag = g.hasDlc ? `<button class="foot-links" style="background:none;border:none;padding:0" onclick="toggleDlcsVisible('${g.id}')"><span class="dlc-tag">◆ ${dlcClearedCount}/${dlcs.length} cleared ▾</span></button>` : "<span></span>";
+  const dlcTag = hasDlcAny ? `<button class="foot-links" style="background:none;border:none;padding:0" onclick="toggleDlcsVisible('${g.id}')"><span class="dlc-tag">◆ ${dlcClearedCount}/${dlcs.length} cleared ▾</span></button>` : "<span></span>";
   const combined = combinedGamePct(g);
   const combinedLine = combined!==null ? `<div class="entry-meta2" style="margin-top:3px">Combined with DLC: ${combined.toFixed(0)}%</div>` : "";
   const dlcPendingNote = done && hasDlcAny && !dlcAllCleared ? `<div class="entry-meta2" style="color:var(--brass);margin-top:2px">◆ DLC not finished (${dlcClearedCount}/${dlcs.length})</div>` : "";
 
-  const dlcHtml = g.hasDlc ? `<div class="dlcs ${dlcSectionsOpen.has(g.id)?'open':''}" id="dlcs-${g.id}">${dlcs.map(d=>{
+  const dlcHtml = hasDlcAny ? `<div class="dlcs ${dlcSectionsOpen.has(g.id)?'open':''}" id="dlcs-${g.id}">${dlcs.map(d=>{
       const cleared = dlcCleared(d);
-      if(d.type==="check"){
-        return `<div class="dlc-row"><div class="dlc-top"><span class="dlc-name">${esc(d.name)}</span><span class="dlc-val">${cleared?"✓ Cleared":"Not cleared"}</span></div>${!cleared ? `<button class="btn small" style="margin-top:8px" onclick="toggleDlcDone('${g.id}','${d.id}')">Finished</button>` : ""}</div>`;
-      }
-      const dp = d.goal ? Math.min(100, d.played/d.goal*100) : 0;
-      const dTiming = !!d.timerStart;
-      const dControls = dTiming
-        ? `<div class="timer-box" style="margin-top:8px"><span class="timer-dot"></span><span class="timer-time mono" id="dlcTimerDisplay-${d.id}">${fmtElapsed(Date.now()-d.timerStart)}</span></div>
-           <button class="btn accent wide" style="margin-top:8px;--accent:#c1614a;--accent-text:#fff" onclick="stopDlcTimer('${g.id}','${d.id}')">■ Finished playing</button>`
-        : `<div class="btn-row" style="margin-top:8px"><button class="btn accent" onclick="startDlcTimer('${g.id}','${d.id}')">▶ Play</button><button class="btn small" onclick="openDlcSession('${g.id}','${d.id}')">Log time</button>${!cleared ? `<button class="btn small" onclick="finishDlcEarly('${g.id}','${d.id}')">Mark finished</button>` : ""}</div>`;
-      return `<div class="dlc-row"><div class="dlc-top"><span class="dlc-name">${esc(d.name)}</span><span class="dlc-val">${cleared?"✓ ":""}${fmtN(d.played)}h / ${fmtN(d.goal)}h</span></div><div class="dlc-bar"><div class="dlc-fill" style="width:${dp}%"></div></div>${dControls}</div>`;
+      const dp = d.goal ? Math.min(100, (d.finished ? 1 : d.played/d.goal)*100) : 0;
+      return `<div class="dlc-row"><div class="dlc-top"><span class="dlc-name">${esc(d.name)}</span><span class="dlc-val">${cleared?"✓ ":""}${fmtN(d.played||0)}h / ${d.goal ? fmtN(d.goal)+"h" : "no target"}</span></div><div class="dlc-bar"><div class="dlc-fill" style="width:${dp}%"></div></div>${!cleared && d.goal ? `<div class="btn-row" style="margin-top:8px"><button class="btn small" onclick="finishDlcEarly('${g.id}','${d.id}')">Mark finished</button></div>` : ""}</div>`;
     }).join("")}</div>` : "";
 
-  const controls = timing
-    ? `<div class="timer-box"><span class="timer-dot"></span><span class="timer-time mono" id="timerDisplay-${g.id}">${fmtElapsed(Date.now()-g.timerStart)}</span></div>
-       <button class="btn accent wide" style="margin-top:8px;--accent:#c1614a;--accent-text:#fff" onclick="stopTimer('${g.id}')">■ Finished playing</button>`
-    : (done ? "" : `<div class="controls controls-3">
-        <button class="btn accent" onclick="startTimer('${g.id}')">▶ Play</button>
-        <button class="btn" onclick="openSessionModal('games','${g.id}')">Log session</button>
-        <button class="btn" onclick="finishGameEarly('${g.id}')">Finished</button>
-      </div>`);
+  const controls = done ? "" : `<div class="btn-row" style="margin-top:12px"><button class="btn wide" onclick="finishGameEarly('${g.id}')">Finished</button></div>`;
 
   let stampsHtml = "";
   if(done){
@@ -2222,7 +1776,7 @@ function gameCard(g){
     ${combinedLine}
     ${dlcPendingNote}
     ${controls}
-    ${!timing ? `<div class="entry-foot">${dlcTag}<div class="foot-links">${!finalComplete ? `<button onclick="abandonItem('games','${g.id}')">Abandon</button>` : ""}<button onclick="moveItem('games','${g.id}','season','library')">To Library</button><button onclick="openGameModal('${g.id}')">Edit</button><button onclick="removeGame('${g.id}')">Remove</button></div></div>` : ""}
+    <div class="entry-foot">${dlcTag}<div class="foot-links">${!finalComplete ? `<button onclick="abandonItem('games','${g.id}')">Abandon</button>` : ""}<button onclick="moveItem('games','${g.id}','season','library')">To Library</button><button onclick="removeGame('${g.id}')">Remove</button></div></div>
     ${dlcHtml}
   </article>`;
 }
@@ -2244,24 +1798,6 @@ function markWatched(id){
 }
 
 /* ============ MANGA ============ */
-function openMangaModal(id=null, target="season"){
-  editId = id; modalTarget = target; currentModalCategory = "manga";
-  const m = id ? arrFor("manga",target).find(x=>x.id===id) : null;
-  $("mangaFormTitle").textContent = m ? "Edit manga" : "New manga";
-  $("mgname").value = m ? m.name : ""; $("mgfrom").value = m ? m.fromVol : ""; $("mgto").value = m ? m.toVol : "";
-  $("mangaModal").classList.add("show"); if(!id) $("mgname").focus();
-}
-function saveManga(){
-  const name = $("mgname").value.trim();
-  const fromVol = Math.max(1, +$("mgfrom").value || 0);
-  const toVol = Math.max(fromVol, +$("mgto").value || 0);
-  if(!name || fromVol<=0 || toVol<fromVol) return toast("Give it a title and a valid volume range.");
-  const arr = arrFor("manga", modalTarget);
-  const m = editId ? arr.find(x=>x.id===editId) : null;
-  if(m) Object.assign(m, { name, fromVol, toVol, volsRead: Math.min(m.volsRead||0, toVol-fromVol+1) });
-  else arr.push({ id: uid(), name, fromVol, toVol, volsRead:0, releaseDate:{ y:"", m:"", d:"" } });
-  closeModal("mangaModal"); persist(); toast("Manga saved.");
-}
 function removeManga(id, target="season"){
   if(confirm("Remove this manga?")){
     if(target==="library") S.library.manga = S.library.manga.filter(x=>x.id!==id);
@@ -2341,7 +1877,7 @@ function mgSStrip(m){
   return `<div class="mgs">${h}</div>`;
 }
 function mgSLinks(m){
-  return `<div class="sf-links">${mgSDone(m) ? "" : `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>`}${mgSDone(m) ? "" : `<button onclick="openMoveModal('manga','${m.id}','season','library')">To Library</button>`}<button onclick="openMangaModal('${m.id}','season')">Edit</button><button onclick="removeManga('${m.id}','season')">Remove</button></div>`;
+  return `<div class="sf-links">${mgSDone(m) ? "" : `<button onclick="abandonItem('manga','${m.id}')">Abandon</button>`}${mgSDone(m) ? "" : `<button onclick="openMoveModal('manga','${m.id}','season','library')">To Library</button>`}<button onclick="removeManga('${m.id}','season')">Remove</button></div>`;
 }
 const mgReadBtn = (m, vol, k) => `<button class="btn accent wide" style="--accent:${CAT.manga.color};--accent-text:${CAT.manga.text}" onclick="mgTap('${m.id}',${k})">✓ Read Vol ${vol}</button>`;
 function mgHeroHtml(m){
@@ -2906,18 +2442,10 @@ async function matchAuto(){
 }
 
 /* ---------- shared: session modal (games + movies + dlc) ---------- */
-function openSessionModal(category, id){
+function openSessionModal(category, id){   // movies only — game playtime comes from the launcher
   sessionCtx = {category, id};
-  const item = category==="games" ? S.games.find(x=>x.id===id) : S.movies.find(x=>x.id===id);
+  const item = S.movies.find(x=>x.id===id); if(!item) return;
   $("sessionName").textContent = item.name;
-  $("sh").value = 0; $("sm").value = 0;
-  $("sessionModal").classList.add("show");
-}
-function openDlcSession(gameId, dlcId){
-  const g = S.games.find(x=>x.id===gameId);
-  const d = g.dlcs.find(x=>x.id===dlcId);
-  sessionCtx = {category:"dlc", gameId, dlcId};
-  $("sessionName").textContent = g.name + " — " + d.name;
   $("sh").value = 0; $("sm").value = 0;
   $("sessionModal").classList.add("show");
 }
@@ -2925,26 +2453,11 @@ function setQuickMinutes(mins){ $("sh").value = Math.floor(mins/60); $("sm").val
 function addSession(){
   const mins = (+$("sh").value||0)*60 + (+$("sm").value||0);
   if(!mins) return toast("Enter some time first.");
-  let expandNote = null;
-  if(sessionCtx.category === "games"){
-    const g = S.games.find(x=>x.id===sessionCtx.id);
-    g.played = g.played + mins/60;
-    S.games.forEach(x=>x.lastPlayed=false); g.lastPlayed = true;
-    expandNote = expandGoalIfNeeded(g);
-    checkAutoComplete(g);
-    logAction("games", g.id, g.name, mins, "session");
-  } else if(sessionCtx.category === "dlc"){
-    const g = S.games.find(x=>x.id===sessionCtx.gameId);
-    const d = g.dlcs.find(x=>x.id===sessionCtx.dlcId);
-    d.played = Math.min(d.goal, (d.played||0) + mins/60);
-    logAction("games", g.id, g.name+" — "+d.name, mins, "session");
-  } else {
-    const m = S.movies.find(x=>x.id===sessionCtx.id);
-    m.watched = Math.min(m.length, m.watched + mins);
-    logAction("movies", m.id, m.name, mins, "session");
-  }
+  const m = S.movies.find(x=>x.id===sessionCtx.id); if(!m) return;
+  m.watched = Math.min(m.length, m.watched + mins);
+  logAction("movies", m.id, m.name, mins, "session");
   closeModal("sessionModal"); persist();
-  toast("Logged " + fmtHM(mins) + "." + (expandNote ? ` ${expandNote}` : ""));
+  toast("Logged " + fmtHM(mins) + ".");
 }
 
 /* ---------- season ---------- */
@@ -2991,8 +2504,64 @@ let cloudUser = null;               // {uid,email,displayName} | null
 let cloudSyncState = "offline";     // offline | syncing | synced | error
 let cloudLastSyncedAt = null;
 
+/* ---------- v1.16.0 launcher link ----------
+   The game launcher is the only thing that writes playtime (users/{uid}/launcherPlaytime/{igdbId}).
+   Expedition only shows it, and owns the beat-time target (users/{uid}/targets/{igdbId}, written by the app, read by the launcher).
+   The latest value per id is cached on this device so a game that gets matched to IGDB later picks its playtime up at once. */
+const LP_KEY = "expedition-launcher";
+let lpCache = (()=>{ try{ return JSON.parse(localStorage.getItem(LP_KEY) || "{}") || {}; }catch(e){ return {}; } })();
+function lpSet(it, c, isGame){
+  const h = Math.max(0, +c.h || 0), was = it.played || 0;
+  if(Math.abs(was - h) < 1e-6) return false;
+  it.played = h;
+  if(it.finished) it.goal = Math.max(0.1, Math.ceil(h*10)/10);   // a finished one stays at 100%
+  else expandGoalIfNeeded(it);                                    // playing past the target adds 2h at a time
+  if(isGame && h > was && Date.now() - (c.t || 0) < 6*3600*1000 && S.games.includes(it)){ S.games.forEach(x=>{ x.lastPlayed = false; }); it.lastPlayed = true; }
+  return true;
+}
+function lpApplyTo(g){
+  let ch = false;
+  const c = g.igdbId && lpCache[g.igdbId]; if(c && lpSet(g, c, true)) ch = true;
+  (g.dlcs || []).forEach(d => { const k = d.igdbId && lpCache[d.igdbId]; if(k && lpSet(d, k, false)) ch = true; });
+  return ch;
+}
+function lpApplyAll(){ let ch = false; gmAllGames().forEach(g => { if(lpApplyTo(g)) ch = true; }); return ch; }
+let lpTimer = null;
+function lpFlush(){
+  clearTimeout(lpTimer);
+  lpTimer = setTimeout(function go(){ if(gmBusy){ lpTimer = setTimeout(go, 800); return; } persist(); }, 500);   // never mid-animation
+}
+window.__cloudOnPlaytime = function(list){
+  list.forEach(x => { if(/^\d+$/.test(x.id)) lpCache[x.id] = { h: Math.max(0, +x.playedHours || 0), t: +x.updatedAt || 0 }; });
+  try{ localStorage.setItem(LP_KEY, JSON.stringify(lpCache)); }catch(e){}
+  if(lpApplyAll()) lpFlush();
+};
+function buildTargets(){
+  const out = {};
+  gmAllGames().forEach(g => {
+    if(!g.igdbId) return;
+    out[String(g.igdbId)] = { kind: "game", name: g.name || "", goalHours: +(+g.goal || 0).toFixed(2), parentIgdbId: null };
+    (g.dlcs || []).forEach(d => { if(d.igdbId) out[String(d.igdbId)] = { kind: "dlc", name: d.name || "", goalHours: +(+d.goal || 0).toFixed(2), parentIgdbId: g.igdbId }; });
+  });
+  return out;
+}
+// v1.16.0 — only titles linked to a database stay; asks once, with the names, before deleting anything
+let purgeAsked = false;
+const UNLINKED = { games: x => !x.igdbId, movies: x => !x.tmdbId, tv: x => !x.tmdbId, anime: x => !x.tmdbId, manga: x => !x.anilistId };
+function purgeUnlinked(){
+  const bad = [];
+  ALL_CATS.forEach(c => { (S[c] || []).concat(S.library[c] || []).forEach(x => { if(UNLINKED[c](x)) bad.push(x); }); });
+  if(!bad.length || purgeAsked) return;
+  purgeAsked = true;
+  const names = bad.slice(0, 12).map(x => "• " + (x.name || "Untitled")).join("\n") + (bad.length > 12 ? `\n…and ${bad.length - 12} more` : "");
+  if(!confirm(`${bad.length} title${bad.length === 1 ? " isn't" : "s aren't"} linked to a database, so ${bad.length === 1 ? "it" : "they"} can't stay in Expedition anymore:\n\n${names}\n\nOK deletes ${bad.length === 1 ? "it" : "them"}. Cancel keeps ${bad.length === 1 ? "it" : "them"} for now (use the Data buttons to link ${bad.length === 1 ? "it" : "them"} first if you want).`)) return;
+  ALL_CATS.forEach(c => { S[c] = (S[c] || []).filter(x => !UNLINKED[c](x)); S.library[c] = (S.library[c] || []).filter(x => !UNLINKED[c](x)); });
+  persist(); toast(`Deleted ${bad.length} unlinked title${bad.length === 1 ? "" : "s"}.`);
+}
+
 function applyCloudData(remote){
   S = normalizeState(remote);
+  lpApplyAll();
   localStorage.setItem(KEY, JSON.stringify(S));
   ensureSeason();
 }
@@ -3000,6 +2569,7 @@ function pushToCloud(){
   if(!cloudUser || !window.__cloudPush) return;
   cloudSyncState = "syncing";
   window.__cloudPush(S);
+  if(window.__cloudTargets) window.__cloudTargets(buildTargets());
 }
 function cloudSignIn(){
   if(!window.__cloudSignIn) return toast("Cloud sync isn't available right now.");
@@ -3040,6 +2610,7 @@ async function resolveCloudSync(){
     cloudSyncState = "error"; cloudSyncErrorCode = e && e.code;
   }
   render();
+  setTimeout(purgeUnlinked, 300);
 }
 window.__cloudOnAuthChange = function(user){
   cloudUser = user;
@@ -3166,7 +2737,7 @@ function seededRandom(seed){
 function buildRecoCandidates(){
   const list = [];
   S.games.forEach(g=>{
-    if(g.abandoned || g.timerStart) return;
+    if(g.abandoned) return;
     const {goal,played} = gameMin(g);
     const mainDone = goal>0 && played>=goal;
     if(!mainDone){
@@ -3506,7 +3077,7 @@ function buildGameGroups(){
     const {goal,played} = gameMin(g);
     const mainDone = goal>0 && played>=goal;
     if(!mainDone){ (g.lastPlayed ? active : inprog).push(g); return; }
-    const hasDlcAny = g.hasDlc && (g.dlcs||[]).length>0;
+    const hasDlcAny = (g.dlcs||[]).length>0;
     if(hasDlcAny && !allDlcCleared(g)) dlcPending.push(g);
     else cleared.push(g);
   });
@@ -3523,9 +3094,8 @@ function buildGameGroups(){
 function renderGames(){
   const totals = categoryTotals("games");
   let html = statbar("games", totals, {label:"DLCs", value:activeDlcCount()});
-  html += `<div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT.games.color};--accent-text:${CAT.games.text}" onclick="openGameModal()">+ New Entry</button></div>`;
   if(!S.games.length){
-    html += `<div class="empty"><span class="serif">This ledger is empty</span>Add the game you're playing right now to start the season.</div>`;
+    html += `<div class="empty"><span class="serif">This ledger is empty</span>Move games here from your Library to start the season.</div>`;
     $("app").innerHTML = html; return;
   }
   const {active, inprog, dlcPending, cleared, abandoned} = buildGameGroups();
@@ -3791,7 +3361,7 @@ function fmtHrMin(mins){
 // saveEpisodic doesn't require any; games/movies/manga always have their
 // numeric core set at save time, so there's nothing further to check there).
 function libraryOpenFn(category, id){
-  if(category==="games") return id ? `openGameModal('${id}','library')` : "openGameSearch()";
+  if(category==="games") return "openGameSearch()";
   if(category==="movies") return `openTmdbSearch('movies','library','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
   if(isShowCat(category)) return `openTmdbSearch('${category}','library','add')`;
   return `openMgSearch('library','add')`;   // manga
@@ -3932,6 +3502,7 @@ function igdbApply(g, x){   // fills the game; your hours, played time, DLC and 
   if(x.backdropId && !g.backdropCustom) g.backdropId = x.backdropId;   // a backdrop you picked yourself stays
   if(x.score != null){ g.igdbScore = x.score; if(!g.ratingCustom) g.rating = x.score; }
   if(x.released && !(g.releaseDate && g.releaseDate.y)) g.releaseDate = igdbDateParts(x.released);
+  lpApplyTo(g);   // playtime the launcher already reported for this IGDB id
 }
 function igdbSettingsHtml(){
   const has = !!igdbBase();
@@ -3965,7 +3536,6 @@ function openGameSearch(){
   $("gmAddQ").value = ""; $("gmAddRes").innerHTML = `<div class="tvc-note">Type a game name.</div>`;
   $("gmAddModal").classList.add("show"); $("gmAddQ").focus();
 }
-function gmAddManual(){ closeModal("gmAddModal"); openGameModal(null, "library"); }
 function gmTyped(){ clearTimeout(gmTimer); gmTimer = setTimeout(gmRunSearch, 350); }
 async function gmRunSearch(){
   const q = $("gmAddQ").value.trim(), seq = ++gmSeq;
@@ -3997,8 +3567,82 @@ function gmHoursOk(){
   closeModal("gmHoursModal"); gmAdd(gmHoursCtx, h);
 }
 function gmAdd(x, hours){
-  const g = { id: uid(), name: x.igdbName, goal: hours, played: 0, hasDlc: false, dlcs: [], releaseDate: { y: "", m: "", d: "" }, partOfSeries: false, seriesId: null, seriesOrder: null, lastPlayed: false, timerStart: null };
+  const g = { id: uid(), name: x.igdbName, goal: hours, played: 0, hasDlc: false, dlcs: [], dlcAsked: false, finished: false, releaseDate: { y: "", m: "", d: "" }, partOfSeries: false, seriesId: null, seriesOrder: null, lastPlayed: false };
   igdbApply(g, x); S.library.games.push(g); persist(); toast(`Added “${g.name}”.`);
+  gmDlcQueue = [g.id]; gmDlcNext();   // offers its DLC and expansions, if IGDB lists any
+}
+
+/* ---- DLC & expansions (v1.16.0): children of a game, each with its own IGDB id so the launcher can match them ---- */
+async function igdbDlcs(id){
+  const [g] = await igdbApi("games", `fields dlcs.name,dlcs.first_release_date,expansions.name,expansions.first_release_date,standalone_expansions.name,standalone_expansions.first_release_date; where id = ${+id};`);
+  const out = [], seen = new Set();
+  if(!g) return out;
+  [["DLC", g.dlcs], ["Expansion", g.expansions], ["Standalone expansion", g.standalone_expansions]].forEach(([kind, list]) => (list || []).forEach(x => {
+    if(!x || seen.has(x.id)) return; seen.add(x.id);
+    out.push({ igdbId: x.id, name: x.name || "", kind, year: x.first_release_date ? igdbDateParts(x.first_release_date).y : "", sec: x.first_release_date || 0, hours: 0 });
+  }));
+  if(!out.length) return out;
+  try{
+    const ts = await igdbApi("game_time_to_beats", `fields game_id,hastily,normally,completely; where game_id = (${out.map(x => x.igdbId).join(",")}); limit 100;`);
+    (ts || []).forEach(t => { const o = out.find(x => x.igdbId === t.game_id), s = t.normally || t.hastily || t.completely; if(o && s) o.hours = Math.max(1, Math.round(s / 1800) / 2); });
+  }catch(e){ if(["no-proxy", "bad-auth", "limit"].includes(e && e.message)) throw e; }
+  return out.sort((a, b) => (a.sec || 9e12) - (b.sec || 9e12));
+}
+let gmDlcCtx = null, gmDlcQueue = [], gmDlcEdit = null;
+async function gmDlcNext(){
+  while(gmDlcQueue.length){
+    const gid = gmDlcQueue.shift(), g = gmAllGames().find(x => x.id === gid);
+    if(!g || !g.igdbId) continue;
+    let list; try{ list = await igdbDlcs(g.igdbId); }catch(e){ toast(igdbErr(e)); gmDlcQueue = []; break; }
+    const have = gmHave().ids, mine = new Set((g.dlcs || []).map(d => d.igdbId));
+    list = list.filter(x => !have.has(x.igdbId) && !mine.has(x.igdbId));
+    g.dlcAsked = true;
+    if(!list.length) continue;
+    gmDlcCtx = { gid, list, sel: new Set() }; gmDlcRender(); $("gmDlcModal").classList.add("show");
+    persist(); return;
+  }
+  persist(); if($("gmDataModal").classList.contains("show")) gmDataRender();
+}
+function gmDlcRender(){
+  const c = gmDlcCtx; if(!c) return;
+  const g = gmAllGames().find(x => x.id === c.gid), n = c.list.length;
+  $("gmDlcHint").innerHTML = `<b>${esc(g ? g.name : "")}</b> has ${n} DLC / expansion${n === 1 ? "" : "s"} on IGDB. Tick the ones you want to track.`;
+  $("gmDlcList").innerHTML = c.list.map((x, i) => `<div class="gm-dlcp${c.sel.has(i) ? " on" : ""}" onclick="gmDlcToggle(${i})"><div class="ck">✓</div><div class="nm">${esc(x.name)}<div class="sb">${[x.kind, x.year, x.hours ? fmtN(x.hours) + "h" : "no time on IGDB"].filter(Boolean).join(" · ")}</div></div></div>`).join("");
+}
+function gmDlcToggle(i){ const c = gmDlcCtx; if(!c) return; if(c.sel.has(i)) c.sel.delete(i); else c.sel.add(i); gmDlcRender(); }
+function gmDlcAll(){ const c = gmDlcCtx; if(!c) return; if(c.sel.size === c.list.length) c.sel.clear(); else c.list.forEach((_, i) => c.sel.add(i)); gmDlcRender(); }
+function gmDlcSkip(){ gmDlcCtx = null; closeModal("gmDlcModal"); gmDlcNext(); }
+function gmDlcDone(){
+  const c = gmDlcCtx; if(!c) return closeModal("gmDlcModal");
+  const g = gmAllGames().find(x => x.id === c.gid);
+  if(g){
+    c.list.forEach((x, i) => { if(c.sel.has(i)) (g.dlcs = g.dlcs || []).push({ id: uid(), igdbId: x.igdbId, name: x.name, type: "time", goal: x.hours || 0, played: 0, finished: false, kind: x.kind }); });
+    g.hasDlc = (g.dlcs || []).length > 0; lpApplyTo(g);
+  }
+  gmDlcCtx = null; closeModal("gmDlcModal");
+  if(c.sel.size) toast(`Added ${c.sel.size} DLC.`);
+  gmDlcNext();
+}
+function gmDlcScan(quiet){
+  gmDlcQueue = gmAllGames().filter(g => g.igdbId && !g.dlcAsked).map(g => g.id);
+  if(!gmDlcQueue.length) return quiet ? null : toast("Every matched game has already been checked.");
+  toast(`Checking ${gmDlcQueue.length} game${gmDlcQueue.length === 1 ? "" : "s"} for DLC…`); gmDlcNext();
+}
+function gmDlcRowHtml(g, d){
+  if(gmDlcEdit === d.id) return `<div class="gm-dlc"><span>${esc(d.name)}</span><input id="gmDlcIn" type="number" min="0" step=".5" inputmode="decimal" value="${d.goal || ""}" placeholder="Hours" onclick="event.stopPropagation()"><button class="btn small accent" onclick="gmDlcGoalSave('${g.id}','${d.id}')">Save</button><button class="btn small ghost" onclick="gmDlcEdit=null;render()">Cancel</button></div>`;
+  const pl = d.played > 0 ? fmtN(Math.round(d.played * 10) / 10) + "h / " : "";
+  return `<div class="gm-dlc"><span>${esc(d.name)}</span><span>${pl}${d.goal ? fmtN(d.goal) + "h" : "no target"}</span><button class="btn small ghost" onclick="gmDlcGoalStart('${d.id}')">Edit</button><button class="btn small ghost danger" onclick="gmDlcRemove('${g.id}','${d.id}')">×</button></div>`;
+}
+function gmDlcGoalStart(did){ gmDlcEdit = did; render(); setTimeout(() => { const el = $("gmDlcIn"); if(el){ el.focus(); el.select(); } }, 30); }
+function gmDlcGoalSave(gid, did){
+  const g = gmAllGames().find(x => x.id === gid), d = g && g.dlcs.find(x => x.id === did), v = +$("gmDlcIn").value;
+  if(!d || !(v > 0)) return toast("Enter hours above 0.");
+  if(!d.finished && v <= (d.played || 0)) return toast(`Target must be above the ${fmtN(Math.round(d.played * 10) / 10)}h already played.`);
+  d.goal = v; gmDlcEdit = null; persist();
+}
+function gmDlcRemove(gid, did){
+  const g = gmAllGames().find(x => x.id === gid); if(!g || !confirm("Remove this DLC?")) return;
+  g.dlcs = g.dlcs.filter(x => x.id !== did); g.hasDlc = g.dlcs.length > 0; persist();
 }
 
 /* ---- Data menu: match the games you already have, refresh them all ---- */
@@ -4013,6 +3657,8 @@ function gmDataRender(){
   else if(igdbBase()){
     if(un) h += `<button class="data-row" onclick="gmMatchRun(false)"><div><b>Match ${un} game${un === 1 ? "" : "s"}</b><span>Find them on IGDB and fill in covers, descriptions and dates. Your hours, DLC and series stay as they are.</span></div><i>›</i></button>`;
     if(matched) h += `<button class="data-row" onclick="gmMatchRun(true)"><div><b>↻ Refresh all</b><span>Reload the data of the ${matched} matched games.</span></div><i>›</i></button>`;
+    const dn = all.filter(g => g.igdbId && !g.dlcAsked).length;
+    if(dn) h += `<button class="data-row" onclick="gmDlcScan()"><div><b>Find DLC &amp; expansions (${dn})</b><span>Check IGDB for the DLC and expansions of your matched games, then tick the ones you want.</span></div><i>›</i></button>`;
     if(gmBatch && gmBatch.failed) h += `<div class="tvc-note">${gmBatch.failed} couldn't be reached. Run it again to retry.</div>`;
   }
   if(gmPending.length) h += `<div class="set-head" style="margin-top:14px"><b>Needs your pick (${gmPending.length})</b></div>` + gmPending.map(p => `<div class="gm-pend"><div class="gm-pend-name">${esc(p.name)}</div>${p.cands.map(c => `<button class="gm-cand" onclick="gmPendPick('${p.id}',${c.id})">${esc(c.name)}${c.year ? ` (${c.year})` : ""}${c.kind ? ` · ${esc(c.kind)}` : ""}</button>`).join("")}${p.cands.length ? "" : `<div class="tvc-note">No results on IGDB.</div>`}<button class="gm-cand skip" onclick="gmPendSkip('${p.id}')">Skip this one</button></div>`).join("");
@@ -4037,6 +3683,7 @@ async function gmMatchRun(refresh){
     gmBatch.done++; gmDataRender();
   }
   gmBatch.running = false; persist(); gmDataRender();
+  if(!refresh) gmDlcScan(true);   // freshly matched games get their DLC offered straight away
 }
 async function gmPendPick(gid, iid){
   const g = gmAllGames().find(x => x.id === gid); if(!g) return;
@@ -4086,9 +3733,10 @@ function gmInfoHtml(g){
     ${(g.genres || []).length ? `<div class="gm-chips">${g.genres.slice(0, 5).map(x => `<span class="gm-chipx">${esc(x)}</span>`).join("")}</div>` : ""}
     ${desc ? `<div class="gm-desc${more ? "" : " clamp"}">${esc(desc)}</div>${desc.length > 240 ? `<button class="gm-more" onclick="gmToggleMore('${g.id}')">${more ? "Less" : "More"}</button>` : ""}` : `<div class="gm-meta">${g.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet. Use the Data button to match it."}</div>`}
     <div class="gm-goal">${goal}</div>
+    ${g.played > 0 ? `<div class="gm-goal"><span>Played <b>${fmtHM(Math.round(g.played * 60))}</b> <span class="gm-hint">from your launcher</span></span></div>` : ""}
     <div class="gm-goal"><span>Rating <b>${itemRating(g) != null ? itemRating(g) : "none"}</b>${g.ratingCustom ? ` <span class="gm-hint">your own</span>` : g.igdbScore != null ? ` <span class="gm-hint">IGDB critics</span>` : ""}</span><button class="btn small ghost" onclick="gmRate('${g.id}')">${itemRating(g) != null ? "Edit" : "Set"}</button></div>
-    ${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="gm-dlc"><span>${esc(d.name)}</span><span>${d.type === "check" ? "checklist" : fmtN(d.goal || 0) + "h"}</span></div>`).join("")}` : ""}
-    <div class="btn-row gm-acts">${btnH("accent", "gmMove", g.id, "To Season", `--accent:${CAT.games.color};--accent-text:${CAT.games.text}`)}${btnH("ghost", "gmBackdrop", g.id, "Change backdrop")}${btnH("ghost", "gmEdit", g.id, "Edit")}${btnH("ghost danger", "gmRemove", g.id, "Remove")}</div>
+    ${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => gmDlcRowHtml(g, d)).join("")}` : ""}
+    <div class="btn-row gm-acts">${btnH("accent", "gmMove", g.id, "To Season", `--accent:${CAT.games.color};--accent-text:${CAT.games.text}`)}${btnH("ghost", "gmBackdrop", g.id, "Change backdrop")}${btnH("ghost danger", "gmRemove", g.id, "Remove")}</div>
   </div></div></div>`;
 }
 /* ============ VIEW FIELD — the screen stays calm while things expand and collapse (v1.15.4) ============
@@ -4257,10 +3905,10 @@ function gmGoalStart(id){ gmGoalEdit = id; render(); setTimeout(() => { const el
 function gmGoalSave(id){
   const g = S.library.games.find(x => x.id === id), v = +$("gmGoalIn").value;
   if(!g || !(v > 0)) return toast("Enter hours above 0.");
-  g.goal = v; g.played = Math.min(g.played || 0, v); gmGoalEdit = null; persist();
+  if(!g.finished && v <= (g.played || 0)) return toast(`Target must be above the ${fmtN(Math.round(g.played * 10) / 10)}h already played.`);
+  g.goal = v; gmGoalEdit = null; persist();
 }
 function gmMove(id){ gmOpen = null; moveItem("games", id, "library", "season"); }
-function gmEdit(id){ openGameModal(id, "library"); }
 function gmRemove(id){ removeGame(id, "library"); }
 let gmRateId = null;
 function gmRate(id){   // your own rating, e.g. the Metacritic score typed in by hand
@@ -5554,7 +5202,7 @@ function renderMgModal(q){
   }
   $("mgmHint").textContent = link ? "Pick the right one — your volumes and progress stay exactly as they are." : "Search and tap the right one — finished series are added straight away.";
   $("mgmBody").innerHTML = `<input id="mgmQuery" placeholder="Search manga on AniList…" value="${esc(q || "")}" oninput="mgQueryChanged()" onkeydown="if(event.key==='Enter'){event.preventDefault();mgRunSearch();}" autocomplete="off"><div id="mgmResults" class="tmdb-results"></div>`;
-  $("mgmActions").innerHTML = (link ? "" : `<button class="btn" onclick="mgManual()">Enter manually</button>`) + `<button class="btn" onclick="closeModal('mgModal')">Cancel</button>`;
+  $("mgmActions").innerHTML = `<button class="btn" onclick="closeModal('mgModal')">Cancel</button>`;
   if(q) mgRunSearch(); else setTimeout(() => { const el = $("mgmQuery"); if(el) el.focus(); }, 60);
 }
 function mgQueryChanged(){ clearTimeout(mgTimer); mgTimer = setTimeout(mgRunSearch, 450); }
@@ -5575,7 +5223,6 @@ async function mgRunSearch(){
     }).join("") : `<div class="tmdb-msg">No manga found for “${esc(q)}”.</div>`;
   }catch(e){ if(seq === mgSeq) box.innerHTML = `<div class="tmdb-msg">${esc(alErrorText(e))}</div>`; }
 }
-function mgManual(){ closeModal("mgModal"); openMangaModal(null, mgS.target); }
 function mgApplyLink(it, r){
   it.anilistId = r.id; it.malId = r.malId; it.coverUrl = r.cover || it.coverUrl;
   if(r.score != null) it.rating = r.score;
@@ -6053,7 +5700,6 @@ function renderLibraryTab(category){
       <button class="lib-dir-btn" onclick="toggleLibSortDir()" title="Flip sort order">${libSortDir==="asc"?"↑":"↓"}</button>
     </div>`}
     ${isMovies ? `<button class="lib-tags-btn${fN?" active":""}" onclick="openFilterModal()" title="Filter movies"><svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h14l-5.2 6.2v4.6l-3.6 1.7v-6.3z"/></svg> Filter${fN?` (${fN})`:""}</button>` : ""}
-    ${(isMovies || isTv || isManga) ? "" : `<button class="lib-tags-btn" onclick="openSeriesModal('${category}')" title="Manage series"><span style="color:#7f9bc4;display:inline-flex">${SERIES_ICON_SVG}</span> Series</button>`}
     ${category==="games" ? `<button class="lib-tags-btn" onclick="openGameDataModal()" title="Match games to IGDB">${DATA_ICON} Data${gmUnmatched() ? ` (${gmUnmatched()})` : ""}</button>` : (isMovies || isTv || isManga) ? `<button class="lib-tags-btn" onclick="openDataModal('${category}')" title="Link titles and fetch ratings">${DATA_ICON} Data${dataCount(category)?` (${dataCount(category)})`:""}</button>` : ""}
   </div>`;
 
@@ -6151,7 +5797,9 @@ $("verTag").textContent = "v" + APP_VERSION;
   };
   window.addEventListener("scroll", () => { if(!tick){ tick = true; requestAnimationFrame(run); } }, { passive: true });
 })();
+lpApplyAll(); localStorage.setItem(KEY, JSON.stringify(S));
 render();
+setTimeout(purgeUnlinked, 400);
 </script>
 
 <!-- v1.2.0 cloud sync — Firebase needs ES module imports, so it lives in its
@@ -6164,7 +5812,7 @@ import {
   getRedirectResult, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, onSnapshot
+  getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, writeBatch
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -6176,7 +5824,7 @@ const firebaseConfig = {
   appId: "1:1013142560008:web:e1140057ebe4cb6d0420bd"
 };
 
-let auth, db, unsubSnapshot = null, lastKnownUpdatedAt = 0, pushTimer = null;
+let auth, db, unsubSnapshot = null, unsubPlay = null, lastKnownUpdatedAt = 0, pushTimer = null, tgtKnown = null, tgtTimer = null;
 
 try{
   const app = initializeApp(firebaseConfig);
@@ -6202,10 +5850,24 @@ function watchRemote(uid){
   }, err => console.error("Cloud listener error", err));
 }
 
+// v1.16.0 — the launcher writes users/{uid}/launcherPlaytime/{igdbId} ({playedHours, updatedAt}); the app only listens
+function watchPlaytime(uid){
+  if(unsubPlay) unsubPlay();
+  unsubPlay = onSnapshot(collection(db, "users", uid, "launcherPlaytime"), snap => {
+    const list = [];
+    snap.docChanges().forEach(ch => { if(ch.type !== "removed") list.push({ id: ch.doc.id, ...ch.doc.data() }); });
+    if(list.length && typeof window.__cloudOnPlaytime === "function") window.__cloudOnPlaytime(list);
+  }, err => console.error("Playtime listener error", err));
+}
+
 if(auth){
   onAuthStateChanged(auth, user => {
-    if(user) watchRemote(user.uid);
-    else if(unsubSnapshot){ unsubSnapshot(); unsubSnapshot = null; }
+    tgtKnown = null;
+    if(user){ watchRemote(user.uid); watchPlaytime(user.uid); }
+    else{
+      if(unsubSnapshot){ unsubSnapshot(); unsubSnapshot = null; }
+      if(unsubPlay){ unsubPlay(); unsubPlay = null; }
+    }
     if(typeof window.__cloudOnAuthChange === "function"){
       window.__cloudOnAuthChange(user ? {uid:user.uid, email:user.email, displayName:user.displayName, photoURL:user.photoURL} : null);
     }
@@ -6226,6 +5888,29 @@ window.__cloudSignIn = async function(){
     if(e && popupIssues.includes(e.code)) return signInWithRedirect(auth, provider);
     throw e;
   }
+};
+// v1.16.0 — the app writes users/{uid}/targets/{igdbId} ({kind, name, goalHours, parentIgdbId, igdbId, updatedAt}); only changes are sent
+window.__cloudTargets = function(map){
+  if(!auth || !auth.currentUser) return;
+  clearTimeout(tgtTimer);
+  tgtTimer = setTimeout(async () => {
+    try{
+      const col = collection(db, "users", auth.currentUser.uid, "targets");
+      const key = v => JSON.stringify([v.kind, v.name, v.goalHours, v.parentIgdbId == null ? null : v.parentIgdbId]);
+      if(!tgtKnown){ tgtKnown = new Map(); (await getDocs(col)).forEach(d => tgtKnown.set(d.id, key(d.data()))); }
+      const all = [];
+      Object.keys(map).forEach(id => { const k = key(map[id]); if(tgtKnown.get(id) !== k) all.push({ id, v: map[id], k }); });
+      let gone = [...tgtKnown.keys()].filter(id => !(id in map));
+      if(!Object.keys(map).length && gone.length > 3) gone = [];   // never wipe the list just because the app looked empty
+      gone.forEach(id => all.push({ id, del: true }));
+      for(let i = 0; i < all.length; i += 400){
+        const part = all.slice(i, i + 400), b = writeBatch(db);
+        part.forEach(o => { if(o.del) b.delete(doc(col, o.id)); else b.set(doc(col, o.id), { ...o.v, igdbId: +o.id, updatedAt: Date.now() }); });
+        await b.commit();
+        part.forEach(o => { if(o.del) tgtKnown.delete(o.id); else tgtKnown.set(o.id, o.k); });
+      }
+    }catch(e){ console.error("Targets sync failed", e); tgtKnown = null; }
+  }, 2000);
 };
 window.__cloudSignOut = function(){ return signOut(auth); };
 window.__cloudPullOnce = async function(){
