@@ -1008,7 +1008,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "1.16.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "1.16.3"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1117,7 +1117,6 @@ function normalizeState(raw){
     seasonStart: raw.seasonStart || "",
     archive: raw.archive || [],
     sessionLog: raw.sessionLog || [],
-    heroPin: (raw.heroPin && typeof raw.heroPin === "object") ? raw.heroPin : {},
     series: (()=>{ const s = normalizeNamedList(raw.series); s.movies = []; return s; })(),
     games: normGames(raw.games),
     movies: normSimple(raw.movies,"movies"),
@@ -2889,18 +2888,17 @@ function renderGames(){
 
 /* ---------- v1.9.0 — Season Movies page ----------
    Progress header, a "Watch next" hero (last one you watched, or a random pick kept until you move on), an In-progress group, an Up-next poster grid, and a Cleared shelf. */
+// v1.16.3 -- the Season movie hero is picked at random once and kept on this device until you
+// watch it, move it to the Library or remove it. It lives in its own local key, not in the synced
+// state, so a sync can never swap it out.
+const HERO_KEY = "expedition-hero";
 function pickMovieHero(incomplete){
   if(!incomplete.length) return null;
-  // the movie you last watched part of stays on top; otherwise a random one is picked and kept
-  // until you start another, finish it or remove it
-  const part = incomplete.filter(m => m.watched > 0).sort((a, b) => byActive(a, b) || (a.name || "").localeCompare(b.name || ""));
-  if(part.length) return part[0];
-  if(!S.heroPin) S.heroPin = {};
-  let pin = incomplete.find(m => m.id === S.heroPin.movies);
+  let id = null; try{ id = localStorage.getItem(HERO_KEY); }catch(e){}
+  let pin = incomplete.find(m => m.id === id);
   if(!pin){
     pin = incomplete[Math.floor(Math.random() * incomplete.length)];
-    S.heroPin.movies = pin.id;
-    S.updatedAt = Date.now(); localStorage.setItem(KEY, JSON.stringify(S)); if(cloudUser) pushToCloud();   // saved quietly, no redraw
+    try{ localStorage.setItem(HERO_KEY, pin.id); }catch(e){}
   }
   return pin;
 }
