@@ -421,6 +421,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 /* v1.9.1 — selected chip, sort menu, data menu, settings */
 .rate-chip.on{border-color:var(--brass);background:rgba(217,162,86,.14)}
 .rate-chip .rc-sub{margin-left:6px;color:var(--muted);font-size:11px}
+.rate-chip[disabled]{opacity:.45;cursor:default}
 .header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .settings-btn{width:34px;height:34px;flex-shrink:0;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .settings-btn:active{color:var(--brass);border-color:var(--brass)}
@@ -838,10 +839,14 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 </div>
 <div class="modal" id="gmRateModal">
   <div class="sheet">
-    <h2 class="serif">Rating</h2>
+    <h2 class="serif" id="gmRateTitle">Rating</h2>
     <div class="hint" id="gmRateHint"></div>
+    <div id="gmRateChips"></div>
+    <div class="rate-note" id="gmRateNote"></div>
+    <div class="hint" style="margin-top:14px">Your own rating</div>
     <input id="gmRateIn" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="0 – 100">
-    <div class="actions"><button class="btn accent" onclick="gmRateSave()">Save</button><button class="btn" id="gmRateReset" onclick="gmRateReset()">Reset</button><button class="btn" onclick="closeModal('gmRateModal')">Cancel</button></div>
+    <div class="actions"><button class="btn accent" onclick="gmRateSave()">Save mine</button><button class="btn" id="gmRateClear" onclick="gmRateClear()">Clear mine</button><button class="btn" onclick="closeModal('gmRateModal')">Close</button></div>
+    <div class="actions" style="margin-top:8px"><button class="btn" id="gmRateOc" onclick="gmOcRefetch(false)">↻ Refetch from OpenCritic</button><button class="btn" id="gmRateOc2" onclick="gmOcRefetch(true)">Wrong game? Search again</button></div>
   </div>
 </div>
 <div class="modal" id="gmBdModal">
@@ -1021,7 +1026,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "2.0.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.1.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1111,7 +1116,10 @@ function normalizeState(raw){
   const normGames = list => (list||[]).map(g => {
     const dlcs = (g.dlcs||[]).filter(d => d && d.igdbId).map(d => ({ id:d.id||uid(), igdbId:d.igdbId, name:d.name||"", type:"time", goal:+d.goal||0, played:+d.played||0, finished:!!d.finished, kind:d.kind||"" }));
     const o = {...g, id:g.id||uid(), dlcs, hasDlc:dlcs.length>0, finished:!!g.finished, dlcAsked:!!g.dlcAsked, ...withExtras(g,"games")};
-    delete o.hype; delete o.tags; delete o.timerStart; return o;
+    delete o.hype; delete o.tags; delete o.timerStart;
+    // v2.1.0 — a rating you typed yourself is kept as "your own" and stays the pick for that game until you change it
+    if(o.ratingCustom && o.rating != null){ if(o.ownRating == null) o.ownRating = o.rating; if(!o.ratingSrc) o.ratingSrc = "own"; }
+    return o;
   });
   const normSimple = (list, cat) => (list||[]).map(x => {
     const item = {...x, id:x.id||uid(), originGroupId:x.originGroupId||null, ...withExtras(x,cat)};
@@ -1143,7 +1151,7 @@ function normalizeState(raw){
       anime: normSimple(rawLib.anime,"anime"),
       manga: normSimple(rawLib.manga,"manga"),
     },
-    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), igdbProxy: String((raw.settings && raw.settings.igdbProxy) || "") },
+    settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), igdbProxy: String((raw.settings && raw.settings.igdbProxy) || ""), ocProxy: String((raw.settings && raw.settings.ocProxy) || "") },
     updatedAt: raw.updatedAt || 0,
   };
 }
@@ -1462,6 +1470,7 @@ function abandonItem(category, id){
   const fn = MIN_FN[category];
   const {goal,played} = fn(item);
   item.abandoned = true;
+  item.abandonedAt = Date.now();   // v2.1.0 — when, for all five categories (the Archive book will list abandoned media)
   item.abandonNote = describeAbandon(category, item, goal, played);
   item.abandonLogIndex = (S.sessionLog||[]).length; // marks "when" for the reco cooldown factor
   if(category==="games") item.lastPlayed = false;
@@ -1470,7 +1479,7 @@ function abandonItem(category, id){
 function restoreItem(category, id){
   const item = S[category].find(x=>x.id===id);
   item.abandoned = false; item.abandonNote = "";
-  delete item.abandonLogIndex;
+  delete item.abandonLogIndex; delete item.abandonedAt;
   persist(); toast("Restored — back in the mix.");
 }
 // v1.3.0 — move an item between the Season book and the Library book. Same
@@ -2487,8 +2496,8 @@ function buildTargets(){
   const out = {};
   gmAllGames().forEach(g => {
     if(!g.igdbId) return;
-    out[String(g.igdbId)] = { kind: "game", name: g.name || "", goalHours: +(+g.goal || 0).toFixed(2), parentIgdbId: null, finished: !!g.finished };
-    (g.dlcs || []).forEach(d => { if(d.igdbId) out[String(d.igdbId)] = { kind: "dlc", name: d.name || "", goalHours: +(+d.goal || 0).toFixed(2), parentIgdbId: g.igdbId, finished: !!d.finished }; });
+    out[String(g.igdbId)] = { kind: "game", name: g.name || "", goalHours: +(+g.goal || 0).toFixed(2), parentIgdbId: null, finished: !!g.finished, abandoned: !!g.abandoned };
+    (g.dlcs || []).forEach(d => { if(d.igdbId) out[String(d.igdbId)] = { kind: "dlc", name: d.name || "", goalHours: +(+d.goal || 0).toFixed(2), parentIgdbId: g.igdbId, finished: !!d.finished, abandoned: !!g.abandoned }; });
   });
   return out;
 }
@@ -3317,7 +3326,8 @@ async function igdbGameData(id){
 function igdbApply(g, x){   // fills the game; your hours, played time, DLC and series are never touched
   Object.assign(g, { igdbId: x.igdbId, description: x.description, developer: x.developer, publisher: x.publisher, genres: x.genres, coverId: x.coverId, igdbHours: x.hours });
   if(x.backdropId && !g.backdropCustom) g.backdropId = x.backdropId;   // a backdrop you picked yourself stays
-  if(x.score != null){ g.igdbScore = x.score; if(!g.ratingCustom) g.rating = x.score; }
+  if(x.score != null) g.igdbScore = x.score;
+  gmSyncRating(g);
   if(!(g.goal > 0) && x.hours > 0) g.goal = x.hours;   // a game added before release has no target: take IGDB's once it has one
   if(x.released) g.releaseDate = igdbDateParts(x.released);   // IGDB keeps release dates current, so it wins
   if(x.series){ g.igdbSeries = x.series.id || null; g.seriesName = x.series.name || ""; g.seriesChecked = true; }
@@ -3484,6 +3494,17 @@ function gmDataRender(){
     if(dn) h += `<button class="data-row" onclick="gmDlcScan()"><div><b>Find DLC &amp; expansions (${dn})</b><span>Check IGDB for the DLC and expansions of your matched games, then tick the ones you want.</span></div><i>›</i></button>`;
     if(gmBatch && gmBatch.failed) h += `<div class="tvc-note">${gmBatch.failed} couldn't be reached. Run it again to retry.</div>`;
   }
+  {   // v2.1.0 — OpenCritic scores
+    const left = ocQueue().length, have = all.filter(g => g.ocScore != null).length;
+    if(!ocBase()) h += `<div class="hint" style="margin-top:10px">Add your OpenCritic worker (Settings → API keys) to load critic scores.</div>`;
+    else if(ocRun && !ocRun.single){
+      h += `<div class="tvc-note" style="margin-top:10px">OpenCritic: ${ocRun.done} of ${ocRun.total}${ocRun.paused ? " · paused for today" : ""}</div><div class="actions"><button class="btn" onclick="ocRun && (ocRun.stop = true)">Stop</button></div>`;
+    }else{
+      h += `<div class="hint" style="margin-top:10px"><b>${have}</b> of ${all.length} games have an OpenCritic score.</div>`;
+      if(left) h += `<button class="data-row" onclick="ocBackfill(true)"><div><b>★ Fetch OpenCritic scores (${left})</b><span>Goes A–Z. The free plan allows about 25 new searches a day, so it stops when the limit is reached and carries on by itself on later visits. Scores are saved and never fetched twice.</span></div><i>›</i></button>`;
+      if(window.__ocLast && window.__ocLast.limited) h += `<div class="tvc-note">Today's free limit was reached. It continues tomorrow.</div>`;
+    }
+  }
   if(gmPending.length) h += `<div class="set-head" style="margin-top:14px"><b>Needs your pick (${gmPending.length})</b></div>` + gmPending.map(p => `<div class="gm-pend"><div class="gm-pend-name">${esc(p.name)}</div>${p.cands.map(c => `<button class="gm-cand" onclick="gmPendPick('${p.id}',${c.id})">${esc(c.name)}${c.year ? ` (${c.year})` : ""}${c.kind ? ` · ${esc(c.kind)}` : ""}</button>`).join("")}${p.cands.length ? "" : `<div class="tvc-note">No results on IGDB.</div>`}<button class="gm-cand skip" onclick="gmPendSkip('${p.id}')">Skip this one</button></div>`).join("");
   $("gmDataBody").innerHTML = h;
 }
@@ -3569,7 +3590,7 @@ function gmInfoHtml(g, ctx){   // ctx: "library", "season" or "hero" (the hero a
     ${sea ? `<div style="${accent}"><div class="gauge" style="margin:14px 0 6px"><div class="gauge-fill" style="width:${pct}%"></div></div><div class="gm-meta">${done ? "Finished in <b>" + fmtHM(Math.round(m.played)) + "</b>" : fmtHM(Math.round(Math.max(0, m.goal - m.played))) + " to clear · " + pct.toFixed(0) + "%"}</div></div>` : ""}
     ${cleared ? "" : `<div class="gm-goal">${goal}</div>
     ${g.played > 0 ? `<div class="gm-goal"><span>Played <b>${fmtHM(Math.round(g.played * 60))}</b> <span class="gm-hint">from your launcher</span></span></div>` : ""}
-    <div class="gm-goal"><span>Rating <b>${itemRating(g) != null ? itemRating(g) : "none"}</b>${g.ratingCustom ? ` <span class="gm-hint">your own</span>` : g.igdbScore != null ? ` <span class="gm-hint">IGDB critics</span>` : ""}</span><button class="btn small ghost" onclick="gmRate('${g.id}')">${itemRating(g) != null ? "Edit" : "Set"}</button></div>`}
+    <div class="gm-goal"><span>Rating <b>${itemRating(g) != null ? itemRating(g) : "none"}</b>${gmRateTag(g)}</span><button class="btn small ghost" onclick="gmRate('${g.id}')">${itemRating(g) != null ? "Edit" : "Set"}</button></div>`}
     ${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => gmDlcRowHtml(g, d)).join("")}` : ""}
     ${acts ? `<div class="btn-row gm-acts">${acts}</div>` : ""}
   </div></div></div>`;
@@ -3751,23 +3772,191 @@ function gmGoalSave(id){
 function gmMove(id){ gmOpen = null; moveItem("games", id, "library", "season"); }
 function gmRemove(id){ removeGame(id, "library"); }
 let gmRateId = null;
-function gmRate(id){   // your own rating, e.g. the Metacritic score typed in by hand
+/* ---------- v2.1.0 — game scores: OpenCritic first, IGDB second, your own when neither has one ---------- */
+const GM_SRC_LABEL = { oc: "OpenCritic", igdb: "IGDB critics", own: "Your own" };
+const gmIsGame = it => !!it && !it.tmdbId && !it.anilistId && (it.igdbId != null || it.ocScore != null || it.igdbScore != null);
+function gmScores(g){ return { oc: g.ocScore != null ? g.ocScore : null, igdb: g.igdbScore != null ? g.igdbScore : null, own: g.ownRating != null ? g.ownRating : null }; }
+function gmRatingInfo(g){
+  const sc = gmScores(g), pick = g.ratingSrc;
+  if(pick && sc[pick] != null) return { value: sc[pick], src: pick, pinned: true };
+  for(const k of ["oc", "igdb", "own"]) if(sc[k] != null) return { value: sc[k], src: k, pinned: false };
+  if(g.rating != null) return { value: g.rating, src: g.ratingCustom ? "own" : "igdb", pinned: false };   // a number stored by an older version
+  return { value: null, src: null, pinned: false };
+}
+function gmSyncRating(g){ g.rating = gmRatingInfo(g).value; }   // item.rating stays the plain stored copy of what shows
+function gmRateTag(g){ const i = gmRatingInfo(g); return i.value != null && i.src ? ` <span class="gm-hint">${GM_SRC_LABEL[i.src]}</span>` : ""; }
+function gmRate(id){   // tap a rating circle: which score shows, your own number, refetch from OpenCritic
   const g = gmAllGames().find(x => x.id === id); if(!g) return;
-  gmRateId = id;
-  $("gmRateHint").innerHTML = `<b>${esc(g.name)}</b><br>${g.igdbScore != null ? `IGDB's critic score is ${g.igdbScore}. ` : ""}Enter your own, for example the Metacritic score.`;
-  $("gmRateIn").value = g.rating != null ? g.rating : "";
-  $("gmRateReset").textContent = g.igdbScore != null ? "Use IGDB's" : "Clear"; $("gmRateReset").style.display = (g.ratingCustom || g.rating != null) ? "" : "none";
-  $("gmRateModal").classList.add("show"); $("gmRateIn").focus(); $("gmRateIn").select();
+  gmRateId = id; gmRateRender();
+  $("gmRateModal").classList.add("show");
+}
+function gmRateRender(){
+  const g = gmAllGames().find(x => x.id === gmRateId); if(!g) return;
+  const sc = gmScores(g), info = gmRatingInfo(g), busy = !!(ocRun && ocRun.single === g.id);
+  $("gmRateTitle").textContent = g.name;
+  $("gmRateHint").innerHTML = info.value != null
+    ? `Showing <b>${GM_SRC_LABEL[info.src]}</b> · <b>${info.value}</b>${info.pinned ? " · your pick for this game" : ""}`
+    : "No score yet from OpenCritic or IGDB. Type your own below.";
+  const chip = (k, lab) => `<button class="rate-chip${info.pinned && info.src === k ? " on" : ""}"${sc[k] == null ? " disabled" : ""} onclick="gmRatePick('${k}')">${lab}${sc[k] != null ? `<b>${sc[k]}</b>` : `<span class="rc-sub">none</span>`}</button>`;
+  const auto = ["oc", "igdb", "own"].find(k => sc[k] != null);
+  $("gmRateChips").innerHTML = `<div class="rate-chips"><button class="rate-chip${g.ratingSrc && sc[g.ratingSrc] != null ? "" : " on"}" onclick="gmRatePick('')">Automatic<span class="rc-sub">${auto ? GM_SRC_LABEL[auto] : "no score"}</span></button>${chip("oc", "OpenCritic")}${chip("igdb", "IGDB")}${chip("own", "Your own")}</div>`;
+  let note;
+  if(!ocBase()) note = "Add your OpenCritic worker in Settings → API keys to load OpenCritic scores.";
+  else if(busy) note = "Asking OpenCritic…";
+  else if(g.ocNone) note = "OpenCritic has no match for this game" + (g.ocAt ? ` (checked ${new Date(g.ocAt).toLocaleDateString()})` : "") + ".";
+  else if(g.ocId && g.ocScore == null) note = `OpenCritic lists ${g.ocName ? "“" + esc(g.ocName) + "”" : "this game"} but has no score yet.`;
+  else if(g.ocId) note = `OpenCritic match: ${esc(g.ocName || "")}${g.ocAt ? ` · fetched ${new Date(g.ocAt).toLocaleDateString()}` : ""}.`;
+  else note = "Not fetched from OpenCritic yet. The Data menu fetches them in A–Z order, or tap Refetch here.";
+  $("gmRateNote").innerHTML = note + (sc.igdb == null && sc.oc == null ? "" : " Automatic uses OpenCritic, then IGDB, then your own.");
+  $("gmRateIn").value = g.ownRating != null ? g.ownRating : "";
+  $("gmRateClear").style.display = g.ownRating != null ? "" : "none";
+  $("gmRateOc").disabled = !ocBase() || busy; $("gmRateOc2").style.display = g.ocId ? "" : "none"; $("gmRateOc2").disabled = !ocBase() || busy;
+}
+function gmRatePick(k){
+  const g = gmAllGames().find(x => x.id === gmRateId); if(!g) return;
+  g.ratingSrc = k || null; gmSyncRating(g); persist(); gmRateRender();
 }
 function gmRateSave(){
   const g = gmAllGames().find(x => x.id === gmRateId), v = $("gmRateIn").value.trim();
   if(!g || v === "" || !(+v >= 0 && +v <= 100)) return toast("Enter a rating from 0 to 100.");
-  g.rating = Math.round(+v); g.ratingCustom = true; closeModal("gmRateModal"); persist();
+  g.ownRating = Math.round(+v); g.ratingCustom = true; g.ratingSrc = "own"; gmSyncRating(g); persist(); gmRateRender();
+  toast("Showing your own rating for this game.");
 }
-function gmRateReset(){
+function gmRateClear(){
   const g = gmAllGames().find(x => x.id === gmRateId); if(!g) return;
-  g.ratingCustom = false; g.rating = g.igdbScore != null ? g.igdbScore : null; closeModal("gmRateModal"); persist();
+  g.ownRating = null; g.ratingCustom = false; if(g.ratingSrc === "own") g.ratingSrc = null;
+  g.rating = null; gmSyncRating(g); persist(); gmRateRender();
 }
+
+/* ---------- v2.1.0 — OpenCritic through your own Cloudflare Worker (opencritic-proxy.js, holds the RapidAPI key) ---------- */
+const ocBase = () => ((S.settings && S.settings.ocProxy) || "").trim().replace(/\/+$/, "");
+const OC_DAY_KEY = "expedition-oc-day", OC_AUTO_CAP = 22;   // the free plan allows 25 searches a day; automatic runs stop short of it
+let ocLast = 0, ocRun = null;
+function ocToday(){ return new Date().toISOString().slice(0, 10); }
+function ocSearchesToday(){ try{ const o = JSON.parse(localStorage.getItem(OC_DAY_KEY) || "{}"); return o.d === ocToday() ? (+o.n || 0) : 0; }catch(e){ return 0; } }
+function ocCountSearch(){ try{ localStorage.setItem(OC_DAY_KEY, JSON.stringify({ d: ocToday(), n: ocSearchesToday() + 1 })); }catch(e){} }
+async function ocApi(path){
+  const base = ocBase(); if(!base) throw new Error("no-proxy");
+  const wait = 450 - (Date.now() - ocLast); if(wait > 0) await sleep(wait);
+  ocLast = Date.now();
+  let r; try{ r = await fetch(base + path); }catch(e){ throw new Error("net"); }
+  if(r.status === 401 || r.status === 403) throw new Error("bad-auth");
+  if(r.status === 429) throw new Error("limit");
+  if(!r.ok) throw new Error("http " + r.status);
+  return r.json();
+}
+const ocErr = e => ({ "no-proxy": "Add your OpenCritic worker address in Settings → API keys.", "bad-auth": "OpenCritic refused the request. Check the RapidAPI key in your worker.", "limit": "OpenCritic's free daily limit is used up. It continues tomorrow.", "net": "Couldn't reach your OpenCritic worker. Check the address and your connection." }[e && e.message] || "Something went wrong talking to OpenCritic.");
+const ocScoreOf = d => { const v = d && d.topCriticScore; return (typeof v === "number" && v >= 0) ? Math.round(v) : null; };
+async function ocFindId(g){   // search by name; a clear name match wins, remakes that share a name are told apart by release year
+  ocCountSearch();
+  const rs = await ocApi("/game/search?criteria=" + encodeURIComponent(g.name || ""));
+  if(!Array.isArray(rs) || !rs.length) return null;
+  const n = gmNorm(g.name), exact = rs.filter(r => gmNorm(r.name) === n);
+  let cands = exact;
+  if(!cands.length){   // no exact name: accept a close one (one name contains the other and they are about the same length)
+    cands = rs.filter(r => { const m = gmNorm(r.name); return n.length >= 4 && m.length >= 4 && (m.includes(n) || n.includes(m)) && Math.min(m.length, n.length) / Math.max(m.length, n.length) >= 0.7; }).slice(0, 1);
+  }
+  if(!cands.length) return null;
+  const y = g.releaseDate && g.releaseDate.y;
+  if(cands.length > 1 && y){
+    for(const c of cands.slice(0, 3)){
+      const d = await ocApi("/game/" + c.id);
+      if(d && d.firstReleaseDate && String(d.firstReleaseDate).slice(0, 4) === String(y)) return { id: c.id, name: d.name || c.name, detail: d };
+    }
+  }
+  return { id: cands[0].id, name: cands[0].name };
+}
+// result: "ok" (score saved), "noscore" (listed, no score yet), "none" (no match). Errors are thrown for the caller.
+async function ocFetchGame(g, searchAgain){
+  let id = searchAgain ? null : g.ocId, name = g.ocName, detail = null;
+  if(!id){
+    const f = await ocFindId(g);
+    if(!f){ g.ocId = null; g.ocName = ""; g.ocScore = null; g.ocNone = true; g.ocAt = Date.now(); gmSyncRating(g); return "none"; }
+    id = f.id; name = f.name; detail = f.detail || null;
+  }
+  if(!detail) detail = await ocApi("/game/" + id);
+  g.ocId = id; g.ocName = (detail && detail.name) || name || ""; g.ocScore = ocScoreOf(detail); g.ocNone = false; g.ocAt = Date.now();
+  gmSyncRating(g);
+  return g.ocScore != null ? "ok" : "noscore";
+}
+const OC_RETRY_NONE = 30 * 864e5, OC_RETRY_NOSCORE = 7 * 864e5;
+function ocQueue(){   // A–Z. Never-fetched games, plus a slow retry for ones OpenCritic had no match or no score for yet. Unreleased games wait.
+  const now = Date.now();
+  return gmAllGames().filter(g => {
+    if(g.ocScore != null) return false;
+    if(g.ocNone) return !gmUpcoming(g) && now - (g.ocAt || 0) > OC_RETRY_NONE;
+    if(g.ocId) return now - (g.ocAt || 0) > OC_RETRY_NOSCORE;
+    return !gmUpcoming(g);
+  }).sort((a, b) => (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" }));
+}
+function ocPaint(){
+  if($("gmDataModal").classList.contains("show")) gmDataRender();
+  if($("gmRateModal").classList.contains("show")) gmRateRender();
+}
+function ocSaveLater(){ const go = () => { if(gmBusy) return setTimeout(go, 800); persist(); }; go(); }   // never mid-animation
+async function ocBackfill(manual){
+  if(ocRun || !ocBase()) return;
+  const list = ocQueue(); if(!list.length) return;
+  ocRun = { done: 0, total: list.length, ok: 0, none: 0, noscore: 0, failed: 0, stop: false, paused: false, limited: false, fatal: "" };
+  ocPaint();
+  for(const q of list){
+    if(ocRun.stop) break;
+    const g = gmAllGames().find(x => x.id === q.id); if(!g){ ocRun.done++; continue; }   // still there after a sync? (the objects can be replaced)
+    if(!g.ocId && !manual && ocSearchesToday() >= OC_AUTO_CAP){ ocRun.paused = true; ocRun.done++; continue; }
+    try{
+      const r = await ocFetchGame(g);
+      ocRun[r === "ok" ? "ok" : r]++;
+    }catch(e){
+      const m = e && e.message;
+      if(m === "limit"){ ocRun.limited = true; break; }
+      if(m === "no-proxy" || m === "bad-auth"){ ocRun.fatal = ocErr(e); break; }
+      ocRun.failed++;
+    }
+    ocRun.done++;
+    if(ocRun.done % 4 === 0){ ocSaveLater(); }
+    ocPaint();
+  }
+  const r = ocRun; ocRun = null; ocSaveLater(); ocPaint();
+  if(manual || r.ok){
+    toast(r.fatal || (r.limited ? `OpenCritic's daily limit is reached. ${r.ok} score${r.ok === 1 ? "" : "s"} saved; the rest continue tomorrow.` : `OpenCritic: ${r.ok} score${r.ok === 1 ? "" : "s"} saved${r.paused ? ". Paused for today to stay under the free limit" : ""}.`));
+  }
+  window.__ocLast = r;
+}
+async function gmOcRefetch(searchAgain){
+  const g = gmAllGames().find(x => x.id === gmRateId); if(!g) return;
+  if(!ocBase()) return toast(ocErr({ message: "no-proxy" }));
+  if(ocRun) return toast("A fetch is already running. Try again when it finishes.");
+  ocRun = { single: g.id, done: 0, total: 1 }; gmRateRender();
+  try{
+    const r = await ocFetchGame(g, !!searchAgain);
+    toast(r === "ok" ? `OpenCritic score: ${g.ocScore}.` : r === "none" ? "OpenCritic has no match for this game." : "OpenCritic has the game but no score yet.");
+  }catch(e){ toast(ocErr(e)); }
+  ocRun = null; persist(); ocPaint();
+}
+function ocSettingsHtml(){
+  const has = !!ocBase();
+  return `<div class="tmdb-settings">
+    <div class="tmdb-set-head"><b>OpenCritic · game scores</b><span class="entry-meta2">${has ? "Worker saved" : "No worker yet"}</span></div>
+    ${has ? "" : `<div class="hint" style="margin:4px 0 8px">OpenCritic needs your own free Cloudflare Worker (opencritic-proxy.js) that holds your RapidAPI key. Paste its address here.</div>`}
+    <input id="setOcProxy" placeholder="${has ? "Paste a new address to replace it" : "https://your-opencritic-worker.workers.dev"}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <div class="account-row"><button class="btn small ghost" onclick="saveOcProxy()">Save and test</button>${has ? `<button class="btn small ghost" onclick="clearOcProxy()">Remove</button>` : ""}</div>
+    <div class="tmdb-credit">Critic scores from <a href="https://opencritic.com" target="_blank" rel="noopener">OpenCritic.com</a>.</div>
+  </div>`;
+}
+async function saveOcProxy(){
+  const v = ($("setOcProxy").value || "").trim().replace(/\/+$/, "");
+  if(!/^https:\/\/[^\s/]+(\/\S*)?$/.test(v)) return toast("Paste the full https:// address of your worker.");
+  try{
+    const r = await fetch(v + "/game/search?criteria=zelda");   // one search of the day's 25
+    if(r.status === 401 || r.status === 403) return toast("The worker answered, but RapidAPI refused it. Check the key and that you subscribed to the free Basic plan.");
+    if(r.status === 429) return toast("The worker works, but today's free searches are used up.");
+    if(!r.ok) throw new Error(r.status);
+    if(!Array.isArray(await r.json())) throw new Error("bad reply");
+  }catch(e){ return toast("Couldn't reach OpenCritic through that address. Check the worker code and the URL."); }
+  S.settings.ocProxy = v; persist(); refreshTmdbModals(); toast("OpenCritic connected.");
+  setTimeout(() => ocBackfill(false), 1500);
+}
+function clearOcProxy(){ if(!confirm("Remove the OpenCritic worker address? Scores already fetched stay.")) return; S.settings.ocProxy = ""; persist(); refreshTmdbModals(); }
 let gmBdCtx = null;
 async function gmBackdrop(id){
   const g = gmAllGames().find(x => x.id === id); if(!g) return;
@@ -4024,7 +4213,7 @@ function ratingFor(item){
   if(r[pref] != null) return r[pref];
   return autoRating(item);
 }
-function itemRating(item){ const v = ratingFor(item); return v != null ? v : (item.rating == null ? null : item.rating); }
+function itemRating(item){ if(gmIsGame(item)) return gmRatingInfo(item).value; const v = ratingFor(item); return v != null ? v : (item.rating == null ? null : item.rating); }
 function rateBadge(item, extra){
   const r = itemRating(item);
   return r != null ? `<div class="prate ${ratingClass(r)}${extra ? " " + extra : ""}" onclick="event.stopPropagation();openRatingMenu('${item.id}')" title="Choose rating source">${r}</div>` : "";
@@ -4268,9 +4457,9 @@ function settingsBodyHtml(){
       <div class="hint" style="margin:4px 0 0">Which site's score every title shows. You can still override a single title by tapping its rating circle.</div>
       <div class="rate-chips">${ratingSrcOptions().map(k => `<button class="rate-chip${k === cur ? " on" : ""}" onclick="setGlobalRatingSrc('${esc(k)}')">${esc(mdbLabel(k))}</button>`).join("")}</div>
       <div class="hint" style="margin:10px 0 0">A title with no score from that site falls back to Merged, then IMDb, then TMDB.</div></div>
-    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey","mdxProxy","igdbProxy"].filter(k => S.settings[k]).length} of 5 saved · TMDB, MDBList, OMDb, MangaDex, IGDB</span></div><i>›</i></button></div>`;
+    <div class="set-sec"><button class="data-row" onclick="openApiModal()"><div><b>API keys</b><span>${["tmdbKey","mdbKey","omdbKey","mdxProxy","igdbProxy","ocProxy"].filter(k => S.settings[k]).length} of 6 saved · TMDB, MDBList, OMDb, MangaDex, IGDB, OpenCritic</span></div><i>›</i></button></div>`;
 }
-function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml() + mdxSettingsHtml() + igdbSettingsHtml(); }
+function apiBodyHtml(){ return tmdbSettingsHtml() + mdbSettingsHtml() + omdbSettingsHtml() + mdxSettingsHtml() + igdbSettingsHtml() + ocSettingsHtml(); }
 function openApiModal(){ $("apiBody").innerHTML = apiBodyHtml(); $("apiModal").classList.add("show"); }
 function openSettingsModal(){ $("settingsBody").innerHTML = settingsBodyHtml(); $("settingsModal").classList.add("show"); }
 function setGlobalRatingSrc(k){
@@ -5554,6 +5743,7 @@ function libSortValue(category, item, key){
   if(key==="length") return libRemainingMin(category,item); // v1.8.2 — remaining, same as grouping
   if(key==="date"){
     const rd = item.releaseDate||{};
+    if(category==="games" && !rd.y) return "99999999";   // v2.1.0 — no date yet (upcoming) sorts as the newest, not the oldest
     return (rd.y||"0000") + String(rd.m||"00").padStart(2,"0") + String(rd.d||"00").padStart(2,"0");
   }
   return (item.name||"").toLowerCase();
@@ -5676,6 +5866,7 @@ document.querySelectorAll(".modal").forEach(function(m){
 });
 
 $("verTag").textContent = "v" + APP_VERSION;
+setTimeout(() => { try{ ocBackfill(false); }catch(e){} }, 9000);   // v2.1.0 — OpenCritic scores fill in by themselves, A–Z, within the free daily limit
 (function(){   // v1.13.1 — header hides while scrolling down, returns on any scroll up
   const hd = document.querySelector("header"); let last = 0, tick = false;
   const run = () => {
@@ -5788,7 +5979,7 @@ window.__cloudTargets = function(map){
   tgtTimer = setTimeout(async () => {
     try{
       const col = collection(db, "users", auth.currentUser.uid, "targets");
-      const key = v => JSON.stringify([v.kind, v.name, v.goalHours, v.parentIgdbId == null ? null : v.parentIgdbId, typeof v.finished === "boolean" ? v.finished : null]);   // an old document with no finished value counts as changed, so it gets an explicit false
+      const key = v => JSON.stringify([v.kind, v.name, v.goalHours, v.parentIgdbId == null ? null : v.parentIgdbId, typeof v.finished === "boolean" ? v.finished : null, typeof v.abandoned === "boolean" ? v.abandoned : null]);   // an old document with no finished value counts as changed, so it gets an explicit false
       if(!tgtKnown){ tgtKnown = new Map(); (await getDocs(col)).forEach(d => tgtKnown.set(d.id, key(d.data()))); }
       const all = [];
       Object.keys(map).forEach(id => { const k = key(map[id]); if(tgtKnown.get(id) !== k) all.push({ id, v: map[id], k }); });
