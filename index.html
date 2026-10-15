@@ -1026,7 +1026,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "2.1.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.2.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1090,6 +1090,59 @@ function normalizeNamedList(raw){
   NAMED_LIST_CATS.forEach(c=>{ out[c] = Array.isArray(raw[c]) ? raw[c].map(t=>({id:t.id||uid(),name:t.name||""})) : []; });
   return out;
 }
+/* ---------- v2.2.0 — finish dates ----------
+   games, DLC and movies: finishedDate {y,m,d} (strings, like releaseDate) — the exact day.
+   TV / anime: each finished season or arc keeps finishedYear. Manga: volYears {volumeNumber: year}.
+   undefined = not finished (or not stamped yet); an empty date / null year = finished before dates were kept ("unknown").
+   The date is stamped by persist() the moment the finish is saved, so it is the day you finished it. */
+const finDateNow = () => { const d = new Date(); return { y: String(d.getFullYear()), m: String(d.getMonth() + 1), d: String(d.getDate()) }; };
+const finGameDone = g => !!g.finished && !g.abandoned;
+const finMovieDone = m => !m.abandoned && m.length > 0 && m.watched >= m.length;
+const finGroupDone = g => g.total > 0 && g.watched >= g.total;
+const finMangaRead = m => Math.max(0, Math.min(m.volsRead || 0, (m.toVol || 0) - (m.fromVol || 0) + 1));
+function finEachItem(st, fn){
+  ALL_CATS.forEach(c => { (st[c] || []).forEach(x => fn(c, x)); ((st.library || {})[c] || []).forEach(x => fn(c, x)); });
+}
+// returns true if anything changed. mode "upgrade": mark what is already finished as unknown; mode "stamp": date new finishes, clear undone ones
+function finWalk(st, mode){
+  let ch = false;
+  const now = finDateNow(), yr = +now.y, unknown = { y: "", m: "", d: "" };
+  const setDate = (o, done) => {
+    if(done && o.finishedDate === undefined){ o.finishedDate = mode === "upgrade" ? { ...unknown } : { ...now }; ch = true; }
+    else if(!done && o.finishedDate !== undefined && !o.abandoned){ delete o.finishedDate; ch = true; }
+  };
+  finEachItem(st, (cat, x) => {
+    if(cat === "games"){
+      setDate(x, finGameDone(x));
+      (x.dlcs || []).forEach(d => setDate(d, !!d.finished));
+    }else if(cat === "movies"){
+      setDate(x, finMovieDone(x));
+    }else if(cat === "tv" || cat === "anime"){
+      if(x.abandoned) return;
+      (x.groups || []).forEach(g => {
+        const done = finGroupDone(g);
+        if(done && g.finishedYear === undefined){ g.finishedYear = mode === "upgrade" ? null : yr; ch = true; }
+        else if(!done && g.finishedYear !== undefined){ delete g.finishedYear; ch = true; }
+      });
+    }else if(cat === "manga"){
+      if(x.abandoned) return;
+      const read = finMangaRead(x), from = x.fromVol || 0, vy = x.volYears || {};
+      for(let k = 0; k < read; k++){
+        const v = String(from + k);
+        if(vy[v] === undefined){ vy[v] = mode === "upgrade" ? null : yr; ch = true; }
+      }
+      Object.keys(vy).forEach(v => { const n = +v; if(n < from || n >= from + read){ delete vy[v]; ch = true; } });   // un-read volumes lose their year
+      if(Object.keys(vy).length){ x.volYears = vy; } else if(x.volYears){ delete x.volYears; ch = true; }
+    }
+  });
+  return ch;
+}
+function finishDatesUpgrade(st){   // once per account: everything already finished gets "unknown" instead of today's date
+  if(!st.finishDatesV){ finWalk(st, "upgrade"); st.finishDatesV = 1; }
+  return st;
+}
+const stampFinishDates = () => finWalk(S, "stamp");
+
 function normalizeState(raw){
   raw = raw || {};
   const withExtras = (x, cat) => ({
@@ -1133,10 +1186,10 @@ function normalizeState(raw){
     return item;
   });
   const rawLib = raw.library || {};
-  return {
+  return finishDatesUpgrade({
     version: 5,
     seasonStart: raw.seasonStart || "",
-    archive: raw.archive || [],
+    archive: (raw.archive || []).map(a => (a && !a.id) ? { ...a, id: uid() } : a),
     sessionLog: raw.sessionLog || [],
     series: (()=>{ const s = normalizeNamedList(raw.series); s.movies = []; return s; })(),
     games: normGames(raw.games),
@@ -1152,8 +1205,9 @@ function normalizeState(raw){
       manga: normSimple(rawLib.manga,"manga"),
     },
     settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), igdbProxy: String((raw.settings && raw.settings.igdbProxy) || ""), ocProxy: String((raw.settings && raw.settings.ocProxy) || "") },
+    finishDatesV: raw.finishDatesV || 0,
     updatedAt: raw.updatedAt || 0,
-  };
+  });
 }
 function load(){
   let raw = null;
@@ -1234,10 +1288,10 @@ function splitEpisodicForRollover(list, category){
     if(groups.length>0 && unfinished.length===0){
       completed.push(e);
       finishedMin += finished.reduce((a,g)=>a+g.total,0) * e.epLen;
-      records.push({ name:e.name, category, rangeLabel: groupRangeLabel(category, e.groupType, finished), units: finished.length });
+      records.push({ name:e.name, category, rangeLabel: groupRangeLabel(category, e.groupType, finished), units: finished.length, finishedYears: finished.map(g=>g.finishedYear===undefined?null:g.finishedYear) });
     } else if(finished.length>0){
       finishedMin += finished.reduce((a,g)=>a+g.total,0) * e.epLen;
-      records.push({ name:e.name, category, rangeLabel: groupRangeLabel(category, e.groupType, finished), units: finished.length });
+      records.push({ name:e.name, category, rangeLabel: groupRangeLabel(category, e.groupType, finished), units: finished.length, finishedYears: finished.map(g=>g.finishedYear===undefined?null:g.finishedYear) });
       carry.push({ ...e, groups: unfinished });
     } else {
       carry.push(e);
@@ -1258,12 +1312,13 @@ function splitMangaForRollover(list){
     if(total>0 && read>=total){
       completed.push(m);
       finishedMin += read*60;
-      records.push({ name:m.name, rangeLabel: mangaRangeLabel(m.fromVol, m.toVol, total), units: total });
+      records.push({ name:m.name, rangeLabel: mangaRangeLabel(m.fromVol, m.toVol, total), units: total, volYears: m.volYears ? { ...m.volYears } : {} });
     } else if(read>0){
       const readFrom = m.fromVol, readTo = m.fromVol + read - 1;
       finishedMin += read*60;
-      records.push({ name:m.name, rangeLabel: mangaRangeLabel(readFrom, readTo, read), units: read });
-      carry.push({ ...m, fromVol: readTo+1, toVol: m.toVol, volsRead: 0 });
+      records.push({ name:m.name, rangeLabel: mangaRangeLabel(readFrom, readTo, read), units: read, volYears: m.volYears ? { ...m.volYears } : {} });
+      const rest = { ...m, fromVol: readTo+1, toVol: m.toVol, volsRead: 0 }; delete rest.volYears;
+      carry.push(rest);
     } else {
       carry.push(m);
     }
@@ -1305,8 +1360,8 @@ function seasonSnapshot(gamesList, moviesList, tvList, animeList, mangaList){
   ];
   return {
     finishedMin,
-    games: completedGames.map(g=>({name:g.name})),
-    movies: movieSplit.completed.map(m=>({name:m.name})),
+    games: completedGames.map(g=>({name:g.name, finishedDate:g.finishedDate||null})),
+    movies: movieSplit.completed.map(m=>({name:m.name, finishedDate:m.finishedDate||null})),
     episodic: [...tvSplit.records, ...animeSplit.records],
     manga: mangaSplit.records,
     abandoned: abandonedList,
@@ -1340,6 +1395,7 @@ function ensureSeason(){
   performRollover(qStartStr);
 }
 function persist(){
+  stampFinishDates();
   ensureSeason();
   scrubFinishedSeasonItems();
   S.updatedAt = Date.now();
@@ -2522,9 +2578,9 @@ function applyCloudData(remote){
   ensureSeason();
 }
 function pushToCloud(){
-  if(!cloudUser || !window.__cloudPush) return;
+  if(!cloudUser) return;
   cloudSyncState = "syncing";
-  window.__cloudPush(S);
+  if(c2.started) c2Schedule();   // v2.2.0 — only what changed is sent, one document per item
   if(window.__cloudTargets) window.__cloudTargets(buildTargets());
 }
 function cloudSignIn(){
@@ -2539,30 +2595,284 @@ function cloudSignIn(){
 function cloudSignOut(){
   if(window.__cloudSignOut) window.__cloudSignOut();
 }
+/* ---------- v2.2.0 — cloud storage v2: one Firestore document per item ----------
+   users/{uid}/items/{docId}  {cat, book, o, j, u, del?}   cat games|movies|tv|anime|manga|archive · book season|library|archive
+                              o = place in its list · j = the item as JSON · u = when it was written · del = removed
+   users/{uid}/state/core     {j, u}   the small stuff: season start, session log, series, settings, markers
+   users/{uid}/state/meta     {schema: 2, migratedAt}   written LAST by the migration, so a half-done move never counts as done
+   users/{uid}/state/main     the old single document: never written again, never deleted. It is the backup. */
+const C2_OUT = ["games","movies","tv","anime","manga","library","archive","updatedAt"];   // everything else in S is "core"
+const C2_OVERLAP = 15 * 60 * 1000;   // pull a little before the last sync so a clock that runs a bit off can't hide a change
+const c2 = { uid: null, known: { docs: {}, core: null, since: 0 }, started: false, running: false, again: false, timer: null, maxU: 0, syncedAt: 0, state: "idle", err: "", forceDel: false };
+function c2Hash(str){   // 53-bit string hash (cyrb53)
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for(let i = 0; i < str.length; i++){ const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+}
+const c2Key = uid => "expedition-sync2-" + uid;
+function c2LoadKnown(uid){ try{ const o = JSON.parse(localStorage.getItem(c2Key(uid)) || "null"); if(o && o.v === 1 && o.docs) return { docs: o.docs, core: o.core || null, since: +o.since || 0 }; }catch(e){} return null; }
+function c2SaveKnown(){
+  if(!c2.uid) return;
+  if(c2.syncedAt) c2.known.since = Math.max(c2.known.since || 0, c2.syncedAt - C2_OVERLAP);
+  try{ localStorage.setItem(c2Key(c2.uid), JSON.stringify({ v: 1, since: c2.known.since, core: c2.known.core, docs: c2.known.docs })); }catch(e){}
+}
+// keeps each list's order without rewriting everything: a title keeps its old place number while the numbers still ascend,
+// anything new or moved gets a number between its neighbours
+function c2Order(list){
+  const n = list.length; if(!n) return;
+  const o = new Array(n).fill(null); let prev = -Infinity;
+  for(let i = 0; i < n; i++){ const k = c2.known.docs[list[i].id]; if(k && typeof k[1] === "number" && k[1] > prev){ o[i] = k[1]; prev = k[1]; } }
+  let i = 0;
+  while(i < n){
+    if(o[i] != null){ i++; continue; }
+    let j = i; while(j < n && o[j] == null) j++;
+    const lo = i > 0 ? o[i - 1] : null, hi = j < n ? o[j] : null, k = j - i;
+    for(let t = 0; t < k; t++) o[i + t] = lo == null && hi == null ? t + 1 : lo == null ? hi - (k - t) : hi == null ? lo + t + 1 : lo + (t + 1) * (hi - lo) / (k + 1);
+    i = j;
+  }
+  let ok = true; for(let t = 1; t < n; t++) if(!(o[t] - o[t - 1] > 1e-9)) ok = false;
+  if(!ok) for(let t = 0; t < n; t++) o[t] = t + 1;
+  list.forEach((e, t) => { e.o = o[t]; });
+}
+function c2Entries(st){   // the state as a map of document id → {cat, book, item, j, h, o}
+  const out = new Map(), groups = [];
+  const add = (cat, book, arr) => {
+    const list = [];
+    (arr || []).forEach(item => {
+      const base = (cat + "_" + String(item && item.id != null ? item.id : "x")).replace(/[\/\s]/g, "_");
+      let id = base, n = 1; while(out.has(id)) id = base + "_" + (++n);
+      const j = JSON.stringify(item), e = { id, cat, book, item, j, h: c2Hash(j), o: 0 };
+      out.set(id, e); list.push(e);
+    });
+    groups.push(list);
+  };
+  ALL_CATS.forEach(c => { add(c, "season", st[c]); add(c, "library", (st.library || {})[c]); });
+  add("archive", "archive", st.archive);
+  groups.forEach(c2Order);
+  return out;
+}
+function c2CoreObj(st){ const o = {}; Object.keys(st).forEach(k => { if(!C2_OUT.includes(k)) o[k] = st[k]; }); return o; }
+function c2Core(st){ const j = JSON.stringify(c2CoreObj(st)); return { j, h: c2Hash(j) }; }
+function c2Assemble(entries, core){   // documents → the same shape normalizeState() reads
+  const raw = { ...(core || {}), library: {}, archive: [] };
+  ALL_CATS.forEach(c => { raw[c] = []; raw.library[c] = []; });
+  [...entries].sort((a, b) => a.o - b.o).forEach(e => {
+    if(e.cat === "archive") raw.archive.push(e.item);
+    else if(ALL_CATS.includes(e.cat)) (e.book === "library" ? raw.library[e.cat] : raw[e.cat]).push(e.item);
+  });
+  return raw;
+}
+function c2Schedule(){ clearTimeout(c2.timer); c2.timer = setTimeout(() => c2Push(false), 1500); }
+async function c2Push(force){
+  if(!c2.uid || !c2.started || !window.__fs2) return;
+  if(c2.running){ c2.again = true; return; }
+  c2.running = true;
+  try{
+    do{ c2.again = false; await c2PushOnce(force); force = false; }while(c2.again);
+    c2.err = ""; if(window.__cloudOnPushComplete) window.__cloudOnPushComplete(true);
+  }catch(e){
+    console.error("Cloud push failed", e);
+    c2.err = (e && e.code) || "";
+    if(window.__cloudOnPushComplete) window.__cloudOnPushComplete(false, e && e.code);
+  }
+  c2.running = false;
+}
+async function c2PushOnce(force){
+  const ent = c2Entries(S), core = c2Core(S), now = Math.max(Date.now(), c2.maxU + 1);
+  const ops = [], add = {};
+  ent.forEach(e => {
+    const k = c2.known.docs[e.id];
+    if(!k || k[0] !== e.h || k[1] !== e.o || k[3] !== e.cat || k[4] !== e.book){
+      ops.push({ coll: "items", id: e.id, data: { cat: e.cat, book: e.book, o: e.o, j: e.j, u: now } });
+      add[e.id] = [e.h, e.o, now, e.cat, e.book];
+    }
+  });
+  const gone = Object.keys(c2.known.docs).filter(id => !ent.has(id));
+  // a safety net, not a rule: if most of the cloud suddenly looks deleted here, ask instead of sending it
+  if(!force && !c2.forceDel && gone.length > 20 && gone.length > Object.keys(c2.known.docs).length / 2){
+    if(!confirm(`${gone.length} titles are no longer on this device. Remove them from the cloud too?\n\nOK removes them. Cancel brings them back from the cloud.`)){
+      const all = await window.__fs2.getAll(c2.uid, 0);
+      c2ApplyRemote(all.items, all.core, { force: true });
+      return;
+    }
+  }
+  c2.forceDel = false;
+  gone.forEach(id => { const k = c2.known.docs[id]; ops.push({ coll: "items", id, data: { del: true, cat: k[3], book: k[4], o: k[1], j: "", u: now } }); });
+  const coreChanged = !c2.known.core || c2.known.core.h !== core.h;
+  if(coreChanged) ops.push({ coll: "core", id: "core", data: { j: core.j, u: now } });
+  if(!ops.length) return;
+  await window.__fs2.write(c2.uid, ops);
+  Object.assign(c2.known.docs, add); gone.forEach(id => { delete c2.known.docs[id]; });
+  if(coreChanged) c2.known.core = { h: core.h, u: now };
+  c2.maxU = Math.max(c2.maxU, now);
+  c2SaveKnown();
+}
+// changes that arrive from the cloud (another device, or a full re-sync). Anything edited here and not sent yet stays as it is.
+function c2ApplyRemote(docs, coreDoc, opt){
+  opt = opt || {};
+  const map = c2Entries(S), touched = [];
+  let changed = false, core = null;
+  docs.forEach(d => {
+    if(d.u > c2.maxU) c2.maxU = d.u;
+    const k = c2.known.docs[d.id], local = map.get(d.id);
+    if(!opt.force && k && k[2] >= d.u) return;                  // that version (or a newer one) is already here
+    if(local && (!k || local.h !== k[0])) return;               // changed on this device and not sent yet: this version goes up instead
+    if(d.del){ if(local){ map.delete(d.id); changed = true; } delete c2.known.docs[d.id]; return; }
+    let item; try{ item = JSON.parse(d.j); }catch(e){ return; }
+    const h = c2Hash(d.j);
+    if(local && local.h === h && local.o === d.o && local.cat === d.cat && local.book === d.book){ c2.known.docs[d.id] = [h, d.o, d.u, d.cat, d.book]; return; }
+    map.set(d.id, { id: d.id, cat: d.cat, book: d.book, o: d.o, item, j: d.j, h });
+    c2.known.docs[d.id] = [h, d.o, d.u, d.cat, d.book]; touched.push(d.id); changed = true;
+  });
+  if(coreDoc){
+    if(coreDoc.u > c2.maxU) c2.maxU = coreDoc.u;
+    if(opt.force || !c2.known.core || coreDoc.u > c2.known.core.u){
+      if(!c2.known.core || c2Core(S).h === c2.known.core.h){   // the small stuff was not edited here since the last sync
+        try{ core = JSON.parse(coreDoc.j); }catch(e){ core = null; }
+      }
+    }
+  }
+  if(changed || core){
+    const raw = c2Assemble(map.values(), core || c2CoreObj(S));
+    raw.updatedAt = S.updatedAt || 0;
+    S = normalizeState(raw); lpApplyAll();
+    localStorage.setItem(KEY, JSON.stringify(S)); ensureSeason();
+    // what normalizeState adds is not an edit: remember the hashes of what is now stored here
+    const ent2 = c2Entries(S);
+    touched.forEach(id => { const e = ent2.get(id), k = c2.known.docs[id]; if(e && k) k[0] = e.h; });
+    if(core) c2.known.core = { h: c2Core(S).h, u: coreDoc.u };
+  }
+  c2SaveKnown();
+  return changed || !!core;
+}
+function c2OnWatch(ev){
+  if(ev.error){ console.error("Cloud listener error", ev.error); cloudSyncState = "error"; cloudSyncErrorCode = ev.error.code || null; return; }
+  if(ev.server) c2.syncedAt = Date.now();
+  try{
+    if(c2ApplyRemote(ev.items || [], ev.core || null)){
+      cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); cloudSyncErrorCode = null; render();
+    }
+  }catch(e){ console.error("Applying cloud changes failed", e); }
+}
+async function c2Start(){
+  c2.started = true; c2.state = "ready";
+  window.__fs2.watch(c2.uid, c2.known.since || 0, c2OnWatch);
+  c2Schedule();   // anything changed while this device was offline goes up now
+  c2LegacyCheck();
+}
+async function c2LegacyCheck(){   // an old version of the app on another device still writes the OLD document, which nothing reads any more
+  try{
+    const k = "expedition-legacy-check", last = +localStorage.getItem(k) || 0;
+    if(Date.now() - last < 864e5) return;
+    localStorage.setItem(k, String(Date.now()));
+    const [meta, lg] = await Promise.all([window.__fs2.metaGet(c2.uid), window.__fs2.legacyGet(c2.uid)]);
+    if(meta && lg && (lg.updatedAt || 0) > (meta.migratedAt || 0) + 120000) toast("Another device is still running an old version of Expedition. Update it, or its changes will not sync.");
+  }catch(e){}
+}
+// builds the app's state from every document the cloud has
+function c2Adopt(all){
+  const ents = []; c2.known = { docs: {}, core: null, since: 0 };
+  all.items.forEach(d => {
+    if(d.u > c2.maxU) c2.maxU = d.u;
+    if(d.del) return;
+    let item; try{ item = JSON.parse(d.j); }catch(e){ return; }
+    ents.push({ cat: d.cat, book: d.book, o: d.o, item });
+    c2.known.docs[d.id] = [c2Hash(d.j), d.o, d.u, d.cat, d.book];
+  });
+  let core = {}; if(all.core){ try{ core = JSON.parse(all.core.j) || {}; }catch(e){} }
+  const raw = c2Assemble(ents, core); raw.updatedAt = S.updatedAt || 0;
+  S = normalizeState(raw); lpApplyAll();
+  localStorage.setItem(KEY, JSON.stringify(S)); ensureSeason();
+  c2Entries(S).forEach(e => { const k = c2.known.docs[e.id]; if(k) k[0] = e.h; });
+  if(all.core){ c2.maxU = Math.max(c2.maxU, all.core.u || 0); c2.known.core = { h: c2Core(S).h, u: all.core.u || 0 }; }
+}
+// "keep this device's data": remember what the cloud has, so the next push overwrites it and removes what this device doesn't have
+function c2KeepDevice(all){
+  c2.known = { docs: {}, core: null, since: 0 };
+  all.items.forEach(d => { if(d.u > c2.maxU) c2.maxU = d.u; if(!d.del) c2.known.docs[d.id] = ["", d.o, d.u, d.cat, d.book]; });
+  if(all.core) c2.known.core = { h: "", u: all.core.u || 0 };
+  c2.forceDel = true;
+}
+async function c2Migrate(hadLegacy){
+  const fs = window.__fs2, uid = c2.uid;
+  if(hadLegacy){
+    if(!confirm("Expedition is moving your cloud data to a new storage format with one entry per title, so it can never hit the size limit.\n\nA backup file of your current data downloads first, and your old cloud copy stays untouched.\n\nContinue?")) return false;
+    try{ exportData(); }catch(e){}
+  }
+  c2.state = "migrating"; render();
+  const t0 = Date.now();
+  c2.known = { docs: {}, core: null, since: 0 };
+  const ent = c2Entries(S), core = c2Core(S), now = Math.max(Date.now(), c2.maxU + 1);
+  const pre = await fs.getAll(uid, 0), ops = [];
+  ent.forEach(e => ops.push({ coll: "items", id: e.id, data: { cat: e.cat, book: e.book, o: e.o, j: e.j, u: now } }));
+  pre.items.forEach(d => { if(!d.del && !ent.has(d.id)) ops.push({ coll: "items", id: d.id, data: { del: true, cat: d.cat, book: d.book, o: d.o, j: "", u: now } }); });   // leftovers of an earlier, interrupted attempt
+  ops.push({ coll: "core", id: "core", data: { j: core.j, u: now } });
+  await fs.write(uid, ops);
+  const back = await fs.getAll(uid, 0), live = new Map(back.items.filter(d => !d.del).map(d => [d.id, d]));
+  let bad = 0; ent.forEach(e => { const d = live.get(e.id); if(!d || c2Hash(d.j) !== e.h) bad++; });
+  if(bad || live.size !== ent.size || !back.core || c2Hash(back.core.j) !== core.h) throw new Error(`The check after copying found ${bad} mismatches (${live.size} of ${ent.size} titles). Nothing was marked as moved.`);
+  await fs.metaSet(uid, { schema: 2, migratedAt: Date.now(), items: ent.size, app: APP_VERSION });
+  ent.forEach(e => { c2.known.docs[e.id] = [e.h, e.o, now, e.cat, e.book]; });
+  c2.known.core = { h: core.h, u: now }; c2.maxU = now; c2.syncedAt = t0;
+  c2SaveKnown();
+  toast(`Cloud storage upgraded: ${ent.size} titles moved.`);
+  return true;
+}
+async function c2Resync(){   // Re-sync button: send what is waiting, then take everything the cloud has
+  if(!c2.started) return toast("Cloud sync isn't ready yet.");
+  try{
+    await c2Push(false);
+    const all = await window.__fs2.getAll(c2.uid, 0);
+    const ch = c2ApplyRemote(all.items, all.core, { force: true });
+    c2.syncedAt = Date.now(); c2SaveKnown();
+    cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); cloudSyncErrorCode = null;
+    toast(ch ? "Re-synced: changes from the cloud applied." : "Re-synced: everything already matches.");
+    render();
+  }catch(e){ console.error(e); toast("Re-sync didn't work. Check your connection and try again."); }
+}
+
 let cloudSyncErrorCode = null;
 async function resolveCloudSync(){
+  const uid = cloudUser.uid, fs = window.__fs2;
+  c2.uid = uid; c2.started = false; c2.state = "checking"; c2.err = ""; c2.maxU = 0; c2.syncedAt = 0; c2.forceDel = false;
   try{
-    const cloudData = window.__cloudPullOnce ? await window.__cloudPullOnce() : null;
-    const seededKey = "expedition-cloud-seeded-"+cloudUser.uid;
-    const alreadySeeded = localStorage.getItem(seededKey);
-    if(!cloudData){
-      pushToCloud();
-    } else if(!alreadySeeded){
-      const localHasData = ALL_CATS.some(c=>(S[c]||[]).length>0) || (S.archive||[]).length>0;
-      const differs = JSON.stringify({...S,updatedAt:0}) !== JSON.stringify({...normalizeState(cloudData),updatedAt:0});
-      if(localHasData && differs){
-        const useCloud = confirm("This Google account already has Expedition data saved in the cloud, and it's different from what's on this device.\n\nPress OK to use the cloud data (recommended).\nPress Cancel to keep this device's data — the cloud copy will be overwritten with it.");
-        if(useCloud) applyCloudData(cloudData); else pushToCloud();
-      } else {
-        applyCloudData(cloudData);
+    const seededKey = "expedition-cloud-seeded-" + uid, alreadySeeded = localStorage.getItem(seededKey);
+    const localHasData = ALL_CATS.some(c => (S[c] || []).length > 0 || (S.library[c] || []).length > 0) || (S.archive || []).length > 0;
+    const sameAs = raw => JSON.stringify({ ...S, updatedAt: 0 }) === JSON.stringify({ ...normalizeState(raw), updatedAt: 0 });
+    const ask = () => confirm("This Google account already has Expedition data saved in the cloud, and it's different from what's on this device.\n\nPress OK to use the cloud data (recommended).\nPress Cancel to keep this device's data — the cloud copy will be overwritten with it.");
+    const meta = await fs.metaGet(uid);
+    if(meta){
+      const kn = c2LoadKnown(uid);
+      if(kn){ c2.known = kn; c2.maxU = Math.max(0, ...Object.values(kn.docs).map(k => k[2] || 0), (kn.core && kn.core.u) || 0); }
+      else{   // this device has never synced the new way: take the full picture first
+        const all = await fs.getAll(uid, 0), hasCloud = all.items.some(d => !d.del);
+        if(!hasCloud){ c2.known = { docs: {}, core: null, since: 0 }; }
+        else if(localHasData && !alreadySeeded && !sameAs(c2Assemble(all.items.filter(d => !d.del).map(d => { try{ return { cat: d.cat, book: d.book, o: d.o, item: JSON.parse(d.j) }; }catch(e){ return null; } }).filter(Boolean), all.core ? JSON.parse(all.core.j) : {}))){
+          if(ask()) c2Adopt(all); else c2KeepDevice(all);
+        }else c2Adopt(all);
+        c2.syncedAt = Date.now(); c2SaveKnown();
       }
-    } else {
-      applyCloudData(cloudData);
+    }else{
+      const legacy = await fs.legacyGet(uid);
+      if(legacy){
+        if(!localHasData || alreadySeeded || sameAs(legacy)) applyCloudData(legacy);
+        else if(ask()) applyCloudData(legacy);
+      }
+      let moved = false;
+      try{ moved = await c2Migrate(!!legacy); }catch(e){ console.error("Migration failed", e); c2.state = "error"; c2.err = e && e.message || "The move to the new storage failed."; }
+      if(!moved){
+        if(c2.state !== "error") c2.state = "needs-migration";
+        cloudSyncState = "error"; render(); setTimeout(purgeUnlinked, 300); return;
+      }
     }
     localStorage.setItem(seededKey, "1");
+    await c2Start();
     cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); cloudSyncErrorCode = null;
   }catch(e){
     console.error("Cloud sync error", e);
+    c2.state = "error"; c2.err = (e && (e.code || e.message)) || "";
     cloudSyncState = "error"; cloudSyncErrorCode = e && e.code;
   }
   render();
@@ -2570,14 +2880,10 @@ async function resolveCloudSync(){
 }
 window.__cloudOnAuthChange = function(user){
   cloudUser = user;
+  if(!user){ c2.started = false; c2.uid = null; c2.state = "idle"; clearTimeout(c2.timer); }
   cloudSyncState = user ? "syncing" : "offline";
   render();
   if(user) resolveCloudSync();
-};
-window.__cloudOnRemoteUpdate = function(remoteData){
-  applyCloudData(remoteData);
-  cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); cloudSyncErrorCode = null;
-  render();
 };
 window.__cloudOnPushComplete = function(ok, errCode){
   cloudSyncState = ok ? "synced" : "error";
@@ -2600,11 +2906,15 @@ function cloudStatusHtml(){
   if(!cloudUser){
     return `<div class="cloud-box"><span class="entry-meta2">Sign in to back up and sync across devices.</span><button class="btn small ghost" onclick="cloudSignIn()">☁ Sign in with Google</button></div>`;
   }
+  if(c2.state === "needs-migration" || c2.state === "error" || c2.state === "migrating"){
+    const msg = c2.state === "migrating" ? "Moving your data to the new cloud storage…" : c2.state === "needs-migration" ? "Cloud sync is paused until the storage upgrade is done. Your data is safe on this device." : "Cloud sync problem: " + esc(c2.err || "unknown") + ". Your data is safe on this device.";
+    return `<div class="cloud-box"><span class="entry-meta2">☁ ${esc(cloudUser.email||cloudUser.displayName||"Signed in")}<br>${msg}</span>${c2.state === "migrating" ? "" : `<button class="btn small ghost" onclick="resolveCloudSync()">${c2.state === "needs-migration" ? "Upgrade now" : "Try again"}</button>`}</div>`;
+  }
   const label = cloudSyncState==="syncing" ? "Syncing…"
     : cloudSyncState==="error" ? "Sync error" + (cloudSyncErrorCode?` (${cloudSyncErrorCode})`:"") + " — will retry"
     : cloudLastSyncedAt ? "Synced "+timeAgo(cloudLastSyncedAt)
     : "Signed in";
-  return `<div class="cloud-box"><span class="entry-meta2">☁ ${esc(cloudUser.email||cloudUser.displayName||"Signed in")} · ${label}</span><button class="btn small ghost" onclick="cloudSignOut()">Sign out</button></div>`;
+  return `<div class="cloud-box"><span class="entry-meta2">☁ ${esc(cloudUser.email||cloudUser.displayName||"Signed in")} · ${label}</span><button class="btn small ghost" onclick="c2Resync()">Re-sync</button><button class="btn small ghost" onclick="cloudSignOut()">Sign out</button></div>`;
 }
 // v1.4.0 — account button lives in the header now (top-right, same line as the
 // title): a circle with the Google profile photo (or the first letter of the
@@ -5895,7 +6205,7 @@ import {
   getRedirectResult, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, writeBatch
+  getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, writeBatch, query, where
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -5921,17 +6231,47 @@ try{
 
 function docRefFor(uid){ return doc(db, "users", uid, "state", "main"); }
 
-function watchRemote(uid){
-  if(unsubSnapshot) unsubSnapshot();
-  unsubSnapshot = onSnapshot(docRefFor(uid), snap => {
-    if(!snap.exists()) return;
-    if(snap.metadata.hasPendingWrites) return; // our own write, not yet server-confirmed — skip the echo
-    const data = snap.data();
-    if((data.updatedAt||0) <= lastKnownUpdatedAt) return; // nothing newer than what we already have
-    lastKnownUpdatedAt = data.updatedAt||0;
-    if(typeof window.__cloudOnRemoteUpdate === "function") window.__cloudOnRemoteUpdate(data);
-  }, err => console.error("Cloud listener error", err));
-}
+// v2.2.0 — cloud storage v2 (one document per item). The app's own logic lives in the main script ("cloud storage v2");
+// this block only talks to Firestore: users/{uid}/items/{id}, users/{uid}/state/core, users/{uid}/state/meta, and the old
+// users/{uid}/state/main which is only ever READ now (it stays as a backup).
+let fsUnsubs = [];
+function fs2Stop(){ fsUnsubs.forEach(f => { try{ f(); }catch(e){} }); fsUnsubs = []; }
+const stateDoc = (uid, name) => doc(db, "users", uid, "state", name);
+window.__fs2 = {
+  async legacyGet(uid){ const s = await getDoc(docRefFor(uid)); return s.exists() ? s.data() : null; },
+  async metaGet(uid){ const s = await getDoc(stateDoc(uid, "meta")); return s.exists() ? s.data() : null; },
+  async metaSet(uid, data){ await setDoc(stateDoc(uid, "meta"), data); },
+  async getAll(uid, since){   // every item document (or only those written after `since`) plus the core document
+    const col = collection(db, "users", uid, "items");
+    const snap = await getDocs(since > 0 ? query(col, where("u", ">", since)) : col);
+    const items = []; snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    const cs = await getDoc(stateDoc(uid, "core"));
+    return { items, core: cs.exists() ? cs.data() : null };
+  },
+  async write(uid, ops){   // ops: [{coll: "items" | "core", id, data}], sent in several batches
+    let b = writeBatch(db), n = 0, bytes = 0;
+    for(const o of ops){
+      const ref = o.coll === "core" ? stateDoc(uid, "core") : doc(db, "users", uid, "items", o.id);
+      b.set(ref, o.data); n++; bytes += (o.data.j ? o.data.j.length : 0) + 200;
+      if(n >= 150 || bytes > 3000000){ await b.commit(); b = writeBatch(db); n = 0; bytes = 0; }
+    }
+    if(n) await b.commit();
+  },
+  watch(uid, since, cb){   // calls cb({items, core, server}) — server is true when the data came from the server, not the device cache
+    fs2Stop();
+    const col = collection(db, "users", uid, "items");
+    fsUnsubs.push(onSnapshot(since > 0 ? query(col, where("u", ">", since)) : col, snap => {
+      const items = [];
+      snap.docChanges().forEach(ch => { if(ch.type !== "removed" && !ch.doc.metadata.hasPendingWrites) items.push({ id: ch.doc.id, ...ch.doc.data() }); });
+      cb({ items, server: !snap.metadata.fromCache });
+    }, err => cb({ error: err })));
+    fsUnsubs.push(onSnapshot(stateDoc(uid, "core"), snap => {
+      if(snap.metadata.hasPendingWrites) return;
+      cb({ core: snap.exists() ? snap.data() : null, server: !snap.metadata.fromCache });
+    }, err => cb({ error: err })));
+  },
+  stop: fs2Stop,
+};
 
 // v1.16.0 — the launcher writes users/{uid}/launcherPlaytime/{igdbId} ({playedHours, updatedAt}); the app only listens
 function watchPlaytime(uid){
@@ -5946,9 +6286,9 @@ function watchPlaytime(uid){
 if(auth){
   onAuthStateChanged(auth, user => {
     tgtKnown = null;
-    if(user){ watchRemote(user.uid); watchPlaytime(user.uid); }
+    if(user){ watchPlaytime(user.uid); }
     else{
-      if(unsubSnapshot){ unsubSnapshot(); unsubSnapshot = null; }
+      fs2Stop();
       if(unsubPlay){ unsubPlay(); unsubPlay = null; }
     }
     if(typeof window.__cloudOnAuthChange === "function"){
@@ -5996,25 +6336,7 @@ window.__cloudTargets = function(map){
   }, 2000);
 };
 window.__cloudSignOut = function(){ return signOut(auth); };
-window.__cloudPullOnce = async function(){
-  if(!auth || !auth.currentUser) return null;
-  const snap = await getDoc(docRefFor(auth.currentUser.uid));
-  return snap.exists() ? snap.data() : null;
-};
-window.__cloudPush = function(data){
-  if(!auth || !auth.currentUser) return;
-  clearTimeout(pushTimer);
-  pushTimer = setTimeout(async ()=>{
-    try{
-      lastKnownUpdatedAt = data.updatedAt || Date.now();
-      await setDoc(docRefFor(auth.currentUser.uid), data);
-      if(typeof window.__cloudOnPushComplete === "function") window.__cloudOnPushComplete(true);
-    }catch(e){
-      console.error("Cloud push failed", e);
-      if(typeof window.__cloudOnPushComplete === "function") window.__cloudOnPushComplete(false, e && e.code);
-    }
-  }, 1500); // debounced — collapses rapid-fire local edits into one write
-};
+
 </script>
 </body>
 </html>
