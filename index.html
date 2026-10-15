@@ -2664,6 +2664,9 @@ function c2Assemble(entries, core){   // documents → the same shape normalizeS
   });
   return raw;
 }
+function c2Targets(){   // v2.2.0 — the launcher reads users/{uid}/targets; it must be refreshed when titles arrive from another device or on sign-in
+  if(window.__cloudTargets) window.__cloudTargets(buildTargets());
+}
 function c2Schedule(){ clearTimeout(c2.timer); c2.timer = setTimeout(() => c2Push(false), 1500); }
 async function c2Push(force){
   if(!c2.uid || !c2.started || !window.__fs2) return;
@@ -2745,6 +2748,7 @@ function c2ApplyRemote(docs, coreDoc, opt){
     if(core) c2.known.core = { h: c2Core(S).h, u: coreDoc.u };
   }
   c2SaveKnown();
+  if(changed || core) c2Targets();
   return changed || !!core;
 }
 function c2OnWatch(ev){
@@ -2787,6 +2791,7 @@ function c2Adopt(all){
   localStorage.setItem(KEY, JSON.stringify(S)); ensureSeason();
   c2Entries(S).forEach(e => { const k = c2.known.docs[e.id]; if(k) k[0] = e.h; });
   if(all.core){ c2.maxU = Math.max(c2.maxU, all.core.u || 0); c2.known.core = { h: c2Core(S).h, u: all.core.u || 0 }; }
+  c2Targets();
 }
 // "keep this device's data": remember what the cloud has, so the next push overwrites it and removes what this device doesn't have
 function c2KeepDevice(all){
@@ -2817,6 +2822,7 @@ async function c2Migrate(hadLegacy){
   ent.forEach(e => { c2.known.docs[e.id] = [e.h, e.o, now, e.cat, e.book]; });
   c2.known.core = { h: core.h, u: now }; c2.maxU = now; c2.syncedAt = t0;
   c2SaveKnown();
+  c2Targets();
   toast(`Cloud storage upgraded: ${ent.size} titles moved.`);
   return true;
 }
@@ -2828,6 +2834,7 @@ async function c2Resync(){   // Re-sync button: send what is waiting, then take 
     const ch = c2ApplyRemote(all.items, all.core, { force: true });
     c2.syncedAt = Date.now(); c2SaveKnown();
     cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); cloudSyncErrorCode = null;
+    c2Targets();
     toast(ch ? "Re-synced: changes from the cloud applied." : "Re-synced: everything already matches.");
     render();
   }catch(e){ console.error(e); toast("Re-sync didn't work. Check your connection and try again."); }
