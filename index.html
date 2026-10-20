@@ -789,6 +789,15 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .myr-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .myr-opts button{padding:9px 0;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:11.5px;font-family:inherit;cursor:pointer}
 .myr-opts button.on{border-color:var(--brass);background:rgba(217,162,86,.16);color:var(--brass);font-weight:600}
+
+/* v2.4.0 — Archive book */
+.myr-c{position:absolute;top:5px;right:5px;z-index:3;min-width:0;padding:2px 7px;border-radius:5px 11px 5px 11px;cursor:pointer;background:var(--rc);border:0;box-shadow:0 1px 4px rgba(0,0,0,.55)}
+.myr-c b{font-size:14px;line-height:1.1;color:var(--rct)}
+.myr-c.tvc-rate{top:10px;right:10px;padding:3px 10px}
+.myr-c.tvc-rate b{font-size:17px}
+.mg-arc .mg-ctl{display:none}
+.pd-left .myr-row{flex-direction:column;align-items:center;gap:6px;margin-top:0}
+.pd-left .myr-row .btn{width:100%}
 </style>
 </head>
 <body>
@@ -808,6 +817,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
       </button>
       <button class="mode-btn" id="modeBtnLibrary" onclick="switchMode('library')">
         <span class="mode-icon" style="color:#8f7fc4"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M3.3 4.2h2.8v12.6H3.3zM7.3 3h2.8v13.8H7.3zM11.3 5.4h2.8v11.4h-2.8zM15.3 3.8h2.8v13H15.3z"/></svg></span>Library
+      </button>
+      <button class="mode-btn" id="modeBtnArchive" onclick="switchMode('archive')">
+        <span class="mode-icon" style="color:#d9a256"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.8h14v3.4H3zM4.4 8.2v7.2h11.2V8.2M8 11.4h4"/></svg></span>Archive
       </button>
     </div>
   </header>
@@ -1043,7 +1055,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "2.3.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.4.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1203,8 +1215,13 @@ function normalizeState(raw){
     return item;
   });
   const rawLib = raw.library || {};
+  const rawV = raw.vault || {}, V0 = {};
+  ALL_CATS.forEach(c => { V0[c] = Array.isArray(rawV[c]) ? rawV[c].slice() : []; });
+  if(!raw.vaultV) vaultImport(V0, raw.archive);
   return finishDatesUpgrade({
     version: 5,
+    vault: { games: normGames(V0.games), movies: normSimple(V0.movies,"movies"), tv: normSimple(V0.tv,"tv"), anime: normSimple(V0.anime,"anime"), manga: normSimple(V0.manga,"manga") },
+    vaultV: 1,
     seasonStart: raw.seasonStart || "",
     archive: (raw.archive || []).map(a => (a && !a.id) ? { ...a, id: uid() } : a),
     sessionLog: raw.sessionLog || [],
@@ -1241,7 +1258,7 @@ let mode = localStorage.getItem("expedition-mode") || "season"; // "season" | "l
 let libTab = localStorage.getItem("expedition-libtab") || "games";
 let modalTarget = "season"; // which book the currently-open modal reads/writes: "season" | "library"
 let libSearchQ = "";
-function arrFor(cat, target){ return target==="library" ? S.library[cat] : S[cat]; }
+function arrFor(cat, target){ return target==="library" ? S.library[cat] : (target==="archive" ? S.vault[cat] : S[cat]); }
 // v1.4.0: only Games keep the full Y/M/D release date — every other category
 // only ever collects the year now (the month/day inputs were removed from
 // those modals), so these two helpers take the category into account.
@@ -1295,7 +1312,7 @@ function splitSimple(list, fn){
    groups are actually finished get archived as their own record and the rest of the
    entry — same id, just the unfinished groups — carries forward into the new season. */
 function splitEpisodicForRollover(list, category){
-  const completed=[], carry=[], abandoned=[], records=[];
+  const completed=[], carry=[], abandoned=[], records=[], vault=[];
   let finishedMin = 0;
   list.forEach(e=>{
     if(e.abandoned){ abandoned.push(e); return; }
@@ -1303,10 +1320,10 @@ function splitEpisodicForRollover(list, category){
     const finished = groups.filter(g=>g.total>0 && g.watched>=g.total);
     const unfinished = groups.filter(g=>!(g.total>0 && g.watched>=g.total));
     if(groups.length>0 && unfinished.length===0){
-      completed.push(e);
+      completed.push(e); vault.push({ ...e, groups: finished });
       finishedMin += finished.reduce((a,g)=>a+g.total,0) * e.epLen;
       records.push({ name:e.name, category, myRating:e.myRating||null, rangeLabel: groupRangeLabel(category, e.groupType, finished), units: finished.length, finishedYears: finished.map(g=>g.finishedYear===undefined?null:g.finishedYear) });
-    } else if(finished.length>0){
+    } else if(finished.length>0){ vault.push({ ...e, id: uid(), groups: finished });
       finishedMin += finished.reduce((a,g)=>a+g.total,0) * e.epLen;
       records.push({ name:e.name, category, rangeLabel: groupRangeLabel(category, e.groupType, finished), units: finished.length, finishedYears: finished.map(g=>g.finishedYear===undefined?null:g.finishedYear) });
       carry.push({ ...e, groups: unfinished });
@@ -1314,23 +1331,23 @@ function splitEpisodicForRollover(list, category){
       carry.push(e);
     }
   });
-  return { completed, carry, abandoned, records, finishedMin };
+  return { completed, carry, abandoned, records, finishedMin, vault };
 }
 /* Manga is divisible into volumes. Whatever's actually been read (a contiguous run from
    fromVol) gets archived as its own record, and the remaining un-read volumes carry
    forward as a fresh entry — same id, narrowed range, progress reset to 0. */
 function splitMangaForRollover(list){
-  const completed=[], carry=[], abandoned=[], records=[];
+  const completed=[], carry=[], abandoned=[], records=[], vault=[];
   let finishedMin = 0;
   list.forEach(m=>{
     if(m.abandoned){ abandoned.push(m); return; }
     const total = Math.max(0, m.toVol - m.fromVol + 1);
     const read = Math.min(m.volsRead||0, total);
     if(total>0 && read>=total){
-      completed.push(m);
+      completed.push(m); vault.push(m);
       finishedMin += read*60;
       records.push({ name:m.name, myRating:m.myRating||null, rangeLabel: mangaRangeLabel(m.fromVol, m.toVol, total), units: total, volYears: m.volYears ? { ...m.volYears } : {} });
-    } else if(read>0){
+    } else if(read>0){ vault.push({ ...m, id: uid(), toVol: m.fromVol + read - 1, volsRead: read });
       const readFrom = m.fromVol, readTo = m.fromVol + read - 1;
       finishedMin += read*60;
       records.push({ name:m.name, rangeLabel: mangaRangeLabel(readFrom, readTo, read), units: read, volYears: m.volYears ? { ...m.volYears } : {} });
@@ -1340,7 +1357,7 @@ function splitMangaForRollover(list){
       carry.push(m);
     }
   });
-  return { completed, carry, abandoned, records, finishedMin };
+  return { completed, carry, abandoned, records, finishedMin, vault };
 }
 
 /* Builds the full picture of what's finished vs. still in progress across every category.
@@ -1382,6 +1399,7 @@ function seasonSnapshot(gamesList, moviesList, tvList, animeList, mangaList){
     episodic: [...tvSplit.records, ...animeSplit.records],
     manga: mangaSplit.records,
     abandoned: abandonedList,
+    vault: { games: completedGames, movies: movieSplit.completed, tv: tvSplit.vault, anime: animeSplit.vault, manga: mangaSplit.vault },
     carryGames, carryMovies: movieSplit.carry, carryTv: tvSplit.carry, carryAnime: animeSplit.carry, carryManga: mangaSplit.carry,
   };
 }
@@ -1397,6 +1415,7 @@ function performRollover(newStartStr){
     games: snap.games, movies: snap.movies, episodic: snap.episodic, manga: snap.manga, abandoned: snap.abandoned,
   });
   S.games = snap.carryGames; S.movies = snap.carryMovies; S.tv = snap.carryTv; S.anime = snap.carryAnime; S.manga = snap.carryManga;
+  Object.keys(snap.vault).forEach(c => snap.vault[c].forEach(it => vaultAdd(c, it)));
   S.seasonStart = newStartStr;
   toast(`🎉 "${label}" archived — carrying forward what's still in progress.`);
 }
@@ -1732,6 +1751,7 @@ function switchMode(m){
   gmOpen = null; gmGoalEdit = null;
   mode = m;
   localStorage.setItem("expedition-mode", m);
+  libOpenMovie = null; tvOpen = null; tvOpenSeason = null; mgOpen = null; FLT_STORE.movies = FLT_BLANK("movies"); FLT_STORE.games = FLT_BLANK("games");
   libSearchQ = "";
   render();
   window.scrollTo(0,0);
@@ -1751,9 +1771,10 @@ function switchLibTab(t){
 function renderModeToggle(){
   $("modeBtnSeason").classList.toggle("on", mode==="season");
   $("modeBtnLibrary").classList.toggle("on", mode==="library");
+  $("modeBtnArchive").classList.toggle("on", mode==="archive");
 }
 function renderTabBar(){
-  if(mode==="library"){
+  if(mode==="library"||mode==="archive"){
     $("tabbar").innerHTML = LIB_CATS.map(t=>{
       const c = CAT[t];
       return `<button class="tab ${libTab===t?'on':''}" style="--tabcolor:${c.color}" onclick="switchLibTab('${t}')">
@@ -1792,7 +1813,8 @@ function finishDlcEarly(gameId, dlcId){
 }
 function removeGame(id, target="season"){
   if(confirm("Remove this entry? This can't be undone.")){
-    if(target==="library") S.library.games = S.library.games.filter(g=>g.id!==id);
+    if(target==="archive") S.vault.games = S.vault.games.filter(g=>g.id!==id);
+    else if(target==="library") S.library.games = S.library.games.filter(g=>g.id!==id);
     else S.games = S.games.filter(g=>g.id!==id);
     persist();
   }
@@ -2238,6 +2260,7 @@ function tmdbQueryChanged(){
   tmdbSearchTimer = setTimeout(runTmdbSearch, 400);
 }
 function tmdbOwned(cat, id){   // where a search result already lives, if anywhere
+  if(tmdbCtx && tmdbCtx.target === "archive") return (S.vault[cat] || []).some(x => x.tmdbId === id) ? "In your Archive" : "";
   if((S[cat] || []).some(x => x.tmdbId === id)) return "In this season";
   if((S.library[cat] || []).some(x => x.tmdbId === id)) return "In your Library";
   return "";
@@ -2276,15 +2299,15 @@ async function tmdbPick(i){
 }
 // Tapping a result adds the title right away. Returns false when TMDB doesn't know enough (no runtime / no episode info).
 function tmdbAddDirect(category, target, d){
-  const exists = (S.library[category] || []).concat(S[category] || []).some(x => x.tmdbId === d.id);
+  const exists = (target === "archive" ? (S.vault[category] || []) : (S.library[category] || []).concat(S[category] || [])).some(x => x.tmdbId === d.id);
   if(exists){ toast(`“${d.title}” is already on your list.`); return true; }
   const releaseDate = category === "movies" ? { y: d.year ? String(d.year) : "", m: "", d: "" } : { y: "", m: "", d: "" };   // v1.12.2 — no date for TV / anime
   const base = { id: uid(), name: d.title, releaseDate, partOfSeries: false, seriesId: null, seriesOrder: null,
     rating: d.rating == null ? null : d.rating, tmdbId: d.id, posterPath: d.posterPath || null, tmdbSkip: false };
-  const where = target === "library" ? "the Library" : "this season";
+  const where = target === "library" ? "the Library" : target === "archive" ? "the Archive" : "this season";
   if(category === "movies"){
     if(!(d.runtime > 0)) return false;
-    arrFor("movies", target).push({ ...base, length: d.runtime, watched: 0 });
+    arrFor("movies", target).push({ ...base, length: d.runtime, watched: target === "archive" ? d.runtime : 0, ...(target === "archive" ? { finishedDate: { y: "", m: "", d: "" } } : {}) });
     persist(); toast(`Added “${d.title}” to ${where}.`);
     mdbAutoFetch("movies", base.id, target);
     return true;
@@ -2292,6 +2315,7 @@ function tmdbAddDirect(category, target, d){
   const groups = tmdbGroups(category, d.seasons);
   if(!(d.epLen > 0) || !groups.length) return false;
   const item = { ...base, epLen: d.epLen, groups, ...(category === "anime" ? { groupType: groupTypeFor(category, groups) } : {}) };
+  if(target === "archive") item.groups.forEach(g => { g.watched = g.total; g.finishedYear = null; });
   arrFor(category, target).push(item);
   persist(); toast(`Added “${d.title}” to ${where}.`);
   tvFetchAll(item);   // seasons' episodes, cast and scores load in the background
@@ -2314,6 +2338,7 @@ function normTitle(s){
 function unlinkedQueue(category){
   const out = [];
   (S.library[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip) out.push({ book: "library", id: it.id }); });
+  (S.vault[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip) out.push({ book: "archive", id: it.id }); });
   (S[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip && !it.abandoned && !isSeasonItemDone(category, it)) out.push({ book: "season", id: it.id }); });
   return out;
 }
@@ -2324,11 +2349,13 @@ function applyTmdbToItem(category, item, d){
   if(!item.releaseDate.y && d.year) item.releaseDate.y = d.year;
   if(category === "movies"){
     if(!(item.length > 0) && d.runtime) item.length = d.runtime;
+    if(inVault("movies", item)) item.watched = item.length || 0;
   } else {
     if(!(item.epLen > 0) && d.epLen) item.epLen = d.epLen;
-    if(!(item.groups || []).length && (d.seasons || []).length){
+    if(!(item.groups || []).length && !item.arcLabel && (d.seasons || []).length){
       item.groups = tmdbGroups(category, d.seasons);
       if(category === "anime") item.groupType = groupTypeFor(category, item.groups);
+        if(inVault(category, item)) item.groups.forEach(g => { g.watched = g.total; g.finishedYear = null; });
     }
   }
 }
@@ -2445,11 +2472,11 @@ async function matchAuto(){
     const it = matchItemFor(q);
     done++;
     const year = it && it.releaseDate && it.releaseDate.y ? String(it.releaseDate.y) : "";
-    if(it && !it.tmdbId && !it.tmdbSkip && year){
+    if(it && !it.tmdbId && !it.tmdbSkip && (year || inVault(c.category, it))){
       try{
         const res = await provider.search(c.category, it.name);
         const want = normTitle(it.name);
-        const hit = want ? res.find(r => r.year === year && (normTitle(r.title) === want || normTitle(r.originalTitle) === want)) : null;
+        const nm = r => normTitle(r.title) === want || normTitle(r.originalTitle) === want, ex1 = res.filter(nm), hit = !want ? null : year ? res.find(r => r.year === year && nm(r)) : (ex1.length === 1 ? ex1[0] : null);
         if(hit){
           const d = await provider.details(c.category, hit.id);
           applyTmdbToItem(c.category, it, d);
@@ -2618,7 +2645,7 @@ function cloudSignOut(){
    users/{uid}/state/core     {j, u}   the small stuff: season start, session log, series, settings, markers
    users/{uid}/state/meta     {schema: 2, migratedAt}   written LAST by the migration, so a half-done move never counts as done
    users/{uid}/state/main     the old single document: never written again, never deleted. It is the backup. */
-const C2_OUT = ["games","movies","tv","anime","manga","library","archive","updatedAt"];   // everything else in S is "core"
+const C2_OUT = ["games","movies","tv","anime","manga","library","vault","archive","updatedAt"];   // everything else in S is "core"
 const C2_OVERLAP = 15 * 60 * 1000;   // pull a little before the last sync so a clock that runs a bit off can't hide a change
 const c2 = { uid: null, known: { docs: {}, core: null, since: 0 }, started: false, running: false, again: false, timer: null, maxU: 0, syncedAt: 0, state: "idle", err: "", forceDel: false };
 function c2Hash(str){   // 53-bit string hash (cyrb53)
@@ -2665,7 +2692,7 @@ function c2Entries(st){   // the state as a map of document id → {cat, book, i
     });
     groups.push(list);
   };
-  ALL_CATS.forEach(c => { add(c, "season", st[c]); add(c, "library", (st.library || {})[c]); });
+  ALL_CATS.forEach(c => { add(c, "season", st[c]); add(c, "library", (st.library || {})[c]); add("vault_" + c, "vault", (st.vault || {})[c]); });
   add("archive", "archive", st.archive);
   groups.forEach(c2Order);
   return out;
@@ -2673,10 +2700,11 @@ function c2Entries(st){   // the state as a map of document id → {cat, book, i
 function c2CoreObj(st){ const o = {}; Object.keys(st).forEach(k => { if(!C2_OUT.includes(k)) o[k] = st[k]; }); return o; }
 function c2Core(st){ const j = JSON.stringify(c2CoreObj(st)); return { j, h: c2Hash(j) }; }
 function c2Assemble(entries, core){   // documents → the same shape normalizeState() reads
-  const raw = { ...(core || {}), library: {}, archive: [] };
-  ALL_CATS.forEach(c => { raw[c] = []; raw.library[c] = []; });
+  const raw = { ...(core || {}), library: {}, vault: {}, archive: [] };
+  ALL_CATS.forEach(c => { raw[c] = []; raw.library[c] = []; raw.vault[c] = []; });
   [...entries].sort((a, b) => a.o - b.o).forEach(e => {
     if(e.cat === "archive") raw.archive.push(e.item);
+    else if(e.cat.startsWith("vault_")){ const vc = e.cat.slice(6); if(raw.vault[vc]) raw.vault[vc].push(e.item); }
     else if(ALL_CATS.includes(e.cat)) (e.book === "library" ? raw.library[e.cat] : raw[e.cat]).push(e.item);
   });
   return raw;
@@ -3407,7 +3435,7 @@ function renderCore(){
   renderAccountBtn();
   if($("accountModal").classList.contains("show")) $("accountModalBody").innerHTML = accountBodyHtml();
   renderTabBar();
-  if(mode==="library"){ renderLibraryTab(libTab); restoreScroll(scrollY); return; }
+  if(mode==="library"||mode==="archive"){ renderLibraryTab(libTab); restoreScroll(scrollY); return; }
   if(activeTab==="overview") renderOverview();
   else if(activeTab==="games") renderGames();
   else if(activeTab==="movies") renderMovies();
@@ -3477,10 +3505,11 @@ function fmtHrMin(mins){
 // saveEpisodic doesn't require any; games/movies/manga always have their
 // numeric core set at save time, so there's nothing further to check there).
 function libraryOpenFn(category, id){
-  if(category==="games") return "openGameSearch()";
-  if(category==="movies") return `openTmdbSearch('movies','library','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
-  if(isShowCat(category)) return `openTmdbSearch('${category}','library','add')`;
-  return `openMgSearch('library','add')`;   // manga
+  const T = mode === "archive" ? "archive" : "library";
+  if(category==="games") return `openGameSearch('${T}')`;
+  if(category==="movies") return `openTmdbSearch('movies','${T}','add')`;   // v1.10.1 — Library movies/shows are only added through TMDB search (edit lives on their own pages)
+  if(isShowCat(category)) return `openTmdbSearch('${category}','${T}','add')`;
+  return `openMgSearch('${T}','add')`;   // manga
 }
 // v1.5.0 — one compact "seg | seg | seg" line per card instead of three
 // stacked lines, so a bigger library fits more titles on screen. Games with
@@ -3496,6 +3525,7 @@ function libraryOpenFn(category, id){
 // load eagerly, in order from the top; the rest load as you scroll to them.
 const posterSeen = new Set();   // poster URLs already loaded this session, so a re-render never re-fades them
 function movieInfoText(item){
+  if(mode === "archive") return arcDateText(item, false);
   const {total, played} = itemMinutes("movies", item);
   const y = item.releaseDate && item.releaseDate.y ? String(item.releaseDate.y) : "";
   let len = "";
@@ -3684,12 +3714,12 @@ async function saveIgdbProxy(){
 function clearIgdbProxy(){ if(!confirm("Remove the IGDB worker address?")) return; S.settings.igdbProxy = ""; persist(); refreshTmdbModals(); }
 
 /* ---- add a game ---- */
-const gmAllGames = () => S.library.games.concat(S.games);
+const gmAllGames = () => S.library.games.concat(S.games, S.vault.games);
 function gmHave(){ const all = gmAllGames(); return { ids: new Set(all.map(g => g.igdbId).filter(Boolean)), names: new Set(all.map(g => gmNorm(g.name))) }; }
 let gmTimer = null, gmSeq = 0, gmHoursCtx = null;
 let gmAddTarget = "library";
 function openGameSearch(target){
-  gmAddTarget = target === "season" ? "season" : "library";
+  gmAddTarget = target === "season" ? "season" : target === "archive" ? "archive" : "library";
   if(!igdbBase()) return toast("Add your IGDB worker first: Settings → API keys.");
   $("gmAddQ").value = ""; $("gmAddRes").innerHTML = `<div class="tvc-note">Type a game name.</div>`;
   $("gmAddModal").classList.add("show"); $("gmAddQ").focus();
@@ -3716,6 +3746,7 @@ async function gmPick(id){
   toast("Adding…");
   let x; try{ x = await igdbGameData(id); }catch(e){ return toast(igdbErr(e)); }
   closeModal("gmAddModal");
+  if(gmAddTarget === "archive") return gmAdd(x, x.hours || 0);
   if(x.hours > 0) return gmAdd(x, x.hours);
   if(!x.released || x.released * 1000 > Date.now()) return gmAdd(x, 0);   // not out yet: no target to ask for
   gmHoursCtx = x; $("gmHoursName").textContent = x.igdbName; $("gmHoursIn").value = "";
@@ -3727,8 +3758,8 @@ function gmHoursOk(){
 }
 function gmAdd(x, hours){
   const g = { id: uid(), name: x.igdbName, goal: hours, played: 0, hasDlc: false, dlcs: [], dlcAsked: false, finished: false, releaseDate: { y: "", m: "", d: "" }, partOfSeries: false, seriesId: null, seriesOrder: null, lastPlayed: false };
-  igdbApply(g, x); (gmAddTarget === "season" ? S.games : S.library.games).push(g); persist(); toast((gmAddTarget === "season" ? `Added “${g.name}” to Season.` : `Added “${g.name}”.`) + (hours > 0 ? "" : " No target yet."));
-  gmDlcQueue = [g.id]; gmDlcNext();   // offers its DLC and expansions, if IGDB lists any
+  igdbApply(g, x); if(gmAddTarget === "archive"){ g.finished = true; g.dlcAsked = true; g.finishedDate = { y: "", m: "", d: "" }; } arrFor("games", gmAddTarget).push(g); persist(); toast((gmAddTarget === "season" ? `Added “${g.name}” to Season.` : `Added “${g.name}”.`) + (hours > 0 ? "" : " No target yet."));
+  if(gmAddTarget !== "archive"){ gmDlcQueue = [g.id]; gmDlcNext(); }
 }
 
 /* ---- DLC & expansions (v1.16.0): children of a game, each with its own IGDB id so the launcher can match them ---- */
@@ -3877,13 +3908,13 @@ function gmCellHtml(g, i, hidden){
   const r = itemRating(g), len = g.goal ? fmtN(g.goal) + "h" : "", n = (g.dlcs || []).length;
   const sea = S.games.includes(g), m = sea ? gameMin(g) : null, done = !!m && m.goal > 0 && m.played >= m.goal, pct = m && m.goal ? Math.min(100, m.played / m.goal * 100) : 0;
   const up = gmUpcoming(g), rem = Math.max(0, (g.goal || 0) - (g.played || 0)), remTxt = rem > 0 ? (rem >= 1 ? fmtN(Math.round(rem * 10) / 10) + "h" : Math.max(1, Math.round(rem * 60)) + "m") : "";
-  const left = sea ? (done ? "✓" : (m.played > 0 ? Math.max(1, Math.round(pct)) + "%" : (up ? "Upcoming" : len))) : (up ? "Upcoming" : remTxt);   // Library covers show the time left, Season covers how far you are; a game that isn't out yet says so
+  const left = mode === "archive" ? arcFinShort("games", g) : sea ? (done ? "✓" : (m.played > 0 ? Math.max(1, Math.round(pct)) + "%" : (up ? "Upcoming" : len))) : (up ? "Upcoming" : remTxt);   // Library covers show the time left, Season covers how far you are; a game that isn't out yet says so
   const chain = [igdbImg(g.coverId, "cover_big"), igdbImg(g.backdropId, "screenshot_big")].filter(Boolean);
   return `<div class="gm-cell${g.coverId ? "" : " named"}${hidden ? " gm-hid" : ""}${done ? " gm-done" : ""}" data-pid="${g.id}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')">
     <div class="gm-ph">${esc(g.name)}</div>
     ${chain.length ? `<img alt="" loading="${i > 29 ? "lazy" : "eager"}" src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onerror="gmFb(this)">` : ""}
     <div class="gm-shade"></div><div class="gm-name">${esc(g.name)}</div>
-    ${r != null ? `<div class="prate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
+    ${mode === "archive" ? myrCorner(g) : r != null ? `<div class="prate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
     ${left ? `<div class="gm-chip l${left === "Upcoming" ? " up" : ""}">${left}</div>` : ""}${n ? `<div class="gm-chip r">+${n}</div>` : ""}
     ${sea && pct > 0 ? `<div class="gm-prog"><i style="width:${pct}%"></i></div>` : ""}
   </div>`;
@@ -3893,21 +3924,21 @@ function gmBackdropHtml(g){
   return `<div class="gm-bd" onclick="gmToggle('${g.id}')">
     ${bd ? `<img alt="" src="${esc(bd)}"${g.backdropY != null ? ` style="object-position:50% ${g.backdropY}%"` : ""} onerror="this.remove()">` : (cv ? `<img class="blur" alt="" src="${esc(cv)}" onerror="this.remove()">` : "")}
     <div class="gm-bd-shade"></div>
-    ${r != null ? `<div class="prate tvc-rate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
+    ${mode === "archive" ? myrCorner(g, "tvc-rate") : r != null ? `<div class="prate tvc-rate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
     <div class="gm-bd-t"><div class="n serif">${esc(g.name)}</div>${y ? `<div class="s">${y}${g.goal ? " · " + fmtN(g.goal) + "h" : ""}</div>` : ""}</div>
   </div>`;
 }
 function gmInfoHtml(g, ctx){   // ctx: "library", "season" or "hero" (the hero already has the buttons)
-  ctx = ctx || (S.games.includes(g) ? "season" : "library");
-  const dlcs = g.dlcs || [], more = gmMore.has(g.id), desc = g.description || "", date = gmFmtDate(g.releaseDate), sea = ctx !== "library";
+  ctx = ctx || (S.games.includes(g) ? "season" : mode === "archive" ? "archive" : "library");
+  const dlcs = g.dlcs || [], more = gmMore.has(g.id), desc = g.description || "", date = gmFmtDate(g.releaseDate), sea = ctx === "season" || ctx === "hero";
   const who = [g.developer ? `<b>${esc(g.developer)}</b>` : "", g.publisher && g.publisher !== g.developer ? `published by ${esc(g.publisher)}` : ""].filter(Boolean).join(" · ");
   const goal = gmGoalEdit === g.id
     ? `<input id="gmGoalIn" type="number" min="0" step=".5" inputmode="decimal" value="${g.goal || ""}" onclick="event.stopPropagation()"><button class="btn small accent" onclick="gmGoalSave('${g.id}')">Save</button><button class="btn small ghost" onclick="gmGoalEdit=null;render()">Cancel</button>`
     : `<span>Target <b>${g.goal ? fmtN(g.goal) + "h" : "not set"}</b>${g.igdbHours ? ` <span class="gm-hint">IGDB average ${fmtN(g.igdbHours)}h</span>` : ""}</span><button class="btn small ghost" onclick="gmGoalStart('${g.id}')">Edit</button>`;
   const m = gameMin(g), done = m.goal > 0 && m.played >= m.goal, pct = m.goal ? Math.min(100, m.played / m.goal * 100) : 0, finalDone = done && (!dlcs.length || allDlcCleared(g));
-  const cleared = sea && done;   // a cleared Season game is read-only: no target, rating or buttons to edit
+  const cleared = (sea && done) || ctx === "archive";   // a cleared Season game is read-only: no target, rating or buttons to edit
   const accent = `--accent:${CAT.games.color};--accent-text:${CAT.games.text}`;
-  const acts = ctx === "library" ? btnH("accent", "gmMove", g.id, "To Season", accent) + btnH("ghost", "gmBackdrop", g.id, "Change backdrop") + btnH("ghost danger", "gmRemove", g.id, "Remove")
+  const acts = ctx === "archive" ? btnH("ghost", "gmBackdrop", g.id, "Change backdrop") + btnH("ghost danger", "gmRemove", g.id, "Remove") : ctx === "library" ? btnH("accent", "gmMove", g.id, "To Season", accent) + btnH("ghost", "gmBackdrop", g.id, "Change backdrop") + btnH("ghost danger", "gmRemove", g.id, "Remove")
     : ctx === "season" ? finalDone ? "" : (!done ? btnH("accent", "gmSeasonFinish", g.id, "✓ Finished", accent) : "") + btnH("ghost", "gmBackdrop", g.id, "Change backdrop") + btnH("ghost", "gmSeasonToLibrary", g.id, "To Library") + (!finalDone ? btnH("ghost", "gmSeasonAbandon", g.id, "Abandon") : "") + btnH("ghost danger", "gmSeasonRemove", g.id, "Remove")
     : "";
   return `<div class="gm-info"><div class="gm-info-in"><div class="gm-panel">
@@ -3918,7 +3949,7 @@ function gmInfoHtml(g, ctx){   // ctx: "library", "season" or "hero" (the hero a
     ${cleared ? "" : `<div class="gm-goal">${goal}</div>
     ${g.played > 0 ? `<div class="gm-goal"><span>Played <b>${fmtHM(Math.round(g.played * 60))}</b> <span class="gm-hint">from your launcher</span></span></div>` : ""}
     <div class="gm-goal"><span>Rating <b>${itemRating(g) != null ? itemRating(g) : "none"}</b>${gmRateTag(g)}</span><button class="btn small ghost" onclick="gmRate('${g.id}')">${itemRating(g) != null ? "Edit" : "Set"}</button></div>`}
-    ${myrRow(g)}${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => gmDlcRowHtml(g, d)).join("")}` : ""}
+    ${ctx === "archive" ? `<div class="gm-meta" style="margin-top:12px">Finished <b>${arcFinLong("games", g)}</b>${g.played > 0 ? ` · Played <b>${fmtHM(Math.round(g.played * 60))}</b>` : ""}</div>` : ""}${myrRow(g)}${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => gmDlcRowHtml(g, d)).join("")}` : ""}
     ${acts ? `<div class="btn-row gm-acts">${acts}</div>` : ""}
   </div></div></div>`;
 }
@@ -4097,7 +4128,7 @@ function gmGoalSave(id){
   g.goal = v; gmGoalEdit = null; persist();
 }
 function gmMove(id){ gmOpen = null; moveItem("games", id, "library", "season"); }
-function gmRemove(id){ removeGame(id, "library"); }
+function gmRemove(id){ removeGame(id, mode === "archive" ? "archive" : "library"); }
 let gmRateId = null;
 /* ---------- v2.1.0 — game scores: OpenCritic first, IGDB second, your own when neither has one ---------- */
 const GM_SRC_LABEL = { oc: "OpenCritic", igdb: "IGDB critics", own: "Your own" };
@@ -4209,7 +4240,7 @@ async function ocFetchGame(g, searchAgain){
 const OC_RETRY_NONE = 30 * 864e5, OC_RETRY_NOSCORE = 7 * 864e5;
 function ocQueue(){   // A–Z. Never-fetched games, plus a slow retry for ones OpenCritic had no match or no score for yet. Unreleased games wait.
   const now = Date.now();
-  return gmAllGames().filter(g => {
+  return S.library.games.concat(S.games).filter(g => {
     if(g.ocScore != null) return false;
     if(g.ocNone) return !gmUpcoming(g) && now - (g.ocAt || 0) > OC_RETRY_NONE;
     if(g.ocId) return now - (g.ocAt || 0) > OC_RETRY_NOSCORE;
@@ -4319,7 +4350,7 @@ function libraryList(category, items){
   if(category==="manga") return mgShelf(items);
   if(category==="games") return gmLibraryHtml(items);
   return posterGridHtml(items, (it, i, enter) => movieDetailBlock(it, i, enter,
-    btnH("ghost","pdView",it.id,"View poster") + btnH("ghost","pdMove",it.id,"To Season") + btnH("ghost danger","pdRemove",it.id,"Remove")));
+    (mode === "archive" ? myrRow(it) : "") + btnH("ghost","pdView",it.id,"View poster") + (mode === "archive" ? "" : btnH("ghost","pdMove",it.id,"To Season")) + btnH("ghost danger","pdRemove",it.id,"Remove")));
 }
 
 /* ---------- v1.8.3 — poster detail: open / close, animation, data ----------
@@ -4541,7 +4572,7 @@ function ratingFor(item){
   return autoRating(item);
 }
 function itemRating(item){ if(gmIsGame(item)) return gmRatingInfo(item).value; const v = ratingFor(item); return v != null ? v : (item.rating == null ? null : item.rating); }
-function rateBadge(item, extra){
+function rateBadge(item, extra){ if(mode === "archive") return myrCorner(item, extra);
   const r = itemRating(item);
   return r != null ? `<div class="prate ${ratingClass(r)}${extra ? " " + extra : ""}" onclick="event.stopPropagation();openRatingMenu('${item.id}')" title="Choose rating source">${r}</div>` : "";
 }
@@ -4812,8 +4843,8 @@ function setGlobalRatingSrc(k){
 // code works for both categories.
 const SHOW_CATS = ["tv", "anime"];
 function isShowCat(c){ return c === "tv" || c === "anime"; }
-function allShows(){ return SHOW_CATS.reduce((a, c) => a.concat(S.library[c] || [], S[c] || []), []); }
-function libCatOf(id){ return SHOW_CATS.find(c => (S.library[c] || []).some(x => x.id === id)) || null; }
+function allShows(){ return SHOW_CATS.reduce((a, c) => a.concat(S.library[c] || [], S[c] || [], (S.vault && S.vault[c]) || []), []); }
+function libCatOf(id){ return SHOW_CATS.find(c => (S.library[c] || []).some(x => x.id === id) || (S.vault[c] || []).some(x => x.id === id)) || null; }
 function nounFor(c){ return c === "movies" ? "movie" : (c === "anime" ? "anime" : "show"); }
 const GENERIC_SEASON = /^season\s*\d+$/i;
 // v1.12.1 — a real season has episodes and isn't dated in the future. Seasons TMDB lists with NO air
@@ -5006,7 +5037,7 @@ async function tvEnsureBackdrops(){
 }
 function tvQueue(force, cat){
   const seen = new Set(), out = [];
-  (cat ? S.library[cat].concat(S[cat]) : allShows()).forEach(it => { if(it.tmdbId && !it.abandoned && !seen.has(it.tmdbId) && (force || !it.ratings)){ seen.add(it.tmdbId); out.push(it); } });
+  (cat ? S.library[cat].concat(S[cat], S.vault[cat]) : allShows()).forEach(it => { if(it.tmdbId && !it.abandoned && !seen.has(it.tmdbId) && (force || !it.ratings)){ seen.add(it.tmdbId); out.push(it); } });
   return out;
 }
 async function tvBatchStart(force){
@@ -5038,6 +5069,7 @@ function tvBodies(item){
   return { desc: esc(e.overview || "No description on TMDB.") , by: e.creators.length ? esc(e.creators.join(", ")) : dim("—"), cast: e.cast.length ? esc(e.cast.join(", ")) : dim("—") };
 }
 function tvChip(item){
+  if(mode === "archive"){ const g0 = item.groups || []; return [item.arcLabel || (g0.length ? g0.length + " " + groupsWord(g0) + (g0.length === 1 ? "" : "s") : ""), "finished " + arcYearsText(item)].filter(Boolean).join(" · "); }
   const gs = item.groups || [], eps = gs.reduce((a, g) => a + (g.total || 0), 0), seen = gs.reduce((a, g) => a + (g.watched || 0), 0);
   if(!gs.length) return "No seasons yet";
   if(seen > 0) return `${Math.max(0, eps - seen)} ep left`;
@@ -5081,7 +5113,7 @@ function tvSeasonRows(item, entry){
 }
 function tvSeasonsHtml(item, entry){
   const rows = tvSeasonRows(item, entry);
-  if(!rows.length) return `<div class="tvc-note">${entry ? "No seasons found." : "Loading seasons…"}</div>`;
+  if(!rows.length) return `<div class="tvc-note">${entry ? "No seasons found." : (item.tmdbId ? "Loading seasons…" : "Not linked to TMDB yet.")}</div>`;
   const tiles = rows.map(r => {
     const poster = (r.s && r.s.poster) || item.posterPath;
     const avg = r.n != null && entry && entry.eps[r.n] ? tvSeasonAvg(entry.eps[r.n], item) : null;
@@ -5119,9 +5151,9 @@ function tvBodyHtml(item){
       <div><div class="pd-lab">Starring</div><div class="pd-val">${b.cast}</div></div>
     </div>
     <div class="tvc-sec"><div class="tvc-lab">Seasons</div>${tvSeasonsHtml(item, entry)}${note}</div>
-    <div class="pd-foot tvc-foot">
+    ${mode === "archive" ? myrRow(item) : ""}<div class="pd-foot tvc-foot">
       ${btnH("ghost", "pdView", item.id, "View poster")}${btnH("ghost", "openBackdropPicker", item.id, "Change image")}
-      ${btnH("ghost", "tvMove", item.id, "To Season")}
+      ${mode === "archive" ? "" : btnH("ghost", "tvMove", item.id, "To Season")}
       ${btnH("ghost danger", "tvRemove", item.id, "Remove")}
     </div>
   </div>`;
@@ -5167,7 +5199,7 @@ function tvSeasonRemove(id, gid){
   tvOpenSeason = null;
   if(!it.groups.length && confirm("That was the last one. Remove the whole title too?")){
     tvOpen = null;
-    const c = libCatOf(id); if(c) S.library[c] = S.library[c].filter(x => x.id !== id);
+    const c = libCatOf(id); if(c){ S.library[c] = S.library[c].filter(x => x.id !== id); S.vault[c] = S.vault[c].filter(x => x.id !== id); }
   }
   persist();
 }
@@ -5223,7 +5255,7 @@ function tvMove(id){ tvOpen = null; tvOpenSeason = null; openMoveModal(libCatOf(
 function tvRemove(id){
   if(!confirm("Remove this title?")) return;
   tvOpen = null; tvOpenSeason = null;
-  const c = libCatOf(id); if(c) S.library[c] = S.library[c].filter(x => x.id !== id);
+  const c = libCatOf(id); if(c){ S.library[c] = S.library[c].filter(x => x.id !== id); S.vault[c] = S.vault[c].filter(x => x.id !== id); }
   persist();
 }
 
@@ -5540,9 +5572,10 @@ function mgInfo(it){
   return { from, to, total, left: Math.max(0, total - read) };
 }
 function mgRange(it){ const i = mgInfo(it); return `Vol ${i.from}${i.to > i.from ? "–" + i.to : ""}${it.ongoing ? "+" : ""}`; }
-function mgMangaAll(){ return (S.library.manga || []).concat(S.manga || []); }
+function mgMangaAll(){ return (S.library.manga || []).concat(S.manga || [], S.vault.manga || []); }
+const mgBook = () => mode === "archive" ? S.vault.manga : S.library.manga;
 function mgUnlinked(){ return mgMangaAll().filter(x => !x.anilistId && !x.abandoned); }
-function mgSiblings(it){ return it.originGroupId ? mgMangaAll().filter(x => x !== it && x.originGroupId === it.originGroupId) : []; }
+function mgSiblings(it){ return it.originGroupId ? mgMangaAll().filter(x => x !== it && x.originGroupId === it.originGroupId && inVault("manga", x) === inVault("manga", it)) : []; }
 
 /* ----- search / link / add ----- */
 function openMgSearch(target, mode, linkId){
@@ -5600,7 +5633,7 @@ function mgPick(i){
     closeModal("mgModal"); persist(); toast("Linked to AniList.");
     return;
   }
-  if(mgMangaAll().some(x => x.anilistId === r.id)){ closeModal("mgModal"); return toast(`“${r.title}” is already on your list.`); }
+  if((mgS.target === "archive" ? S.vault.manga : mgMangaAll().filter(x => !S.vault.manga.includes(x))).some(x => x.anilistId === r.id)){ closeModal("mgModal"); return toast(`“${r.title}” is already on your list.`); }
   if(r.status === "FINISHED" && r.volumes){ mgAdd(r, r.volumes, false); return; }
   mgS.pick = r; renderMgModal(mgS.q);
 }
@@ -5612,11 +5645,11 @@ function mgConfirmVolumes(){
 }
 function mgAdd(r, vols, ongoing){
   const toSeason = mgS.target === "season";
-  (toSeason ? S.manga : S.library.manga).push({ id: uid(), name: r.title, fromVol: 1, toVol: vols, volsRead: 0, releaseDate: { y: r.year ? String(r.year) : "", m: "", d: "" },
+  arrFor("manga", mgS.target).push({ id: uid(), name: r.title, fromVol: 1, toVol: vols, volsRead: mgS.target === "archive" ? vols : 0, ...(mgS.target === "archive" ? { volYears: Object.fromEntries(Array.from({ length: vols }, (_, i) => [String(i + 1), null])) } : {}), releaseDate: { y: r.year ? String(r.year) : "", m: "", d: "" },
     partOfSeries: false, seriesId: null, seriesOrder: null, originGroupId: null,
     anilistId: r.id, malId: r.malId, coverUrl: r.cover, rating: r.score, ongoing: !!ongoing });
   closeModal("mgModal"); persist();
-  toast(`Added “${r.title}” to ${toSeason ? "this season" : "the Library"}.`);
+  toast(`Added “${r.title}” to ${toSeason ? "this season" : mgS.target === "archive" ? "the Archive" : "the Library"}.`);
 }
 
 /* ----- details (synopsis, authors) live in the device cache ----- */
@@ -5640,7 +5673,7 @@ async function mgEnsureDetails(it){
 // linked titles with no cover yet (e.g. just linked) get it in the background — once per visit
 const mgCoverTried = new Set();
 async function mgEnsureCovers(){
-  const list = (S.library.manga || []).filter(x => x.anilistId && !x.coverUrl && !mgCoverTried.has(x.anilistId));
+  const list = (mgBook() || []).filter(x => x.anilistId && !x.coverUrl && !mgCoverTried.has(x.anilistId));
   let changed = false;
   for(const it of list){
     mgCoverTried.add(it.anilistId);
@@ -5678,13 +5711,13 @@ function mgMapHtml(it, compact){
 }
 
 /* ----- the shelf ----- */
-function mgRateBadge(it){ return it.anilistId && it.rating != null ? `<div class="prate ${ratingClass(it.rating)}">${it.rating}</div>` : ""; }
+function mgRateBadge(it){ if(mode === "archive") return myrCorner(it); return it.anilistId && it.rating != null ? `<div class="prate ${ratingClass(it.rating)}">${it.rating}</div>` : ""; }
 function mgCardHtml(it){
   const i = mgInfo(it), sel = mgOpen === it.id;
   return `<div class="mgc${sel ? " sel" : ""}" data-pid="${it.id}" onclick="mgToggle('${it.id}')">
     <div class="mgc-cover"><div class="mgc-ph">${esc(it.name)}</div>${it.coverUrl ? `<img alt="" loading="lazy" src="${esc(it.coverUrl)}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}${mgRateBadge(it)}</div>
     <div class="mgc-title serif">${esc(it.name)}</div>
-    <div class="mgc-sub">${mgRange(it)} · ${i.left} left</div>
+    <div class="mgc-sub">${mode === "archive" ? mgRange(it) + " · " + arcFinShort("manga", it) : mgRange(it) + " · " + i.left + " left"}</div>
     ${mgMapHtml(it, true)}
   </div>`;
 }
@@ -5697,11 +5730,12 @@ function mgPanelHtml(it){
   const { hi } = mgSeries(it);
   const sibs = mgSiblings(it);
   const lowerBound = sibs.filter(x => (x.toVol || 0) < i.from).reduce((m, x) => Math.max(m, (x.toVol || 0) + 1), 1);
-  const btns = [btnH("ghost", "mgViewCover", it.id, "View cover"), btnH("ghost", "mgMove", it.id, "To Season"), !it.anilistId && btnH("ghost", "mgLink", it.id, "Link to AniList"), btnH("ghost danger", "mgRemove", it.id, "Remove")].filter(Boolean);
-  return `<div class="mg-panel${enter}">
+  const btns = [btnH("ghost", "mgViewCover", it.id, "View cover"), mode !== "archive" && btnH("ghost", "mgMove", it.id, "To Season"), !it.anilistId && btnH("ghost", "mgLink", it.id, "Link to AniList"), btnH("ghost danger", "mgRemove", it.id, "Remove")].filter(Boolean);
+  return `<div class="mg-panel${enter}${mode === "archive" ? " mg-arc" : ""}">
     <div class="mg-name serif">${esc(it.name)}</div>
     ${d && d.authors && d.authors.length ? `<div class="mg-by">${esc(d.authors.join(", "))}</div>` : ""}
     <div class="mg-chips">${st ? `<span class="mg-chip on">${esc(st)}</span>` : ""}<span class="mg-chip">${mgRange(it)} · ${i.total} vol${i.total === 1 ? "" : "s"}</span>${d && d.chapters ? `<span class="mg-chip">${d.chapters} ch</span>` : ""}${it.anilistId && it.rating != null ? `<span class="mg-chip">AniList ${it.rating}</span>` : ""}</div>
+    ${mode === "archive" ? `<div class="mg-by">Finished <b>${arcFinLong("manga", it)}</b></div>${myrRow(it)}` : ""}
     <div class="tvc-desc" style="margin-top:12px;height:104px">${desc}</div>
     <div class="tvc-sec"><div class="tvc-lab">Volume map</div>${mgMapHtml(it, false)}</div>
     <div class="tvc-sec mg-ctl">
@@ -5727,7 +5761,7 @@ function mgToggle(id){
     vf(mgSel, mgSel, mgOpen === id ? [mgSel] : [mgSel, ".mg-panel"]);
     mgOpen = mgOpen === id ? null : id;
     pdAnimateIn = !!mgOpen;
-    const it = mgOpen ? S.library.manga.find(x => x.id === mgOpen) : null;
+    const it = mgOpen ? mgBook().find(x => x.id === mgOpen) : null;
     if(it){ delete tvErrMg[it.anilistId]; mgEnsureDetails(it); }
     render();
     pdAnimateIn = false; pdBusy = false;
@@ -5761,10 +5795,10 @@ function mgSetOut(id){
   persist(); toast(`Now ${v} volumes out.`);
 }
 function mgMove(id){ openMoveModal("manga", id, "library", "season"); }
-function mgRemove(id){ if(!confirm("Remove this manga?")) return; mgOpen = null; S.library.manga = S.library.manga.filter(x => x.id !== id); persist(); }
+function mgRemove(id){ if(!confirm("Remove this manga?")) return; mgOpen = null; S.library.manga = S.library.manga.filter(x => x.id !== id); S.vault.manga = S.vault.manga.filter(x => x.id !== id); persist(); }
 function mgLink(id){ openMgSearch("library", "link", id); }
 function mgViewCover(id){
-  const it = S.library.manga.find(x => x.id === id);
+  const it = mgBook().find(x => x.id === id);
   if(!it || !it.coverUrl) return toast("This title has no cover.");
   const d = mgDetail(it), big = (d && d.xl) || it.coverUrl;
   pvOpenId = id;
@@ -5795,7 +5829,7 @@ function mgApplyFresh(m){
   const mine = mgMangaAll().filter(x => x.anilistId === m.id);
   mine.forEach(x => { if(m.averageScore != null) x.rating = m.averageScore; if(m.coverImage && m.coverImage.large) x.coverUrl = m.coverImage.large; x.bannerUrl = m.bannerImage || null; });
   if(m.status === "FINISHED" && m.volumes > 0){
-    const top = mine.reduce((a, x) => (!a || (x.toVol || 0) > (a.toVol || 0)) ? x : a, null);
+    const top = mine.filter(x => !inVault("manga", x)).reduce((a, x) => (!a || (x.toVol || 0) > (a.toVol || 0)) ? x : a, null);
     if(top && m.volumes > (top.toVol || 0)) top.toVol = m.volumes;
     mine.forEach(x => { x.ongoing = false; });
   }
@@ -5850,13 +5884,13 @@ const fltStore = () => FLT_STORE[fltCat];
 function fltDefs(cat){
   return {
     y: { label:"Release year", get: i => { const y = +(i.releaseDate && i.releaseDate.y); return y > 0 ? y : null; }, fmt: v => String(v) },
-    r: { label:"Rating",       get: i => itemRating(i), fmt: v => String(v) },
-    l: { label:"Length",       get: i => { const m = libRemainingMin(cat, i); return m > 0 ? m : null; }, fmt: v => fmtHrMin(v) },
+    r: { label:"Rating",       get: i => mode === "archive" ? (i.myRating ? i.myRating.s : null) : itemRating(i), fmt: v => String(v) },
+    l: { label:"Length",       get: i => { const m = mode === "archive" ? itemMinutes(cat, i).total : libRemainingMin(cat, i); return m > 0 ? m : null; }, fmt: v => fmtHrMin(v) },
   };
 }
 function fltValues(k){
   const set = new Set(), d = fltDefs(fltCat)[k];
-  (S.library[fltCat]||[]).forEach(it => { const v = d.get(it); if(v != null) set.add(v); });
+  (libBook(fltCat)||[]).forEach(it => { const v = d.get(it); if(v != null) set.add(v); });
   return [...set].sort((a,b) => a - b);
 }
 // games: released = has a date that is today or earlier; no date or a later date = upcoming
@@ -5934,7 +5968,7 @@ function fltPaint(k){
   $("fltVal_" + k).textContent = (lo === 0 && hi === n) ? "All" : `${d.fmt(v[lo])} - ${d.fmt(v[hi])}`;
 }
 function fltUpdateCount(){
-  const all = S.library[fltCat] || [];
+  const all = libBook(fltCat) || [];
   $("fltCount").textContent = `${all.filter(x => libFilterPass(x, fltCat)).length} of ${all.length} titles match`;
 }
 function openFilterModal(cat){
@@ -6010,7 +6044,7 @@ function pdMove(id){
 }
 function pdRemove(id){
   if(!confirm("Remove this movie?")) return;
-  pdWithFlip(() => { libOpenMovie = null; S.library.movies = S.library.movies.filter(x=>x.id!==id); persist(); });
+  pdWithFlip(() => { libOpenMovie = null; S.library.movies = S.library.movies.filter(x=>x.id!==id); S.vault.movies = S.vault.movies.filter(x=>x.id!==id); persist(); });
 }
 
 /* The richer TMDB details (description, director, cast) are fetched by tmdbId
@@ -6063,6 +6097,7 @@ if(libSort === "hype") libSort = "rating";   // v1.14.0 — old saved choice
 function setLibSort(v){ libSort=v; localStorage.setItem("expedition-libsort",v); renderLibraryTab(libTab); }
 function toggleLibSortDir(){ libSortDir = libSortDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libsortdir",libSortDir); renderLibraryTab(libTab); }
 function libSortValue(category, item, key){
+  if(mode === "archive"){ if(key === "rating") return item.myRating ? item.myRating.s : -1; if(key === "length") return itemMinutes(category, item).total; if(key === "date") return arcDateKey(item); }
   if(key==="rating"){
     if(category==="manga") return (item.anilistId && item.rating != null) ? item.rating : -1;
     return itemRating(item)==null ? -1 : itemRating(item);   // games have no rating, so they all tie
@@ -6082,7 +6117,7 @@ function libCompare(category, a, b, key, dir){
 }
 function renderLibraryTab(category){
   const meta = CAT[category];
-  const list = S.library[category];
+  const list = libBook(category);
   const prevSearch = $("libSearch");
   const wasFocused = !!prevSearch && document.activeElement===prevSearch;
   const caret = wasFocused ? prevSearch.selectionStart : null;
@@ -6097,11 +6132,11 @@ function renderLibraryTab(category){
   const fN = hasFlt ? libFilterCount(category) : 0;
   let html = fN
     ? `<div class="lib-head"><b>${base.length}</b> of ${list.length} title${list.length===1?"":"s"} shown in ${meta.label}</div>`
-    : `<div class="lib-head"><b>${list.length}</b> title${list.length===1?"":"s"} filed in ${meta.label}</div>`;
+    : `<div class="lib-head"><b>${list.length}</b> title${list.length===1?"":"s"} ${mode === "archive" ? "archived" : "filed"} in ${meta.label}</div>`;
   html += `<div class="btn-row" style="margin-bottom:12px"><button class="btn accent wide" style="--accent:${meta.color};--accent-text:${meta.text}" onclick="${libraryOpenFn(category,null)}">${addLabels[category]}</button></div>`;
 
   if(!list.length){
-    html += `<div class="empty"><span class="serif">Nothing filed yet</span>Add titles here as you find things you want to eventually play or watch — no rush, no season deadline.</div>`;
+    html += `<div class="empty"><span class="serif">${mode === "archive" ? "Nothing archived yet" : "Nothing filed yet"}</span>${mode === "archive" ? "Add the titles you already finished with the button above. Titles you finish in a season land here by themselves when it ends." : "Add titles here as you find things you want to eventually play or watch — no rush, no season deadline."}</div>`;
     $("app").innerHTML = html;
     return;
   }
@@ -6139,8 +6174,8 @@ function renderLibraryTab(category){
    list would land outside #app and never register — document always covers the
    full screen so swipes work everywhere, on every page, regardless of length. */
 // v1.8.5 — pinching / panning a zoomed poster must never flip the page underneath
-function movieById(id){ return (S.library.movies||[]).find(x=>x.id===id) || (S.movies||[]).find(x=>x.id===id) || null; }
-function allMovies(){ return (S.library.movies||[]).concat(S.movies||[]); }
+function movieById(id){ return (S.library.movies||[]).find(x=>x.id===id) || (S.movies||[]).find(x=>x.id===id) || (S.vault.movies||[]).find(x=>x.id===id) || null; }
+function allMovies(){ return (S.library.movies||[]).concat(S.movies||[], S.vault.movies||[]); }
 function posterViewerOpen(){ const o = document.getElementById("posterViewer"); return !!o && o.classList.contains("show"); }
 (function setupSwipeNav(){
   const MIN_DIST = 60;      // minimum horizontal travel to count as a swipe
@@ -6157,7 +6192,7 @@ function posterViewerOpen(){ const o = document.getElementById("posterViewer"); 
     const t = e.changedTouches[0];
     const dx = t.clientX - sx, dy = t.clientY - sy;
     if(Math.abs(dx) < MIN_DIST || Math.abs(dy) > Math.abs(dx)*MAX_SLOPE) return;
-    if(mode==="library"){
+    if(mode==="library"||mode==="archive"){
       const idx = LIB_CATS.indexOf(libTab);
       if(dx < 0 && idx < LIB_CATS.length-1) switchLibTab(LIB_CATS[idx+1]);
       else if(dx > 0 && idx > 0) switchLibTab(LIB_CATS[idx-1]);
@@ -6214,10 +6249,11 @@ function myrScore(cat, t, a){
   return Math.round(c.q.reduce((s, [id], i) => s + w[i] / sum * 100 * MYR_SHARE[a[id] == null ? 2 : a[id]], 0));
 }
 function myrFind(id){
-  for(const cat of ALL_CATS){ const it = (S[cat] || []).concat(S.library[cat] || []).find(x => x.id === id); if(it) return { cat, it }; }
+  for(const cat of ALL_CATS){ const it = (S[cat] || []).concat(S.library[cat] || [], S.vault[cat] || []).find(x => x.id === id); if(it) return { cat, it }; }
   return null;
 }
 function myrEligible(cat, it){   // only finished titles can be rated
+  if(mode === "archive") return true;   // everything in the Archive is finished
   if(it.abandoned) return false;
   if(cat === "games") return !!it.finished;
   if(cat === "movies") return finMovieDone(it);
@@ -6257,6 +6293,77 @@ function myrSave(){
 function myrClear(){
   const f = myrFind(myrCtx.id); if(!f || !confirm("Remove your score for this title?")) return;
   delete f.it.myRating; closeModal("myrModal"); persist();
+}
+
+/* ---------- v2.4.0 — Archive book (the "vault") ----------
+   S.vault[cat] holds finished titles, same item shapes as the Library. Finished titles arrive at season rollover (vaultAdd),
+   from the old archive records once (vaultImport) or by hand (+ Add). Docs sync as cat "vault_<cat>" so older app versions ignore them. */
+const libBook = cat => mode === "archive" ? S.vault[cat] : S.library[cat];
+const inVault = (cat, it) => (S.vault[cat] || []).includes(it);
+const MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function arcDateText(it, long){
+  const d = it.finishedDate; if(!d || !d.y) return "unknown";
+  const mi = +d.m;
+  return long ? gmFmtDate(d) : [d.d && mi ? +d.d : "", mi >= 1 && mi <= 12 ? MON3[mi - 1] : "", d.y].filter(Boolean).join(" ");
+}
+function arcYearsText(it){
+  const ys = [];
+  (it.groups || []).forEach(g => { if(g.finishedYear) ys.push(+g.finishedYear); });
+  (it.arcYears || []).forEach(y => { if(y) ys.push(+y); });
+  Object.values(it.volYears || {}).forEach(y => { if(y) ys.push(+y); });
+  if(!ys.length) return "unknown";
+  const a = Math.min(...ys), b = Math.max(...ys);
+  return a === b ? String(a) : a + "–" + b;
+}
+const arcFinShort = (cat, it) => (cat === "games" || cat === "movies") ? arcDateText(it, false) : arcYearsText(it);
+const arcFinLong = (cat, it) => (cat === "games" || cat === "movies") ? arcDateText(it, true) : arcYearsText(it);
+function arcDateKey(it){
+  if(it.finishedDate !== undefined){ const d = it.finishedDate; return d && d.y ? (+d.y) * 10000 + (+d.m || 0) * 100 + (+d.d || 0) : 0; }
+  const t = arcYearsText(it); return t === "unknown" ? 0 : (+t.slice(-4)) * 10000;
+}
+function myrCorner(it, extra){   // the score plate on a cover (Archive)
+  const r = it.myRating; if(!r) return "";
+  return `<div class="myr myr-c ${ratingClass(r.s)}${extra ? " " + extra : ""}" onclick="event.stopPropagation();myrOpen('${it.id}')"><b class="serif">${r.s}</b></div>`;
+}
+function vaultAdd(cat, it){
+  const V = S.vault[cat];
+  if(cat === "games"){ it.finished = true; it.dlcAsked = true; it.lastPlayed = false; V.push(it); return; }
+  if(cat === "movies"){ V.push(it); return; }
+  const same = (a, b) => (cat === "manga" ? (a.anilistId && b.anilistId && a.anilistId === b.anilistId) : (a.tmdbId && b.tmdbId && a.tmdbId === b.tmdbId)) || normTitle(a.name) === normTitle(b.name);
+  const ex = V.find(x => same(x, it));
+  if(!ex){ V.push(it); return; }
+  if(!ex.myRating && it.myRating) ex.myRating = it.myRating;
+  if(cat === "manga"){
+    ex.fromVol = Math.min(ex.fromVol || 1, it.fromVol || 1); ex.toVol = Math.max(ex.toVol || 1, it.toVol || 1);
+    ex.volsRead = (ex.volsRead || 0) + (it.volsRead || 0); ex.volYears = { ...(ex.volYears || {}), ...(it.volYears || {}) };
+  }else{
+    ex.groups = (ex.groups || []).concat(it.groups || []).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }
+}
+// one-time: turn the old season records (names + finish dates only) into archive titles. Ids are derived from the title, so two devices doing it agree.
+function vaultImport(V, archive){
+  const id = (c, n) => "v_" + c2Hash(c + "|" + normTitle(n));
+  const fd = d => (d && typeof d === "object") ? { y: d.y || "", m: d.m || "", d: d.d || "" } : { y: "", m: "", d: "" };
+  const mr = o => o.myRating ? { myRating: o.myRating } : {};
+  (archive || []).slice().reverse().forEach(a => {
+    if(!a) return;
+    (a.games || []).forEach(g => { if(!g || !g.name) return; const i = id("games", g.name); if(!V.games.some(x => x.id === i)) V.games.push({ id: i, name: g.name, goal: 0, played: 0, finished: true, dlcAsked: true, finishedDate: fd(g.finishedDate), ...mr(g) }); });
+    (a.movies || []).forEach(m => { if(!m || !m.name) return; const i = id("movies", m.name); if(!V.movies.some(x => x.id === i)) V.movies.push({ id: i, name: m.name, length: 0, watched: 0, finishedDate: fd(m.finishedDate), ...mr(m) }); });
+    (a.episodic || []).forEach(e => {
+      if(!e || !e.name) return;
+      const c = e.category === "anime" ? "anime" : "tv", i = id(c, e.name), ex = V[c].find(x => x.id === i);
+      if(ex){ ex.arcLabel = [ex.arcLabel, e.rangeLabel].filter(Boolean).join("; "); ex.arcYears = (ex.arcYears || []).concat(e.finishedYears || []); if(!ex.myRating && e.myRating) ex.myRating = e.myRating; }
+      else V[c].push({ id: i, name: e.name, epLen: 0, groups: [], arcLabel: e.rangeLabel || "", arcYears: (e.finishedYears || []).slice(), ...mr(e) });
+    });
+    (a.manga || []).forEach(m => {
+      if(!m || !m.name) return;
+      const i = id("manga", m.name), rg = String(m.rangeLabel || ""), r = /from (\d+) to (\d+)/.exec(rg), one = /Vol (\d+)/.exec(rg);
+      let from = 1, to = Math.max(1, m.units || 1); if(r){ from = +r[1]; to = +r[2]; } else if(one){ from = to = +one[1]; }
+      const ex = V.manga.find(x => x.id === i);
+      if(ex){ ex.fromVol = Math.min(ex.fromVol, from); ex.toVol = Math.max(ex.toVol, to); ex.volsRead = (ex.volsRead || 0) + (m.units || 0); ex.volYears = { ...(ex.volYears || {}), ...(m.volYears || {}) }; }
+      else V.manga.push({ id: i, name: m.name, fromVol: from, toVol: to, volsRead: m.units || (to - from + 1), volYears: { ...(m.volYears || {}) }, ...mr(m) });
+    });
+  });
 }
 
 $("verTag").textContent = "v" + APP_VERSION;
