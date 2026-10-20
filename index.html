@@ -798,6 +798,20 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .mg-arc .mg-ctl{display:none}
 .pd-left .myr-row{flex-direction:column;align-items:center;gap:6px;margin-top:0}
 .pd-left .myr-row .btn{width:100%}
+
+/* v2.4.1 — modals follow the visible screen (keyboard-aware), games info box, season scores */
+.modal{inset:auto;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100%);padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.sheet{max-height:min(90vh,calc(var(--vvh,100vh) - 24px - env(safe-area-inset-top,0px)))}
+.tmdb-results{max-height:calc(var(--vvh,100vh) * .52)}
+#tmdbModal .sheet,#gmAddModal .sheet,#mgModal .sheet{height:calc(var(--vvh,100vh) - 24px - env(safe-area-inset-top,0px));max-height:none;display:flex;flex-direction:column}
+#tmdbBody,#mgmBody{flex:1;min-height:0;display:flex;flex-direction:column}
+#tmdbBody input,#mgmBody input,#gmAddQ{flex:none}
+#tmdbModal .tmdb-results,#mgModal .tmdb-results,#gmAddModal .tmdb-results{flex:1;min-height:0;max-height:none}
+#tmdbModal .actions,#gmAddModal .actions,#mgModal .actions,#tmdbModal .tmdb-credit,#gmAddModal .tmdb-credit,#mgModal .tmdb-credit,#tmdbModal h2,#gmAddModal h2,#mgModal h2,#tmdbModal .hint,#mgModal .hint{flex:none}
+.gm-cell{aspect-ratio:auto;border:0;border-radius:0;overflow:visible;background:none;container-type:inline-size}
+.gm-cv{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--panel2);border:1px solid var(--line)}
+.sf-mini .myr-c{top:3px;right:3px;padding:1px 4px;border-radius:3px 7px 3px 7px}
+.sf-mini .myr-c b{font-size:9.5px}
 </style>
 </head>
 <body>
@@ -1055,7 +1069,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "2.4.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.4.1"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1939,7 +1953,7 @@ function mgHeroHtml(m){
         <div class="sx-hero-info"><div class="t serif">${esc(m.name)}</div><div class="n"><b>Vol ${cur}</b> · ${r} of ${i.total} read</div><div class="s">${mgRange(m)} · ${i.left} left</div></div>
       </div>
     </div>
-    <div class="sx-hero-foot">${mgReadBtn(m, cur, r + 1)}${mgSStrip(m)}${mgSLinks(m)}</div>
+    <div class="sx-hero-foot">${mgReadBtn(m, cur, r + 1)}${mgSStrip(m)}${myrRow(m)}${mgSLinks(m)}</div>
   </div>`;
 }
 function mgSCardHtml(m){
@@ -2031,7 +2045,7 @@ function tmdbNormalize(category, r){
     title: (isTv ? r.name : r.title) || "",
     originalTitle: (isTv ? r.original_name : r.original_title) || "",
     year: date ? String(date).slice(0,4) : "",
-    rating: r.vote_count > 0 ? Math.round(r.vote_average * 10) : null,
+    rating: r.vote_count > 0 ? Math.round(r.vote_average * 10) : null, votes: r.vote_count || 0, pop: r.popularity || 0,
     posterPath: r.poster_path || null,
     overview: r.overview || "",
   };
@@ -2058,9 +2072,15 @@ const MediaDB = {
         return res.json();
       },
       async search(category, query){
-        const type = isShowCat(category) ? "tv" : "movie";
-        const data = await this.api("/search/" + type, { query, include_adult: "false", page: "1" });
-        return (data.results || []).slice(0, 10).map(r => tmdbNormalize(category, r));
+        const type = isShowCat(category) ? "tv" : "movie", q = String(query).trim();
+        const toks = q.split(/\s+/).filter(Boolean), vars = [q];
+        if(toks.length > 1) vars.push(toks.slice(0, -1).join(" "));
+        const big = toks.slice().sort((a, b) => b.length - a.length)[0];
+        if(toks.length > 2 && big.length >= 4 && !vars.includes(big)) vars.push(big);
+        const lists = await Promise.all(vars.map((v, i) => this.api("/search/" + type, { query: v, include_adult: "false", page: "1" }).then(d => d.results || []).catch(e => { if(i === 0) throw e; return []; })));
+        const seen = new Set(), all = [];
+        lists.flat().forEach(r => { if(!seen.has(r.id)){ seen.add(r.id); all.push(tmdbNormalize(category, r)); } });
+        return srchRank(q, all, r => [r.title, r.originalTitle], r => r.votes, r => r.year).slice(0, 15);
       },
       // v1.8.3 — description + director + top-5 cast, fetched on demand by tmdbId
       async extras(category, id){
@@ -3356,7 +3376,7 @@ function heroFill(m){
 function miniPosterCard(m, idx){
   const open = libOpenMovie === m.id;
   return `<div class="sf-mini${open?" open":""}"${open ? "" : ` data-pid="${m.id}"`} onclick="pdToggle('${m.id}')">
-    <div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, idx, "w342")}<div class="sf-check">✓</div></div>
+    <div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, idx, "w342")}<div class="sf-check">✓</div>${m.myRating ? myrCorner(m) : ""}</div>
   </div>`;
 }
 function pdSfMove(id){ libOpenMovie = null; moveItem("movies", id, "season", "library"); }
@@ -3483,7 +3503,7 @@ function libRemainingMin(category, item){
   if(category==="games"){
     const mainRemaining = Math.max(0, (item.goal||0)-(item.played||0));
     const hasDlcs = item.hasDlc && item.dlcs && item.dlcs.length;
-    const dlcHours = hasDlcs ? item.dlcs.filter(d=>d.type==="time").reduce((a,d)=>a+(d.goal||0),0) : 0;
+    const dlcHours = hasDlcs ? item.dlcs.reduce((a,d)=>a+(d.finished?0:Math.max(0,(d.goal||0)-(d.played||0))),0) : 0;
     return (mainRemaining+dlcHours)*60;
   }
   const {total, played} = itemMinutes(category, item);
@@ -3874,7 +3894,7 @@ async function gmMatchRun(refresh){
     try{
       if(refresh) igdbApply(g, await igdbGameData(g.igdbId));
       else{
-        const rs = await igdbSearch(g.name, 8), exact = rs.filter(r => gmNorm(r.name) === gmNorm(g.name));
+        const rs = await igdbSearch(g.name, 8, true), exact = rs.filter(r => gmNorm(r.name) === gmNorm(g.name));
         if(exact.length === 1) igdbApply(g, await igdbGameData(exact[0].id));   // one clear match: take it. Several (say a game and its remake): you choose
         else gmPending.push({ id: g.id, name: g.name, cands: [...exact, ...rs.filter(r => !exact.includes(r))].slice(0, 6).map(r => ({ id: r.id, name: r.name, year: r.first_release_date ? igdbDateParts(r.first_release_date).y : "", kind: gmKind(r) })) });
       }
@@ -3908,15 +3928,16 @@ function gmCellHtml(g, i, hidden){
   const r = itemRating(g), len = g.goal ? fmtN(g.goal) + "h" : "", n = (g.dlcs || []).length;
   const sea = S.games.includes(g), m = sea ? gameMin(g) : null, done = !!m && m.goal > 0 && m.played >= m.goal, pct = m && m.goal ? Math.min(100, m.played / m.goal * 100) : 0;
   const up = gmUpcoming(g), rem = Math.max(0, (g.goal || 0) - (g.played || 0)), remTxt = rem > 0 ? (rem >= 1 ? fmtN(Math.round(rem * 10) / 10) + "h" : Math.max(1, Math.round(rem * 60)) + "m") : "";
-  const left = mode === "archive" ? arcFinShort("games", g) : sea ? (done ? "✓" : (m.played > 0 ? Math.max(1, Math.round(pct)) + "%" : (up ? "Upcoming" : len))) : (up ? "Upcoming" : remTxt);   // Library covers show the time left, Season covers how far you are; a game that isn't out yet says so
+  const left = mode === "archive" ? "" : sea ? (done ? "✓" : (m.played > 0 ? Math.max(1, Math.round(pct)) + "%" : (up ? "Upcoming" : len))) : (up ? "Upcoming" : "");   // Library covers show the time left, Season covers how far you are; a game that isn't out yet says so
+  const box = sea ? "" : `<div class="pinfo">${esc(mode === "archive" ? arcFinShort("games", g) : gmLibInfo(g))}</div>`;
   const chain = [igdbImg(g.coverId, "cover_big"), igdbImg(g.backdropId, "screenshot_big")].filter(Boolean);
-  return `<div class="gm-cell${g.coverId ? "" : " named"}${hidden ? " gm-hid" : ""}${done ? " gm-done" : ""}" data-pid="${g.id}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')">
+  return `<div class="gm-cell${g.coverId ? "" : " named"}${hidden ? " gm-hid" : ""}${done ? " gm-done" : ""}" data-pid="${g.id}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')"><div class="gm-cv">
     <div class="gm-ph">${esc(g.name)}</div>
     ${chain.length ? `<img alt="" loading="${i > 29 ? "lazy" : "eager"}" src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onerror="gmFb(this)">` : ""}
     <div class="gm-shade"></div><div class="gm-name">${esc(g.name)}</div>
-    ${mode === "archive" ? myrCorner(g) : r != null ? `<div class="prate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
+    ${(mode === "archive" || (g.finished && g.myRating)) ? myrCorner(g) : r != null ? `<div class="prate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
     ${left ? `<div class="gm-chip l${left === "Upcoming" ? " up" : ""}">${left}</div>` : ""}${n ? `<div class="gm-chip r">+${n}</div>` : ""}
-    ${sea && pct > 0 ? `<div class="gm-prog"><i style="width:${pct}%"></i></div>` : ""}
+    ${sea && pct > 0 ? `<div class="gm-prog"><i style="width:${pct}%"></i></div>` : ""}</div>${box}
   </div>`;
 }
 function gmBackdropHtml(g){
@@ -3924,7 +3945,7 @@ function gmBackdropHtml(g){
   return `<div class="gm-bd" onclick="gmToggle('${g.id}')">
     ${bd ? `<img alt="" src="${esc(bd)}"${g.backdropY != null ? ` style="object-position:50% ${g.backdropY}%"` : ""} onerror="this.remove()">` : (cv ? `<img class="blur" alt="" src="${esc(cv)}" onerror="this.remove()">` : "")}
     <div class="gm-bd-shade"></div>
-    ${mode === "archive" ? myrCorner(g, "tvc-rate") : r != null ? `<div class="prate tvc-rate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
+    ${(mode === "archive" || (g.finished && g.myRating)) ? myrCorner(g, "tvc-rate") : r != null ? `<div class="prate tvc-rate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
     <div class="gm-bd-t"><div class="n serif">${esc(g.name)}</div>${y ? `<div class="s">${y}${g.goal ? " · " + fmtN(g.goal) + "h" : ""}</div>` : ""}</div>
   </div>`;
 }
@@ -4031,7 +4052,7 @@ function gmFlip(wall, before, dur){   // slide every cover from where it was to 
 function gmGhost(wall, cell, rect){   // a stand-in for the poster that can fade on its own
   const gh = cell.cloneNode(true);
   gh.classList.remove("gm-hid"); ["id", "data-pid", "onclick"].forEach(a => gh.removeAttribute(a));
-  Object.assign(gh.style, { position: "absolute", left: rect.x + "px", top: rect.y + "px", width: rect.w + "px", height: rect.h + "px", margin: "0", zIndex: "5", pointerEvents: "none" });
+  Object.assign(gh.style, { overflow: "hidden", position: "absolute", left: rect.x + "px", top: rect.y + "px", width: rect.w + "px", height: rect.h + "px", margin: "0", zIndex: "5", pointerEvents: "none" });
   wall.appendChild(gh); return gh;
 }
 function gmOpenAnim(id){
@@ -5118,14 +5139,14 @@ function tvSeasonsHtml(item, entry){
     const poster = (r.s && r.s.poster) || item.posterPath;
     const avg = r.n != null && entry && entry.eps[r.n] ? tvSeasonAvg(entry.eps[r.n], item) : null;
     const grp = r.gid ? (item.groups || []).find(x => x.id === r.gid) : null, seen = !!(grp && grp.total > 0 && grp.watched >= grp.total);
-    return `<div class="tvs${tvOpenSeason === r.key ? " on" : ""}${seen ? " done" : ""}" onclick="tvPickSeason('${r.key}')"><div class="tvs-p">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : esc(r.short)}${seen ? `<span class="tvs-ok">✓</span>` : ""}</div><div class="tvs-l${r.arc ? " arc" : ""}"><b>${esc(r.short)}</b>${avg != null ? ` <em class="${ratingClass(avg)}">${avg}</em>` : ""}</div></div>`;
+    return `<div class="tvs${tvOpenSeason === r.key ? " on" : ""}${seen ? " done" : ""}" onclick="tvPickSeason('${r.key}')"><div class="tvs-p">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : esc(r.short)}${seen ? `<span class="tvs-ok">✓</span>` : ""}</div><div class="tvs-l${r.arc ? " arc" : ""}"><b>${esc(r.short)}</b>${(grp && grp.myRating) ? ` <em class="${ratingClass(grp.myRating.s)}">${grp.myRating.s}</em>` : avg != null ? ` <em class="${ratingClass(avg)}">${avg}</em>` : ""}</div></div>`;
   }).join("");
   const sel = rows.find(r => r.key === tvOpenSeason);
   let panel = "";
   if(sel){
     const eps = sel.n != null && entry ? entry.eps[sel.n] : null;
     const g = sel.gid ? (item.groups || []).find(x => x.id === sel.gid) : null, seen = !!(g && g.total > 0 && g.watched >= g.total);
-    const acts = g ? `<div class="tve-actions"><button class="btn small ${seen ? "brass" : "ghost"}" onclick="tvSeasonWatched('${item.id}','${g.id}')">${seen ? "Watched" : "Mark as watched"}</button><button class="btn small ghost danger" onclick="tvSeasonRemove('${item.id}','${g.id}')">Remove season</button></div>` : "";
+    const acts = g ? `${seasonRateRow(item, g)}<div class="tve-actions"><button class="btn small ${seen ? "brass" : "ghost"}" onclick="tvSeasonWatched('${item.id}','${g.id}')">${seen ? "Watched" : "Mark as watched"}</button><button class="btn small ghost danger" onclick="tvSeasonRemove('${item.id}','${g.id}')">Remove season</button></div>` : "";
     if(!eps) panel = `<div class="tve-wrap"><div class="tve-head"><span><b>${esc(sel.label)}</b></span></div><div class="tvc-note">No episode info for this one — it isn't matched to a TMDB season.</div>${acts}</div>`;
     else {
       const avg = tvSeasonAvg(eps, item); let anyFb = false;
@@ -5407,7 +5428,7 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
   const nextEp = !finished && left > 0 ? tvEpAt(eps, g.watched + 1) : null, sc = nextEp ? tvEpScore(nextEp, item) : null;
   const nextLine = finished ? `<div class="sx-next">All ${g.total} episodes watched.</div>`
     : `<div class="sx-next">${g.watched > 0 ? "Next" : "Start with"}: <b>E${nextEp ? nextEp.e : g.watched + 1}</b>${nextEp && nextEp.t ? ` “${esc(nextEp.t)}”` : ""}${sc ? ` · <em class="${ratingClass(sc.v)}">${sc.v}</em>` : ""}</div>`;
-  const links = finished ? "" : `<div class="sf-links"><button onclick="event.stopPropagation();sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`;
+  const links = finished ? seasonRateRow(item, g) : `<div class="sf-links"><button onclick="event.stopPropagation();sxToLibrary('${item.id}','${g.id}')">To Library</button></div>`;
   const grid = open ? `<div class="sx-grid${sxAnim === "c:" + g.id ? " sx-in" : ""}">${sxTilesHtml(item, g, eps)}${finished ? "" : `<div class="sx-tiles-hint">Tap an episode to mark everything up to it as watched.</div>`}${links}</div>` : "";
   return `<div class="sx-card${isNext ? " next" : ""}${finished ? " fin" : ""}"${finished ? "" : ` onclick="sxToggleSeason('${g.id}')"`}>
     ${finished ? "" : `<span class="sx-chev${open ? " up" : ""}">▾</span>`}
@@ -5427,7 +5448,7 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
 function sxDoneRow(item, row, g, entry){
   const open = sxDoneOpen.has(g.id);
   const eps = (row.n != null && entry && entry.eps[row.n]) || [], avg = tvSeasonAvg(eps, item);
-  const head = `<div class="sx-done" onclick="sxToggleDone('${g.id}')"><span class="ok">✓</span><span><b>${esc(row.label)}</b> · ${g.watched}/${g.total}</span><span class="sp"></span>${avg != null ? `<span>avg <em class="${ratingClass(avg)}">${avg}</em></span>` : ""}</div>`;
+  const head = `<div class="sx-done" onclick="sxToggleDone('${g.id}')"><span class="ok">✓</span><span><b>${esc(row.label)}</b> · ${g.watched}/${g.total}</span><span class="sp"></span>${g.myRating ? `<span>mine <em class="${ratingClass(g.myRating.s)}">${g.myRating.s}</em></span>` : ""}${avg != null ? `<span>avg <em class="${ratingClass(avg)}">${avg}</em></span>` : ""}</div>`;
   return open ? head + sxSeasonCard(item, row, g, entry, false, true) : head;
 }
 function sxShowHtml(item, nextGid, isHero){
@@ -5469,7 +5490,7 @@ function renderSeasonTv(category){
   if(pick) order.unshift(pick);
   order.forEach(it => { html += sxShowHtml(it, it === pick ? sxNextGid(it) : null, it === pick); });
   if(completed.length){
-    html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check">✓</div></div></div>`).join("")}</div>`;
+    html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check">✓</div>${m.myRating ? myrCorner(m) : ""}</div></div>`).join("")}</div>`;
     const open = completed.find(m => m.id === sxShelfOpen);
     if(open){
       const entry = tvEntry(open), all = Object.values((entry && entry.eps) || {}).flat();
@@ -5545,7 +5566,7 @@ let mgOpen = null;
 let mgS = { target: "library", mode: "add", linkId: null, q: "", results: [], pick: null, busy: false };
 let mgTimer = null, mgSeq = 0;
 const AL_URL = "https://graphql.anilist.co";
-const AL_SEARCH = `query($q:String){Page(perPage:14){media(search:$q,type:MANGA,sort:SEARCH_MATCH){id idMal format status volumes chapters averageScore startDate{year} title{romaji english} coverImage{large}}}}`;
+const AL_SEARCH = `query($q:String){Page(perPage:25){media(search:$q,type:MANGA,sort:SEARCH_MATCH){id idMal format status volumes chapters averageScore popularity startDate{year} title{romaji english} coverImage{large}}}}`;
 const AL_DETAIL = `query($id:Int){Media(id:$id,type:MANGA){id idMal status volumes chapters averageScore description(asHtml:false) coverImage{large extraLarge} bannerImage startDate{year} staff(perPage:6,sort:RELEVANCE){edges{role node{name{full}}}}}}`;
 async function anilist(query, variables){
   let res;
@@ -5562,7 +5583,7 @@ function alErrorText(e){
   return m === "network" ? "Couldn't reach AniList. Check your connection and try again." : (m === "limit" ? "AniList asked us to slow down — wait a minute and try again." : "AniList had a problem with that request. Try again in a moment.");
 }
 function alNorm(m){
-  return { id: m.id, malId: m.idMal || null, title: (m.title && (m.title.english || m.title.romaji)) || "Untitled", format: m.format, status: m.status,
+  return { id: m.id, titles: [m.title && m.title.english, m.title && m.title.romaji].filter(Boolean), pop: m.popularity || 0, malId: m.idMal || null, title: (m.title && (m.title.english || m.title.romaji)) || "Untitled", format: m.format, status: m.status,
     volumes: m.volumes > 0 ? m.volumes : null, chapters: m.chapters || null, score: m.averageScore == null ? null : m.averageScore,
     year: m.startDate && m.startDate.year || null, cover: m.coverImage && m.coverImage.large || null };
 }
@@ -5611,9 +5632,9 @@ async function mgRunSearch(){
   const seq = ++mgSeq;
   box.innerHTML = `<div class="tmdb-msg">Searching…</div>`;
   try{
-    const d = await anilist(AL_SEARCH, { q });
+    const ranked = await mgSearchRank(q);
     if(seq !== mgSeq) return;
-    mgS.results = ((d.Page && d.Page.media) || []).filter(m => m.format !== "NOVEL").map(alNorm);
+    mgS.results = ranked;
     box.innerHTML = mgS.results.length ? mgS.results.map((r, i) => {
       const sub = [r.year, r.volumes ? `${r.volumes} vol${r.volumes === 1 ? "" : "s"}` : (r.chapters ? `${r.chapters} ch` : "volumes unknown"), AL_STATUS[r.status] || "", r.score != null ? "★ " + r.score : ""].filter(Boolean).join(" · ");
       return `<div class="tmdb-res" onclick="mgPick(${i})"><div class="tmdb-poster">${r.cover ? `<img alt="" loading="lazy" src="${esc(r.cover)}" onerror="this.remove()">` : ""}</div><div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.title)}</div><div class="tmdb-res-sub">${esc(sub)}</div></div></div>`;
@@ -5711,7 +5732,7 @@ function mgMapHtml(it, compact){
 }
 
 /* ----- the shelf ----- */
-function mgRateBadge(it){ if(mode === "archive") return myrCorner(it); return it.anilistId && it.rating != null ? `<div class="prate ${ratingClass(it.rating)}">${it.rating}</div>` : ""; }
+function mgRateBadge(it){ if(mode === "archive" || it.myRating) return myrCorner(it); return it.anilistId && it.rating != null ? `<div class="prate ${ratingClass(it.rating)}">${it.rating}</div>` : ""; }
 function mgCardHtml(it){
   const i = mgInfo(it), sel = mgOpen === it.id;
   return `<div class="mgc${sel ? " sel" : ""}" data-pid="${it.id}" onclick="mgToggle('${it.id}')">
@@ -5857,11 +5878,9 @@ async function mgAutoLink(){
     if(mgBatch.stop) break;
     done++; mgBatch.text = `Title ${done} of ${list.length}: ${it.name}`; const el = $("mgProg"); if(el) el.textContent = mgBatch.text;
     try{
-      const d = await anilist(AL_SEARCH, { q: it.name });
-      const res = ((d.Page && d.Page.media) || []).filter(m => m.format !== "NOVEL");
-      const want = normTitle(it.name);
-      const hit = res.find(m => m.title && (normTitle(m.title.english || "") === want || normTitle(m.title.romaji || "") === want));
-      if(hit){ mgApplyLink(it, alNorm(hit)); linked++; }
+      const res = await mgSearchRank(it.name), want = normTitle(it.name);
+      const hit = res.find(r => (r.titles || []).some(t => normTitle(t) === want));
+      if(hit){ mgApplyLink(it, hit); linked++; }
     }catch(e){ if(e && e.message === "limit") break; }
     await sleep(750);
   }
@@ -6244,8 +6263,8 @@ const MYR = {
   manga: { q: [["story","Story"],["chars","Characters"],["art","Art & linework"],["layout","Layout & panel pacing"],["lore","Lore & world"],["write","Writing & dialogue"],["end","Ending"],["cons","Consistency across volumes"],["orig","Originality"],["emo","Emotional impact"]],
     th: myrTh([13,13,12,10,9,8,9,6,10,10], [["story","Story-driven",[1.4,1,.7,.7,1.4,1,1.4,1,1,1]],["art","Art-driven",[.8,1,1.5,1.5,.6,1,1,1,1,1.4]]]) },
 };
-function myrScore(cat, t, a){
-  const c = MYR[cat], w = c.th[t][1], sum = w.reduce((x, y) => x + y, 0);
+function myrScore(cat, t, a, season){
+  const c = (season ? MYRS : MYR)[cat], w = c.th[t][1], sum = w.reduce((x, y) => x + y, 0);
   return Math.round(c.q.reduce((s, [id], i) => s + w[i] / sum * 100 * MYR_SHARE[a[id] == null ? 2 : a[id]], 0));
 }
 function myrFind(id){
@@ -6257,7 +6276,7 @@ function myrEligible(cat, it){   // only finished titles can be rated
   if(it.abandoned) return false;
   if(cat === "games") return !!it.finished;
   if(cat === "movies") return finMovieDone(it);
-  if(cat === "manga"){ const t = Math.max(0, (it.toVol || 0) - (it.fromVol || 0) + 1); return t > 0 && finMangaRead(it) >= t; }
+  if(cat === "manga"){ const t = Math.max(0, (it.toVol || 0) - (it.fromVol || 0) + 1); const rd = finMangaRead(it); return (t > 0 && !it.ongoing && rd >= t) || rd >= 10; }
   return (it.groups || []).length > 0 && it.groups.every(finGroupDone);
 }
 function myrRow(it){
@@ -6266,33 +6285,39 @@ function myrRow(it){
   return `<div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s)}"><small>MY SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">Not rated yet</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="myrOpen('${it.id}')">${r ? "Edit score" : "Rate it"}</button></div>`;
 }
 let myrCtx = null;
-function myrOpen(id){
+const myrSet = x => (x.gid ? MYRS : MYR)[x.cat];
+function myrTarget(x){ const f = myrFind(x.id); if(!f) return null; return x.gid ? (f.it.groups || []).find(g => g.id === x.gid) || null : f.it; }
+function myrPartialManga(it){ const t = Math.max(0, (it.toVol || 0) - (it.fromVol || 0) + 1); return !(!it.ongoing && finMangaRead(it) >= t); }
+function myrOpen(id, gid){
   const f = myrFind(id); if(!f) return;
-  const r = f.it.myRating, c = MYR[f.cat];
-  myrCtx = { cat: f.cat, id, t: r && c.th[r.t] ? r.t : "balanced", a: { ...(r ? r.a : {}) } };
+  const g = gid ? (f.it.groups || []).find(x => x.id === gid) : null; if(gid && !g) return;
+  const r = (g || f.it).myRating, c = (gid ? MYRS : MYR)[f.cat];
+  myrCtx = { cat: f.cat, id, gid: gid || null, t: r && c.th[r.t] ? r.t : "balanced", a: { ...(r ? r.a : {}) } };
   myrRender(); $("myrModal").classList.add("show");
 }
 function myrRender(){
-  const x = myrCtx, c = MYR[x.cat], f = myrFind(x.id), w = c.th[x.t][1], sum = w.reduce((p, q) => p + q, 0);
-  $("myrName").textContent = f ? f.it.name : "";
-  $("myrClear").style.display = f && f.it.myRating ? "" : "none";
-  $("myrBody").innerHTML = `<label>Theme</label><div class="rate-chips" style="margin-top:0">${Object.keys(c.th).map(k => `<button class="rate-chip${k === x.t ? " on" : ""}" onclick="myrTheme('${k}')">${c.th[k][0]}</button>`).join("")}</div>
-    <div class="myr-live"><span>Total</span><b class="serif" id="myrTotal"></b></div>
-    ${c.q.map(([id, lab], i) => `<div class="myr-q"><div class="myr-qh"><span>${lab}</span><em>${Math.round(w[i] / sum * 100)} pts</em></div><div class="myr-opts">${MYR_ANS.map((n, v) => `<button class="${(x.a[id] == null ? 2 : x.a[id]) === v ? "on" : ""}" onclick="myrPick('${id}',${v},this)">${n}</button>`).join("")}</div></div>`).join("")}`;
+  const x = myrCtx, c = myrSet(x), f = myrFind(x.id), tg = myrTarget(x), w = c.th[x.t][1], sum = w.reduce((p, q) => p + q, 0), themes = Object.keys(c.th);
+  const part = !x.gid && x.cat === "manga" && f && myrPartialManga(f.it);
+  $("myrName").textContent = f ? f.it.name + (x.gid && tg ? " — " + tg.name : "") : "";
+  $("myrClear").style.display = tg && tg.myRating ? "" : "none";
+  $("myrBody").innerHTML = (themes.length > 1 ? `<label>Theme</label><div class="rate-chips" style="margin-top:0">${themes.map(k => `<button class="rate-chip${k === x.t ? " on" : ""}" onclick="myrTheme('${k}')">${c.th[k][0]}</button>`).join("")}</div>` : "") +
+    (part ? `<div class="hint" style="margin-top:10px">Not finished yet, so the ending question is replaced by where the story is heading.</div>` : "") +
+    `<div class="myr-live"><span>Total</span><b class="serif" id="myrTotal"></b></div>` +
+    c.q.map(([id, lab], i) => `<div class="myr-q"><div class="myr-qh"><span>${part && id === "end" ? "Where it's heading" : lab}</span><em>${Math.round(w[i] / sum * 100)} pts</em></div><div class="myr-opts">${MYR_ANS.map((n, v) => `<button class="${(x.a[id] == null ? 2 : x.a[id]) === v ? "on" : ""}" onclick="myrPick('${id}',${v},this)">${n}</button>`).join("")}</div></div>`).join("");
   myrTotal();
 }
-function myrTotal(){ const x = myrCtx, v = myrScore(x.cat, x.t, x.a), el = $("myrTotal"); el.textContent = v; el.className = "serif " + ratingClass(v); }
+function myrTotal(){ const x = myrCtx, v = myrScore(x.cat, x.t, x.a, !!x.gid), el = $("myrTotal"); el.textContent = v; el.className = "serif " + ratingClass(v); }
 function myrTheme(k){ myrCtx.t = k; myrRender(); }
 function myrPick(id, v, btn){ myrCtx.a[id] = v; btn.parentNode.querySelectorAll("button").forEach(b => b.classList.toggle("on", b === btn)); myrTotal(); }
 function myrSave(){
-  const x = myrCtx, f = myrFind(x.id); if(!f) return closeModal("myrModal");
-  const a = {}; MYR[x.cat].q.forEach(([id]) => { a[id] = x.a[id] == null ? 2 : x.a[id]; });
-  f.it.myRating = { t: x.t, a, s: myrScore(x.cat, x.t, a) };
-  closeModal("myrModal"); persist(); toast("My score: " + f.it.myRating.s);
+  const x = myrCtx, tg = myrTarget(x); if(!tg) return closeModal("myrModal");
+  const a = {}; myrSet(x).q.forEach(([id]) => { a[id] = x.a[id] == null ? 2 : x.a[id]; });
+  tg.myRating = { t: x.t, a, s: myrScore(x.cat, x.t, a, !!x.gid) };
+  closeModal("myrModal"); persist(); toast("My score: " + tg.myRating.s);
 }
 function myrClear(){
-  const f = myrFind(myrCtx.id); if(!f || !confirm("Remove your score for this title?")) return;
-  delete f.it.myRating; closeModal("myrModal"); persist();
+  const tg = myrTarget(myrCtx); if(!tg || !confirm("Remove your score?")) return;
+  delete tg.myRating; closeModal("myrModal"); persist();
 }
 
 /* ---------- v2.4.0 — Archive book (the "vault") ----------
@@ -6364,6 +6389,55 @@ function vaultImport(V, archive){
       else V.manga.push({ id: i, name: m.name, fromVol: from, toVol: to, volsRead: m.units || (to - from + 1), volYears: { ...(m.volYears || {}) }, ...mr(m) });
     });
   });
+}
+
+/* ---------- v2.4.1 ---------- */
+// modals follow the part of the screen that is really visible (above the keyboard)
+function vvSync(){
+  const v = window.visualViewport, r = document.documentElement.style;
+  r.setProperty("--vvh", (v ? v.height : innerHeight) + "px"); r.setProperty("--vvt", (v ? v.offsetTop : 0) + "px");
+}
+if(window.visualViewport){ visualViewport.addEventListener("resize", vvSync); visualViewport.addEventListener("scroll", vvSync); }
+window.addEventListener("resize", vvSync); vvSync();
+// one search ranking for every category: the letters you typed matter, then popularity
+function srchRank(q, list, titlesOf, popOf, yearOf){
+  let toks = normTitle(q).split(" ").filter(Boolean), yr = null;
+  if(toks.length > 1 && /^(19|20)\d\d$/.test(toks[toks.length - 1])) yr = toks.pop();
+  const qn = toks.join(" "), qc = qn.replace(/ /g, "");
+  const tier = r => {
+    let best = 4;
+    titlesOf(r).forEach(t => {
+      const tn = normTitle(t); if(!tn) return;
+      const ws = tn.split(" ");
+      const k = tn === qn ? 0 : tn.startsWith(qn) ? 1 : toks.every(w => ws.some(x => x.startsWith(w))) ? 2 : (toks.every(w => tn.includes(w)) || tn.replace(/ /g, "").includes(qc)) ? 3 : 4;
+      best = Math.min(best, k);
+    });
+    return best;
+  };
+  return list.map((r, i) => ({ r, i, k: tier(r), y: yr && String(yearOf(r)) === yr ? 0 : 1, p: popOf(r) || 0 }))
+    .sort((a, b) => (a.k - b.k) || (a.y - b.y) || (b.p - a.p) || (a.i - b.i)).map(x => x.r);
+}
+async function mgSearchRank(q){
+  const toks = q.trim().split(/\s+/).filter(Boolean), vars = [q.trim()];
+  if(toks.length > 1) vars.push(toks.slice(0, -1).join(" "));
+  const lists = await Promise.all(vars.map((v, i) => anilist(AL_SEARCH, { q: v }).then(d => (d.Page && d.Page.media) || []).catch(e => { if(i === 0) throw e; return []; })));
+  const seen = new Set(), all = [];
+  lists.flat().forEach(m => { if(m.format === "NOVEL" || seen.has(m.id)) return; seen.add(m.id); all.push(alNorm(m)); });
+  return srchRank(q, all, r => r.titles || [r.title], r => r.pop, r => r.year).slice(0, 15);
+}
+function gmLibInfo(g){   // under each Library cover: release year · time left (main game + DLC)
+  const y = g.releaseDate && g.releaseDate.y, m = libRemainingMin("games", g);
+  return [y || "TBA", m > 0 ? fmtHrMin(m) : ""].filter(Boolean).join(" · ");
+}
+// per-season (TV) / per-arc (anime) score: 6 short questions about what changes from season to season
+const MYRS = {
+  tv: { q: [["story","Plot & story progression"],["chars","Character arcs"],["write","Writing & dialogue"],["pace","Pacing & consistency"],["fin","Season finale"],["fresh","Freshness vs earlier seasons"]], th: { balanced: ["Balanced", [20,18,16,16,18,12]] } },
+  anime: { q: [["story","Plot & story progression"],["chars","Character arcs"],["fight","Fights & animation"],["pace","Pacing & consistency"],["fin","Arc / season finale"],["fresh","Freshness vs earlier seasons"]], th: { balanced: ["Balanced", [20,18,16,14,18,14]] } },
+};
+function seasonRateRow(it, g){
+  if(!g || (!(g.total > 0 && g.watched >= g.total) && mode !== "archive")) return "";
+  const r = g.myRating, w = groupsWord(it.groups || []);
+  return `<div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s)}"><small>${w.toUpperCase()} SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">${w === "arc" ? "Arc" : "Season"} not rated</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="event.stopPropagation();myrOpen('${it.id}','${g.id}')">${r ? "Edit" : "Rate " + w}</button></div>`;
 }
 
 $("verTag").textContent = "v" + APP_VERSION;
