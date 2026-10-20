@@ -812,6 +812,27 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .gm-cv{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--panel2);border:1px solid var(--line)}
 .sf-mini .myr-c{top:3px;right:3px;padding:1px 4px;border-radius:3px 7px 3px 7px}
 .sf-mini .myr-c b{font-size:9.5px}
+
+/* v2.4.2 — rating menu with a fixed top, split-add sheet */
+#myrModal .sheet{display:flex;flex-direction:column;overflow:hidden;padding:12px 14px calc(12px + env(safe-area-inset-bottom))}
+.myr-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:14px;border:1px solid var(--brass-dim);background:linear-gradient(135deg,#1f2a22,#161e19);flex:none}
+.myr-top-l{min-width:0}
+.myr-top-l small{font:600 8.5px "IBM Plex Mono",monospace;letter-spacing:.16em;color:var(--brass)}
+.myr-name{font-size:16px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.myr-big{min-width:74px;padding:3px 12px 5px}
+.myr-big b{font-size:30px}
+.myr-themes{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;flex:none}
+.myr-themes .rate-chip{flex:none;padding:5px 10px;font-size:11.5px}
+#myrBody{flex:1;min-height:0;overflow-y:auto;padding-bottom:4px}
+#myrModal .actions{flex:none;margin-top:10px}
+.split-list{max-height:46vh;overflow-y:auto;margin-top:10px;border:1px solid var(--line);border-radius:12px}
+.split-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid var(--line-soft);cursor:pointer}
+.split-row:last-child{border-bottom:0}
+.split-row .ck{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--muted);display:grid;place-items:center;font-size:14px;color:transparent;flex:none}
+.split-row.on .ck{background:var(--brass);border-color:var(--brass);color:#1a1612}
+.split-row .nm{flex:1;min-width:0;font-size:14px}
+.split-row em{font:500 11px "IBM Plex Mono",monospace;font-style:normal;color:var(--muted)}
+.split-sum{margin:10px 2px;font-size:12.5px;color:var(--brass)}
 </style>
 </head>
 <body>
@@ -1052,7 +1073,13 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 </div>
 
 <!-- series modal (v1.7.0) — one named list per category, one named list per category -->
-<div class="modal" id="myrModal"><div class="sheet"><h2 class="serif">My score</h2><div class="hint" id="myrName"></div><div id="myrBody"></div><div class="hint" style="margin-top:12px">Anything you don't touch counts as Mid.</div><div class="actions"><button class="btn" onclick="closeModal('myrModal')">Cancel</button><button class="btn danger" id="myrClear" onclick="myrClear()">Clear</button><button class="btn brass" onclick="myrSave()">Save</button></div></div></div>
+<div class="modal" id="myrModal"><div class="sheet myr-sheet">
+  <div class="myr-top"><div class="myr-top-l"><small>MY SCORE</small><div class="myr-name serif" id="myrName"></div></div><div class="myr myr-big" id="myrTotalBox"><small>TOTAL</small><b class="serif" id="myrTotal"></b></div></div>
+  <div class="myr-themes" id="myrThemes"></div>
+  <div id="myrBody"></div>
+  <div class="actions"><button class="btn" onclick="closeModal('myrModal')">Cancel</button><button class="btn danger" id="myrClear" onclick="myrClear()">Clear</button><button class="btn brass" onclick="myrSave()">Save</button></div>
+</div></div>
+<div class="modal" id="splitModal"><div class="sheet"><h2 class="serif" id="splitTitle">How much did you finish?</h2><div class="hint" id="splitHint"></div><div id="splitBody"></div><div class="actions"><button class="btn" onclick="closeModal('splitModal')">Cancel</button><button class="btn brass" onclick="splitOk()">Add</button></div></div></div>
 <div class="toast" id="toast"></div>
 
 <!-- move modal (v1.7.0) — partial move of seasons/arcs/volumes between books -->
@@ -1069,7 +1096,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 
 <script>
 const KEY = "expedition-log-v1";
-const APP_VERSION = "2.4.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.4.2"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -2279,12 +2306,15 @@ function tmdbQueryChanged(){
   clearTimeout(tmdbSearchTimer);
   tmdbSearchTimer = setTimeout(runTmdbSearch, 400);
 }
-function tmdbOwned(cat, id){   // where a search result already lives, if anywhere
-  if(tmdbCtx && tmdbCtx.target === "archive") return (S.vault[cat] || []).some(x => x.tmdbId === id) ? "In your Archive" : "";
-  if((S[cat] || []).some(x => x.tmdbId === id)) return "In this season";
-  if((S.library[cat] || []).some(x => x.tmdbId === id)) return "In your Library";
+function ownedWhere(cat, id, titles){   // where this title already lives (any book); unlinked titles are matched by name
+  const key = cat === "manga" ? "anilistId" : "tmdbId", want = (titles || []).map(normTitle).filter(Boolean);
+  const hit = x => (id != null && x[key] === id) || (!x[key] && want.includes(normTitle(x.name)));
+  if((S[cat] || []).some(hit)) return "In this season";
+  if((S.library[cat] || []).some(hit)) return "In your Library";
+  if((S.vault[cat] || []).some(hit)) return "In your Archive";
   return "";
 }
+function tmdbOwned(cat, id, r){ return ownedWhere(cat, id, r ? [r.title, r.originalTitle] : []); }
 async function runTmdbSearch(){
   clearTimeout(tmdbSearchTimer);
   const input = $("tmdbQuery"), box = $("tmdbResults");
@@ -2298,7 +2328,7 @@ async function runTmdbSearch(){
     if(seq !== tmdbSearchSeq) return;
     tmdbResults = res;
     box.innerHTML = res.length
-      ? res.map((r,i)=>tmdbResultHtml(r, i, `tmdbPick(${i})`, tmdbOwned(tmdbCtx.category, r.id))).join("")
+      ? res.map((r,i)=>tmdbResultHtml(r, i, `tmdbPick(${i})`, tmdbOwned(tmdbCtx.category, r.id, r))).join("")
       : `<div class="tmdb-msg">No results for “${esc(q)}”.</div>`;
   }catch(e){
     if(seq !== tmdbSearchSeq) return;
@@ -2319,7 +2349,7 @@ async function tmdbPick(i){
 }
 // Tapping a result adds the title right away. Returns false when TMDB doesn't know enough (no runtime / no episode info).
 function tmdbAddDirect(category, target, d){
-  const exists = (target === "archive" ? (S.vault[category] || []) : (S.library[category] || []).concat(S[category] || [])).some(x => x.tmdbId === d.id);
+  const exists = !!ownedWhere(category, d.id, [d.title, d.originalTitle]);
   if(exists){ toast(`“${d.title}” is already on your list.`); return true; }
   const releaseDate = category === "movies" ? { y: d.year ? String(d.year) : "", m: "", d: "" } : { y: "", m: "", d: "" };   // v1.12.2 — no date for TV / anime
   const base = { id: uid(), name: d.title, releaseDate, partOfSeries: false, seriesId: null, seriesOrder: null,
@@ -2334,6 +2364,7 @@ function tmdbAddDirect(category, target, d){
   }
   const groups = tmdbGroups(category, d.seasons);
   if(!(d.epLen > 0) || !groups.length) return false;
+  if(target === "archive"){ splitOpen({ category, d, base, groups }); return true; }
   const item = { ...base, epLen: d.epLen, groups, ...(category === "anime" ? { groupType: groupTypeFor(category, groups) } : {}) };
   if(target === "archive") item.groups.forEach(g => { g.watched = g.total; g.finishedYear = null; });
   arrFor(category, target).push(item);
@@ -5215,14 +5246,22 @@ function tvSeasonWatched(id, gid){
 }
 function tvSeasonRemove(id, gid){
   const it = titleById(id), g = it && (it.groups || []).find(x => x.id === gid); if(!g) return;
-  if(!confirm(`Remove ${g.name || "this season"} from “${it.name}”?`)) return;
+  const cat = libCatOf(id), arc = cat && inVault(cat, it);
+  const gs = (it.groups || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const early = !!cat && !arc && gs.length > 1 && gs[0].id === gid;   // taken off the start = already watched
+  const nm = g.name || "this season";
+  if(!confirm(early ? `Remove ${nm} from “${it.name}”? Taking it off the start means you already watched it, so it goes to your Archive.` : `Remove ${nm} from “${it.name}”?`)) return;
+  if(early){
+    const oid = it.originGroupId || (it.originGroupId = uid());
+    vaultAdd(cat, { ...it, id: uid(), originGroupId: oid, groups: [{ ...g, watched: g.total, finishedYear: null }] });
+  }
   it.groups = it.groups.filter(x => x.id !== gid);
   tvOpenSeason = null;
   if(!it.groups.length && confirm("That was the last one. Remove the whole title too?")){
     tvOpen = null;
     const c = libCatOf(id); if(c){ S.library[c] = S.library[c].filter(x => x.id !== id); S.vault[c] = S.vault[c].filter(x => x.id !== id); }
   }
-  persist();
+  persist(); if(early) toast("Moved to your Archive as watched.");
 }
 // Pulls the show's seasons/arcs from TMDB again and ADDS the ones this title is missing (and grows
 // an arc's episode count when TMDB has more, e.g. an airing arc). Existing progress is never lowered.
@@ -5596,7 +5635,7 @@ function mgRange(it){ const i = mgInfo(it); return `Vol ${i.from}${i.to > i.from
 function mgMangaAll(){ return (S.library.manga || []).concat(S.manga || [], S.vault.manga || []); }
 const mgBook = () => mode === "archive" ? S.vault.manga : S.library.manga;
 function mgUnlinked(){ return mgMangaAll().filter(x => !x.anilistId && !x.abandoned); }
-function mgSiblings(it){ return it.originGroupId ? mgMangaAll().filter(x => x !== it && x.originGroupId === it.originGroupId && inVault("manga", x) === inVault("manga", it)) : []; }
+function mgSiblings(it){ return it.originGroupId ? mgMangaAll().filter(x => x !== it && x.originGroupId === it.originGroupId) : []; }
 
 /* ----- search / link / add ----- */
 function openMgSearch(target, mode, linkId){
@@ -5608,6 +5647,14 @@ function openMgSearch(target, mode, linkId){
 function renderMgModal(q){
   const link = mgS.mode === "link";
   $("mgmTitle").textContent = link ? "Link to AniList" : "Add manga";
+  if(mgS.pick && mgS.target === "archive"){
+    const r = mgS.pick, fin = r.status === "FINISHED" && r.volumes;
+    $("mgmTitle").textContent = "How much did you read?";
+    $("mgmHint").textContent = fin ? `“${r.title}” has ${r.volumes} volumes. The ones you haven't read go to your Library.` : `“${r.title}” is ${r.status === "CANCELLED" ? "cancelled" : "still being published"}. Say how many volumes are out and how many you've read; the rest go to your Library.`;
+    $("mgmBody").innerHTML = (fin ? "" : `<label>Volumes out so far</label><input id="mgmVols" type="number" min="1" inputmode="numeric" value="${r.volumes || ""}" placeholder="e.g. 107">`) + `<label>Volumes you've read</label><input id="mgmRead" type="number" min="0" inputmode="numeric" value="${r.volumes || ""}" placeholder="e.g. 20">`;
+    $("mgmActions").innerHTML = `<button class="btn" onclick="mgS.pick=null;renderMgModal(mgS.q)">Back</button><button class="btn brass" onclick="mgConfirmArchive()">Add</button>`;
+    return;
+  }
   if(mgS.pick){   // second step: how many volumes are out?
     const r = mgS.pick;
     $("mgmTitle").textContent = "How many volumes?";
@@ -5636,8 +5683,9 @@ async function mgRunSearch(){
     if(seq !== mgSeq) return;
     mgS.results = ranked;
     box.innerHTML = mgS.results.length ? mgS.results.map((r, i) => {
-      const sub = [r.year, r.volumes ? `${r.volumes} vol${r.volumes === 1 ? "" : "s"}` : (r.chapters ? `${r.chapters} ch` : "volumes unknown"), AL_STATUS[r.status] || "", r.score != null ? "★ " + r.score : ""].filter(Boolean).join(" · ");
-      return `<div class="tmdb-res" onclick="mgPick(${i})"><div class="tmdb-poster">${r.cover ? `<img alt="" loading="lazy" src="${esc(r.cover)}" onerror="this.remove()">` : ""}</div><div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.title)}</div><div class="tmdb-res-sub">${esc(sub)}</div></div></div>`;
+      const own = mgS.mode === "link" ? "" : ownedWhere("manga", r.id, r.titles || [r.title]);
+      const sub = [r.year, r.volumes ? `${r.volumes} vol${r.volumes === 1 ? "" : "s"}` : (r.chapters ? `${r.chapters} ch` : "volumes unknown"), AL_STATUS[r.status] || "", r.score != null ? "★ " + r.score : "", own].filter(Boolean).join(" · ");
+      return `<div class="tmdb-res${own ? " dim" : ""}" ${own ? "" : `onclick="mgPick(${i})"`}><div class="tmdb-poster">${r.cover ? `<img alt="" loading="lazy" src="${esc(r.cover)}" onerror="this.remove()">` : ""}</div><div class="tmdb-res-main"><div class="tmdb-res-title">${esc(r.title)}</div><div class="tmdb-res-sub">${esc(sub)}</div></div></div>`;
     }).join("") : `<div class="tmdb-msg">No manga found for “${esc(q)}”.</div>`;
   }catch(e){ if(seq === mgSeq) box.innerHTML = `<div class="tmdb-msg">${esc(alErrorText(e))}</div>`; }
 }
@@ -5654,8 +5702,8 @@ function mgPick(i){
     closeModal("mgModal"); persist(); toast("Linked to AniList.");
     return;
   }
-  if((mgS.target === "archive" ? S.vault.manga : mgMangaAll().filter(x => !S.vault.manga.includes(x))).some(x => x.anilistId === r.id)){ closeModal("mgModal"); return toast(`“${r.title}” is already on your list.`); }
-  if(r.status === "FINISHED" && r.volumes){ mgAdd(r, r.volumes, false); return; }
+  if(ownedWhere("manga", r.id, r.titles || [r.title])){ closeModal("mgModal"); return toast(`“${r.title}” is already on your list.`); }
+  if(mgS.target !== "archive" && r.status === "FINISHED" && r.volumes){ mgAdd(r, r.volumes, false); return; }
   mgS.pick = r; renderMgModal(mgS.q);
 }
 function mgConfirmVolumes(){
@@ -5707,7 +5755,7 @@ async function mgEnsureCovers(){
 /* ----- the volume map ----- */
 function mgSeries(it){
   const sib = mgSiblings(it);
-  const pieces = [{ a: it.fromVol || 1, b: Math.max(it.fromVol || 1, it.toVol || 1), k: "lib" }].concat(sib.map(x => ({ a: x.fromVol || 1, b: Math.max(x.fromVol || 1, x.toVol || 1), k: (S.manga || []).includes(x) ? "season" : "lib" })));
+  const pieces = [{ a: it.fromVol || 1, b: Math.max(it.fromVol || 1, it.toVol || 1), k: "lib" }].concat(sib.map(x => ({ a: x.fromVol || 1, b: Math.max(x.fromVol || 1, x.toVol || 1), k: inVault("manga", x) ? "skip" : (S.manga || []).includes(x) ? "season" : "lib" })));
   pieces.sort((x, y) => x.a - y.a);
   return { pieces, hi: Math.max(...pieces.map(p => p.b)) };
 }
@@ -5799,12 +5847,14 @@ function mgSetStart(id){
   const lower = mgSiblings(it).filter(x => (x.toVol || 0) < i.from).reduce((m, x) => Math.max(m, (x.toVol || 0) + 1), 1);
   if(v < lower) return toast(`It can't start before volume ${lower}.`);
   if(v > i.to + 1) return toast(`It only goes up to volume ${i.to}.`);
-  if(v === i.to + 1){
-    if(!confirm(`That leaves nothing to read — remove “${it.name}” from the Library?`)) return;
-    mgOpen = null; S.library.manga = S.library.manga.filter(x => x.id !== id); persist(); return;
-  }
+  if(v === i.from) return toast("No change.");
+  const n = v - i.from, all = v === i.to + 1;   // volumes skipped from the start = already read
+  if(all && !confirm(`That means you've read all of “${it.name}”. Move it to your Archive?`)) return;
+  const oid = it.originGroupId || (it.originGroupId = uid()), yrs = {}; for(let k = i.from; k < v; k++) yrs[String(k)] = null;
+  vaultAdd("manga", { ...it, id: uid(), originGroupId: oid, fromVol: i.from, toVol: v - 1, volsRead: n, volYears: yrs, ongoing: all && !!it.ongoing });
+  if(all){ mgOpen = null; S.library.manga = S.library.manga.filter(x => x.id !== id); persist(); toast("Moved to your Archive."); return; }
   it.fromVol = v; it.volsRead = Math.min(it.volsRead || 0, it.toVol - v + 1);
-  persist(); toast(v === i.from ? "No change." : `Starts at volume ${v}.`);
+  persist(); toast(`Archived ${n} volume${n === 1 ? "" : "s"} as read. Starts at volume ${v}.`);
 }
 function mgSetOut(id){
   const it = S.library.manga.find(x => x.id === id), el = $("mgOut"); if(!it || !el) return;
@@ -6257,7 +6307,7 @@ const MYR = {
   movies: { q: [["story","Story & plot"],["chars","Characters & acting"],["dial","Dialogue"],["dir","Direction & pacing"],["vis","Visuals & cinematography"],["score","Score"],["sound","Sound design"],["design","Production design & setting"],["orig","Originality"],["end","Ending"]],
     th: myrTh([14,14,8,12,10,9,6,8,9,10], [["drama","Drama",[1.2,1.2,1.2,1,.8,1,.7,1,1,1.3]],["action","Action",[1,1,.6,1.3,1.3,1,1.5,1,1,.7]],["horror","Horror",[1,1,.6,1.4,1,1.3,1.5,1,1,1]],["comedy","Comedy",[1,1.3,1.6,1,.7,.9,.8,.7,1,1]]]) },
   tv: { q: [["story","Story & arcs"],["chars","Characters"],["write","Writing"],["pace","Pacing across episodes"],["cons","Consistency across seasons"],["fin","Finale / ending"],["act","Acting"],["vis","Visuals & production"],["music","Music"],["orig","Originality"]],
-    th: myrTh([14,14,8,10,10,12,8,8,8,8], [["drama","Drama",[1,1.3,1.3,1,1,1,1.3,.7,1,1]],["comedy","Comedy",[.7,1,1.6,1,1,.7,1.3,.8,1,1]],["mystery","Mystery / thriller",[1.1,.8,1,1.4,1,1.4,1,1,1,1]]]) },
+    th: myrTh([14,14,8,10,10,12,8,8,8,8], [["drama","Drama",[1,1.3,1.3,1,1,1,1.3,.7,1,1]],["historical","Historical",[1.2,1.2,1.2,1,1,1,1.2,1.4,1,.6]],["mystery","Mystery / thriller",[1.1,.8,1,1.4,1,1.4,1,1,1,1]]]) },
   anime: { q: [["story","Story & arcs"],["chars","Characters"],["fight","Fight & action sequences"],["anim","Animation quality"],["dir","Direction & pacing"],["music","Music, openings & endings"],["voice","Voice acting"],["world","World-building"],["cons","Consistency across seasons"],["end","Ending"]],
     th: myrTh([12,14,10,12,8,8,8,8,10,10], [["shonen","Shonen / action",[1,1,1.6,1.4,1,1,1,.6,1,1]],["slice","Slice of life",[1,1.4,.3,1,1.4,1.4,1,1,1,1]],["mystery","Mystery / psychological",[1.4,1,.5,.7,1.4,1,1,1,1,1.4]]]) },
   manga: { q: [["story","Story"],["chars","Characters"],["art","Art & linework"],["layout","Layout & panel pacing"],["lore","Lore & world"],["write","Writing & dialogue"],["end","Ending"],["cons","Consistency across volumes"],["orig","Originality"],["emo","Emotional impact"]],
@@ -6300,13 +6350,14 @@ function myrRender(){
   const part = !x.gid && x.cat === "manga" && f && myrPartialManga(f.it);
   $("myrName").textContent = f ? f.it.name + (x.gid && tg ? " — " + tg.name : "") : "";
   $("myrClear").style.display = tg && tg.myRating ? "" : "none";
-  $("myrBody").innerHTML = (themes.length > 1 ? `<label>Theme</label><div class="rate-chips" style="margin-top:0">${themes.map(k => `<button class="rate-chip${k === x.t ? " on" : ""}" onclick="myrTheme('${k}')">${c.th[k][0]}</button>`).join("")}</div>` : "") +
-    (part ? `<div class="hint" style="margin-top:10px">Not finished yet, so the ending question is replaced by where the story is heading.</div>` : "") +
-    `<div class="myr-live"><span>Total</span><b class="serif" id="myrTotal"></b></div>` +
-    c.q.map(([id, lab], i) => `<div class="myr-q"><div class="myr-qh"><span>${part && id === "end" ? "Where it's heading" : lab}</span><em>${Math.round(w[i] / sum * 100)} pts</em></div><div class="myr-opts">${MYR_ANS.map((n, v) => `<button class="${(x.a[id] == null ? 2 : x.a[id]) === v ? "on" : ""}" onclick="myrPick('${id}',${v},this)">${n}</button>`).join("")}</div></div>`).join("");
+  $("myrThemes").style.display = themes.length > 1 ? "" : "none";
+  $("myrThemes").innerHTML = themes.map(k => `<button class="rate-chip${k === x.t ? " on" : ""}" onclick="myrTheme('${k}')">${c.th[k][0]}</button>`).join("");
+  $("myrBody").innerHTML = (part ? `<div class="hint" style="margin-top:8px">Not finished yet, so the ending question is replaced by where the story is heading.</div>` : "") +
+    c.q.map(([id, lab], i) => `<div class="myr-q"><div class="myr-qh"><span>${part && id === "end" ? "Where it's heading" : lab}</span><em>${Math.round(w[i] / sum * 100)} pts</em></div><div class="myr-opts">${MYR_ANS.map((n, v) => `<button class="${(x.a[id] == null ? 2 : x.a[id]) === v ? "on" : ""}" onclick="myrPick('${id}',${v},this)">${n}</button>`).join("")}</div></div>`).join("") +
+    `<div class="hint" style="margin-top:14px">Anything you don't touch counts as Mid.</div>`;
   myrTotal();
 }
-function myrTotal(){ const x = myrCtx, v = myrScore(x.cat, x.t, x.a, !!x.gid), el = $("myrTotal"); el.textContent = v; el.className = "serif " + ratingClass(v); }
+function myrTotal(){ const x = myrCtx, v = myrScore(x.cat, x.t, x.a, !!x.gid); $("myrTotal").textContent = v; $("myrTotalBox").className = "myr myr-big " + ratingClass(v); }
 function myrTheme(k){ myrCtx.t = k; myrRender(); }
 function myrPick(id, v, btn){ myrCtx.a[id] = v; btn.parentNode.querySelectorAll("button").forEach(b => b.classList.toggle("on", b === btn)); myrTotal(); }
 function myrSave(){
@@ -6355,7 +6406,8 @@ function vaultAdd(cat, it){
   if(cat === "games"){ it.finished = true; it.dlcAsked = true; it.lastPlayed = false; V.push(it); return; }
   if(cat === "movies"){ V.push(it); return; }
   const same = (a, b) => (cat === "manga" ? (a.anilistId && b.anilistId && a.anilistId === b.anilistId) : (a.tmdbId && b.tmdbId && a.tmdbId === b.tmdbId)) || normTitle(a.name) === normTitle(b.name);
-  const ex = V.find(x => same(x, it));
+  const idm = (a, b) => (cat === "manga" ? (a.anilistId && b.anilistId && a.anilistId === b.anilistId) : (a.tmdbId && b.tmdbId && a.tmdbId === b.tmdbId));
+  const ex = V.find(x => idm(x, it)) || V.find(x => same(x, it));   // the same database id first, then the same name
   if(!ex){ V.push(it); return; }
   if(!ex.myRating && it.myRating) ex.myRating = it.myRating;
   if(cat === "manga"){
@@ -6438,6 +6490,50 @@ function seasonRateRow(it, g){
   if(!g || (!(g.total > 0 && g.watched >= g.total) && mode !== "archive")) return "";
   const r = g.myRating, w = groupsWord(it.groups || []);
   return `<div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s)}"><small>${w.toUpperCase()} SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">${w === "arc" ? "Arc" : "Season"} not rated</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="event.stopPropagation();myrOpen('${it.id}','${g.id}')">${r ? "Edit" : "Rate " + w}</button></div>`;
+}
+
+/* ---------- v2.4.2 — adding to the Archive: ask how much was finished, the rest goes to the Library ---------- */
+let splitCtx = null;
+function splitOpen(ctx){
+  splitCtx = { ...ctx, n: ctx.groups.length };
+  splitRender(); $("splitModal").classList.add("show");
+}
+function splitRender(){
+  const c = splitCtx, gs = c.groups, w = groupsWord(gs);
+  $("splitTitle").textContent = "How much did you finish?";
+  $("splitHint").textContent = `“${c.d.title}”: tap the last ${w} you finished. Everything up to it goes to your Archive, the rest to your Library.`;
+  $("splitBody").innerHTML = `<div class="split-list">${gs.map((g, i) => `<div class="split-row${i < c.n ? " on" : ""}" onclick="splitTap(${i + 1})"><span class="ck">✓</span><span class="nm">${esc(g.name)}</span><em>${g.total} ep</em></div>`).join("")}</div>
+    <div class="split-sum">${c.n === 0 ? "Nothing finished: it all goes to your Library." : c.n >= gs.length ? "All finished: it all goes to your Archive." : `${c.n} to the Archive · ${gs.length - c.n} to your Library`}</div>
+    <div class="account-row"><button class="btn small ghost" onclick="splitSet(${gs.length})">All</button><button class="btn small ghost" onclick="splitSet(0)">None</button></div>`;
+}
+function splitSet(k){ splitCtx.n = k; splitRender(); }
+function splitTap(k){ splitSet(k === splitCtx.n ? k - 1 : k); }
+function splitOk(){
+  const c = splitCtx; if(!c) return;
+  const cat = c.category, gs = c.groups, n = c.n, oid = uid();
+  const mk = list => ({ ...c.base, id: uid(), epLen: c.d.epLen, groups: list, originGroupId: n > 0 && n < gs.length ? oid : null, ...(cat === "anime" ? { groupType: groupTypeFor(cat, gs) } : {}) });
+  const done = gs.slice(0, n).map(g => ({ ...g, watched: g.total, finishedYear: null })), rest = gs.slice(n);
+  let first = null;
+  if(done.length){ first = mk(done); S.vault[cat].push(first); }
+  if(rest.length){ const lib = mk(rest); S.library[cat].push(lib); if(!first) first = lib; }
+  splitCtx = null; closeModal("splitModal"); persist();
+  const w = groupsWord(gs);
+  toast(!rest.length ? `Added “${c.d.title}” to the Archive.` : !done.length ? `Nothing finished, so “${c.d.title}” went to your Library.` : `Archived ${done.length} ${w}${done.length === 1 ? "" : "s"} of “${c.d.title}”; the other ${rest.length} went to your Library.`);
+  tvFetchAll(first);
+}
+function mgConfirmArchive(){
+  const r = mgS.pick; if(!r) return;
+  const fin = r.status === "FINISHED" && r.volumes;
+  const total = fin ? r.volumes : Math.floor(+($("mgmVols") || {}).value || 0), read = Math.floor(+$("mgmRead").value || 0);
+  if(total < 1) return toast("Type how many volumes are out.");
+  if(read < 0 || read > total) return toast(`You can't have read more than the ${total} volumes that are out.`);
+  const oid = uid(), yrs = {}; for(let i = 1; i <= read; i++) yrs[String(i)] = null;
+  const ongoing = !fin && r.status !== "CANCELLED";
+  const base = { name: r.title, releaseDate: { y: r.year ? String(r.year) : "", m: "", d: "" }, partOfSeries: false, seriesId: null, seriesOrder: null, originGroupId: read > 0 && read < total ? oid : null, anilistId: r.id, malId: r.malId, coverUrl: r.cover, rating: r.score };
+  if(read > 0) S.vault.manga.push({ ...base, id: uid(), fromVol: 1, toVol: read, volsRead: read, volYears: yrs, ongoing: ongoing && read >= total });
+  if(read < total) S.library.manga.push({ ...base, id: uid(), fromVol: read + 1, toVol: total, volsRead: 0, ongoing });
+  closeModal("mgModal"); persist();
+  toast(read >= total ? `Added “${r.title}” to the Archive.` : read > 0 ? `Archived ${read} volume${read === 1 ? "" : "s"} of “${r.title}”; the other ${total - read} went to your Library.` : `Nothing read yet, so “${r.title}” went to your Library.`);
 }
 
 $("verTag").textContent = "v" + APP_VERSION;
