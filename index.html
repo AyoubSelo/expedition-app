@@ -687,7 +687,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .pd-foot{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}
 .pd-foot .btn{width:100%;padding-left:6px;padding-right:6px;white-space:nowrap}
 
-.toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:20;max-width:88vw;text-align:center}
+.toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:60;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 /* tab bar */
@@ -855,6 +855,39 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .split-row .nm{flex:1;min-width:0;font-size:14px}
 .split-row em{font:500 11px "IBM Plex Mono",monospace;font-style:normal;color:var(--muted)}
 .split-sum{margin:10px 2px;font-size:12.5px;color:var(--brass)}
+
+/* v2.5.0 — Archive shelf (games + movies), log / details / playtime menus, rating-list scroll fix */
+.arc-shelf{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px 6px}
+.arc-mini{min-width:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.arc-mini .pposter{border-radius:6px}
+.arc-mini.open .pposter{border-color:var(--brass)}
+.arc-mini .pph{font-size:9px;padding:4px}
+.arc-mini.gone .pposter{opacity:.5}
+.arc-mini .myr-c{top:3px;right:3px;padding:1px 4px;border-radius:3px 7px 3px 7px}
+.arc-mini .myr-c b{font-size:9.5px}
+.arc-btns{aspect-ratio:2/3;display:flex;flex-direction:column;gap:5px;min-width:0}
+.arc-btns .btn{flex:1 1 0;min-height:0;width:100%;padding:0 2px;font-size:clamp(9px,2.9vw,12px);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.arc-btns .btn.danger{color:var(--rust)}
+.log-sec{margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.log-lab{font:600 10px "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--brass)}
+.log-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+.log-row b{font-size:22px;line-height:1.1}
+.log-src{display:block;font-size:11.5px;color:var(--muted);margin-top:3px}
+.log-step{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:10px}
+.log-step .btn{width:46px;height:46px;padding:0;font-size:22px;border-radius:12px}
+.log-step b{font-size:32px;min-width:46px;text-align:center}
+.det-bd{position:relative;margin:-20px -20px 14px;aspect-ratio:16/9;overflow:hidden;border-radius:20px 20px 0 0;background:#0f1612}
+.det-bd img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.det-bd img.ph{filter:blur(16px) brightness(.7);transform:scale(1.25)}
+.det-shade{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,#141b17 100%)}
+.det-title{font-size:22px;line-height:1.15;margin:0}
+.det-meta{margin-top:5px;font:500 11.5px "IBM Plex Mono",monospace;color:var(--brass)}
+.det-desc{margin-top:12px;font-size:13px;line-height:1.55;color:var(--ink);white-space:pre-line}
+.det-sec{margin-top:12px}
+/* the rating menu gets a fixed height so its question list can scroll on its own */
+#myrModal .sheet{height:min(88vh,calc(var(--vvh,100vh) - 24px - env(safe-area-inset-top,0px)));max-height:none}
+.myr-well{display:flex;flex-direction:column}
+#myrBody{flex:1 1 auto;min-height:0;height:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
 </style>
 </head>
 <body>
@@ -1094,6 +1127,9 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
   </div>
 </div>
 
+<div class="modal" id="logModal"><div class="sheet"><div id="logBody"></div><div class="actions"><button class="btn" onclick="closeModal('logModal')">Close</button></div></div></div>
+<div class="modal" id="detModal"><div class="sheet"><div id="detBody"></div><div class="actions"><button class="btn" onclick="closeModal('detModal')">Close</button></div></div></div>
+<div class="modal" id="playModal"><div class="sheet"><h2 class="serif">Playtime</h2><div class="hint" id="playName"></div><div class="row2"><div><label>Hours</label><input id="playH" type="number" min="0" inputmode="numeric"></div><div><label>Minutes</label><input id="playM" type="number" min="0" max="59" inputmode="numeric"></div></div><div class="hint" style="margin-top:10px">Saved to your account: the launcher shows it and adds the time you play on top.</div><div class="actions"><button class="btn" onclick="closeModal('playModal')">Cancel</button><button class="btn" id="playReset" onclick="gmPlayReset()">IGDB estimate</button><button class="btn brass" onclick="gmPlaySave()">Save</button></div></div></div>
 <!-- series modal (v1.7.0) — one named list per category, one named list per category -->
 <div class="modal" id="myrModal"><div class="sheet myr-sheet">
   <div class="myr-top"><div class="myr-top-l"><small>MY SCORE</small><div class="myr-name serif" id="myrName"></div></div><div class="myr myr-big" id="myrTotalBox"><small>TOTAL</small><b class="serif" id="myrTotal"></b></div></div>
@@ -1117,9 +1153,111 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 </div>
 
 <script>
+/* ===== CODEMAP — notes for Claude, not for humans =====
+FILE: one index.html = <style> (versioned blocks "/* v2.x.x") · HTML shell + modals (xxxModal / xxxBody ids) · this classic script block (inline onclick needs globals) · the module script block at the end (Firebase; reaches the app only via window.__cloud* / window.__fs2).
+FIND: grep -n "// §" index.html lists every section; the list below gives each section's top-level names (functions, consts). Edit by name, never by line number.
+STATE: S = {games,movies,tv,anime,manga (Season book), library:{cat:[]}, vault:{cat:[]} (Archive book), archive:[] (old season records), settings, sessionLog, seasonStart}. mode = "season"|"library"|"archive"; ALL_CATS / LIB_CATS = the 5 categories. Item defaults live in normalizeState.
+FLOW: persist() = stamp dates + save + cloud push + render(); render() -> renderCore() -> per-mode renderer. A re-render rebuilds #app, so open/closed state lives in JS vars (libOpenMovie, tvOpen, mgOpen, gmOpen, arcOpen, ...), never in the DOM. FLIP animation = elements with data-pid.
+GOTCHA: top-level let/const declared later in the file are not usable by code that runs at load (ensureSeason/performRollover run before most of the file). Keep load-time paths free of them.
+LAUNCHER: users/{uid}/launcherPlaytime/{igdbId} = {playedHours, src, updatedAt} shared running total (Expedition sets, launcher adds); users/{uid}/targets/{igdbId} written by buildTargets (launcher reads only).
+SECTIONS:
+ §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
+     KEY, VER_KEY, APP_VERSION, LIB_CATS, SERIES_ICON_SVG, CAT, ALL_CATS, ICON_SVG, iconBadge, $, setVisible, uid, esc, nameClipSpacer, nameFlowRoot, fmtN, fmtHM, NAMED_LIST_CATS, normalizeNamedList
+ §FINISH-DATES — finishedDate / finishedYear / volYears stamping (finWalk)
+     finDateNow, finGameDone, finMovieDone, finGroupDone, finMangaRead, finEachItem, finWalk, finishDatesUpgrade, stampFinishDates
+ §STATE — normalizeState (item defaults, migration), load, S, Season/Library/Archive containers
+     normalizeState, load, S, activeTab, editId, mode, libTab, modalTarget, libSearchQ, arrFor, todayStr, toISODate, quarterStartFor, quarterEndFor, quarterLabel, quarterLabelDedup, allDlcCleared
+ §SEASON-ROLLOVER — quarter maths, seasonSnapshot, performRollover, ensureSeason, persist, stateSave, logAction, touchItem
+     groupRangeLabel, mangaRangeLabel, splitSimple, splitEpisodicForRollover, splitMangaForRollover, seasonSnapshot, performRollover, ensureSeason, persist, verCmp, stateWarned, stateSave, adoptStored, touchItem, seedLastActive, byActive, logAction, closeModal, daysLeft, seasonLengthDays
+ §MINUTES — per-category minute helpers, totals, scrub of finished meta
+     gameMin, dlcMin, movieMin, episodicMin, mangaMin, MIN_FN, isSeasonItemDone, scrubFinishedMeta, scrubFinishedSeasonItems, categoryTotals, combinedTotals, toast
+ §ABANDON-MOVE — abandon/restore, moveItem + partial moves (split/merge of seasons, arcs, volumes)
+     describeAbandon, abandonItem, restoreItem, moveItem, moveModalCtx, openMoveModal, confirmMove, mergeIntoSibling, splitAndMoveEpisodic, splitAndMoveManga, removeGeneric, abandonedCard
+ §TABS-MODES — switchTab/switchMode/switchLibTab, tab bar
+     TAB_ORDER, switchTab, playPageTransition, switchMode, switchLibTab, renderModeToggle, renderTabBar
+ §SEASON-OPS — Season-side ops: games (finish, remove), movies, manga remove, episodic remove
+     finishGameEarly, expandGoalIfNeeded, finishDlcEarly, removeGame, dlcCleared, combinedGamePct, removeMovie, markWatched, removeManga
+ §MANGADEX — MangaDex covers through the worker, mgEnsureExtras
+     mgImgErr, mdxTried, mgExtrasBusy, mdxLookup, mdxRefresh, mgVolCover, mgEnsureExtras
+ §SEASON-MANGA — Season manga page
+     mgSOpen, mgSDone, mgHeroPick, mgTap, mgSStrip, mgSLinks, mgReadBtn, mgHeroHtml, mgSCardHtml, mgSPanelHtml, mgSGrid, mgSToggle, renderManga, removeEpisodic
+ §TMDB — MediaDB providers (tmdb), TMDB search/add modal, key forms, match tool, settings html for keys
+     TMDB_BASE, TMDB_IMG, TMDB_CREDIT, tmdbNormalize, MediaDB, tmdbCtx, tmdbResults, matchCtx, tmdbKeyFormHtml, tmdbSettingsHtml, mdxBase, mdxSettingsHtml, saveMdxProxy, clearMdxProxy, omdbKey, omdbSettingsHtml, saveOmdbKey, clearOmdbKey, mdbSettingsHtml, accountBodyHtml, saveTmdbKey, clearTmdbKey, retryKeyEntry, refreshTmdbModals, tmdbErrorHtml, tmdbResultHtml, openTmdbSearch, renderTmdbModal, tmdbQueryChanged, ownedWhere, tmdbOwned, runTmdbSearch, tmdbPick, tmdbAddDirect, normTitle, unlinkedQueue, applyTmdbToItem, openMatchModal, matchItemFor, matchCurrent, renderMatchModal, matchReview, matchSearch, matchPick, matchSkip, matchNotFound, matchAuto
+ §SESSION-MODAL — movie session log modal
+     openSessionModal, setQuickMinutes, addSession
+ §BACKUP-EXPORT — export / import json
+     exportData, importData
+ §CLOUD-SYNC — cloud state, launcher link (lpCache, lpSet, buildTargets), cloud storage v2 (c2*: one doc per item), account modal
+     cloudUser, cloudSyncState, cloudLastSyncedAt, LP_KEY, lpCache, LPO_KEY, lpOut, lpSet, lpApplyTo, lpApplyAll, lpTimer, lpFlush, __cloudOnPlaytime, __cloudOnPlaytimeGone, __cloudPlaytimeReady, buildTargets, purgeAsked, UNLINKED, purgeUnlinked, applyCloudData, pushToCloud, cloudSignIn, cloudSignOut, C2_OUT, C2_OVERLAP, c2, c2Hash, c2Key, c2LoadKnown, c2SaveKnown, c2Order, c2Entries, c2CoreObj, c2Core, c2Assemble, c2Schedule, c2Push, c2PushOnce, c2ApplyRemote, c2OnWatch, c2Start, c2LegacyCheck, c2Adopt, c2KeepDevice, c2Migrate, c2Resync, cloudSyncErrorCode, resolveCloudSync, __cloudOnAuthChange, __cloudOnPushComplete, timeAgo, cloudStatusHtml, renderAccountBtn
+ §DAILY-BACKUP — IndexedDB daily backup (bk*)
+     BK_DB, bkInfo, bkOpen, bkGet, bkPut, bkCount, bkPaint, bkRun, bkRestore, bkHtml, openAccountModal
+ §SORT-SEASON — old season sorting helpers
+     setSort, splitSorted, sortDropdown
+ §SEASON-OVERVIEW — statbar, Overview page, archive (season record) cards
+     statbar, activeDlcCount, renderOverview, paceBoxHtml, archiveDetailHtml, toggleArchiveExpand, currentSeasonCardHtml, archiveCardHtml
+ §SEASON-GAMES — Season games page (hero, wall)
+     GHERO_KEY, gmDone, pickGameHero, seasonGamesHeader, gmTagText, gmHeroOpenId, gmHeroToggle, gmHeroHtml, gmSeasonFinish, gmSeasonToLibrary, gmSeasonAbandon, gmSeasonRemove, gmDlcFinish, renderGames
+ §SEASON-MOVIES — Season movies page (hero, shelf)
+     HERO_KEY, pickMovieHero, seasonMoviesHeader, heroLoading, heroEntry, heroTagText, movieHeroHtml, heroLoad, heroFill, miniPosterCard, pdSfMove, pdSfWatched, pdSfLog, pdSfRemove, pdSfAbandon, renderMovies, renderEpisodicTab
+ §RENDER — render(), renderCore(), restoreScroll
+     render, renderCore, restoreScroll
+ §LIBRARY-BOOK — itemMinutes, libRemainingMin, movie poster cards + detail block, rating colours, posterGridHtml
+     itemMinutes, libRemainingMin, fmtHrMin, libraryOpenFn, posterSeen, movieInfoText, posterImgHtml, ratingClass, moviePosterCard, movieDetailBlock, posterGridHtml, btnH
+ §IGDB-GAMES — IGDB api, add game, DLC, Data menu, cover wall (gm*), rating/OpenCritic (oc*), backdrop picker
+     igdbBase, igdbLast, igdbApi, igdbErr, igdbImg, igdbQ, gmNorm, GM_MONTHS, gmFmtDate, igdbDateParts, igdbSearch, gmKind, igdbSeries, igdbGameData, igdbApply, igdbSettingsHtml, saveIgdbProxy, clearIgdbProxy, gmAllGames, gmHave, gmTimer, gmAddTarget, openGameSearch, gmTyped, gmRunSearch, gmPick, gmHoursOk, gmAdd, igdbDlcs, gmDlcCtx, gmDlcNext, gmDlcRender, gmDlcToggle, gmDlcAll, gmDlcSkip, gmDlcDone, gmDlcScan, gmDlcRowHtml, gmDlcGoalStart, gmDlcGoalSave, gmDlcRemove, gmBatch, gmSkipped, gmUnmatched, openGameDataModal, gmDataRender, gmMatchRun, gmPendPick, gmPendSkip, gmOpen, gmBegin, gmEnd, gmReset, gmMore, gmFb, gmAnchor, gmCellHtml, gmBackdropHtml, gmInfoHtml
+ §VIEW-FIELD — scroll/animation helpers: vf, gmHold, vfFollow, gm open/close animation
+     gmPad, GM_FOLLOW, vfCenterY, gmSetPad, vfSettle, gmStopScroll, gmScrollTo, gmHold, vfRect, vfFollow, vf, GM_ROOM, gmItemIds, gmBlockHtml, gmWallHtml, gmWallEl, gmRects, gmFlip, gmGhost, gmOpenAnim, gmCloseAnim, gmSwitch, gmToggle, gmLibraryHtml, gmJump, gmToggleMore, gmGoalStart, gmGoalSave, gmMove, gmRemove, gmRateId, GM_SRC_LABEL, gmIsGame, gmScores, gmRatingInfo, gmSyncRating, gmRateTag, gmRate, gmRateRender, gmRatePick, gmRateSave, gmRateClear, ocBase, OC_DAY_KEY, ocLast, ocToday, ocSearchesToday, ocCountSearch, ocApi, ocErr, ocScoreOf, ocFindId, ocFetchGame, OC_RETRY_NONE, ocQueue, ocPaint, ocSaveLater, ocBackfill, gmOcRefetch, ocSettingsHtml, saveOcProxy, clearOcProxy, gmBdCtx, gmBackdrop, gmBdRender, gmBdPick, gmBdSetY, gmBdSave
+ §LIBRARY-LIST — libraryList (dispatch per category + archive shelf)
+     libraryList
+ §POSTER-DETAIL — pdToggle, FLIP animation (pdCaptureRects/pdPlayFlip), TMDB extras cache (pdCache)
+     libOpenMovie, pdErr, pdCaptureRects, pdPlayFlip, pdWithFlip, pdToggle
+ §POSTER-VIEWER — pinch-zoom poster viewer (pv*)
+     pv, pvOpenId, pvEl, pvApply, pvClamp, pdView, pvClose, pvStartPinch, pvDown, pvMove, pvEnd, pvWheel
+ §RATINGS-MDB — MDBList scores, ratingFor/itemRating, ratings tool
+     MDB_LABELS, mdbLabel, autoRating, globalRatingSrc, ratingFor, itemRating, rateBadge, applyMdbRatings, mdbFetchItem, mdbAutoFetch, mdbErrorText, saveMdbKey, clearMdbKey, rtRun, rtQueue, openRatingsModal, renderRatingsModal, rtStop, rtStart
+ §RATING-MENU — pick which site score a title shows
+     ratingEditId, allRated, titleById, isTvItem, ratingSourceKeys, ratingChipsHtml, openRatingMenu, ratingPick
+ §SORT-MENU — SORT_CTX, sort modal
+     SORT_OPTS, SORT_DIR_LABELS, SORT_ICON, DATA_ICON, sfSort, sfSortDir, libSortKey, SORT_CTX, sortCtxName, sortBtnHtml, openSortMenu, renderSortModal, sortPick, sortDirPick
+ §DATA-MENU — Data modal for movies/shows/manga
+     dataCat, dataCount, openDataModal, renderDataModal, dataGo
+ §SETTINGS — settings + API keys modal
+     ratingSrcOptions, settingsBodyHtml, apiBodyHtml, openApiModal, openSettingsModal, setGlobalRatingSrc
+ §TV-LIBRARY — TV/anime Library banner cards, episode cache (t:<tmdbId>), tvFetchAll, banner picker
+     SHOW_CATS, isShowCat, allShows, libCatOf, nounFor, GENERIC_SEASON, tmdbSeasonAired, tmdbGroups, groupTypeFor, groupsWord, grpNum, tvOpen, tvInflight, TV_STALE_MS, sleep, tvEntry, tvItemsFor, tvNeedsFetch, tvEpScore, tvSeasonAvg, applyTvRatings, omdbSeason, tvFetchAll, tvEpAt, tvMapEpisodes, tvHealTried, tvHeal, tvRefetchTried, tvEnsure, tvEnsureBackdrops, tvQueue, tvBatchStart, tvBodies, tvChip, tvOpenHeight, tvCard, tvStampDirty, tvSeasonRows, tvSeasonsHtml, tvBodyHtml, tvToggle, tvPickSeason, tvSeasonWatched, tvSeasonRemove, tvSyncSeasons, tvMove, tvRemove, bdCtx, openBackdropPicker, bdLoadImages, renderBdModal, bdPick, bdSetY, bdSave
+ §SEASON-TV — Season TV/anime page (sx*)
+     sxDoneOpen, sxInit, sxEnsured, sxPickShow, sxSeasonsLabel, sxHeaderHtml, sxNextGid, sxBandHtml, sxHeroHtml, sxTilesHtml, sxSeasonCard, sxDoneRow, sxShowHtml, renderSeasonTv, sxEnsureData, sxTap, sxWatched, sxToggle, sxToggleShow, sxToggleSeason, sxToggleDone, sxShelfToggle, sxToLibrary
+ §MANGA-LIBRARY — AniList search/link, manga shelf, volume map, Data menu
+     mgOpen, mgS, mgTimer, AL_URL, AL_SEARCH, AL_DETAIL, anilist, alErrorText, alNorm, AL_STATUS, mgInfo, mgRange, mgMangaAll, mgBook, mgUnlinked, mgSiblings, openMgSearch, renderMgModal, mgQueryChanged, mgRunSearch, mgApplyLink, mgPick, mgConfirmVolumes, mgAdd, tvErrMg, mgDetail, mgEnsureDetails, mgCoverTried, mgEnsureCovers, mgSeries, mgMapHtml, mgRateBadge, mgCardHtml, mgPanelHtml, mgShelf, mgToggle, mgSetStart, mgSetOut, mgMove, mgRemove, mgLink, mgViewCover, mgBatch, renderMgDataModal, mgApplyFresh, mgRefreshAll, mgAutoLink
+ §FILTER — Library/Archive filter (movies, games): sliders, FLT_STORE
+     FLT_BLANK, FLT_STORE, FLT_KEY, fltSave, fltLoad, fltCat, fltCtx, fltStore, fltDefs, fltValues, gmUpcoming, gmDateKey, gmNextSet, libFilterCount, libFilterPass, fltSectionHtml, fltGamesExtraHtml, fltRelPaint, fltAfterChange, fltRelSet, fltSerToggle, fltPaint, fltUpdateCount, openFilterModal, fltReset, fltIdxAt, fltSet, pdMove, pdRemove, PD_CACHE_KEY, pdCache, pdCacheSave, pdBodies, pdFill, pdLoadExtras
+ §LIBRARY-RENDER — libSortValue, libCompare, renderLibraryTab
+     libSort, libSortDir, setLibSort, toggleLibSortDir, libSortValue, libCompare, renderLibraryTab
+ §SWIPE-PWA — swipe tabs, service worker, modal backdrop close
+     movieById, allMovies, posterViewerOpen
+ §MY-SCORE — aspect-based rating (MYR, MYRS), myrOpen/Save
+     MYR_SHARE, myrTh, MYR, myrQ, myrScore, myrFind, myrEligible, myrRow, myrCtx, myrSet, myrTarget, myrPartialManga, myrOpen, myrRender, myrScState, myrTotal, myrTheme, myrPick, myrSave, myrClear
+ §ARCHIVE-BOOK — vault helpers: vaultAdd, vaultImport, arc date text, myrCorner
+     libBook, inVault, MON3, arcDateText, arcYearsText, arcFinShort, arcFinLong, arcDateKey, myrCorner, vaultAdd, vaultImport
+ §MISC-2.4 — viewport sync, srchRank, MYRS, season rating row
+     vvSync, srchRank, mgSearchRank, gmLibInfo, MYRS, seasonRateRow
+ §ARCHIVE-ADD — split dialog when adding TV/anime/manga to the Archive
+     splitCtx, splitOpen, splitRender, splitSet, splitTap, splitOk, mgConfirmArchive
+ §PLAYTIME — v2.5.0 account playtime is a shared running total: Expedition sets it (Library/Archive), the launcher adds the time it records
+     PLAY_SRC, lpSnapReady, gmBaseHours, arcPlays, gmPlayInfo, lpSaveCache, lpOutSave, lpSending, lpSend, gmSetPlay, lpForget, gmEnsurePlay, lpMaterialize, playId, gmPlayEdit, gmPlaySave, gmPlayReset
+ §LAST-ACTIVE — v2.5.0 "last played/watched/read" = item.lastActive (ms). Archive titles without one get a stable pseudo-random date (hash of the id), lastEst = true
+     ARC_LO, hash01, arcKnownYear, arcGuessTs, arcStampLast, arcLastLabel, sortLab, arcMinutes
+ §ARCHIVE-SHELF — v2.5.0 Archive games + movies: 5 per row; tap a poster → a Log / Details / Remove cell takes its place and the poster slides right
+     arcOpen, arcFind, arcImgFb, arcGameImg, arcMini, arcBtns, arcShelfHtml, arcShelfBlock, arcToggle
+ §LOG-DETAILS — v2.5.0 Archive Log menu (rating, playtime, play-throughs, last played), Details menu, Remove
+     logId, arcLog, logRender, arcPlaysSet, arcDetails, detRender, arcRemove
+ §FIREBASE-MODULE — module script: Firebase init, __fs2 (cloud v2), playtime listener/write, targets, sign-in
+     firebaseConfig, auth, docRefFor, fsUnsubs, fs2Stop, stateDoc, __fs2, watchPlaytime, __cloudSignIn, __cloudTargets, __cloudPlaytimeWrite, __cloudSignOut
+===== END CODEMAP ===== */
+// §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "2.4.4"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.5.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1183,6 +1321,7 @@ function normalizeNamedList(raw){
   NAMED_LIST_CATS.forEach(c=>{ out[c] = Array.isArray(raw[c]) ? raw[c].map(t=>({id:t.id||uid(),name:t.name||""})) : []; });
   return out;
 }
+// §FINISH-DATES — finishedDate / finishedYear / volYears stamping (finWalk)
 /* ---------- v2.2.0 — finish dates ----------
    games, DLC and movies: finishedDate {y,m,d} (strings, like releaseDate) — the exact day.
    TV / anime: each finished season or arc keeps finishedYear. Manga: volYears {volumeNumber: year}.
@@ -1236,6 +1375,7 @@ function finishDatesUpgrade(st){   // once per account: everything already finis
 }
 const stampFinishDates = () => finWalk(S, "stamp");
 
+// §STATE — normalizeState (item defaults, migration), load, S, Season/Library/Archive containers
 function normalizeState(raw){
   raw = raw || {};
   const withExtras = (x, cat) => ({
@@ -1343,6 +1483,7 @@ function quarterLabelDedup(startStr){
 }
 function allDlcCleared(g){ const d=g.dlcs||[]; return d.length>0 && d.every(dlcCleared); }
 
+// §SEASON-ROLLOVER — quarter maths, seasonSnapshot, performRollover, ensureSeason, persist, stateSave, logAction, touchItem
 /* ---------- v1.0 range-label helpers (used when archiving finished units) ---------- */
 function groupRangeLabel(category, groupType, groups){
   if(!groups.length) return "";
@@ -1498,6 +1639,7 @@ function persist(){
   stampFinishDates();
   ensureSeason();
   scrubFinishedSeasonItems();
+  arcStampLast(); lpMaterialize();
   S.updatedAt = Date.now();
   const sv = stateSave();
   if(sv === "stale"){ toast("This copy of Expedition is out of date. Close it and reopen the app."); render(); return; }   // never push an old copy's data over newer data
@@ -1532,7 +1674,7 @@ function adoptStored(){   // another tab or window of the app saved newer data: 
 window.addEventListener("storage", e => { if(e.key === KEY) adoptStored(); });
 document.addEventListener("visibilitychange", () => { if(!document.hidden){ adoptStored(); setTimeout(() => bkRun(false), 3000); } });
 // v1.16.2 — "last played / watched / read": every title remembers when it was last touched
-function touchItem(category, id){ const it = (S[category] || []).find(x => x.id === id); if(it) it.lastActive = Date.now(); }
+function touchItem(category, id){ const it = (S[category] || []).find(x => x.id === id); if(it){ it.lastActive = Date.now(); delete it.lastEst; } }
 function seedLastActive(){   // titles from before this version: take the date from the session log
   (S.sessionLog || []).forEach(e => { const it = (S[e.category] || []).find(x => x.id === e.id); if(it && !(it.lastActive >= e.ts)) it.lastActive = e.ts; });
 }
@@ -1559,6 +1701,7 @@ function seasonLengthDays(){
   return Math.round((end-start)/86400000) + 1;
 }
 
+// §MINUTES — per-category minute helpers, totals, scrub of finished meta
 /* ---------- minute helpers per category ---------- */
 function gameMin(g){ return { goal:g.goal*60, played:(g.finished ? Math.max(g.played||0, g.goal||0) : (g.played||0))*60 }; }
 // v1.6.0 — timed-DLC minutes only (checklist DLCs have no length), used to fold
@@ -1636,6 +1779,7 @@ function toast(msg){
   t._h = setTimeout(()=>t.classList.remove("show"), 2200);
 }
 
+// §ABANDON-MOVE — abandon/restore, moveItem + partial moves (split/merge of seasons, arcs, volumes)
 /* ---------- abandoned media (shared across all categories) ---------- */
 function describeAbandon(category, item, goalMin, playedMin){
   if(category==="games") return `Abandoned at ${fmtHM(Math.round(playedMin))} of ${fmtN(item.goal)}h`;
@@ -1817,6 +1961,7 @@ function abandonedCard(category, item){
   </article>`;
 }
 
+// §TABS-MODES — switchTab/switchMode/switchLibTab, tab bar
 /* ---------- tabs ---------- */
 const TAB_ORDER = ["overview","games","movies","tv","anime","manga"];
 function switchTab(t){
@@ -1847,7 +1992,7 @@ function switchMode(m){
   mode = m;
   fltLoad();
   localStorage.setItem("expedition-mode", m);
-  libOpenMovie = null; tvOpen = null; tvOpenSeason = null; mgOpen = null;
+  libOpenMovie = null; tvOpen = null; tvOpenSeason = null; mgOpen = null; arcOpen = null;
   libSearchQ = "";
   render();
   window.scrollTo(0,0);
@@ -1860,7 +2005,7 @@ function switchLibTab(t){
   libTab = t;
   localStorage.setItem("expedition-libtab", t);
   libSearchQ = "";
-  tvOpen = null; tvOpenSeason = null; mgOpen = null;
+  tvOpen = null; tvOpenSeason = null; mgOpen = null; arcOpen = null;
   render();
   window.scrollTo(0,0);
   if(oldIdx!==-1 && newIdx!==-1 && oldIdx!==newIdx) playPageTransition(newIdx>oldIdx ? "right" : "left");
@@ -1888,6 +2033,7 @@ function renderTabBar(){
   }).join("");
 }
 
+// §SEASON-OPS — Season-side ops: games (finish, remove), movies, manga remove, episodic remove
 /* ============ GAMES ============ */
 function finishGameEarly(id){   // target jumps to the playtime the launcher reports, and the game counts as cleared
   const g = S.games.find(x=>x.id===id); if(!g) return;
@@ -1910,9 +2056,11 @@ function finishDlcEarly(gameId, dlcId){
 }
 function removeGame(id, target="season"){
   if(confirm("Remove this entry? This can't be undone.")){
+    const gone = gmAllGames().find(g=>g.id===id);
     if(target==="archive") S.vault.games = S.vault.games.filter(g=>g.id!==id);
     else if(target==="library") S.library.games = S.library.games.filter(g=>g.id!==id);
     else S.games = S.games.filter(g=>g.id!==id);
+    if(gone) lpForget(gone);   // the playtime stored in the account goes too
     persist();
   }
 }
@@ -1949,6 +2097,7 @@ function removeManga(id, target="season"){
     persist();
   }
 }
+// §MANGADEX — MangaDex covers through the worker, mgEnsureExtras
 /* ============ MANGADEX — one cover per volume (v1.14.1) ============ */
 const mgImgErr = (m, cv) => m.coverUrl && cv !== m.coverUrl ? `referrerpolicy="no-referrer" onerror="this.onerror=function(){this.remove()};this.src='${esc(m.coverUrl)}'"` : `referrerpolicy="no-referrer" onerror="this.remove()"`;
 const mdxTried = new Set(), alBannerTried = new Set();
@@ -1999,6 +2148,7 @@ async function mgEnsureExtras(){   // Season titles: pull the AniList banner and
   if(changed) persist();
 }
 
+// §SEASON-MANGA — Season manga page
 /* ============ MANGA — Season page (v1.14.0) ============ */
 let mgSOpen = null;
 const mgSDone = m => { const t = mangaMin(m); return t.goal > 0 && t.played >= t.goal; };
@@ -2100,6 +2250,7 @@ function removeEpisodic(category, id, target="season"){
     persist();
   }
 }
+// §TMDB — MediaDB providers (tmdb), TMDB search/add modal, key forms, match tool, settings html for keys
 /* ---------- v1.8.0 — online title database (TMDB) ----------
    One small data layer (MediaDB) sits between the app and any outside
    database. Each provider returns the SAME normalized shape, so nothing else
@@ -2604,6 +2755,7 @@ async function matchAuto(){
   renderMatchModal();
 }
 
+// §SESSION-MODAL — movie session log modal
 /* ---------- shared: session modal (games + movies + dlc) ---------- */
 function openSessionModal(category, id){   // movies only — game playtime comes from the launcher
   sessionCtx = {category, id};
@@ -2625,6 +2777,7 @@ function addSession(){
 
 /* ---------- season ---------- */
 
+// §BACKUP-EXPORT — export / import json
 /* ---------- backup ---------- */
 function exportData(){
   const a = document.createElement("a");
@@ -2653,6 +2806,7 @@ function importData(){
   inp.click();
 }
 
+// §CLOUD-SYNC — cloud state, launcher link (lpCache, lpSet, buildTargets), cloud storage v2 (c2*: one doc per item), account modal
 /* ---------- v1.2.0 cloud sync ----------
    Firebase (auth + Firestore) lives in a separate module script block near
    the end of the document, since it needs ES module imports. This app's main
@@ -2673,13 +2827,19 @@ let cloudLastSyncedAt = null;
    The latest value per id is cached on this device so a game that gets matched to IGDB later picks its playtime up at once. */
 const LP_KEY = "expedition-launcher";
 let lpCache = (()=>{ try{ return JSON.parse(localStorage.getItem(LP_KEY) || "{}") || {}; }catch(e){ return {}; } })();
-function lpSet(it, c, isGame){
+const LPO_KEY = "expedition-lp-out";   // v2.5.0 — playtime writes waiting to reach the account: {igdbId: {h, s} | {del:true}}
+let lpOut = (()=>{ try{ return JSON.parse(localStorage.getItem(LPO_KEY) || "{}") || {}; }catch(e){ return {}; } })();
+function lpSet(it, c, isGame){   // the account value differs from this item: someone else (the launcher) changed it
   const h = Math.max(0, +c.h || 0), was = it.played || 0;
   if(Math.abs(was - h) < 1e-6) return false;
   it.played = h;
+  if(isGame) it.playSrc = (it.playSrc || !c.s) ? "launcher" : c.s;
   if(it.finished) it.goal = Math.max(0.01, Math.ceil(h*100)/100);   // a finished one stays at 100%
-  else expandGoalIfNeeded(it);                                    // playing past the target adds 2h at a time
-  if(isGame && h > was && Date.now() - (c.t || 0) < 6*3600*1000 && S.games.includes(it)){ S.games.forEach(x=>{ x.lastPlayed = false; }); it.lastPlayed = true; it.lastActive = Date.now(); }
+  else if(!isGame || S.games.includes(it)) expandGoalIfNeeded(it);   // playing past the target adds 2h at a time (Season games and DLC only)
+  if(isGame && h > was && Date.now() - (c.t || 0) < 6*3600*1000){
+    it.lastActive = Date.now(); delete it.lastEst;
+    if(S.games.includes(it)){ S.games.forEach(x=>{ x.lastPlayed = false; }); it.lastPlayed = true; }
+  }
   return true;
 }
 function lpApplyTo(g){
@@ -2695,10 +2855,12 @@ function lpFlush(){
   lpTimer = setTimeout(function go(){ if(gmBusy){ lpTimer = setTimeout(go, 800); return; } persist(); }, 500);   // never mid-animation
 }
 window.__cloudOnPlaytime = function(list){
-  list.forEach(x => { if(/^\d+$/.test(x.id)) lpCache[x.id] = { h: Math.max(0, +x.playedHours || 0), t: +x.updatedAt || 0 }; });
-  try{ localStorage.setItem(LP_KEY, JSON.stringify(lpCache)); }catch(e){}
+  list.forEach(x => { if(/^\d+$/.test(x.id) && !lpOut[x.id]) lpCache[x.id] = { h: Math.max(0, +x.playedHours || 0), t: +x.updatedAt || 0, s: x.src || "" }; });
+  lpSaveCache();
   if(lpApplyAll()) lpFlush();
 };
+window.__cloudOnPlaytimeGone = function(ids){ ids.forEach(id => { if(!lpOut[id]) delete lpCache[id]; }); lpSaveCache(); };
+window.__cloudPlaytimeReady = function(){ lpSnapReady = true; if(lpMaterialize()) lpFlush(); };
 function buildTargets(){
   const out = {};
   gmAllGames().forEach(g => {
@@ -2731,6 +2893,7 @@ function applyCloudData(remote){
 function pushToCloud(){
   if(!cloudUser) return;
   cloudSyncState = "syncing";
+  lpSend();
   if(c2.started) c2Schedule();   // v2.2.0 — only what changed is sent, one document per item
   if(window.__cloudTargets) window.__cloudTargets(buildTargets());
 }
@@ -3096,6 +3259,7 @@ function renderAccountBtn(){
     btn.onclick = cloudSignIn;
   }
 }
+// §DAILY-BACKUP — IndexedDB daily backup (bk*)
 /* ---------- v2.4.3 — daily backup ----------
    Once a day (when the app is opened or comes back to the screen) a full copy of your data is saved on this device, in the browser's
    IndexedDB, and replaces the previous one. It sits apart from the main data, so a problem with the main data can't touch it. */
@@ -3144,6 +3308,7 @@ function openAccountModal(){
   $("accountModal").classList.add("show");
 }
 
+// §SORT-SEASON — old season sorting helpers
 /* ---------- sort ---------- */
 function setSort(cat, v){ localStorage.setItem("expedition-sort-"+cat, v); render(); }
 function splitSorted(cat, list, fn){
@@ -3173,6 +3338,7 @@ function sortDropdown(cat){
   </select>`;
 }
 
+// §SEASON-OVERVIEW — statbar, Overview page, archive (season record) cards
 /* ---------- tab renderers ---------- */
 function statbar(cat, totals, extra){
   const remain = Math.max(0, totals.goal-totals.played);
@@ -3311,6 +3477,7 @@ function archiveCardHtml(a){
   </div>`;
 }
 
+// §SEASON-GAMES — Season games page (hero, wall)
 /* ---------- v1.17.0 — Season Games page ----------
    Same look as the Library cover wall (same animations): a progress header, "+ Add Game", a hero, and one wall of covers
    in sections (in progress, DLC pending, up next, cleared). No sort, filter or Data here: those stay in the Library. */
@@ -3410,6 +3577,7 @@ function renderGames(){
   $("app").innerHTML = html;
 }
 
+// §SEASON-MOVIES — Season movies page (hero, shelf)
 /* ---------- v1.9.0 — Season Movies page ----------
    Progress header, a "Watch next" hero (last one you watched, or a random pick kept until you move on), an In-progress group, an Up-next poster grid, and a Cleared shelf. */
 // v1.16.3 -- the Season movie hero is picked at random once and kept on this device until you
@@ -3578,6 +3746,7 @@ function renderEpisodicTab(category){   // v1.12.0 — TV and anime share one Se
 // v1.9.0 — every re-render now animates posters from where they were to where they land
 // (see pdCaptureRects / pdPlayFlip), so sorting, filtering, marking watched, moving a
 // title between books, etc. all slide instead of jumping.
+// §RENDER — render(), renderCore(), restoreScroll
 function render(){
   if(gmBusy){ gmRenderPending = true; return; }   // v2.4.3 — never rebuild the page in the middle of a game open/close animation
   const before = pdCaptureRects();
@@ -3587,6 +3756,7 @@ function render(){
   if(v){ const el = v.after && document.querySelector(v.after); if(el && v.top != null) gmHold(el, v.top); }
   pdPlayFlip(before);
   if(v && v.focus) vfFollow(v.focus);
+  if($("logModal").classList.contains("show")) logRender();
 }
 function renderCore(){
   const scrollY = window.scrollY;
@@ -3615,6 +3785,7 @@ function restoreScroll(y){
   requestAnimationFrame(()=> window.scrollTo(0, y));
 }
 
+// §LIBRARY-BOOK — itemMinutes, libRemainingMin, movie poster cards + detail block, rating colours, posterGridHtml
 /* ============ LIBRARY BOOK (v1.3.0) ============
    A standalone backlog, separate from the season's active tracking. Same item
    shape as the season lists (openGameModal etc. write into either, based on
@@ -3753,6 +3924,7 @@ function posterGridHtml(items, blockFn, opts){
   return `<div class="poster-grid">${rows(items.slice(0,rowStart),0)}${rows(items.slice(rowStart,openIdx),rowStart)}${blockFn(items[openIdx], openIdx, enter)}${rows(items.slice(openIdx+1),openIdx+1)}</div>`;
 }
 const btnH = (cls, fn, id, label, style) => `<button class="btn small ${cls}"${style?` style="${style}"`:""} onclick="${fn}('${id}')">${label}</button>`;
+// §IGDB-GAMES — IGDB api, add game, DLC, Data menu, cover wall (gm*), rating/OpenCritic (oc*), backdrop picker
 /* ============ GAMES — IGDB data, the cover wall and its backdrop (v1.15.1) ============ */
 const igdbBase = () => ((S.settings && S.settings.igdbProxy) || "").trim().replace(/\/+$/, "");
 let igdbLast = 0;
@@ -4111,12 +4283,13 @@ function gmInfoHtml(g, ctx){   // ctx: "library", "season" or "hero" (the hero a
     ${desc ? `<div class="gm-desc${more ? "" : " clamp"}">${esc(desc)}</div>${desc.length > 240 ? `<button class="gm-more" onclick="gmToggleMore('${g.id}')">${more ? "Less" : "More"}</button>` : ""}` : `<div class="gm-meta">${g.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet. Use the Data button to match it."}</div>`}
     ${sea ? `<div style="${accent}"><div class="gauge" style="margin:14px 0 6px"><div class="gauge-fill" style="width:${pct}%"></div></div><div class="gm-meta">${done ? "Finished in <b>" + fmtHM(Math.round(m.played)) + "</b>" : fmtHM(Math.round(Math.max(0, m.goal - m.played))) + " to clear · " + pct.toFixed(0) + "%"}</div></div>` : ""}
     ${cleared ? "" : `<div class="gm-goal">${goal}</div>
-    ${g.played > 0 ? `<div class="gm-goal"><span>Played <b>${fmtHM(Math.round(g.played * 60))}</b> <span class="gm-hint">from your launcher</span></span></div>` : ""}
+    ${ctx === "library" ? `<div class="gm-goal"><span>Playtime <b>${g.played > 0 ? fmtHM(Math.round(g.played * 60)) : "not set"}</b>${g.played > 0 ? ` <span class="gm-hint">${PLAY_SRC[g.playSrc || "launcher"]}</span>` : ""}</span><button class="btn small ghost" onclick="gmPlayEdit('${g.id}')">${g.played > 0 ? "Edit" : "Set"}</button></div>` : (g.played > 0 ? `<div class="gm-goal"><span>Played <b>${fmtHM(Math.round(g.played * 60))}</b> <span class="gm-hint">from your launcher</span></span></div>` : "")}
     <div class="gm-goal"><span>Rating <b>${itemRating(g) != null ? itemRating(g) : "none"}</b>${gmRateTag(g)}</span><button class="btn small ghost" onclick="gmRate('${g.id}')">${itemRating(g) != null ? "Edit" : "Set"}</button></div>`}
-    ${ctx === "archive" ? `<div class="gm-meta" style="margin-top:12px">Finished <b>${arcFinLong("games", g)}</b>${g.played > 0 ? ` · Played <b>${fmtHM(Math.round(g.played * 60))}</b>` : ""}</div>` : ""}${myrRow(g)}${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => gmDlcRowHtml(g, d)).join("")}` : ""}
+    ${ctx === "archive" ? `<div class="gm-meta" style="margin-top:12px">Last played <b>${arcFinLong("games", g)}</b>${g.played > 0 ? ` · Played <b>${fmtHM(Math.round(g.played * 60))}</b>` : ""}</div>` : ""}${myrRow(g)}${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => gmDlcRowHtml(g, d)).join("")}` : ""}
     ${acts ? `<div class="btn-row gm-acts">${acts}</div>` : ""}
   </div></div></div>`;
 }
+// §VIEW-FIELD — scroll/animation helpers: vf, gmHold, vfFollow, gm open/close animation
 /* ============ VIEW FIELD — the screen stays calm while things expand and collapse (v1.15.4) ============
    The tapped item stays where it is on screen, the page never gets dragged when it shrinks (a little empty room is kept
    at the bottom and melts away as you scroll up), and the screen glides to the middle of whatever opened or closed. */
@@ -4515,7 +4688,9 @@ function gmBdSave(){
   g.backdropY = c.y; closeModal("gmBdModal"); gmBdCtx = null; persist(); toast("Backdrop updated.");
 }
 
+// §LIBRARY-LIST — libraryList (dispatch per category + archive shelf)
 function libraryList(category, items){
+  if(mode === "archive" && (category === "games" || category === "movies")) return arcShelfBlock(category, items);
   if(isShowCat(category)) return `<div class="tv-list">${items.map(tvCard).join("")}</div>`;
   if(category==="manga") return mgShelf(items);
   if(category==="games") return gmLibraryHtml(items);
@@ -4523,6 +4698,7 @@ function libraryList(category, items){
     (mode === "archive" ? myrRow(it) : "") + btnH("ghost","pdView",it.id,"View poster") + (mode === "archive" ? "" : btnH("ghost","pdMove",it.id,"To Season")) + btnH("ghost danger","pdRemove",it.id,"Remove")));
 }
 
+// §POSTER-DETAIL — pdToggle, FLIP animation (pdCaptureRects/pdPlayFlip), TMDB extras cache (pdCache)
 /* ---------- v1.8.3 — poster detail: open / close, animation, data ----------
    Open/closed state lives in libOpenMovie (a JS var, never a DOM class), so it
    survives every re-render. Moving posters are animated with FLIP: measure
@@ -4575,6 +4751,7 @@ function pdToggle(id){
     setTimeout(go, 150);
   } else go();
 }
+// §POSTER-VIEWER — pinch-zoom poster viewer (pv*)
 /* ---------- v1.8.4 — full-screen poster viewer ----------
    Tap anywhere to close. Two fingers pinch-zoom (and pan while zoomed); one
    finger pans a zoomed poster. A tap only closes if the finger didn't move and
@@ -4679,6 +4856,7 @@ function pvWheel(e){
   document.addEventListener("keydown", e => { if(e.key === "Escape" && pvOpenId) pvClose(); });
 })();
 
+// §RATINGS-MDB — MDBList scores, ratingFor/itemRating, ratings tool
 /* ---------- v1.8.5 — MDBList ratings ----------
    MDBList merges IMDb, Letterboxd, Rotten Tomatoes, Metacritic, TMDB and more.
    For each title we keep every source's score (0-100, already on one scale)
@@ -4859,6 +5037,7 @@ async function rtStart(force){
   renderRatingsModal(fatal ? mdbErrorText(fatal) + ` (${updated} updated before it stopped.)` : (stopped ? `Stopped — ${updated} updated.` : `Done — ${updated} updated${none ? `, ${none} not on MDBList` : ""}${failed ? `, ${failed} failed` : ""}.`));
 }
 
+// §RATING-MENU — pick which site score a title shows
 /* ---------- v1.9.1 — the rating menu: pick which site's score this title shows ----------
    v1.10.0: shows use it too — their scores are the average of the episodes' scores. */
 let ratingEditId = null;
@@ -4908,6 +5087,7 @@ function ratingPick(k){
   toast(k ? `Showing ${mdbLabel(k)} for this title.` : "Using the default source for this title.");
 }
 
+// §SORT-MENU — SORT_CTX, sort modal
 /* ---------- v1.9.1 — custom sort menu (Library Movies + Season Movies) ---------- */
 const SORT_OPTS = [["name","Name"],["date","Date"],["rating","Rating"],["length","Length"]];
 const SORT_DIR_LABELS = { name:["A → Z","Z → A"], date:["Oldest first","Newest first"], rating:["Lowest first","Highest first"], length:["Shortest first","Longest first"] };
@@ -4929,19 +5109,20 @@ const SORT_CTX = {
 let sortCtxName = "lib";
 function sortBtnHtml(which){
   const cur = SORT_CTX[which].get();
-  const lab = (SORT_OPTS.find(o => o[0] === cur.key) || [0, ""])[1];
+  const lab = sortLab(SORT_OPTS.find(o => o[0] === cur.key) || [0, ""]);
   return `<button class="lib-tags-btn" onclick="openSortMenu('${which}')" title="Sort">${SORT_ICON} Sort <span class="sort-cur">· ${lab} ${cur.dir === "asc" ? "↑" : "↓"}</span></button>`;
 }
 function openSortMenu(which){ sortCtxName = which; renderSortModal(); $("sortModal").classList.add("show"); }
 function renderSortModal(){
   const c = SORT_CTX[sortCtxName], cur = c.get(), dl = SORT_DIR_LABELS[cur.key], opts = c.opts ? c.opts() : SORT_OPTS;
   $("sortTitle").textContent = c.title; $("sortHint").textContent = typeof c.hint === "function" ? c.hint() : c.hint;
-  $("sortBody").innerHTML = `<div class="sort-list">${opts.map(o => `<button class="sort-opt${cur.key === o[0] ? " on" : ""}" onclick="sortPick('${o[0]}')"><span>${o[1]}</span><i>✓</i></button>`).join("")}</div>
+  $("sortBody").innerHTML = `<div class="sort-list">${opts.map(o => `<button class="sort-opt${cur.key === o[0] ? " on" : ""}" onclick="sortPick('${o[0]}')"><span>${sortLab(o)}</span><i>✓</i></button>`).join("")}</div>
     <div class="sort-seg"><button class="${cur.dir === "asc" ? "on" : ""}" onclick="sortDirPick('asc')">↑ ${dl[0]}</button><button class="${cur.dir === "desc" ? "on" : ""}" onclick="sortDirPick('desc')">↓ ${dl[1]}</button></div>`;
 }
 function sortPick(k){ const c = SORT_CTX[sortCtxName]; c.set(k, c.get().dir); renderSortModal(); }
 function sortDirPick(d){ const c = SORT_CTX[sortCtxName]; c.set(c.get().key, d); renderSortModal(); }
 
+// §DATA-MENU — Data modal for movies/shows/manga
 /* ---------- v1.9.1 — "Data" menu: TMDB links + ratings in one button (v1.10.0: Movies and TV) ---------- */
 let dataCat = "movies", tvBatch = null;
 function dataCount(cat){ if(cat === "manga") return mgUnlinked().length; return isShowCat(cat) ? unlinkedQueue(cat).length + tvQueue(false, cat).length : unlinkedQueue("movies").length + rtQueue(false).length; }
@@ -4972,6 +5153,7 @@ function renderDataModal(){
 }
 function dataGo(which){ closeModal("dataModal"); if(which === "match") openMatchModal(dataCat); else openRatingsModal(); }
 
+// §SETTINGS — settings + API keys modal
 /* ---------- v1.9.1 — Settings (header gear) ---------- */
 function ratingSrcOptions(){
   const set = new Set(["merged", "imdb", "letterboxd", "tmdb"]);
@@ -5002,6 +5184,7 @@ function setGlobalRatingSrc(k){
   toast(`Showing ${mdbLabel(k)} scores.`);
 }
 
+// §TV-LIBRARY — TV/anime Library banner cards, episode cache (t:<tmdbId>), tvFetchAll, banner picker
 /* ---------- v1.10.0 — TV Library: banner cards ----------
    Each show is a wide TMDB backdrop. Tap = it opens in place (banner grows to the full
    16:9 image), showing the description, a row of season posters, and — tap a season —
@@ -5239,7 +5422,7 @@ function tvBodies(item){
   return { desc: esc(e.overview || "No description on TMDB.") , by: e.creators.length ? esc(e.creators.join(", ")) : dim("—"), cast: e.cast.length ? esc(e.cast.join(", ")) : dim("—") };
 }
 function tvChip(item){
-  if(mode === "archive"){ const g0 = item.groups || []; return [item.arcLabel || (g0.length ? g0.length + " " + groupsWord(g0) + (g0.length === 1 ? "" : "s") : ""), "finished " + arcYearsText(item)].filter(Boolean).join(" · "); }
+  if(mode === "archive"){ const g0 = item.groups || []; return [item.arcLabel || (g0.length ? g0.length + " " + groupsWord(g0) + (g0.length === 1 ? "" : "s") : ""), "last watched " + arcDateText(item, false)].filter(Boolean).join(" · "); }
   const gs = item.groups || [], eps = gs.reduce((a, g) => a + (g.total || 0), 0), seen = gs.reduce((a, g) => a + (g.watched || 0), 0);
   if(!gs.length) return "No seasons yet";
   if(seen > 0) return `${Math.max(0, eps - seen)} ep left`;
@@ -5478,6 +5661,7 @@ function bdSave(){
   toast("Banner updated.");
 }
 
+// §SEASON-TV — Season TV/anime page (sx*)
 /* ---------- v1.11.0 — Season TV page ----------
    One to four shows per season, so no banner grid: every show gets a slim header band and
    each of its seasons is its own card hanging off a connector line. The data is unchanged —
@@ -5714,6 +5898,7 @@ function sxShelfToggle(id){
 }
 function sxToLibrary(id, gid){ splitAndMoveEpisodic(sxCat, id, "season", "library", [gid]); }
 
+// §MANGA-LIBRARY — AniList search/link, manga shelf, volume map, Data menu
 /* ---------- v1.13.0 — Manga Library (AniList) ----------
    AniList's public GraphQL API: free, no key. A manga item keeps the volume-range model it always had
    (fromVol..toVol, volsRead) and gains anilistId / coverUrl / rating / ongoing. AniList only knows a
@@ -5922,7 +6107,7 @@ function mgPanelHtml(it){
     <div class="mg-name serif">${esc(it.name)}</div>
     ${d && d.authors && d.authors.length ? `<div class="mg-by">${esc(d.authors.join(", "))}</div>` : ""}
     <div class="mg-chips">${st ? `<span class="mg-chip on">${esc(st)}</span>` : ""}<span class="mg-chip">${mgRange(it)} · ${i.total} vol${i.total === 1 ? "" : "s"}</span>${d && d.chapters ? `<span class="mg-chip">${d.chapters} ch</span>` : ""}${it.anilistId && it.rating != null ? `<span class="mg-chip">AniList ${it.rating}</span>` : ""}</div>
-    ${mode === "archive" ? `<div class="mg-by">Finished <b>${arcFinLong("manga", it)}</b></div>${myrRow(it)}` : ""}
+    ${mode === "archive" ? `<div class="mg-by">Last read <b>${arcFinLong("manga", it)}</b></div>${myrRow(it)}` : ""}
     <div class="tvc-desc" style="margin-top:12px;height:104px">${desc}</div>
     <div class="tvc-sec"><div class="tvc-lab">Volume map</div>${mgMapHtml(it, false)}</div>
     <div class="tvc-sec mg-ctl">
@@ -6057,6 +6242,7 @@ async function mgAutoLink(){
   renderMgDataModal();
 }
 
+// §FILTER — Library/Archive filter (movies, games): sliders, FLT_STORE
 /* ---------- v1.8.4 — Library Movies filter ----------
    Each slider steps through the distinct values that actually exist (so a year
    with no titles is simply skipped). Handles are positions in that list; what
@@ -6083,7 +6269,7 @@ function fltDefs(cat){
   return {
     y: { label:"Release year", get: i => { const y = +(i.releaseDate && i.releaseDate.y); return y > 0 ? y : null; }, fmt: v => String(v) },
     r: { label:"Rating",       get: i => mode === "archive" ? (i.myRating ? i.myRating.s : null) : itemRating(i), fmt: v => String(v) },
-    l: { label:"Length",       get: i => { const m = mode === "archive" ? itemMinutes(cat, i).total : libRemainingMin(cat, i); return m > 0 ? m : null; }, fmt: v => fmtHrMin(v) },
+    l: { label:"Length",       get: i => { const m = mode === "archive" ? arcMinutes(cat, i) : libRemainingMin(cat, i); return m > 0 ? m : null; }, fmt: v => fmtHrMin(v) },
   };
 }
 function fltValues(k){
@@ -6286,6 +6472,7 @@ async function pdLoadExtras(item){
   pdFill(item);
 }
 
+// §LIBRARY-RENDER — libSortValue, libCompare, renderLibraryTab
 /* ---------- library sort + group controls (v1.4.0) ----------
    Shared across every category page rather than per-category — simplest
    mental model ("however I last set it, that's how every page looks") and
@@ -6296,7 +6483,7 @@ if(libSort === "hype") libSort = "rating";   // v1.14.0 — old saved choice
 function setLibSort(v){ libSort=v; localStorage.setItem("expedition-libsort",v); renderLibraryTab(libTab); }
 function toggleLibSortDir(){ libSortDir = libSortDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libsortdir",libSortDir); renderLibraryTab(libTab); }
 function libSortValue(category, item, key){
-  if(mode === "archive"){ if(key === "rating") return item.myRating ? item.myRating.s : -1; if(key === "length") return itemMinutes(category, item).total; if(key === "date") return arcDateKey(item); }
+  if(mode === "archive"){ if(key === "rating") return item.myRating ? item.myRating.s : -1; if(key === "length") return arcMinutes(category, item); if(key === "date") return arcDateKey(item); }
   if(key==="rating"){
     if(category==="manga") return (item.anilistId && item.rating != null) ? item.rating : -1;
     return itemRating(item)==null ? -1 : itemRating(item);   // games have no rating, so they all tie
@@ -6366,6 +6553,7 @@ function renderLibraryTab(category){
   }
 }
 
+// §SWIPE-PWA — swipe tabs, service worker, modal backdrop close
 /* ---------- v0.9 swipe navigation ----------
    Swipe left/right anywhere to move between tabs, in the same order as the tab bar.
    Listens on `document` rather than #app: #app's height shrinks to fit its content,
@@ -6426,6 +6614,7 @@ document.querySelectorAll(".modal").forEach(function(m){
   m.addEventListener("click", function(e){ if(e.target === m) closeModal(m.id); });
 });
 
+// §MY-SCORE — aspect-based rating (MYR, MYRS), myrOpen/Save
 /* ---------- v2.3.0 — My score: rate a finished title by aspects ----------
    Each category has 10 questions; a theme gives every question a weight (normalised to 100 when scoring).
    Answer shares: Bad 0 · Weak 30% · Mid 55% · Good 80% · Peak 100%. Untouched = Mid. Stored on the item as myRating {t, a, s}. */
@@ -6514,32 +6703,24 @@ function myrClear(){
   delete tg.myRating; closeModal("myrModal"); persist();
 }
 
+// §ARCHIVE-BOOK — vault helpers: vaultAdd, vaultImport, arc date text, myrCorner
 /* ---------- v2.4.0 — Archive book (the "vault") ----------
    S.vault[cat] holds finished titles, same item shapes as the Library. Finished titles arrive at season rollover (vaultAdd),
    from the old archive records once (vaultImport) or by hand (+ Add). Docs sync as cat "vault_<cat>" so older app versions ignore them. */
 const libBook = cat => mode === "archive" ? S.vault[cat] : S.library[cat];
 const inVault = (cat, it) => (S.vault[cat] || []).includes(it);
 const MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-function arcDateText(it, long){
-  const d = it.finishedDate; if(!d || !d.y) return "unknown";
-  const mi = +d.m;
-  return long ? gmFmtDate(d) : [d.d && mi ? +d.d : "", mi >= 1 && mi <= 12 ? MON3[mi - 1] : "", d.y].filter(Boolean).join(" ");
+function arcDateText(it, long){   // v2.5.0 — the date shown is the last day the title was touched (it.lastActive)
+  const t = it.lastActive; if(!(t > 0)) return "unknown";
+  const d = new Date(t);
+  return d.getDate() + " " + (long ? GM_MONTHS[d.getMonth()] : MON3[d.getMonth()]) + " " + d.getFullYear();
 }
 function arcYearsText(it){
-  const ys = [];
-  (it.groups || []).forEach(g => { if(g.finishedYear) ys.push(+g.finishedYear); });
-  (it.arcYears || []).forEach(y => { if(y) ys.push(+y); });
-  Object.values(it.volYears || {}).forEach(y => { if(y) ys.push(+y); });
-  if(!ys.length) return "unknown";
-  const a = Math.min(...ys), b = Math.max(...ys);
-  return a === b ? String(a) : a + "–" + b;
+  const y = arcKnownYear(it); return y ? String(y) : "unknown";
 }
-const arcFinShort = (cat, it) => (cat === "games" || cat === "movies") ? arcDateText(it, false) : arcYearsText(it);
-const arcFinLong = (cat, it) => (cat === "games" || cat === "movies") ? arcDateText(it, true) : arcYearsText(it);
-function arcDateKey(it){
-  if(it.finishedDate !== undefined){ const d = it.finishedDate; return d && d.y ? (+d.y) * 10000 + (+d.m || 0) * 100 + (+d.d || 0) : 0; }
-  const t = arcYearsText(it); return t === "unknown" ? 0 : (+t.slice(-4)) * 10000;
-}
+const arcFinShort = (cat, it) => arcDateText(it, false);
+const arcFinLong = (cat, it) => arcDateText(it, true);
+function arcDateKey(it){ return it.lastActive > 0 ? it.lastActive : 0; }
 function myrCorner(it, extra){   // the score plate on a cover (Archive)
   const r = it.myRating; if(!r) return "";
   return `<div class="myr myr-c ${ratingClass(r.s)}${extra ? " " + extra : ""}" onclick="event.stopPropagation();myrOpen('${it.id}')"><b class="serif">${r.s}</b></div>`;
@@ -6586,6 +6767,7 @@ function vaultImport(V, archive){
   });
 }
 
+// §MISC-2.4 — viewport sync, srchRank, MYRS, season rating row
 /* ---------- v2.4.1 ---------- */
 // modals follow the part of the screen that is really visible (above the keyboard)
 function vvSync(){
@@ -6640,6 +6822,7 @@ function seasonRateRow(it, g){
   return `<div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s)}"><small>${w.toUpperCase()} SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">${w === "arc" ? "Arc" : "Season"} not rated</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="event.stopPropagation();myrOpen('${it.id}','${g.id}')">${r ? "Edit" : "Rate " + w}</button></div>`;
 }
 
+// §ARCHIVE-ADD — split dialog when adding TV/anime/manga to the Archive
 /* ---------- v2.4.2 — adding to the Archive: ask how much was finished, the rest goes to the Library ---------- */
 let splitCtx = null;
 function splitOpen(ctx){
@@ -6684,6 +6867,218 @@ function mgConfirmArchive(){
   toast(read >= total ? `Added “${r.title}” to the Archive.` : read > 0 ? `Archived ${read} volume${read === 1 ? "" : "s"} of “${r.title}”; the other ${total - read} went to your Library.` : `Nothing read yet, so “${r.title}” went to your Library.`);
 }
 
+
+// §PLAYTIME — v2.5.0 account playtime is a shared running total: Expedition sets it (Library/Archive), the launcher adds the time it records
+const PLAY_SRC = { launcher: "from your launcher", igdb: "IGDB average, an estimate", manual: "set by you", none: "no data" };
+let lpSnapReady = false;   // true once this session has seen the account's playtime documents (never write estimates before that)
+const gmBaseHours = g => g.igdbHours > 0 ? g.igdbHours : ((g.goal || 0) >= 0.5 ? g.goal : 0);
+const arcPlays = it => it.plays == null ? 1 : Math.max(0, +it.plays || 0);
+function gmPlayInfo(g){   // what to show as playtime: the stored value, else IGDB's average (display only)
+  if((g.played || 0) > 0) return { hours: g.played, src: g.playSrc || "launcher" };
+  const b = gmBaseHours(g);
+  return b > 0 ? { hours: b, src: "igdb" } : { hours: 0, src: "none" };
+}
+function lpSaveCache(){ try{ localStorage.setItem(LP_KEY, JSON.stringify(lpCache)); }catch(e){} }
+function lpOutSave(){ try{ localStorage.setItem(LPO_KEY, JSON.stringify(lpOut)); }catch(e){} }
+let lpSending = false, lpAgain = false;
+async function lpSend(){
+  if(!cloudUser || !window.__cloudPlaytimeWrite) return;
+  if(lpSending){ lpAgain = true; return; }
+  const ids = Object.keys(lpOut); if(!ids.length) return;
+  lpSending = true;
+  const snap = {}; ids.forEach(id => { snap[id] = lpOut[id]; });
+  try{
+    await window.__cloudPlaytimeWrite(snap);
+    ids.forEach(id => { if(lpOut[id] === snap[id]) delete lpOut[id]; });
+    lpOutSave();
+  }catch(e){ console.error("Playtime write failed", e); }
+  lpSending = false;
+  if(lpAgain){ lpAgain = false; lpSend(); }
+}
+function gmSetPlay(g, hours, src){
+  hours = Math.max(0, Math.round(hours * 100) / 100);
+  g.played = hours; g.playSrc = src;
+  if(!g.igdbId) return;
+  lpCache[g.igdbId] = { h: hours, t: 0, s: src }; lpSaveCache();
+  lpOut[g.igdbId] = { h: hours, s: src }; lpOutSave(); lpSend();
+}
+function lpForget(g){   // the game is gone from Expedition: its playtime leaves the account too
+  [g.igdbId].concat((g.dlcs || []).map(d => d.igdbId)).filter(Boolean).forEach(id => { delete lpCache[id]; lpOut[id] = { del: true }; });
+  lpSaveCache(); lpOutSave(); lpSend();
+}
+function gmEnsurePlay(g){   // every archived game carries a stored playtime: the launcher's, else IGDB's average
+  if(!g.igdbId || (g.played || 0) > 0) return;
+  const c = lpCache[g.igdbId];
+  if(c && c.h > 0){ g.played = c.h; g.playSrc = c.s || "launcher"; return; }
+  const b = gmBaseHours(g);
+  if(b > 0) gmSetPlay(g, b * (1 + 0.7 * (Math.max(1, arcPlays(g)) - 1)), "igdb");
+}
+function lpMaterialize(){
+  if(!lpSnapReady) return false;
+  let ch = false;
+  (S.vault.games || []).forEach(g => { if(g.igdbId && !((g.played || 0) > 0)){ gmEnsurePlay(g); if(g.played > 0) ch = true; } });
+  return ch;
+}
+let playId = null;
+function gmPlayEdit(id){
+  const g = gmAllGames().find(x => x.id === id); if(!g) return;
+  playId = id;
+  const h = g.played > 0 ? g.played : (S.vault.games.includes(g) ? gmBaseHours(g) : 0);
+  let hh = Math.floor(h), mm = Math.round((h - hh) * 60); if(mm >= 60){ hh++; mm = 0; }
+  $("playName").textContent = g.name; $("playH").value = hh; $("playM").value = mm;
+  $("playReset").style.display = gmBaseHours(g) > 0 ? "" : "none";
+  $("playModal").classList.add("show");
+}
+function gmPlaySave(){
+  const g = gmAllGames().find(x => x.id === playId); if(!g) return closeModal("playModal");
+  const h = Math.max(0, +$("playH").value || 0) + Math.min(59, Math.max(0, +$("playM").value || 0)) / 60;
+  if(!(h > 0)) return toast("Enter a time above 0, or use the IGDB estimate.");
+  gmSetPlay(g, h, "manual"); closeModal("playModal"); persist(); toast("Playtime saved.");
+}
+function gmPlayReset(){
+  const g = gmAllGames().find(x => x.id === playId); if(!g) return closeModal("playModal");
+  const b = gmBaseHours(g); if(!(b > 0)) return;
+  gmSetPlay(g, b * (1 + 0.7 * (Math.max(1, arcPlays(g)) - 1)), "igdb"); closeModal("playModal"); persist(); toast("Back to the IGDB estimate.");
+}
+
+// §LAST-ACTIVE — v2.5.0 "last played/watched/read" = item.lastActive (ms). Archive titles without one get a stable pseudo-random date (hash of the id), lastEst = true
+const ARC_LO = new Date(2016, 0, 1).getTime(), ARC_HI = new Date(2026, 5, 30, 23, 59).getTime();
+function hash01(str){ let h = 2166136261; for(let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; return (h >>> 0) / 4294967296; }
+function arcKnownYear(it){
+  const ys = [];
+  (it.groups || []).forEach(g => { if(g.finishedYear) ys.push(+g.finishedYear); });
+  (it.arcYears || []).forEach(y => { if(y) ys.push(+y); });
+  Object.values(it.volYears || {}).forEach(y => { if(y) ys.push(+y); });
+  return ys.length ? Math.max(...ys) : 0;
+}
+function arcGuessTs(id, year){
+  let lo = ARC_LO, hi = ARC_HI;
+  if(year > 0){ lo = new Date(year, 0, 1).getTime(); hi = Math.max(lo, Math.min(new Date(year, 11, 31, 23, 59).getTime(), Date.now())); }
+  const d = new Date(lo + hash01("last|" + id) * (hi - lo)); d.setHours(12, 0, 0, 0);
+  return d.getTime();
+}
+function arcStampLast(){
+  let ch = false;
+  ALL_CATS.forEach(c => (S.vault[c] || []).forEach(it => {
+    if(it.lastActive > 0) return;
+    const d = it.finishedDate;
+    if(d && d.y && d.m && d.d) it.lastActive = new Date(+d.y, +d.m - 1, +d.d, 12).getTime();
+    else { it.lastActive = arcGuessTs(it.id, arcKnownYear(it)); it.lastEst = true; }
+    ch = true;
+  }));
+  return ch;
+}
+const arcLastLabel = cat => cat === "games" ? "Last played" : cat === "manga" ? "Last read" : "Last watched";
+const sortLab = o => (o[0] === "date" && mode === "archive") ? arcLastLabel(libTab) : o[1];
+function arcMinutes(cat, it){ return cat === "games" ? gmPlayInfo(it).hours * 60 : itemMinutes(cat, it).total; }
+
+// §ARCHIVE-SHELF — v2.5.0 Archive games + movies: 5 per row; tap a poster → a Log / Details / Remove cell takes its place and the poster slides right
+let arcOpen = null;
+const arcFind = id => { for(const cat of ["games", "movies"]){ const it = (S.vault[cat] || []).find(x => x.id === id); if(it) return { cat, it }; } return null; };
+function arcImgFb(img){ const l = (img.dataset.fb || "").split("|").filter(Boolean); if(!l.length){ img.remove(); return; } img.dataset.fb = l.slice(1).join("|"); img.src = l[0]; }
+function arcGameImg(g, idx){
+  const chain = [igdbImg(g.coverId, "cover_big"), igdbImg(g.backdropId, "screenshot_big")].filter(Boolean);
+  if(!chain.length) return "";
+  return `<img alt="" class="${posterSeen.has(chain[0]) ? "seen" : ""}" ${idx < 15 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onload="this.classList.add('in');posterSeen.add(this.src)" onerror="arcImgFb(this)">`;
+}
+function arcMini(cat, it, idx){
+  const img = cat === "games" ? arcGameImg(it, idx) : posterImgHtml(it, idx, "w342");
+  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${it.myRating ? myrCorner(it) : ""}</div></div>`;
+}
+function arcBtns(it, enter){
+  return `<div class="arc-btns${enter}"><button class="btn small" onclick="arcLog('${it.id}')">Log</button><button class="btn small" onclick="arcDetails('${it.id}')">Details</button><button class="btn small danger" onclick="arcRemove('${it.id}')">Remove</button></div>`;
+}
+function arcShelfHtml(cat, items, start){
+  const enter = pdAnimateIn ? " pd-enter" : "";
+  let h = "";
+  items.forEach((it, i) => { if(it.id === arcOpen) h += arcBtns(it, enter); h += arcMini(cat, it, start + i); });
+  return `<div class="arc-shelf">${h}</div>`;
+}
+function arcShelfBlock(cat, items){
+  const fin = items.filter(x => !x.abandoned), gone = items.filter(x => x.abandoned);
+  let h = arcShelfHtml(cat, fin, 0);
+  if(gone.length) h += `<div class="marginalia" style="margin-top:22px">abandoned · tried</div>` + arcShelfHtml(cat, gone, fin.length);
+  return h;
+}
+function arcToggle(id){
+  if(pdBusy) return;
+  const wasOpen = arcOpen != null;
+  const go = () => {
+    const closing = arcOpen === id, sel = `[data-pid="${id}"]`;
+    vf(closing ? ".arc-btns" : sel, closing ? sel : ".arc-btns", null);
+    arcOpen = closing ? null : id;
+    pdAnimateIn = !!arcOpen;
+    render();
+    pdAnimateIn = false; pdBusy = false;
+  };
+  if(wasOpen){
+    pdBusy = true;
+    document.querySelectorAll(".arc-btns").forEach(e => { e.classList.remove("pd-enter"); e.classList.add("pd-leave"); });
+    setTimeout(go, 150);
+  } else go();
+}
+
+// §LOG-DETAILS — v2.5.0 Archive Log menu (rating, playtime, play-throughs, last played), Details menu, Remove
+let logId = null, detId = null;
+function arcLog(id){ logId = id; logRender(); $("logModal").classList.add("show"); }
+function logRender(){
+  const f = arcFind(logId); if(!f){ closeModal("logModal"); return; }
+  const { cat, it } = f, g = cat === "games", n = arcPlays(it), pi = g ? gmPlayInfo(it) : null;
+  const hint = n === 0 ? "At 0 this counts as abandoned (tried)." : (g && pi.src === "igdb" ? "While the playtime is IGDB's estimate, each extra play-through adds 70% of it." : "");
+  $("logBody").innerHTML = `<h2 class="serif">${esc(it.name)}</h2><div class="hint">${g ? "Your play log" : "Your watch log"}</div>
+    <div class="log-sec"><div class="log-lab">My rating</div>${myrRow(it)}</div>
+    ${g ? `<div class="log-sec"><div class="log-lab">Playtime</div><div class="log-row"><div><b class="serif">${pi.hours > 0 ? fmtHM(Math.round(pi.hours * 60)) : "Not set"}</b><span class="log-src">${PLAY_SRC[pi.src]}</span></div><button class="btn small ghost" onclick="gmPlayEdit('${it.id}')">Edit</button></div></div>` : ""}
+    <div class="log-sec"><div class="log-lab">${g ? "Play-throughs" : "Times watched"}</div><div class="log-step"><button class="btn" onclick="arcPlaysSet('${it.id}',-1)"${n <= 0 ? " disabled" : ""}>−</button><b class="serif">${n}</b><button class="btn" onclick="arcPlaysSet('${it.id}',1)">+</button></div>${hint ? `<div class="hint" style="text-align:center;margin:8px 0 0">${hint}</div>` : ""}</div>
+    <div class="log-sec"><div class="log-lab">${arcLastLabel(cat)}</div><div class="log-row"><b class="serif" style="font-size:17px">${arcDateText(it, true)}</b></div>${it.lastEst ? `<span class="log-src">An estimated date</span>` : ""}</div>`;
+}
+function arcPlaysSet(id, d){
+  const f = arcFind(id); if(!f) return;
+  const { cat, it } = f, cur = arcPlays(it), next = Math.max(0, Math.min(99, cur + d));
+  if(next === cur) return;
+  it.plays = next;
+  if(next === 0){ it.abandoned = true; it.abandonedAt = it.abandonedAt || Date.now(); }
+  else if(cur === 0){ it.abandoned = false; delete it.abandonedAt; }
+  if(cat === "games" && next >= 1 && gmPlayInfo(it).src === "igdb" && gmBaseHours(it) > 0) gmSetPlay(it, gmBaseHours(it) * (1 + 0.7 * (next - 1)), "igdb");   // 2nd run is faster: +70% of IGDB's time each
+  if(d > 0){ it.lastActive = Date.now(); delete it.lastEst; }
+  persist();
+}
+function arcDetails(id){
+  detId = id; detRender(); $("detModal").classList.add("show");
+  const f = arcFind(id);
+  if(f && f.cat === "movies" && f.it.tmdbId) pdLoadExtras(f.it).then(() => { if(detId === id && $("detModal").classList.contains("show")) detRender(); });
+}
+function detRender(){
+  const f = arcFind(detId); if(!f){ closeModal("detModal"); return; }
+  const { cat, it } = f, r = itemRating(it);
+  let src = "", ph = false, by = null, meta = "", body = "";
+  if(cat === "movies"){
+    const ex = it.tmdbId ? pdCache["m:" + it.tmdbId] : null, bp = it.backdropPath || (ex && ex.backdrop) || "", b = pdBodies(it), y = it.releaseDate && it.releaseDate.y;
+    src = bp ? `${TMDB_IMG}w780${bp}` : (it.posterPath ? `${TMDB_IMG}w342${it.posterPath}` : ""); ph = !bp; by = it.backdropY;
+    meta = [y, it.length > 0 ? fmtHrMin(it.length) : "", r != null ? "★ " + r : ""].filter(Boolean).join(" · ");
+    body = (ex && ex.tagline ? `<div class="det-desc" style="font-style:italic;color:var(--muted)">${esc(ex.tagline)}</div>` : "") + `<div class="det-desc">${b.desc}</div>
+      <div class="det-sec"><div class="pd-lab">Director</div><div class="pd-val">${b.dir}</div></div><div class="det-sec"><div class="pd-lab">Starring</div><div class="pd-val">${b.cast}</div></div>`;
+  } else {
+    const bd = igdbImg(it.backdropId, "screenshot_big"), cv = igdbImg(it.coverId, "cover_big"), dlcs = it.dlcs || [], date = gmFmtDate(it.releaseDate);
+    src = bd || cv; ph = !bd; by = it.backdropY;
+    meta = [it.releaseDate && it.releaseDate.y, it.igdbHours ? fmtN(it.igdbHours) + "h average" : "", r != null ? "★ " + r : ""].filter(Boolean).join(" · ");
+    const who = [it.developer ? `<b>${esc(it.developer)}</b>` : "", it.publisher && it.publisher !== it.developer ? `published by ${esc(it.publisher)}` : ""].filter(Boolean).join(" · ");
+    body = (who || date ? `<div class="gm-meta" style="margin-top:12px">${who}${who && date ? "<br>" : ""}${date}</div>` : "") +
+      ((it.genres || []).length ? `<div class="gm-chips">${it.genres.slice(0, 6).map(x => `<span class="gm-chipx">${esc(x)}</span>`).join("")}</div>` : "") +
+      (it.description ? `<div class="det-desc">${esc(it.description)}</div>` : `<div class="det-desc" style="color:var(--muted)">${it.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet."}</div>`) +
+      (dlcs.length ? `<div class="det-sec"><div class="pd-lab">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="pd-val" style="margin-top:3px">${esc(d.name)}${d.kind ? ` <span class="gm-hint">${esc(d.kind)}</span>` : ""}</div>`).join("")}</div>` : "");
+  }
+  $("detBody").innerHTML = `<div class="det-bd">${src ? `<img class="${ph ? "ph" : ""}" alt="" src="${esc(src)}"${!ph && by != null ? ` style="object-position:50% ${by}%"` : ""} onerror="this.remove()">` : ""}<div class="det-shade"></div></div><h2 class="serif det-title">${esc(it.name)}</h2>${meta ? `<div class="det-meta">${esc(meta)}</div>` : ""}${body}`;
+}
+function arcRemove(id){
+  const f = arcFind(id); if(!f) return;
+  const { cat, it } = f;
+  if(!confirm(`Remove “${it.name}” from Expedition entirely?\n\nThis permanently deletes it and everything stored with it (${cat === "games" ? "playtime, last played, your rating, play-throughs" : "last watched, your rating, times watched"}). This can't be undone.`)) return;
+  arcOpen = null; closeModal("logModal"); closeModal("detModal");
+  if(cat === "games"){ S.vault.games = S.vault.games.filter(x => x.id !== id); lpForget(it); }
+  else S.vault.movies = S.vault.movies.filter(x => x.id !== id);
+  persist(); toast("Removed.");
+}
+
 $("verTag").textContent = "v" + APP_VERSION;
 setTimeout(() => { try{ ocBackfill(false); }catch(e){} }, 9000);
 setTimeout(() => bkRun(false), 12000); setInterval(() => bkRun(false), 3600000);   // v2.4.3 — daily backup   // v2.1.0 — OpenCritic scores fill in by themselves, A–Z, within the free daily limit
@@ -6700,7 +7095,7 @@ setTimeout(() => bkRun(false), 12000); setInterval(() => bkRun(false), 3600000);
   };
   window.addEventListener("scroll", () => { if(!tick){ tick = true; requestAnimationFrame(run); } }, { passive: true });
 })();
-seedLastActive(); lpApplyAll(); stateSave(); fltLoad();
+seedLastActive(); arcStampLast(); lpApplyAll(); stateSave(); fltLoad();
 render();
 setTimeout(purgeUnlinked, 400);
 </script>
@@ -6709,6 +7104,7 @@ setTimeout(purgeUnlinked, 400);
      own module script and talks to the app above only via window.__cloud*
      functions/callbacks (see the "cloud sync" section in the main script). -->
 <script type="module">
+// §FIREBASE-MODULE — module script: Firebase init, __fs2 (cloud v2), playtime listener/write, targets, sign-in
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
@@ -6786,10 +7182,13 @@ window.__fs2 = {
 // v1.16.0 — the launcher writes users/{uid}/launcherPlaytime/{igdbId} ({playedHours, updatedAt}); the app only listens
 function watchPlaytime(uid){
   if(unsubPlay) unsubPlay();
+  let first = true;
   unsubPlay = onSnapshot(collection(db, "users", uid, "launcherPlaytime"), snap => {
-    const list = [];
-    snap.docChanges().forEach(ch => { if(ch.type !== "removed") list.push({ id: ch.doc.id, ...ch.doc.data() }); });
+    const list = [], gone = [];
+    snap.docChanges().forEach(ch => { if(ch.type !== "removed") list.push({ id: ch.doc.id, ...ch.doc.data() }); else gone.push(ch.doc.id); });
     if(list.length && typeof window.__cloudOnPlaytime === "function") window.__cloudOnPlaytime(list);
+    if(gone.length && typeof window.__cloudOnPlaytimeGone === "function") window.__cloudOnPlaytimeGone(gone);
+    if(first && !snap.metadata.fromCache){ first = false; if(typeof window.__cloudPlaytimeReady === "function") window.__cloudPlaytimeReady(); }
   }, err => console.error("Playtime listener error", err));
 }
 
@@ -6844,6 +7243,16 @@ window.__cloudTargets = function(map){
       }
     }catch(e){ console.error("Targets sync failed", e); tgtKnown = null; }
   }, 2000);
+};
+// v2.5.0 — Expedition now writes playtime too: users/{uid}/launcherPlaytime/{igdbId} = {playedHours, src, updatedAt}. The launcher adds to it.
+window.__cloudPlaytimeWrite = async function(map){
+  if(!auth || !auth.currentUser) throw new Error("no-auth");
+  const col = collection(db, "users", auth.currentUser.uid, "launcherPlaytime"), ids = Object.keys(map);
+  for(let i = 0; i < ids.length; i += 400){
+    const b = writeBatch(db);
+    ids.slice(i, i + 400).forEach(id => { const v = map[id], r = doc(col, id); if(v.del) b.delete(r); else b.set(r, { playedHours: v.h, src: v.s || "", updatedAt: Date.now() }, { merge: true }); });
+    await b.commit();
+  }
 };
 window.__cloudSignOut = function(){ return signOut(auth); };
 
