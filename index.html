@@ -892,6 +892,26 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .dp-cols{display:grid;grid-template-columns:1.2fr 1.4fr 1fr;gap:10px;margin-top:14px}.dp-col{display:flex;flex-direction:column;gap:6px}.dp-col .btn{padding:8px 0}.dp-val{font:600 18px "IBM Plex Mono",monospace}
 .dp-list{max-height:150px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.dp-list div{padding:9px;text-align:center;cursor:pointer;font-size:14px}.dp-list div.on{background:rgba(217,162,86,.18);color:var(--brass)}
 .dt-row{display:flex;align-items:center;gap:8px;margin-top:8px}.dt-row>span{flex:1;font-size:13px}.dt-row .btn{padding:6px 10px;font-size:12px}
+.ov-hero{display:flex;align-items:center;gap:16px;background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--brass-dim);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;box-shadow:0 0 30px -10px rgba(217,162,86,.35)}
+.ov-ring{width:132px;height:132px;flex:none}.rg-bg{fill:none;stroke:var(--line);stroke-width:10}.rg-fg{fill:none;stroke:var(--brass);stroke-width:10;stroke-linecap:round;transition:stroke-dasharray .5s}.rg-t{fill:var(--ink);font:600 26px "Fraunces",serif}.rg-s{fill:var(--muted);font:600 8px "IBM Plex Mono",monospace;letter-spacing:.14em}
+.ov-side{min-width:0}.ov-big{font-size:30px;line-height:1.1;margin-top:4px}.ov-sub{font-size:12px;color:var(--muted);margin-top:5px}.ov-sub b{color:var(--ink)}
+.ov-hero.lib{border-color:var(--teal)}.ov-hero.arc{border-color:var(--rust)}
+.an-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px}.an-card .eyebrow{margin-bottom:10px}
+.an-bar{height:7px;border-radius:4px;background:var(--bg);overflow:hidden;margin:5px 0 9px}.an-bar i{display:block;height:100%;border-radius:4px;transition:width .4s}
+.an-note{font-size:11.5px;color:var(--muted-dim);line-height:1.5;margin-top:10px}
+.ov-row{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted)}.ov-row b{color:var(--ink);font-family:"IBM Plex Mono",monospace;font-weight:600;white-space:nowrap}
+.ov-pace{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.ov-pace>div{background:var(--bg);border:1px solid var(--line-soft);border-radius:11px;padding:9px;text-align:center}.ov-pace b{display:block;font:600 15px "IBM Plex Mono",monospace}.ov-pace span{font-size:9.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.03em}
+.ov-cat{display:flex;gap:11px;align-items:center;width:100%;background:none;border:0;border-top:1px solid var(--line-soft);padding:10px 0;color:var(--ink);text-align:left;cursor:pointer;font-family:inherit}.ov-cat:first-of-type{border-top:0}.ov-cat .mono-badge{border-color:var(--accent);color:var(--accent);flex:none}
+.ov-cm{flex:1;min-width:0}.ov-ct{display:flex;justify-content:space-between;font-size:13.5px}.ov-ct span{font:600 13px "IBM Plex Mono",monospace;color:var(--accent)}.ov-cm .an-bar{margin:5px 0 4px}.ov-cs{font-size:11px;color:var(--muted)}
+.an-cols{display:flex;gap:4px;height:130px;align-items:stretch}.an-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center}.an-cv{font:500 8px "IBM Plex Mono",monospace;color:var(--muted);height:11px}.an-cbw{flex:1;width:100%;display:flex;align-items:flex-end}.an-cb{width:100%;border-radius:4px 4px 0 0;transition:height .4s}.an-cl{font:500 8.5px "IBM Plex Mono",monospace;color:var(--muted-dim);margin-top:4px;white-space:nowrap}
+.an-li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line-soft);font-size:13px}.an-li:first-of-type{border-top:0}.an-li span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.an-li em{font:500 11px "IBM Plex Mono",monospace;font-style:normal;color:var(--muted);white-space:nowrap}.an-li em[class*="rc-"]{color:var(--rcx)}
+.qrow{padding:11px 0;border-top:1px solid var(--line-soft);cursor:pointer}.qrow:first-of-type{border-top:0}.qr-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.qr-top b{font-size:15px}.qr-top span{font-size:11px;color:var(--muted)}.qrow .an-bar{margin:6px 0 0}
+.lc{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:10px;background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px;cursor:pointer;position:relative;overflow:hidden}.lc:active{border-color:var(--lc)}
+.lc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--lc)}
+.lc-books{position:relative;height:118px}.lc-b{position:absolute;top:0;width:78px;aspect-ratio:2/3;border-radius:5px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);box-shadow:4px 0 10px rgba(0,0,0,.55)}.lc-b img{width:100%;height:100%;object-fit:cover;display:block}.lc-b span{display:flex;align-items:center;justify-content:center;height:100%;padding:4px;text-align:center;font-size:9px;color:var(--muted)}.lc-empty{color:var(--muted-dim);font-size:12px;padding:30px 0}
+.lc-name{margin-top:10px;font-size:16px;line-height:1.2}.lc-r{display:flex;flex-direction:column;justify-content:center;text-align:right}.lc-n{font-size:40px;line-height:1;color:var(--lc)}.lc-s{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.lc-m{font-size:11.5px;color:var(--muted);margin-top:3px}
+.ls-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}.ls-name{font-size:21px}.ls-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}.ls-stats>div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.ls-stats b{display:block;font:600 17px "IBM Plex Mono",monospace}.ls-stats span{font-size:9.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em}
+.arc-rank{position:absolute;top:3px;left:3px;z-index:3;min-width:18px;padding:1px 5px;border-radius:5px;background:rgba(8,12,10,.88);border:1px solid var(--brass);color:var(--brass);font:600 10px "IBM Plex Mono",monospace;text-align:center}
 </style>
 </head>
 <body>
@@ -1262,7 +1282,7 @@ SECTIONS:
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "2.5.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.6.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1273,6 +1293,7 @@ const CAT = {
   tv:      {color:"#6f8fc1", text:"#0b1220", label:"Shows"},
   anime:   {color:"#d9678f", text:"#210812", label:"Anime"},
   manga:   {color:"#8f7fc4", text:"#140f22", label:"Manga"},
+  stats:   {color:"#d9a256", text:"#1a1006", label:"Stats"},
 };
 const ALL_CATS = ["games","movies","tv","anime","manga"]; // single source of truth for "every media category"
 const ICON_SVG = {
@@ -1281,6 +1302,7 @@ const ICON_SVG = {
   movies:   `<rect x="2.8" y="7.3" width="14.4" height="9.2" rx="1.3"/><path d="M3.3 7.3l2.3-3.4h2.6L5.9 7.3M9.6 7.3l2.3-3.4h2.6l-2.3 3.4"/>`,
   tv:       `<rect x="3" y="5.3" width="14" height="9.4" rx="1.4"/><path d="M8 17h4M10 14.7V17M7.4 3l2.6 2 2.6-2"/>`,
   anime:    `<path d="M10 3.2l1.5 4L15.5 8.7l-4 1.5L10 14.2l-1.5-4L4.5 8.7l4-1.5L10 3.2z"/>`,
+  stats:    `<path d="M4 16V9M10 16V4M16 16v-5"/>`,
   manga:    `<path d="M3.2 4.6c2-1 4.6-1 6.3 0v10.8c-1.7-1-4.3-1-6.3 0V4.6z"/><path d="M16.3 4.6c-2-1-4.6-1-6.3 0v10.8c1.7-1 4.3-1 6.3 0V4.6z"/>`,
   season:   `<rect x="3" y="4.3" width="14" height="12.4" rx="1.7"/><path d="M3 8.2h14M6.8 2.6v3.2M13.2 2.6v3.2"/>`,
   library:  `<path d="M3.3 4.2h2.8v12.6H3.3zM7.3 3h2.8v13.8H7.3zM11.3 5.4h2.8v11.4h-2.8zM15.3 3.8h2.8v13H15.3z"/>`,
@@ -1449,7 +1471,7 @@ function normalizeState(raw){
       manga: normSimple(rawLib.manga,"manga"),
     },
     settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), igdbProxy: String((raw.settings && raw.settings.igdbProxy) || ""), ocProxy: String((raw.settings && raw.settings.ocProxy) || "") },
-    finishDatesV: raw.finishDatesV || 0, dateGenV: raw.dateGenV || 0,
+    finishDatesV: raw.finishDatesV || 0, dateGenV: raw.dateGenV || 0, addedV: raw.addedV || 0,
     updatedAt: raw.updatedAt || 0,
   });
 }
@@ -1646,7 +1668,7 @@ function persist(){
   stampFinishDates();
   ensureSeason();
   scrubFinishedSeasonItems();
-  arcStampLast(); lpMaterialize();
+  arcStampLast(); libStampAdded(); lpMaterialize();
   S.updatedAt = Date.now();
   const sv = stateSave();
   if(sv === "stale"){ toast("This copy of Expedition is out of date. Close it and reopen the app."); render(); return; }   // never push an old copy's data over newer data
@@ -1997,7 +2019,7 @@ function switchMode(m){
   gmReset();
   gmOpen = null; gmGoalEdit = null;
   fltSave();
-  mode = m;
+  mode = m; arcList.games = arcList.movies = null;
   fltLoad();
   localStorage.setItem("expedition-mode", m);
   libOpenMovie = null; tvOpen = null; tvOpenSeason = null; mgOpen = null; arcOpen = null;
@@ -2007,10 +2029,10 @@ function switchMode(m){
 }
 function switchLibTab(t){
   gmReset();
-  const oldIdx = LIB_CATS.indexOf(libTab);
-  const newIdx = LIB_CATS.indexOf(t);
+  const oldIdx = LIB_TABS.indexOf(libTab);
+  const newIdx = LIB_TABS.indexOf(t);
   gmOpen = null; gmGoalEdit = null;
-  libTab = t;
+  libTab = t; arcList.games = arcList.movies = null;
   localStorage.setItem("expedition-libtab", t);
   libSearchQ = "";
   tvOpen = null; tvOpenSeason = null; mgOpen = null; arcOpen = null;
@@ -2025,7 +2047,7 @@ function renderModeToggle(){
 }
 function renderTabBar(){
   if(mode==="library"||mode==="archive"){
-    $("tabbar").innerHTML = LIB_CATS.map(t=>{
+    $("tabbar").innerHTML = LIB_TABS.map(t=>{
       const c = CAT[t];
       return `<button class="tab ${libTab===t?'on':''}" style="--tabcolor:${c.color}" onclick="switchLibTab('${t}')">
         <span class="mono-badge">${iconBadge(t)}</span><span>${c.label}</span>
@@ -3011,8 +3033,8 @@ async function c2PushOnce(force){
   ent.forEach(e => {
     const k = c2.known.docs[e.id];
     if(!k || k[0] !== e.h || k[1] !== e.o || k[3] !== e.cat || k[4] !== e.book){
-      ops.push({ coll: "items", id: e.id, data: { cat: e.cat, book: e.book, o: e.o, j: e.j, u: now } });
-      add[e.id] = [e.h, e.o, now, e.cat, e.book];
+      ops.push({ coll: "items", id: e.id, data: { cat: e.cat, book: e.book, o: e.o, j: e.j, u: now, m: now } });
+      add[e.id] = [e.h, e.o, now, e.cat, e.book, now];
     }
   });
   const gone = Object.keys(c2.known.docs).filter(id => !ent.has(id));
@@ -3027,12 +3049,14 @@ async function c2PushOnce(force){
     }
   }
   c2.forceDel = false;
-  gone.forEach(id => { const k = c2.known.docs[id]; ops.push({ coll: "items", id, data: { del: true, v: 3, cat: k[3], book: k[4], o: k[1], j: "", u: now } }); });
+  gone.forEach(id => { const k = c2.known.docs[id]; ops.push({ coll: "items", id, data: { del: true, v: 3, cat: k[3], book: k[4], o: k[1], j: "", u: now, m: now } }); });
   const coreChanged = !c2.known.core || c2.known.core.h !== core.h;
-  if(coreChanged) ops.push({ coll: "core", id: "core", data: { j: core.j, u: now } });
+  if(coreChanged) ops.push({ coll: "core", id: "core", data: { j: core.j, u: now, m: now } });
   if(!ops.length) return;
-  await window.__fs2.write(c2.uid, ops);
-  Object.assign(c2.known.docs, add); gone.forEach(id => { delete c2.known.docs[id]; });
+  const res = await window.__fs2.write(c2.uid, ops), skipped = new Set(((res && res.skipped) || []).map(x => x.id));   // the cloud refuses a write when it already holds a newer change of that title
+  Object.keys(add).forEach(id => { if(!skipped.has(id)) c2.known.docs[id] = add[id]; });
+  gone.forEach(id => { if(!skipped.has(id)) delete c2.known.docs[id]; });
+  if(skipped.size){ c2ApplyRemote(res.skipped, null, { theirs: true }); render(); }
   if(coreChanged) c2.known.core = { h: core.h, u: now };
   c2.maxU = Math.max(c2.maxU, now);
   c2SaveKnown();
@@ -3046,7 +3070,8 @@ function c2ApplyRemote(docs, coreDoc, opt){
     if(d.u > c2.maxU) c2.maxU = d.u;
     const k = c2.known.docs[d.id], local = map.get(d.id);
     if(!opt.force && k && k[2] >= d.u) return;                  // that version (or a newer one) is already here
-    if(local && (!k || local.h !== k[0])) return;               // changed on this device and not sent yet: this version goes up instead
+    if(!opt.force && !opt.theirs && k && k[5] && d.m && d.m < k[5] && local && local.h === k[0]){ k[0] = ""; c2.resend = true; return; }   // an older change than the one we hold: keep ours and send it again
+    if(!opt.theirs && local && (!k || local.h !== k[0])) return;               // changed on this device and not sent yet: this version goes up instead
     if(d.del){
       // an older app version doesn't know the Archive and deletes its documents when it syncs (its deletions carry no v:3). Keep ours and send it again.
       if(local && /^vault_/.test(d.cat || "") && !(d.v >= 3)){ c2.known.docs[d.id] = ["", local.o, d.u, d.cat, d.book]; c2.resend = true; return; }
@@ -3055,9 +3080,9 @@ function c2ApplyRemote(docs, coreDoc, opt){
     }
     let item; try{ item = JSON.parse(d.j); }catch(e){ return; }
     const h = c2Hash(d.j);
-    if(local && local.h === h && local.o === d.o && local.cat === d.cat && local.book === d.book){ c2.known.docs[d.id] = [h, d.o, d.u, d.cat, d.book]; return; }
+    if(local && local.h === h && local.o === d.o && local.cat === d.cat && local.book === d.book){ c2.known.docs[d.id] = [h, d.o, d.u, d.cat, d.book, d.m || 0]; return; }
     map.set(d.id, { id: d.id, cat: d.cat, book: d.book, o: d.o, item, j: d.j, h });
-    c2.known.docs[d.id] = [h, d.o, d.u, d.cat, d.book]; touched.push(d.id); changed = true;
+    c2.known.docs[d.id] = [h, d.o, d.u, d.cat, d.book, d.m || 0]; touched.push(d.id); changed = true;
   });
   if(coreDoc){
     if(coreDoc.u > c2.maxU) c2.maxU = coreDoc.u;
@@ -3113,7 +3138,7 @@ function c2Adopt(all){
     if(d.del) return;
     let item; try{ item = JSON.parse(d.j); }catch(e){ return; }
     ents.push({ cat: d.cat, book: d.book, o: d.o, item });
-    c2.known.docs[d.id] = [c2Hash(d.j), d.o, d.u, d.cat, d.book];
+    c2.known.docs[d.id] = [c2Hash(d.j), d.o, d.u, d.cat, d.book, d.m || 0];
   });
   let core = {}; if(all.core){ try{ core = JSON.parse(all.core.j) || {}; }catch(e){} }
   const raw = c2Assemble(ents, core); raw.updatedAt = S.updatedAt || 0;
@@ -3362,48 +3387,6 @@ function statbar(cat, totals, extra){
 // v1.6.0 — the small counts shown in each stat bar next to "active"
 function activeDlcCount(){
   return (S.games||[]).filter(g=>!g.abandoned).reduce((a,g)=> a + (g.dlcs||[]).filter(d=>!dlcCleared(d)).length, 0);
-}
-
-function renderOverview(){
-  const combined = combinedTotals();
-  const remain = Math.max(0, combined.goal-combined.played);
-  const pct = combined.goal>0 ? combined.played/combined.goal*100 : 100;
-  const d = daysLeft();
-  const liveSnap = seasonSnapshot(S.games, S.movies, S.tv, S.anime, S.manga);
-  const totalMediaCount = ALL_CATS.reduce((a,c)=>a+categoryTotals(c).count, 0);
-
-  let html = `<section class="season">
-    <div class="eyebrow">${esc(quarterLabel(S.seasonStart))} · This Season</div>
-    <div class="season-grid">
-      <div class="stat"><b>${fmtHM(Math.round(combined.goal))}</b><span>Total picked</span></div>
-      <div class="stat"><b>${fmtHM(Math.round(combined.played))}</b><span>Finished</span></div>
-      <div class="stat"><b>${fmtHM(Math.round(remain))}</b><span>Remaining</span></div>
-      <div class="stat"><b>${pct.toFixed(1)}%</b><span>Cleared</span></div>
-      <div class="stat"><b>${d==null?"—":d<0?"Past due":d+"d"}</b><span>Left in season</span></div>
-      <div class="stat"><b>${totalMediaCount}</b><span>Total media</span></div>
-    </div>
-    ${paceBoxHtml(combined, d)}
-  </section>
-  <div class="tiles">`;
-
-  ALL_CATS.forEach(cat=>{
-    const t = categoryTotals(cat);
-    const tp = t.goal>0 ? t.played/t.goal*100 : 100;
-    const meta = CAT[cat];
-    html += `<button class="tile" style="--accent:${meta.color}" onclick="switchTab('${cat}')">
-      <div class="tile-top"><span class="mono-badge">${iconBadge(cat)}</span><span class="tile-pct">${tp.toFixed(0)}%</span></div>
-      <div class="tile-name">${meta.label}</div>
-      <div class="tile-sub">${t.count} item${t.count===1?"":"s"} · ${fmtHM(Math.round(Math.max(0,t.goal-t.played)))} left</div>
-      <div class="tile-bar"><div class="tile-fill" style="width:${Math.min(100,tp)}%"></div></div>
-    </button>`;
-  });
-  html += `</div>`;
-
-  html += `<div class="eyebrow" style="margin:18px 2px 10px">Seasons</div>`;
-  html += currentSeasonCardHtml(liveSnap);
-  html += arcCardsHtml();
-
-  $("app").innerHTML = html;
 }
 
 function paceBoxHtml(combined, d){
@@ -6511,8 +6494,13 @@ function libCompare(category, a, b, key, dir){
   return dir==="desc" ? -cmp : cmp;
 }
 function renderLibraryTab(category){
+  if(category === "stats") return mode === "archive" ? renderArchiveStats() : renderLibraryStats();
   const meta = CAT[category];
-  const list = libBook(category);
+  let list = libBook(category);
+  const inList = mode === "archive" && (category === "games" || category === "movies") && arcList[category];
+  if(mode === "archive" && (category === "games" || category === "movies") && !inList) return arcListsPage(category);
+  if(inList) list = arcListItems(category, inList);
+  if(inList === "top") return arcTopPage(category, list);
   const prevSearch = $("libSearch");
   const wasFocused = !!prevSearch && document.activeElement===prevSearch;
   const caret = wasFocused ? prevSearch.selectionStart : null;
@@ -6528,6 +6516,7 @@ function renderLibraryTab(category){
   let html = fN
     ? `<div class="lib-head"><b>${base.length}</b> of ${list.length} title${list.length===1?"":"s"} shown in ${meta.label}</div>`
     : `<div class="lib-head"><b>${list.length}</b> title${list.length===1?"":"s"} ${mode === "archive" ? "archived" : "filed"} in ${meta.label}</div>`;
+  if(inList) html = arcListHead(category, inList, list) + html;
   html += `<div class="btn-row" style="margin-bottom:12px"><button class="btn accent wide" style="--accent:${meta.color};--accent-text:${meta.text}" onclick="${libraryOpenFn(category,null)}">${addLabels[category]}</button></div>`;
 
   if(!list.length){
@@ -6589,9 +6578,9 @@ function posterViewerOpen(){ const o = document.getElementById("posterViewer"); 
     const dx = t.clientX - sx, dy = t.clientY - sy;
     if(Math.abs(dx) < MIN_DIST || Math.abs(dy) > Math.abs(dx)*MAX_SLOPE) return;
     if(mode==="library"||mode==="archive"){
-      const idx = LIB_CATS.indexOf(libTab);
-      if(dx < 0 && idx < LIB_CATS.length-1) switchLibTab(LIB_CATS[idx+1]);
-      else if(dx > 0 && idx > 0) switchLibTab(LIB_CATS[idx-1]);
+      const idx = LIB_TABS.indexOf(libTab);
+      if(dx < 0 && idx < LIB_TABS.length-1) switchLibTab(LIB_TABS[idx+1]);
+      else if(dx > 0 && idx > 0) switchLibTab(LIB_TABS[idx-1]);
       return;
     }
     const idx = TAB_ORDER.indexOf(activeTab);
@@ -6984,7 +6973,7 @@ function arcGameImg(g, idx){
 }
 function arcMini(cat, it, idx){
   const img = cat === "games" ? arcGameImg(it, idx) : posterImgHtml(it, idx, "w342");
-  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${it.myRating ? myrCorner(it) : ""}</div></div>`;
+  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${arcRank && arcRank[it.id] ? `<div class="arc-rank">${arcRank[it.id]}</div>` : ""}${it.myRating ? myrCorner(it) : ""}</div></div>`;
 }
 function arcBtns(it, enter){
   return `<div class="arc-btns${enter}"><button class="btn small" onclick="arcLog('${it.id}')">Log</button><button class="btn small" onclick="arcDetails('${it.id}')">Details</button><button class="btn small danger" onclick="arcRemove('${it.id}')">Remove</button></div>`;
@@ -6998,8 +6987,8 @@ function arcShelfHtml(cat, items, start){
 }
 function arcShelfBlock(cat, items){
   const fin = items.filter(x => !x.abandoned), gone = items.filter(x => x.abandoned);
-  let h = arcShelfHtml(cat, fin, 0);
-  if(gone.length) h += `<div class="marginalia" style="margin-top:22px">abandoned · tried</div>` + arcShelfHtml(cat, gone, fin.length);
+  let h = fin.length ? arcShelfHtml(cat, fin, 0) : "";
+  if(gone.length) h += (fin.length ? `<div class="marginalia" style="margin-top:22px">abandoned · tried</div>` : "") + arcShelfHtml(cat, gone, fin.length);
   return h;
 }
 function arcToggle(id){
@@ -7252,6 +7241,152 @@ function arcCardsHtml(){
   return h;
 }
 
+// §ANALYSIS-LISTS — v2.6.0: Season overview, Library + Archive stats pages (tab "stats"), Archive lists (arcList), phone Back button
+const LIB_TABS = LIB_CATS.concat(["stats"]);
+const arcList = { games: null, movies: null }; let arcRank = null;
+const fmtH = h => h >= 100 ? Math.round(h).toLocaleString("en-US") + "h" : (Math.round(h * 10) / 10) + "h";
+const anBar = (p, col) => `<div class="an-bar"><i style="width:${Math.max(0, Math.min(100, p))}%;background:${col || "var(--brass)"}"></i></div>`;
+function anCols(items, col){
+  const max = Math.max(...items.map(x => x.v), 0);
+  return `<div class="an-cols">${items.map(x => `<div class="an-col"><div class="an-cv">${x.v > 0 ? Math.round(x.v) : ""}</div><div class="an-cbw"><div class="an-cb" style="height:${max > 0 && x.v > 0 ? Math.max(3, x.v / max * 100) : 0}%;background:${x.c || col || "var(--brass)"}"></div></div><div class="an-cl">${x.l}</div></div>`).join("")}</div>`;
+}
+const anSec = (t, body, note) => `<section class="an-card"><div class="eyebrow">${t}</div>${body}${note ? `<div class="an-note">${note}</div>` : ""}</section>`;
+const anStat = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
+
+/* ---- Season overview ---- */
+function renderOverview(){
+  const c = combinedTotals(), remain = Math.max(0, c.goal - c.played), pct = c.goal > 0 ? c.played / c.goal * 100 : 100;
+  const d = daysLeft(), len = seasonLengthDays(), left = d == null ? len : Math.max(0, d), elapsed = Math.max(1, len - left), tPct = Math.min(100, elapsed / len * 100);
+  const actual = c.played / elapsed, need = left > 0 && remain > 0 ? remain / left : 0;
+  let proj;
+  if(remain <= 0) proj = "Everything you picked is cleared.";
+  else if(left <= 0) proj = "The season has ended with " + fmtHM(Math.round(remain)) + " left.";
+  else if(c.played <= 0) proj = "Finish something to get a projection.";
+  else { const diff = Math.round(left - remain / actual); proj = diff >= 0 ? `At this pace you finish about ${diff} day${diff === 1 ? "" : "s"} early.` : `At this pace you finish about ${-diff} day${diff === -1 ? "" : "s"} late.`; }
+  const good = remain <= 0 || (actual >= need && c.played > 0);
+  const snap = seasonSnapshot(S.games, S.movies, S.tv, S.anime, S.manga);
+  const done = snap.games.length + snap.movies.length + snap.episodic.reduce((a, e) => a + e.units, 0) + snap.manga.reduce((a, e) => a + e.units, 0);
+  const R = 54, C = 2 * Math.PI * R, total = ALL_CATS.reduce((a, k) => a + categoryTotals(k).count, 0);
+  let h = `<section class="ov-hero"><svg viewBox="0 0 130 130" class="ov-ring"><circle cx="65" cy="65" r="${R}" class="rg-bg"/><circle cx="65" cy="65" r="${R}" class="rg-fg" stroke-dasharray="${C * Math.min(100, pct) / 100} ${C}" transform="rotate(-90 65 65)"/><text x="65" y="68" text-anchor="middle" class="rg-t">${Math.round(pct)}%</text><text x="65" y="86" text-anchor="middle" class="rg-s">CLEARED</text></svg>
+    <div class="ov-side"><div class="eyebrow">${esc(quarterLabel(S.seasonStart))}</div><div class="ov-big serif">${d == null ? "—" : d < 0 ? "Past due" : left + " days"}</div><div class="ov-sub">left in this season</div><div class="ov-sub"><b>${fmtHM(Math.round(remain))}</b> still to go · ${total} titles</div></div></section>
+  <section class="an-card"><div class="eyebrow">Season clock</div>
+    <div class="ov-row"><span>Time passed</span><b>${Math.round(tPct)}%</b></div>${anBar(tPct, "var(--muted-dim)")}
+    <div class="ov-row" style="margin-top:10px"><span>Content cleared</span><b>${Math.round(pct)}%</b></div>${anBar(pct, good ? "var(--moss)" : "var(--rust)")}
+    <div class="ov-pace"><div><b>${c.played > 0 ? fmtHM(Math.ceil(actual)) : "—"}</b><span>per day so far</span></div><div><b>${need ? fmtHM(Math.ceil(need)) : "—"}</b><span>per day needed</span></div></div>
+    <div class="pace-status ${good ? "good" : "behind"}">${esc(proj)}</div></section>
+  <section class="an-card"><div class="eyebrow">By category</div>${ALL_CATS.map(k => { const t = categoryTotals(k), p = t.goal > 0 ? t.played / t.goal * 100 : 100;
+    return `<button class="ov-cat" style="--accent:${CAT[k].color}" onclick="switchTab('${k}')"><span class="mono-badge">${iconBadge(k)}</span><div class="ov-cm"><div class="ov-ct"><b>${CAT[k].label}</b><span>${Math.round(p)}%</span></div>${anBar(p, CAT[k].color)}<div class="ov-cs">${t.count} title${t.count === 1 ? "" : "s"} · ${fmtHM(Math.round(Math.max(0, t.goal - t.played)))} left</div></div></button>`; }).join("")}</section>
+  <div class="season-grid" style="margin:0 0 14px">${anStat(done, "Finished")}${anStat(fmtN(Math.round(snap.finishedMin / 6) / 10) + "h", "Hours cleared")}${anStat(snap.abandoned.length, "Abandoned")}</div>
+  <div class="eyebrow" style="margin:6px 2px 10px">Cleared this season</div>${currentSeasonCardHtml(snap)}`;
+  $("app").innerHTML = h;
+}
+
+/* ---- Library stats ---- */
+function renderLibraryStats(){
+  const cy = new Date().getFullYear(), now = Date.now();
+  const rows = ALL_CATS.map(k => { const l = S.library[k] || []; return { k, l, n: l.length, h: l.reduce((a, x) => a + libRemainingMin(k, x), 0) / 60 }; });
+  const totN = rows.reduce((a, r) => a + r.n, 0), totH = rows.reduce((a, r) => a + r.h, 0);
+  const rec = (S.archive || []).slice(0, 4).map(a => +a.finishedHours || 0).filter(x => x > 0), pace = rec.length ? rec.reduce((a, b) => a + b, 0) / rec.length : 0;
+  const by = {}; let older = 0, up = 0, unk = 0, recent = 0;
+  for(let y = cy - 11; y <= cy; y++) by[y] = 0;
+  rows.forEach(r => r.l.forEach(x => { const h = libRemainingMin(r.k, x) / 60, y = +(x.releaseDate && x.releaseDate.y), ts = arcRelTs(x);
+    if(r.k === "games" ? gmUpcoming(x) : ts > now) up += h; else if(!y) unk += h; else if(y < cy - 11) older += h; else by[y] += h;
+    if(y >= cy - 2 && !(ts > now)) recent += h; }));
+  const yc = [{ l: "old", v: older }].concat(Object.keys(by).map(y => ({ l: "'" + String(y).slice(2), v: by[y] }))).concat([{ l: "soon", v: up, c: "var(--teal)" }]);
+  const mo = []; for(let i = 5; i >= 0; i--){ const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i); mo.push({ s: d.getTime(), e: new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime(), l: MON3[d.getMonth()], v: 0 }); }
+  let tracked = 0; rows.forEach(r => r.l.forEach(x => { if(x.addedAt > 1){ tracked++; const m = mo.find(q => x.addedAt >= q.s && x.addedAt < q.e); if(m) m.v += libRemainingMin(r.k, x) / 60; } }));
+  const Q = arcQuarters().slice(-6), qv = Q.map(q => ({ l: q.label.replace(" ", "\u00a0"), v: 0, c: "var(--moss)" }));
+  ALL_CATS.forEach(k => arcView(k).forEach(it => { if(!it.abandoned) arcEvents(k, it).forEach(e => { const i = Q.findIndex(q => e.ts >= q.s && e.ts <= q.e + 864e5); if(i >= 0) qv[i].v += e.h; }); }));
+  const all = []; rows.forEach(r => r.l.forEach(x => { const m = libRemainingMin(r.k, x) / 60; if(m > 0) all.push({ n: x.name, k: r.k, h: m }); }));
+  const short = all.slice().sort((a, b) => a.h - b.h).slice(0, 5), big = all.slice().sort((a, b) => b.h - a.h).slice(0, 3), li = x => `<div class="an-li"><span>${esc(x.n)}</span><em>${CAT[x.k].label} · ${fmtH(x.h)}</em></div>`;
+  let h = `<section class="ov-hero lib"><div class="ov-side" style="flex:1"><div class="eyebrow">Backlog stock</div><div class="ov-big serif">${fmtH(totH)}</div><div class="ov-sub">across <b>${totN}</b> titles in your Library</div>${pace > 0 ? `<div class="ov-sub">≈ <b>${(totH / pace).toFixed(1)}</b> seasons at your recent pace of ${fmtH(pace)} per season</div>` : `<div class="ov-sub">Finish a season to see how long this would take.</div>`}</div></section>
+  ${anSec("Where the hours are", rows.map(r => `<div class="ov-row"><span>${CAT[r.k].label} · ${r.n}</span><b>${fmtH(r.h)}</b></div>${anBar(totH ? r.h / totH * 100 : 0, CAT[r.k].color)}`).join(""))}
+  ${anSec("Backlog by release year (hours left)", anCols(yc), totH ? `${Math.round(recent / totH * 100)}% of it came out in the last 3 years · "soon" = unreleased or no date yet.` : "")}
+  ${anSec("Added to the Library (hours, last 6 months)", anCols(mo), tracked ? "Counts titles still in your Library." : "Tracking started with this version. This chart fills in as you add titles.")}
+  ${anSec("Finished per quarter (hours)", Q.length ? anCols(qv) : "<div class='an-note'>No finished seasons yet.</div>", "Dates of titles added straight to the Archive are generated, so older bars are estimates.")}
+  ${anSec("Quick wins", short.length ? short.map(li).join("") : "<div class='an-note'>Nothing with a known length.</div>")}
+  ${anSec("Biggest commitments", big.length ? big.map(li).join("") : "<div class='an-note'>Nothing yet.</div>")}`;
+  $("app").innerHTML = h;
+}
+
+/* ---- Archive stats ---- */
+function renderArchiveStats(){
+  const evs = [], yr = {};
+  ALL_CATS.forEach(k => arcView(k).forEach(it => { if(!it.abandoned) arcEvents(k, it).forEach(e => evs.push({ k, it, e })); }));
+  evs.forEach(({ it, e }) => { const y = new Date(e.ts).getFullYear(), o = yr[y] || (yr[y] = { h: 0, ids: new Set() }); o.h += e.h; o.ids.add(it.id); });
+  const ys = Object.keys(yr).map(Number).sort((a, b) => a - b), cy = new Date().getFullYear();
+  const cols = []; if(ys.length) for(let y = ys[0]; y <= ys[ys.length - 1]; y++) cols.push({ l: "'" + String(y).slice(2), v: yr[y] ? yr[y].h : 0 });
+  const totH = cols.reduce((a, x) => a + x.v, 0), best = ys.slice().sort((a, b) => yr[b].h - yr[a].h)[0], avg = cols.length ? totH / cols.length : 0;
+  const cats = ALL_CATS.map(k => { const l = arcView(k), fin = l.filter(x => !x.abandoned), rated = fin.filter(x => x.myRating); return { k, n: fin.length, ab: l.length - fin.length, h: evs.filter(x => x.k === k).reduce((a, x) => a + x.e.h, 0), r: rated.length ? rated.reduce((a, x) => a + x.myRating.s, 0) / rated.length : null }; });
+  const nAll = cats.reduce((a, c) => a + c.n, 0), abAll = cats.reduce((a, c) => a + c.ab, 0);
+  const rated = []; ALL_CATS.forEach(k => arcView(k).forEach(x => { if(x.myRating && !x.abandoned) rated.push({ n: x.name, k, s: x.myRating.s }); }));
+  rated.sort((a, b) => b.s - a.s);
+  const thisY = yr[cy] ? yr[cy].h : 0, lastY = yr[cy - 1] ? yr[cy - 1].h : 0;
+  const Q = arcQuarters(), qe = Q.map(() => []);
+  ALL_CATS.forEach(k => arcView(k).forEach(it => arcEvents(k, it).forEach(e => { for(let i = Q.length - 1; i >= 0; i--) if(e.ts >= Q[i].s){ if(e.ts <= Q[i].e + 864e5) qe[i].push({ c: k, it, e }); break; } })));
+  const recs = [], used = new Set();
+  for(let i = Q.length - 1; i >= 0; i--){ const q = Q[i], real = (S.archive || []).filter(a => a.label === q.label || a.label.startsWith(q.label + " · ")); if(real.length) real.forEach(a => { used.add(a.id); recs.push(a); }); else recs.push(arcFakeRecord(q, qe[i])); }
+  (S.archive || []).forEach(a => { if(!used.has(a.id) && !recs.includes(a)) recs.push(a); });
+  const mx = Math.max(1, ...recs.map(a => +a.finishedHours || 0));
+  const qRow = a => { const n = (a.games || []).length + (a.movies || []).length + (a.episodic || []).length + (a.manga || []).length, id = "qx-" + a.id;
+    return `<div class="qrow" onclick="toggleArchiveExpand('${id}')"><div class="qr-top"><b class="serif">${esc(a.label)}</b><span class="mono">${n} title${n === 1 ? "" : "s"} · ${fmtH(+a.finishedHours || 0)}</span></div>${anBar((+a.finishedHours || 0) / mx * 100)}<div class="archive-expand" id="${id}">${archiveDetailHtml(a.games || [], a.movies || [], a.episodic || [], a.manga || [], a.abandoned || [])}</div></div>`; };
+  $("app").innerHTML = `<section class="ov-hero arc"><div class="ov-side" style="flex:1"><div class="eyebrow">Everything you finished</div><div class="ov-big serif">${nAll} titles</div><div class="ov-sub"><b>${fmtH(totH)}</b> over ${cols.length || 0} year${cols.length === 1 ? "" : "s"}${abAll ? ` · ${abAll} abandoned` : ""}</div>${best ? `<div class="ov-sub">Busiest year: <b>${best}</b> (${fmtH(yr[best].h)}, ${yr[best].ids.size} titles)</div>` : ""}</div></section>
+  ${anSec("Hours finished per year", cols.length ? anCols(cols) : "<div class='an-note'>Nothing finished yet.</div>", cols.length ? `Average ${fmtH(avg)} a year. ${cy}: ${fmtH(thisY)}${lastY ? ` vs ${cy - 1}: ${fmtH(lastY)}` : ""}. Dates of titles added straight to the Archive are generated, so these are estimates.` : "")}
+  ${anSec("By category", cats.map(c => `<div class="ov-row"><span>${CAT[c.k].label} · ${c.n}${c.ab ? ` (+${c.ab} abandoned)` : ""}</span><b>${fmtH(c.h)}${c.r != null ? ` · avg ${Math.round(c.r)}` : ""}</b></div>${anBar(totH ? c.h / totH * 100 : 0, CAT[c.k].color)}`).join(""))}
+  ${rated.length ? anSec("Your top rated", rated.slice(0, 5).map((x, i) => `<div class="an-li"><span>${i + 1}. ${esc(x.n)}</span><em class="${ratingClass(x.s)}">${CAT[x.k].label} · ${x.s}</em></div>`).join("")) : ""}
+  <section class="an-card"><div class="eyebrow">Quarter by quarter</div>${recs.map(qRow).join("")}</section>`;
+}
+
+/* ---- Archive lists (games + movies) ---- */
+const ARC_LISTS = { games: [["top", "Top 100 games"], ["played", "Played games"], ["abandoned", "Abandoned games"]], movies: [["top", "Top 100 movies"], ["played", "Watched movies"], ["abandoned", "Abandoned movies"]] };
+const arcListName = (cat, key) => ARC_LISTS[cat].find(x => x[0] === key)[1];
+function arcListItems(cat, key){
+  const all = arcView(cat);
+  if(key === "abandoned") return all.filter(x => x.abandoned);
+  const fin = all.filter(x => !x.abandoned);
+  if(key === "top") return fin.filter(x => x.myRating).sort((a, b) => (b.myRating.s - a.myRating.s) || ((itemRating(b) || 0) - (itemRating(a) || 0)) || (a.name || "").localeCompare(b.name || "")).slice(0, 100);
+  return fin;
+}
+function arcListStats(cat, items){
+  const r = items.filter(x => x.myRating), h = items.reduce((a, x) => a + arcMinutes(cat, x), 0) / 60;
+  return { n: items.length, h, avg: r.length ? Math.round(r.reduce((a, x) => a + x.myRating.s, 0) / r.length) : null };
+}
+function arcCoverUrl(cat, it){ return cat === "games" ? (igdbImg(it.coverId, "cover_big") || igdbImg(it.backdropId, "screenshot_big")) : (it.posterPath ? TMDB_IMG + "w185" + it.posterPath : ""); }
+function arcListCard(cat, key){
+  const items = arcListItems(cat, key), st = arcListStats(cat, items), cov = (key === "top" ? items : items.slice().sort(byActive)).slice(0, 5);
+  const books = cov.length ? cov.map((it, i) => { const u = arcCoverUrl(cat, it); return `<div class="lc-b" style="left:${i * 25}px;z-index:${9 - i}">${u ? `<img alt="" loading="lazy" src="${esc(u)}" onerror="this.remove()">` : `<span>${esc(it.name)}</span>`}</div>`; }).join("") : `<div class="lc-empty">Empty</div>`;
+  return `<div class="lc" style="--lc:${CAT[cat].color}" onclick="arcListOpen('${cat}','${key}')"><div class="lc-l"><div class="lc-books">${books}</div><div class="lc-name serif">${arcListName(cat, key)}</div></div>
+    <div class="lc-r"><div class="lc-n serif">${st.n}</div><div class="lc-s">${key === "top" ? "of 100" : "titles"}</div><div class="lc-m">${fmtH(st.h)} of content</div>${st.avg != null ? `<div class="lc-m">avg score ${st.avg}</div>` : ""}</div></div>`;
+}
+function arcListsPage(cat){
+  $("app").innerHTML = `<div class="lib-head"><b>${arcView(cat).length}</b> titles in ${CAT[cat].label} · pick a list</div><div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT[cat].color};--accent-text:${CAT[cat].text}" onclick="${libraryOpenFn(cat)}">${cat === "games" ? "+ Add Game" : "+ Add Movie"}</button></div>` + ARC_LISTS[cat].map(x => arcListCard(cat, x[0])).join("");
+}
+function arcListHead(cat, key, items){
+  const st = arcListStats(cat, items);
+  return `<div class="ls-top"><button class="btn small" onclick="arcListClose()">← Lists</button><div class="ls-name serif">${arcListName(cat, key)}</div></div><div class="ls-stats"><div><b>${st.n}</b><span>titles</span></div><div><b>${fmtH(st.h)}</b><span>of content</span></div><div><b>${st.avg != null ? st.avg : "—"}</b><span>avg score</span></div></div>`;
+}
+function arcTopPage(cat, items){
+  arcRank = {}; items.forEach((x, i) => { arcRank[x.id] = i + 1; });
+  $("app").innerHTML = arcListHead(cat, "top", items) + (items.length ? arcShelfHtml(cat, items, 0) : `<div class="empty"><span class="serif">No rated titles yet</span>Rate finished titles (Log → My rating) and the best 100 appear here, ranked by your score.</div>`);
+  arcRank = null;
+}
+function arcListOpen(cat, key){
+  arcList[cat] = key; arcOpen = null;
+  try{ history.pushState({ arcList: cat }, ""); }catch(e){}
+  window.scrollTo(0, 0); render();
+}
+function arcListClose(){
+  if(history.state && history.state.arcList){ history.back(); return; }
+  arcList.games = arcList.movies = null; arcOpen = null; render(); window.scrollTo(0, 0);
+}
+window.addEventListener("popstate", () => { if(arcList.games || arcList.movies){ arcList.games = arcList.movies = null; arcOpen = null; render(); window.scrollTo(0, 0); } });   // the phone's Back button leaves the list
+function libStampAdded(){   // when a title entered the Library (titles already there when this version first ran count as "unknown")
+  let ch = false; const base = !S.addedV;
+  ALL_CATS.forEach(k => (S.library[k] || []).forEach(it => { if(it.addedAt == null){ it.addedAt = base ? 1 : Date.now(); ch = true; } }));
+  if(base && ALL_CATS.some(k => (S.library[k] || []).length)){ S.addedV = Date.now(); ch = true; }
+  return ch;
+}
+
 $("verTag").textContent = "v" + APP_VERSION;
 setTimeout(() => { try{ ocBackfill(false); }catch(e){} }, 9000);
 setTimeout(() => bkRun(false), 12000); setInterval(() => bkRun(false), 3600000);   // v2.4.3 — daily backup   // v2.1.0 — OpenCritic scores fill in by themselves, A–Z, within the free daily limit
@@ -7268,7 +7403,7 @@ setTimeout(() => bkRun(false), 12000); setInterval(() => bkRun(false), 3600000);
   };
   window.addEventListener("scroll", () => { if(!tick){ tick = true; requestAnimationFrame(run); } }, { passive: true });
 })();
-seedLastActive(); arcStampLast(); lpApplyAll(); stateSave(); fltLoad();
+seedLastActive(); arcStampLast(); libStampAdded(); lpApplyAll(); stateSave(); fltLoad();
 render();
 setTimeout(purgeUnlinked, 400);
 </script>
@@ -7284,7 +7419,7 @@ import {
   getRedirectResult, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs, writeBatch, query, where
+  getFirestore, runTransaction, doc, getDoc, setDoc, onSnapshot, collection, getDocs, writeBatch, query, where
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -7327,7 +7462,22 @@ window.__fs2 = {
     const cs = await getDoc(stateDoc(uid, "core"));
     return { items, core: cs.exists() ? cs.data() : null };
   },
-  async write(uid, ops){   // ops: [{coll: "items" | "core", id, data}], sent in several batches
+  async write(uid, ops){   // items that carry a change time (m) are only written if the cloud does not already hold a newer one; returns the ones it refused
+    const timed = ops.filter(o => o.coll === "items" && o.data.m), rest = ops.filter(o => !(o.coll === "items" && o.data.m)), skipped = [];
+    for(let i = 0; i < timed.length; i += 100){
+      const part = timed.slice(i, i + 100); let sk = [];
+      try{
+        await runTransaction(db, async tx => {
+          sk = []; const refs = part.map(o => doc(db, "users", uid, "items", o.id)), snaps = await Promise.all(refs.map(r => tx.get(r)));
+          part.forEach((o, k) => { const ex = snaps[k].exists() ? snaps[k].data() : null; if(ex && (ex.m || 0) > o.data.m) sk.push({ id: o.id, ...ex }); else tx.set(refs[k], o.data); });
+        });
+      }catch(e){ if(navigator.onLine === false || /unavailable|offline|network/i.test((e && (e.code || e.message)) || "")){ await this.rawWrite(uid, part); sk = []; } else throw e; }   // offline: queue the plain write as before
+      skipped.push(...sk);
+    }
+    await this.rawWrite(uid, rest);
+    return { skipped };
+  },
+  async rawWrite(uid, ops){   // ops: [{coll: "items" | "core", id, data}], sent in several batches
     let b = writeBatch(db), n = 0, bytes = 0;
     for(const o of ops){
       const ref = o.coll === "core" ? stateDoc(uid, "core") : doc(db, "users", uid, "items", o.id);
