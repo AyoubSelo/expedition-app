@@ -912,6 +912,28 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .lc-name{margin-top:10px;font-size:16px;line-height:1.2}.lc-r{display:flex;flex-direction:column;justify-content:center;text-align:right}.lc-n{font-size:40px;line-height:1;color:var(--lc)}.lc-s{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.lc-m{font-size:11.5px;color:var(--muted);margin-top:3px}
 .ls-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}.ls-name{font-size:21px}.ls-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}.ls-stats>div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.ls-stats b{display:block;font:600 17px "IBM Plex Mono",monospace}.ls-stats span{font-size:9.5px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em}
 .arc-rank{position:absolute;top:3px;left:3px;z-index:3;min-width:18px;padding:1px 5px;border-radius:5px;background:rgba(8,12,10,.88);border:1px solid var(--brass);color:var(--brass);font:600 10px "IBM Plex Mono",monospace;text-align:center}
+
+/* v2.6.1 */
+html,body,#app{overflow-anchor:none}
+.bd-grid,.gm-bdgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start;grid-auto-rows:max-content}
+.bd-th,.gm-bdopt{position:relative;aspect-ratio:auto!important;height:0;padding-bottom:56.25%;overflow:hidden;border-radius:8px}
+.bd-th img,.gm-bdopt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#bdModal,#gmBdModal{z-index:56}
+body.det-lock{overflow:hidden}
+.modal .sheet{overscroll-behavior:contain}
+.arc-mini{container-type:inline-size}
+.arc-mini .pinfo{margin-top:5px;text-align:center}
+.arc-mini.t1 .pposter{border-color:#f0cf6b;box-shadow:0 0 0 1px #f0cf6b,0 0 18px 2px rgba(240,207,107,.6)}
+.arc-mini.t2 .pposter{border-color:#d3dae0;box-shadow:0 0 0 1px #d3dae0,0 0 14px 1px rgba(211,218,224,.45)}
+.arc-mini.t3 .pposter{border-color:#d1925a;box-shadow:0 0 0 1px #d1925a,0 0 14px 1px rgba(209,146,90,.45)}
+.arc-mini.t4 .pposter,.arc-mini.t5 .pposter{border-color:var(--brass);box-shadow:0 0 10px -1px rgba(217,162,86,.4)}
+.arc-mini.t1 .pinfo{background:linear-gradient(135deg,#f0cf6b,#c9962f);border-color:#f0cf6b;color:#241703;font-weight:600}
+.arc-mini.t2 .pinfo{background:linear-gradient(135deg,#e4e9ed,#a9b3bb);border-color:#d3dae0;color:#1a2024;font-weight:600}
+.arc-mini.t3 .pinfo{background:linear-gradient(135deg,#e0a672,#a8672f);border-color:#d1925a;color:#231205;font-weight:600}
+.arc-mini.t4 .pinfo,.arc-mini.t5 .pinfo{border-color:var(--brass);color:var(--brass);font-weight:600}
+.arc-mini.t1 .pposter::after,.arc-mini.t2 .pposter::after,.arc-mini.t3 .pposter::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.28) 50%,transparent 62%);background-size:250% 100%;animation:arcShine 3.4s ease-in-out infinite}
+@keyframes arcShine{0%{background-position:150% 0}60%,100%{background-position:-50% 0}}
+@media (prefers-reduced-motion:reduce){.arc-mini .pposter::after{animation:none!important}}
 </style>
 </head>
 <body>
@@ -1185,6 +1207,7 @@ STATE: S = {games,movies,tv,anime,manga (Season book), library:{cat:[]}, vault:{
 FLOW: persist() = stamp dates + save + cloud push + render(); render() -> renderCore() -> per-mode renderer. A re-render rebuilds #app, so open/closed state lives in JS vars (libOpenMovie, tvOpen, mgOpen, gmOpen, arcOpen, ...), never in the DOM. FLIP animation = elements with data-pid.
 GOTCHA: top-level let/const declared later in the file are not usable by code that runs at load (ensureSeason/performRollover run before most of the file). Keep load-time paths free of them.
 LAUNCHER: users/{uid}/launcherPlaytime/{igdbId} = {playedHours, src, updatedAt} shared running total (Expedition sets, launcher adds); users/{uid}/targets/{igdbId} written by buildTargets (launcher reads only).
+SHOWS (v2.6.1): tab/page "shows" = tv + anime merged in the UI only; items still live in S.tv / S.anime (showCatOf(id) tells which). REPLAYS: a copy of an Archive game/movie in Season has replayOf=origId, game copies have replayBase (account total at copy time; gameMin/expandGoal use played-replayBase); foldReplays() adds the finished run to the original (runs[], runHours[]).
 SECTIONS:
  §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
      KEY, VER_KEY, APP_VERSION, LIB_CATS, SERIES_ICON_SVG, CAT, ALL_CATS, ICON_SVG, iconBadge, $, setVisible, uid, esc, nameClipSpacer, nameFlowRoot, fmtN, fmtHM, NAMED_LIST_CATS, normalizeNamedList
@@ -1282,16 +1305,17 @@ SECTIONS:
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "2.6.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.6.1"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
 const CAT = {
-  overview:{color:"#d9a256", text:"#1a1006", label:"Overview"},
+  overview:{color:"#d9a256", text:"#1a1006", label:"Stats"},
   games:   {color:"#4f9e8f", text:"#0c1613", label:"Games"},
   movies:  {color:"#c1614a", text:"#1c0d09", label:"Movies"},
   tv:      {color:"#6f8fc1", text:"#0b1220", label:"Shows"},
   anime:   {color:"#d9678f", text:"#210812", label:"Anime"},
+  shows:   {color:"#6f8fc1", text:"#0b1220", label:"Shows"},
   manga:   {color:"#8f7fc4", text:"#140f22", label:"Manga"},
   stats:   {color:"#d9a256", text:"#1a1006", label:"Stats"},
 };
@@ -1307,6 +1331,7 @@ const ICON_SVG = {
   season:   `<rect x="3" y="4.3" width="14" height="12.4" rx="1.7"/><path d="M3 8.2h14M6.8 2.6v3.2M13.2 2.6v3.2"/>`,
   library:  `<path d="M3.3 4.2h2.8v12.6H3.3zM7.3 3h2.8v13.8H7.3zM11.3 5.4h2.8v11.4h-2.8zM15.3 3.8h2.8v13H15.3z"/>`,
 };
+ICON_SVG.shows = ICON_SVG.tv; ICON_SVG.overview = ICON_SVG.stats;
 function iconBadge(cat){
   return `<svg viewBox="0 0 20 20" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${ICON_SVG[cat]}</svg>`;
 }
@@ -1483,11 +1508,11 @@ function load(){
 let S = load();
 ensureSeason();
 stateSave();
-let activeTab = localStorage.getItem("expedition-tab") || "overview";
+let activeTab = (t => (t === "tv" || t === "anime") ? "shows" : t)(localStorage.getItem("expedition-tab") || "overview");
 let editId = null, sessionCtx = null;
 // v1.3.0 — Library book: a second, standalone backlog alongside the season one.
 let mode = localStorage.getItem("expedition-mode") || "season"; // "season" | "library"
-let libTab = localStorage.getItem("expedition-libtab") || "games";
+let libTab = (t => (t === "tv" || t === "anime") ? "shows" : t)(localStorage.getItem("expedition-libtab") || "games");
 let modalTarget = "season"; // which book the currently-open modal reads/writes: "season" | "library"
 let libSearchQ = "";
 function arrFor(cat, target){ return target==="library" ? S.library[cat] : (target==="archive" ? S.vault[cat] : S[cat]); }
@@ -1666,6 +1691,7 @@ function ensureSeason(){
 }
 function persist(){
   stampFinishDates();
+  foldReplays();
   ensureSeason();
   scrubFinishedSeasonItems();
   arcStampLast(); libStampAdded(); lpMaterialize();
@@ -1715,7 +1741,7 @@ function logAction(category, id, name, minutes, action){
   if(S.sessionLog.length > 60) S.sessionLog = S.sessionLog.slice(-60);
   touchItem(category, id);
 }
-function closeModal(id){ $(id).classList.remove("show"); }
+function closeModal(id){ $(id).classList.remove("show"); lockSync(); }
 
 function daysLeft(){
   if(!S.seasonStart) return null;
@@ -1732,7 +1758,7 @@ function seasonLengthDays(){
 
 // §MINUTES — per-category minute helpers, totals, scrub of finished meta
 /* ---------- minute helpers per category ---------- */
-function gameMin(g){ return { goal:g.goal*60, played:(g.finished ? Math.max(g.played||0, g.goal||0) : (g.played||0))*60 }; }
+function gameMin(g){ const pl = Math.max(0, (g.played || 0) - (g.replayBase || 0)); return { goal:g.goal*60, played:(g.finished ? Math.max(pl, g.goal||0) : pl)*60 }; }   // a replay copy counts only this play-through
 // v1.6.0 — timed-DLC minutes only (checklist DLCs have no length), used to fold
 // DLC time into the season-wide games totals/stat-bar without touching the
 // per-card gauge, which stays main-game-only so the existing "main cleared,
@@ -1993,8 +2019,9 @@ function abandonedCard(category, item){
 
 // §TABS-MODES — switchTab/switchMode/switchLibTab, tab bar
 /* ---------- tabs ---------- */
-const TAB_ORDER = ["overview","games","movies","tv","anime","manga"];
+const TAB_ORDER = ["overview","games","movies","shows","manga"];
 function switchTab(t){
+  if(t === "tv" || t === "anime") t = "shows";
   gmReset();
   const oldIdx = TAB_ORDER.indexOf(activeTab);
   const newIdx = TAB_ORDER.indexOf(t);
@@ -2028,6 +2055,7 @@ function switchMode(m){
   window.scrollTo(0,0);
 }
 function switchLibTab(t){
+  if(t === "tv" || t === "anime") t = "shows";
   gmReset();
   const oldIdx = LIB_TABS.indexOf(libTab);
   const newIdx = LIB_TABS.indexOf(t);
@@ -2067,16 +2095,17 @@ function renderTabBar(){
 /* ============ GAMES ============ */
 function finishGameEarly(id){   // target jumps to the playtime the launcher reports, and the game counts as cleared
   const g = S.games.find(x=>x.id===id); if(!g) return;
-  g.goal = Math.max(0.01, Math.ceil((g.played||0)*100)/100);
+  g.goal = Math.max(0.01, Math.ceil(Math.max(0, (g.played||0) - (g.replayBase||0))*100)/100);
   g.finished = true; g.lastPlayed = false;
   persist(); toast(`Marked finished — target set to ${fmtN(g.goal)}h.`);
 }
 // games use an *estimated* target, so playing past it never finishes a game on its own — the target
 // stretches by 2h instead, and only the Finished button clears it.
 function expandGoalIfNeeded(g){
-  if(!(g.goal>0) || g.played<g.goal) return null;
+  const pl = (g.played || 0) - (g.replayBase || 0);
+  if(!(g.goal>0) || pl<g.goal) return null;
   let added = 0;
-  while(g.played >= g.goal){ g.goal = Math.round((g.goal+2)*10)/10; added += 2; }
+  while(pl >= g.goal){ g.goal = Math.round((g.goal+2)*10)/10; added += 2; }
   return `Play time exceeded the target, ${added} hours added.`;
 }
 function finishDlcEarly(gameId, dlcId){
@@ -2090,7 +2119,7 @@ function removeGame(id, target="season"){
     if(target==="archive"){ S.vault.games = S.vault.games.filter(g=>g.id!==id); S.games = S.games.filter(g=>g.id!==id); }
     else if(target==="library") S.library.games = S.library.games.filter(g=>g.id!==id);
     else S.games = S.games.filter(g=>g.id!==id);
-    if(gone) lpForget(gone);   // the playtime stored in the account goes too
+    if(gone && !gone.replayOf) lpForget(gone);   // the playtime stored in the account goes too
     persist();
   }
 }
@@ -2303,7 +2332,7 @@ const TMDB_IMG = "https://image.tmdb.org/t/p/";
 const TMDB_CREDIT = "This product uses the TMDB API but is not endorsed or certified by TMDB.";
 
 function tmdbNormalize(category, r){
-  const isTv = category === "tv" || category === "anime";
+  const isTv = category === "tv" || category === "anime" || category === "shows";
   const date = isTv ? r.first_air_date : r.release_date;
   return {
     source: "tmdb", category, id: r.id,
@@ -2319,7 +2348,7 @@ const MediaDB = {
   providers: {
     tmdb: {
       name: "TMDB",
-      categories: ["movies","tv","anime"],
+      categories: ["movies","tv","anime","shows"],
       key(){ return ((S.settings && S.settings.tmdbKey) || "").trim(); },
       async api(path, params){
         const key = this.key();
@@ -2375,6 +2404,7 @@ const MediaDB = {
             .filter(s => tmdbSeasonAired(s, today))
             .map(s => ({ number: s.season_number, episodes: s.episode_count, name: s.name || "" }));
           out.epLen = epLen;
+          out.isAnime = (d.genres || []).some(g => g.id === 16) && (d.original_language === "ja" || (d.origin_country || []).includes("JP"));
           return out;
         }
         const d = await this.api("/movie/" + id);
@@ -2544,7 +2574,8 @@ function tmdbQueryChanged(){
   clearTimeout(tmdbSearchTimer);
   tmdbSearchTimer = setTimeout(runTmdbSearch, 400);
 }
-function ownedWhere(cat, id, titles){   // where this title already lives (any book); unlinked titles are matched by name
+function ownedWhere(cat, id, titles){
+  if(cat === "shows") return ownedWhere("tv", id, titles) || ownedWhere("anime", id, titles);   // where this title already lives (any book); unlinked titles are matched by name
   const key = cat === "manga" ? "anilistId" : "tmdbId", want = (titles || []).map(normTitle).filter(Boolean);
   const hit = x => (id != null && x[key] === id) || (!x[key] && want.includes(normTitle(x.name)));
   if((S[cat] || []).some(hit)) return "In this season";
@@ -2587,6 +2618,7 @@ async function tmdbPick(i){
 }
 // Tapping a result adds the title right away. Returns false when TMDB doesn't know enough (no runtime / no episode info).
 function tmdbAddDirect(category, target, d){
+  if(category === "shows") category = d.isAnime ? "anime" : "tv";   // v2.6.1 — one Shows search, the right book is picked from TMDB (animation + Japanese = anime)
   const exists = !!ownedWhere(category, d.id, [d.title, d.originalTitle]);
   if(exists){ toast(`“${d.title}” is already on your list.`); return true; }
   const releaseDate = category === "movies" ? { y: d.year ? String(d.year) : "", m: "", d: "" } : { y: "", m: "", d: "" };   // v1.12.2 — no date for TV / anime
@@ -2625,10 +2657,11 @@ function normTitle(s){
     .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 }
 function unlinkedQueue(category){
+  if(category === "shows") return unlinkedQueue("tv").concat(unlinkedQueue("anime"));
   const out = [];
-  (S.library[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip) out.push({ book: "library", id: it.id }); });
-  (S.vault[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip) out.push({ book: "archive", id: it.id }); });
-  (S[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip && !it.abandoned && !isSeasonItemDone(category, it)) out.push({ book: "season", id: it.id }); });
+  (S.library[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip) out.push({ book: "library", id: it.id, cat: category }); });
+  (S.vault[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip) out.push({ book: "archive", id: it.id, cat: category }); });
+  (S[category] || []).forEach(it => { if(!it.tmdbId && !it.tmdbSkip && !it.abandoned && !isSeasonItemDone(category, it)) out.push({ book: "season", id: it.id, cat: category }); });
   return out;
 }
 function applyTmdbToItem(category, item, d){
@@ -2653,11 +2686,11 @@ function openMatchModal(category){
   renderMatchModal();
   $("matchModal").classList.add("show");
 }
-function matchItemFor(q){ return (arrFor(matchCtx.category, q.book) || []).find(x => x.id === q.id) || null; }
+function matchItemFor(q){ return (arrFor(q.cat || matchCtx.category, q.book) || []).find(x => x.id === q.id) || null; }
 function matchCurrent(){
   while(matchCtx.pos < matchCtx.queue.length){
     const it = matchItemFor(matchCtx.queue[matchCtx.pos]);
-    if(it && !it.tmdbId && !it.tmdbSkip) return it;
+    if(it && !it.tmdbId && !it.tmdbSkip){ matchCtx.cat = matchCtx.queue[matchCtx.pos].cat || matchCtx.category; return it; }
     matchCtx.pos++;
   }
   return null;
@@ -2738,7 +2771,7 @@ async function matchPick(i){
   box.innerHTML = `<div class="tmdb-msg">Linking…</div>`;
   try{
     const d = await MediaDB.for(c.category).details(c.category, r.id);
-    applyTmdbToItem(c.category, it, d);
+    applyTmdbToItem(c.cat || c.category, it, d);
     c.pos++;
     persist();
     renderMatchModal();
@@ -2761,14 +2794,14 @@ async function matchAuto(){
     const it = matchItemFor(q);
     done++;
     const year = it && it.releaseDate && it.releaseDate.y ? String(it.releaseDate.y) : "";
-    if(it && !it.tmdbId && !it.tmdbSkip && (year || inVault(c.category, it))){
+    if(it && !it.tmdbId && !it.tmdbSkip && (year || inVault(q.cat || c.category, it))){
       try{
         const res = await provider.search(c.category, it.name);
         const want = normTitle(it.name);
         const nm = r => normTitle(r.title) === want || normTitle(r.originalTitle) === want, ex1 = res.filter(nm), hit = !want ? null : year ? res.find(r => r.year === year && nm(r)) : (ex1.length === 1 ? ex1[0] : null);
         if(hit){
           const d = await provider.details(c.category, hit.id);
-          applyTmdbToItem(c.category, it, d);
+          applyTmdbToItem(q.cat || c.category, it, d);
           linked++;
         }
       }catch(e){
@@ -2867,7 +2900,7 @@ function lpSet(it, c, isGame){
   if(Math.abs(was - h) < 1e-6) return ch2;
   it.played = h;
   if(isGame) it.playSrc = (it.playSrc || !c.s) ? "launcher" : c.s;
-  if(it.finished) it.goal = Math.max(0.01, Math.ceil(h*100)/100);   // a finished one stays at 100%
+  if(it.finished) it.goal = Math.max(0.01, Math.ceil(Math.max(0, h - (it.replayBase || 0))*100)/100);   // a finished one stays at 100%
   else if(!isGame || S.games.includes(it)) expandGoalIfNeeded(it);   // playing past the target adds 2h at a time (Season games and DLC only)
   if(isGame && h > was && !(c.l > 0) && Date.now() - (c.t || 0) < 6*3600*1000){
     it.lastActive = Date.now(); delete it.lastEst;
@@ -2897,7 +2930,7 @@ window.__cloudPlaytimeReady = function(){ lpSnapReady = true; if(lpMaterialize()
 function buildTargets(){
   const out = {};
   gmAllGames().forEach(g => {
-    if(!g.igdbId) return;
+    if(!g.igdbId || g.replayOf) return;
     out[String(g.igdbId)] = { kind: "game", name: g.name || "", goalHours: +(+g.goal || 0).toFixed(2), parentIgdbId: null, finished: !!g.finished, abandoned: !!g.abandoned };
     (g.dlcs || []).forEach(d => { if(d.igdbId) out[String(d.igdbId)] = { kind: "dlc", name: d.name || "", goalHours: +(+d.goal || 0).toFixed(2), parentIgdbId: g.igdbId, finished: !!d.finished, abandoned: !!g.abandoned }; });
   });
@@ -3478,7 +3511,7 @@ const gmDone = g => { const m = gameMin(g); return m.goal > 0 && m.played >= m.g
 function pickGameHero(open){
   if(!open.length) return null;
   const last = open.filter(g => g.lastPlayed).sort(byActive)[0]; if(last) return last;                       // the one you played last
-  const began = open.filter(g => (g.played || 0) > 0).sort((a, b) => byActive(a, b) || (b.played || 0) - (a.played || 0))[0]; if(began) return began;
+  const began = open.filter(g => gmNet(g) > 0).sort((a, b) => byActive(a, b) || gmNet(b) - gmNet(a))[0]; if(began) return began;
   let id = null; try{ id = localStorage.getItem(GHERO_KEY); }catch(e){}                                      // nothing played yet: a random pick, kept on this device
   let pin = open.find(g => g.id === id);
   if(!pin){ pin = open[Math.floor(Math.random() * open.length)]; try{ localStorage.setItem(GHERO_KEY, pin.id); }catch(e){} }
@@ -3514,7 +3547,7 @@ function gmHeroHtml(g){
         ${r != null ? `<div class="prate ${ratingClass(r)}" onclick="gmRate('${g.id}')">${r}</div>` : ""}
       </div>
       <div class="sf-hero-txt">
-        <div class="eyebrow">${(g.played || 0) > 0 ? "Continue playing" : "Play next"}</div>
+        <div class="eyebrow">${gmNet(g) > 0 ? (g.replayOf ? "Continue replay" : "Continue playing") : (g.replayOf ? "Play again" : "Play next")}</div>
         <div class="sf-title serif">${esc(g.name)}</div>
         <div class="sf-meta">${esc(meta)}</div>
       </div>
@@ -3555,8 +3588,8 @@ function renderGames(){
   const live = S.games.filter(g => !g.abandoned), open = live.filter(g => !gmDone(g)), hero = pickGameHero(open), rest = open.filter(g => g !== hero);
   const byName = (a, b) => (a.name || "").localeCompare(b.name || "");
   const pctOf = g => { const m = gameMin(g); return m.goal ? m.played / m.goal : 0; };
-  const inProg = rest.filter(g => (g.played || 0) > 0).sort((a, b) => byActive(a, b) || pctOf(b) - pctOf(a) || byName(a, b));
-  const upNext = rest.filter(g => !((g.played || 0) > 0)).sort(byName);
+  const inProg = rest.filter(g => gmNet(g) > 0).sort((a, b) => byActive(a, b) || pctOf(b) - pctOf(a) || byName(a, b));
+  const upNext = rest.filter(g => !(gmNet(g) > 0)).sort(byName);
   const done = live.filter(gmDone), pending = g => (g.dlcs || []).length > 0 && !allDlcCleared(g);
   const dlcPending = done.filter(pending).sort(byName), cleared = done.filter(g => !pending(g)).sort(byName);
   const secs = [{ label: "in progress", items: inProg }, { label: "main cleared · dlc pending", items: dlcPending }, { label: "up next", items: upNext }, { label: "cleared", items: cleared }, { label: "abandoned", items: S.games.filter(g => g.abandoned).sort(byName) }].filter(x => x.items.length);
@@ -3747,6 +3780,7 @@ function render(){
   pdPlayFlip(before);
   if(v && v.focus) vfFollow(v.focus);
   if($("logModal").classList.contains("show")) logRender();
+  if($("detModal").classList.contains("show")) detRender();
 }
 function renderCore(){
   const scrollY = window.scrollY;
@@ -4273,7 +4307,7 @@ function gmInfoHtml(g, ctx){   // ctx: "library", "season" or "hero" (the hero a
     ${desc ? `<div class="gm-desc${more ? "" : " clamp"}">${esc(desc)}</div>${desc.length > 240 ? `<button class="gm-more" onclick="gmToggleMore('${g.id}')">${more ? "Less" : "More"}</button>` : ""}` : `<div class="gm-meta">${g.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet. Use the Data button to match it."}</div>`}
     ${sea ? `<div style="${accent}"><div class="gauge" style="margin:14px 0 6px"><div class="gauge-fill" style="width:${pct}%"></div></div><div class="gm-meta">${done ? "Finished in <b>" + fmtHM(Math.round(m.played)) + "</b>" : fmtHM(Math.round(Math.max(0, m.goal - m.played))) + " to clear · " + pct.toFixed(0) + "%"}</div></div>` : ""}
     ${cleared ? "" : `<div class="gm-goal">${goal}</div>
-    ${ctx === "library" ? `<div class="gm-goal"><span>Playtime <b>${g.played > 0 ? fmtHM(Math.round(g.played * 60)) : "not set"}</b>${g.played > 0 ? ` <span class="gm-hint">${PLAY_SRC[g.playSrc || "launcher"]}</span>` : ""}</span><button class="btn small ghost" onclick="gmPlayEdit('${g.id}')">${g.played > 0 ? "Edit" : "Set"}</button></div>` : (g.played > 0 ? `<div class="gm-goal"><span>Played <b>${fmtHM(Math.round(g.played * 60))}</b> <span class="gm-hint">from your launcher</span></span></div>` : "")}
+    ${ctx === "library" ? `<div class="gm-goal"><span>Playtime <b>${g.played > 0 ? fmtHM(Math.round(g.played * 60)) : "not set"}</b>${g.played > 0 ? ` <span class="gm-hint">${PLAY_SRC[g.playSrc || "launcher"]}</span>` : ""}</span><button class="btn small ghost" onclick="gmPlayEdit('${g.id}')">${g.played > 0 ? "Edit" : "Set"}</button></div>` : (g.played > 0 ? `<div class="gm-goal"><span>Played <b>${fmtHM(Math.round(g.played * 60))}</b> <span class="gm-hint">from your launcher</span></span></div>` : "")}${g.replayOf ? `<div class="gm-goal"><span>This play-through <b>${fmtHM(Math.round(gmNet(g) * 60))}</b></span></div>` : ""}
     <div class="gm-goal"><span>Rating <b>${itemRating(g) != null ? itemRating(g) : "none"}</b>${gmRateTag(g)}</span><button class="btn small ghost" onclick="gmRate('${g.id}')">${itemRating(g) != null ? "Edit" : "Set"}</button></div>`}
     ${ctx === "archive" ? `<div class="gm-meta" style="margin-top:12px">Last played <b>${arcFinLong("games", g)}</b>${g.played > 0 ? ` · Played <b>${fmtHM(Math.round(g.played * 60))}</b>` : ""}</div>` : ""}${myrRow(g)}${dlcs.length ? `<div class="gm-sub">Expansions &amp; DLC</div>${dlcs.map(d => gmDlcRowHtml(g, d)).join("")}` : ""}
     ${acts ? `<div class="btn-row gm-acts">${acts}</div>` : ""}
@@ -4457,7 +4491,7 @@ function gmGoalStart(id){ gmGoalEdit = id; render(); setTimeout(() => { const el
 function gmGoalSave(id){
   const g = gmAllGames().find(x => x.id === id), v = +$("gmGoalIn").value;
   if(!g || !(v > 0)) return toast("Enter hours above 0.");
-  if(!g.finished && v <= (g.played || 0)) return toast(`Target must be above the ${fmtN(Math.round(g.played * 10) / 10)}h already played.`);
+  if(!g.finished && v <= gmNet(g)) return toast(`Target must be above the ${fmtN(Math.round(gmNet(g) * 10) / 10)}h already played.`);
   g.goal = v; gmGoalEdit = null; persist();
 }
 function gmMove(id){ gmOpen = null; moveItem("games", id, "library", "season"); }
@@ -5185,7 +5219,7 @@ function setGlobalRatingSrc(k){
 // v1.12.0 — anime uses exactly the same Library banners and Season cards as TV, so "show"
 // code works for both categories.
 const SHOW_CATS = ["tv", "anime"];
-function isShowCat(c){ return c === "tv" || c === "anime"; }
+function isShowCat(c){ return c === "tv" || c === "anime" || c === "shows"; }
 function allShows(){ return SHOW_CATS.reduce((a, c) => a.concat(S.library[c] || [], S[c] || [], (S.vault && S.vault[c]) || []), []); }
 function libCatOf(id){ return SHOW_CATS.find(c => (S.library[c] || []).some(x => x.id === id) || (S.vault[c] || []).some(x => x.id === id)) || null; }
 function nounFor(c){ return c === "movies" ? "movie" : (c === "anime" ? "anime" : "show"); }
@@ -5379,8 +5413,9 @@ async function tvEnsureBackdrops(){
   if(changed) persist();
 }
 function tvQueue(force, cat){
+  const cs = cat === "shows" ? ["tv", "anime"] : (cat ? [cat] : null);
   const seen = new Set(), out = [];
-  (cat ? S.library[cat].concat(S[cat], S.vault[cat]) : allShows()).forEach(it => { if(it.tmdbId && !it.abandoned && !seen.has(it.tmdbId) && (force || !it.ratings)){ seen.add(it.tmdbId); out.push(it); } });
+  (cs ? cs.flatMap(c => S.library[c].concat(S[c], S.vault[c])) : allShows()).forEach(it => { if(it.tmdbId && !it.abandoned && !seen.has(it.tmdbId) && (force || !it.ratings)){ seen.add(it.tmdbId); out.push(it); } });
   return out;
 }
 async function tvBatchStart(force){
@@ -5682,7 +5717,7 @@ function sxSeasonsLabel(rows, entry){
   return entry && entry.seasons && entry.seasons.length ? `${lab} of ${entry.seasons.length}` : lab;
 }
 function sxHeaderHtml(){
-  const shows = S[sxCat].filter(x => !x.abandoned);
+  const shows = S.tv.concat(S.anime).filter(x => !x.abandoned);
   let eps = 0, seen = 0, goal = 0, played = 0; const segs = [];
   shows.forEach(it => {
     (it.groups || []).forEach(g => {
@@ -5801,51 +5836,54 @@ function sxShowHtml(item, nextGid, isHero){
   }
   return `<section class="sx-show${open ? "" : " col"}" data-id="${item.id}">${isHero ? sxHeroHtml(item, entry, rows, open, nextGid) : sxBandHtml(item, entry, rows, open)}${body}</section>`;
 }
-function renderSeasonTv(category){
-  sxCat = category || "tv";
+function showCatOf(id){ return SHOW_CATS.find(c => (S[c] || []).some(x => x.id === id)) || "tv"; }
+function renderSeasonTv(){
+  const all = S.tv.concat(S.anime);
   let html = sxHeaderHtml();
-  html += `<div class="btn-row" style="margin-bottom:16px"><button class="btn accent wide" style="--accent:${CAT[sxCat].color};--accent-text:${CAT[sxCat].text}" onclick="openTmdbSearch('${sxCat}','season','add')">${sxCat === "anime" ? "+ Add Anime" : "+ Add Show"}</button></div>`;
-  if(!S[sxCat].length){
-    html += `<div class="empty"><span class="serif">${sxCat === "anime" ? "No anime yet" : "No shows yet"}</span>Add ${sxCat === "anime" ? "the anime" : "the show"} you want to watch this season.</div>`;
+  html += `<div class="btn-row" style="margin-bottom:16px"><button class="btn accent wide" style="--accent:${CAT.shows.color};--accent-text:${CAT.shows.text}" onclick="openTmdbSearch('shows','season','add')">+ Add Show</button></div>`;
+  if(!all.length){
+    html += `<div class="empty"><span class="serif">No shows yet</span>Add a show or an anime you want to watch this season.</div>`;
     $("app").innerHTML = html; return;
   }
-  const live = S[sxCat].filter(x => !x.abandoned);
+  const live = all.filter(x => !x.abandoned);
   const done = x => { const m = episodicMin(x); return m.goal > 0 && m.played >= m.goal; };
   const incomplete = live.filter(x => !done(x)), completed = live.filter(done).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   const pick = sxPickShow(incomplete);
   if(!sxInit){
     sxInit = true;
-    sxShowOpen = new Set();      // v1.11.2 — everything starts collapsed; the recommended show is the hero card
+    sxShowOpen = new Set();
     sxSeasonOpen = new Set();
   }
   const order = incomplete.filter(x => x !== pick).sort((a, b) => ((episodicMin(b).played > 0) - (episodicMin(a).played > 0)) || (a.name || "").localeCompare(b.name || ""));
   if(pick) order.unshift(pick);
-  order.forEach(it => { html += sxShowHtml(it, it === pick ? sxNextGid(it) : null, it === pick); });
+  order.forEach(it => { sxCat = showCatOf(it.id); html += sxShowHtml(it, it === pick ? sxNextGid(it) : null, it === pick); });
   if(completed.length){
     html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check">✓</div>${m.myRating ? myrCorner(m) : ""}</div></div>`).join("")}</div>`;
     const open = completed.find(m => m.id === sxShelfOpen);
     if(open){
-      const entry = tvEntry(open), all = Object.values((entry && entry.eps) || {}).flat();
-      const avg = tvSeasonAvg(all, open), n = (open.groups || []).length;
+      const entry = tvEntry(open), eps = Object.values((entry && entry.eps) || {}).flat();
+      const avg = tvSeasonAvg(eps, open), n = (open.groups || []).length;
       html += `<div class="sx-panel"><div class="pn serif">${esc(open.name)}</div><div class="ps">Cleared · ${n} season${n === 1 ? "" : "s"}${avg != null ? ` · avg ${avg}` : ""}</div>
         ${myrRow(open)}<div class="sf-links"><button onclick="pdView('${open.id}')">View poster</button></div></div>`;
     }
   }
-  const ab = S[sxCat].filter(x => x.abandoned);
+  const ab = all.filter(x => x.abandoned);
   if(ab.length){
     html += `<div class="marginalia sf-sec">abandoned</div><div class="sf-shelf">${ab.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check" style="background:var(--rust)">✕</div></div></div>`).join("")}</div>`;
     const o = ab.find(m => m.id === sxShelfOpen);
-    if(o) html += `<div class="sx-panel"><div class="pn serif">${esc(o.name)}</div><div class="ps">${esc(o.abandonNote || "Abandoned")}</div><div class="sf-links"><button onclick="restoreItem('${sxCat}','${o.id}')">Restore</button><button onclick="removeEpisodic('${sxCat}','${o.id}')">Remove</button></div></div>`;
+    if(o) html += `<div class="sx-panel"><div class="pn serif">${esc(o.name)}</div><div class="ps">${esc(o.abandonNote || "Abandoned")}</div><div class="sf-links"><button onclick="restoreItem('${showCatOf(o.id)}','${o.id}')">Restore</button><button onclick="removeEpisodic('${showCatOf(o.id)}','${o.id}')">Remove</button></div></div>`;
   }
+  sxCat = "tv";
   $("app").innerHTML = html;
   setTimeout(sxEnsureData, 0);
 }
 // Episodes, season posters and scores load in the background (once per show per visit).
 function sxEnsureData(){
-  S[sxCat].filter(x => x.tmdbId && !x.abandoned).forEach(it => { if(!sxEnsured.has(it.tmdbId)){ sxEnsured.add(it.tmdbId); tvEnsure(it); } });
+  S.tv.concat(S.anime).filter(x => x.tmdbId && !x.abandoned).forEach(it => { if(!sxEnsured.has(it.tmdbId)){ sxEnsured.add(it.tmdbId); tvEnsure(it); } });
   tvEnsureBackdrops();
 }
 function sxTap(id, gid, e){
+  sxCat = showCatOf(id);
   const it = S[sxCat].find(x => x.id === id), g = it && (it.groups || []).find(x => x.id === gid); if(!g) return;
   const before = g.watched || 0;
   g.watched = e <= before ? e - 1 : Math.min(e, g.total);   // tap a watched one to step back to just before it
@@ -5859,6 +5897,7 @@ function sxTap(id, gid, e){
   sxPop = null;
 }
 function sxWatched(id, gid){
+  sxCat = showCatOf(id);
   const it = S[sxCat].find(x => x.id === id), g = it && (it.groups || []).find(x => x.id === gid);
   if(g && g.watched < g.total) sxTap(id, gid, g.watched + 1);
 }
@@ -5888,7 +5927,7 @@ function sxShelfToggle(id){
   vf(sel, sel, sxShelfOpen === id ? [sel] : [sel, ".sx-panel"]);
   sxShelfOpen = sxShelfOpen === id ? null : id; render();
 }
-function sxToLibrary(id, gid){ splitAndMoveEpisodic(sxCat, id, "season", "library", [gid]); }
+function sxToLibrary(id, gid){ splitAndMoveEpisodic(showCatOf(id), id, "season", "library", [gid]); }
 
 // §MANGA-LIBRARY — AniList search/link, manga shelf, volume map, Data menu
 /* ---------- v1.13.0 — Manga Library (AniList) ----------
@@ -6506,7 +6545,7 @@ function renderLibraryTab(category){
   const caret = wasFocused ? prevSearch.selectionStart : null;
   const isRate = category==="movies" || isShowCat(category);
   const unlinkedN = isRate ? unlinkedQueue(category).length : 0;
-  const addLabels = { games:"+ Add Game", movies:"+ Add Movie", manga:"+ Add Manga", anime:"+ Add Anime", tv:"+ Add Show" };
+  const addLabels = { games:"+ Add Game", movies:"+ Add Movie", manga:"+ Add Manga", anime:"+ Add Anime", tv:"+ Add Show", shows:"+ Add Show" };
 
   const isMovies = category==="movies", isTv = isShowCat(category), isManga = category==="manga";
   const hasFlt = isMovies || category === "games";
@@ -6706,7 +6745,7 @@ function myrClear(){
 /* ---------- v2.4.0 — Archive book (the "vault") ----------
    S.vault[cat] holds finished titles, same item shapes as the Library. Finished titles arrive at season rollover (vaultAdd),
    from the old archive records once (vaultImport) or by hand (+ Add). Docs sync as cat "vault_<cat>" so older app versions ignore them. */
-const libBook = cat => mode === "archive" ? arcView(cat) : S.library[cat];
+const libBook = cat => mode === "archive" ? arcView(cat) : (cat === "shows" ? S.library.tv.concat(S.library.anime) : S.library[cat]);
 const inVault = (cat, it) => (S.vault[cat] || []).includes(it);
 const MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function arcDateText(it, long){   // v2.5.0 — the date shown is the last day the title was touched (it.lastActive)
@@ -6726,6 +6765,7 @@ function myrCorner(it, extra){   // the score plate on a cover (Archive)
 }
 function vaultAdd(cat, it){
   const V = S.vault[cat];
+  if(it.replayOf){ if(it.folded || V.some(x => x.id === it.replayOf)) return; delete it.replayOf; }   // a replay was already added to its original as another play-through
   if(cat === "games"){ if(!it.abandoned) it.finished = true; it.dlcAsked = true; it.lastPlayed = false; V.push(it); return; }
   if(cat === "movies"){ V.push(it); return; }
   const same = (a, b) => (cat === "manga" ? (a.anilistId && b.anilistId && a.anilistId === b.anilistId) : (a.tmdbId && b.tmdbId && a.tmdbId === b.tmdbId)) || normTitle(a.name) === normTitle(b.name);
@@ -6872,7 +6912,7 @@ const PLAY_SRC = { launcher: "from your launcher", igdb: "IGDB average, an estim
 let lpSnapReady = false;   // true once this session has seen the account's playtime documents (never write estimates before that)
 const gmBaseHours = g => g.igdbHours > 0 ? g.igdbHours : ((g.goal || 0) >= 0.5 ? g.goal : 0);
 const arcPlays = it => it.abandoned ? 0 : (it.runs ? it.runs.length : (it.plays == null ? 1 : Math.max(0, +it.plays || 0)));
-function lpPushMeta(g){ if(!g.igdbId) return; lpOut[g.igdbId] = { h: (g.played || 0) > 0 ? g.played : undefined, s: g.playSrc || "manual", n: arcPlays(g), l: g.lastActive || 0 }; lpOutSave(); lpSend(); }
+function lpPushMeta(g){ if(!g.igdbId) return; lpOut[g.igdbId] = { h: (g.played || 0) > 0 ? g.played : undefined, s: g.playSrc || "manual", l: g.lastActive || 0 }; lpOutSave(); lpSend(); }
 function gmPlayInfo(g){   // what to show as playtime: the stored value, else IGDB's average (display only)
   if((g.played || 0) > 0) return { hours: g.played, src: g.playSrc || "launcher" };
   const b = gmBaseHours(g);
@@ -6900,7 +6940,7 @@ function gmSetPlay(g, hours, src){
   g.played = hours; g.playSrc = src;
   if(!g.igdbId) return;
   lpCache[g.igdbId] = { h: hours, t: 0, s: src }; lpSaveCache();
-  lpOut[g.igdbId] = { h: hours, s: src, n: arcPlays(g), l: g.lastActive || 0 }; lpOutSave(); lpSend();
+  lpOut[g.igdbId] = { h: hours, s: src, l: g.lastActive || 0 }; lpOutSave(); lpSend();
 }
 function lpForget(g){   // the game is gone from Expedition: its playtime leaves the account too
   [g.igdbId].concat((g.dlcs || []).map(d => d.igdbId)).filter(Boolean).forEach(id => { delete lpCache[id]; lpOut[id] = { del: true }; });
@@ -6972,8 +7012,8 @@ function arcGameImg(g, idx){
   return `<img alt="" class="${posterSeen.has(chain[0]) ? "seen" : ""}" ${idx < 15 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onload="this.classList.add('in');posterSeen.add(this.src)" onerror="arcImgFb(this)">`;
 }
 function arcMini(cat, it, idx){
-  const img = cat === "games" ? arcGameImg(it, idx) : posterImgHtml(it, idx, "w342");
-  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${arcRank && arcRank[it.id] ? `<div class="arc-rank">${arcRank[it.id]}</div>` : ""}${it.myRating ? myrCorner(it) : ""}</div></div>`;
+  const img = cat === "games" ? arcGameImg(it, idx) : posterImgHtml(it, idx, "w342"), rk = arcRank && arcRank[it.id];
+  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}${rk && rk <= 5 ? " t" + rk : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${it.myRating ? myrCorner(it) : ""}</div>${rk ? `<div class="pinfo">${rk <= 5 ? "♛ " : ""}#${rk}</div>` : ""}</div>`;
 }
 function arcBtns(it, enter){
   return `<div class="arc-btns${enter}"><button class="btn small" onclick="arcLog('${it.id}')">Log</button><button class="btn small" onclick="arcDetails('${it.id}')">Details</button><button class="btn small danger" onclick="arcRemove('${it.id}')">Remove</button></div>`;
@@ -6996,6 +7036,7 @@ function arcToggle(id){
   const wasOpen = arcOpen != null;
   const go = () => {
     const closing = arcOpen === id, sel = `[data-pid="${id}"]`;
+    gmSetPad(gmPad + 700);   // spare room so the page is never clamped (and jerked) while the shelf is rebuilt
     vf(closing ? ".arc-btns" : sel, closing ? sel : ".arc-btns", null);
     arcOpen = closing ? null : id;
     pdAnimateIn = !!arcOpen;
@@ -7023,7 +7064,7 @@ function logRender(){
     ${arcDatesHtml(cat, it)}`;
 }
 function arcDetails(id){
-  detId = id; detRender(); $("detModal").classList.add("show");
+  detId = id; detRender(); $("detModal").classList.add("show"); lockSync();
   const f = arcFind(id);
   if(f && f.cat === "movies" && f.it.tmdbId) pdLoadExtras(f.it).then(() => { if(detId === id && $("detModal").classList.contains("show")) detRender(); });
 }
@@ -7047,15 +7088,15 @@ function detRender(){
       (it.description ? `<div class="det-desc">${esc(it.description)}</div>` : `<div class="det-desc" style="color:var(--muted)">${it.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet."}</div>`) +
       (dlcs.length ? `<div class="det-sec"><div class="pd-lab">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="pd-val" style="margin-top:3px">${esc(d.name)}${d.kind ? ` <span class="gm-hint">${esc(d.kind)}</span>` : ""}</div>`).join("")}</div>` : "");
   }
-  $("detBody").innerHTML = `<div class="det-bd">${src ? `<img class="${ph ? "ph" : ""}" alt="" src="${esc(src)}"${!ph && by != null ? ` style="object-position:50% ${by}%"` : ""} onerror="this.remove()">` : ""}<div class="det-shade"></div></div><h2 class="serif det-title">${esc(it.name)}</h2>${meta ? `<div class="det-meta">${esc(meta)}</div>` : ""}${body}`;
+  $("detBody").innerHTML = `<div class="det-bd" style="cursor:pointer" onclick="detBackdrop('${it.id}')">${src ? `<img class="${ph ? "ph" : ""}" alt="" src="${esc(src)}"${!ph && by != null ? ` style="object-position:50% ${by}%"` : ""} onerror="this.remove()">` : ""}<div class="det-shade"></div></div><h2 class="serif det-title">${esc(it.name)}</h2>${meta ? `<div class="det-meta">${esc(meta)}</div>` : ""}${body}${arcReplayBtn(cat, it)}`;
 }
 function arcRemove(id){
   const f = arcFind(id); if(!f) return;
   const { cat, it } = f;
   if(!confirm(`Remove “${it.name}” from Expedition entirely?\n\nThis permanently deletes it and everything stored with it (${cat === "games" ? "playtime, last played, your rating, play-throughs" : "last watched, your rating, times watched"}). This can't be undone.`)) return;
   arcOpen = null; closeModal("logModal"); closeModal("detModal");
-  if(cat === "games"){ S.vault.games = S.vault.games.filter(x => x.id !== id); S.games = S.games.filter(x => x.id !== id); lpForget(it); }
-  else{ S.vault.movies = S.vault.movies.filter(x => x.id !== id); S.movies = S.movies.filter(x => x.id !== id); }
+  if(cat === "games"){ S.vault.games = S.vault.games.filter(x => x.id !== id); S.games = S.games.filter(x => x.id !== id && x.replayOf !== id); lpForget(it); }
+  else{ S.vault.movies = S.vault.movies.filter(x => x.id !== id); S.movies = S.movies.filter(x => x.id !== id && x.replayOf !== id); }
   persist(); toast("Removed.");
 }
 
@@ -7067,7 +7108,7 @@ const fmtDt = r => r.d + " " + MON3[r.m - 1] + " " + r.y;
 const isGen = it => !!(it.genDates || it.lastEst || /^v_/.test(it.id || ""));
 const arcRelTs = it => { const r = it.releaseDate || {}; return +r.y ? new Date(+r.y, (+r.m || 1) - 1, +r.d || 1, 12).getTime() : 0; };
 const arcRuns = it => (it.runs && it.runs.length ? it.runs : (it.finishedDate && +it.finishedDate.y && !it.abandoned ? [it.finishedDate] : [])).filter(r => r && +r.y);
-function arcView(c){ return (S.vault[c] || []).concat((S[c] || []).filter(x => x.abandoned || isSeasonItemDone(c, x))); }   // Archive = vault + finished/abandoned Season titles (the same objects, so they act as one)
+function arcView(c){ if(c === "shows") return arcView("tv").concat(arcView("anime")); return (S.vault[c] || []).concat((S[c] || []).filter(x => (x.abandoned || isSeasonItemDone(c, x)) && !x.replayOf)); }   // Archive = vault + finished/abandoned Season titles (the same objects, so they act as one)
 function arcPlayedH(cat, it){ if(cat === "games") return gmPlayInfo(it).hours || 0; if(cat === "movies") return (it.watched || it.length || 0) / 60; const m = itemMinutes(cat, it); return (m.played || m.total || 0) / 60; }
 function arcHours(cat, it){ return Math.max(.5, arcPlayedH(cat, it) || (cat === "games" ? 10 : cat === "movies" ? 2 : 10)); }
 function arcQuarters(){
@@ -7082,7 +7123,7 @@ function arcEvents(cat, it){
   const ev = [], H = arcHours(cat, it);
   if(it.abandoned){ if(it.lastActive > 0) ev.push({ ts: it.lastActive, h: arcPlayedH(cat, it) || 1, t: "" }); return ev; }
   if(cat === "games" || cat === "movies"){
-    arcRuns(it).forEach((r, i) => ev.push({ ts: dtTs(r), h: H, t: i ? " · " + ordn(i + 1) + (cat === "games" ? " play-through" : " watch") : "" }));
+    arcRuns(it).forEach((r, i) => ev.push({ ts: dtTs(r), h: cat === "games" ? (arcRunH(it, i) || H) : H, t: i ? " · " + ordn(i + 1) + (cat === "games" ? " play-through" : " watch") : "" }));
     if(cat === "games") (it.dlcs || []).forEach(d => { if(d.finishedDate && +d.finishedDate.y) ev.push({ ts: dtTs(d.finishedDate), h: d.goal || 3, t: " · DLC: " + d.name }); });
   }else if(cat === "manga"){
     Object.keys(it.volDates || {}).forEach(v => { const d = it.volDates[v]; if(d && +d.y) ev.push({ ts: dtTs(d), h: 1, v: +v, t: "" }); });
@@ -7158,7 +7199,7 @@ function arcPlaysSet(id, d){
       if(isGen(it) || !rs.length) arcGenFor([f], true);
       else{ rs.push(tsDt(Date.now())); it.runs = rs; it.finishedDate = rs[0]; it.lastActive = Date.now(); }
     }else{ rs.pop(); it.runs = rs; if(rs.length) it.lastActive = dtTs(rs[rs.length - 1]); }
-    it.plays = (it.runs || []).length;
+    it.plays = (it.runs || []).length; if(cat === "games") syncRunHours(it);
     if(cat === "games" && next >= 1 && gmPlayInfo(it).src === "igdb" && gmBaseHours(it) > 0) gmSetPlay(it, gmBaseHours(it) * (1 + 0.7 * (next - 1)), "igdb");
   }
   if(cat === "games") lpPushMeta(it);
@@ -7169,7 +7210,7 @@ function arcDatesHtml(cat, it){
   const g = cat === "games", runs = arcRuns(it), lab = arcLastLabel(cat);
   let rows;
   if(it.abandoned || !runs.length) rows = `<div class="dt-row"><span>${lab}: <b>${arcDateText(it, true)}</b></span><button class="btn" onclick="dpOpen('${it.id}','last')">Edit</button>${regenBtn(it)}</div>`;
-  else rows = runs.map((r, i) => `<div class="dt-row"><span>${i ? ordn(i + 1) + " " + (g ? "play-through" : "watch") : "Finished"}: <b>${fmtDt(r)}</b></span><button class="btn" onclick="dpOpen('${it.id}','run',${i})">Edit</button>${i === 0 ? regenBtn(it) : ""}</div>`).join("");
+  else rows = runs.map((r, i) => `<div class="dt-row"><span>${i ? ordn(i + 1) + " " + (g ? "play-through" : "watch") : "Finished"}: <b>${fmtDt(r)}</b>${g && arcRunH(it, i) > 0 ? ` · ${fmtH(arcRunH(it, i))}` : ""}</span><button class="btn" onclick="dpOpen('${it.id}','run',${i})">Edit</button>${i === 0 ? regenBtn(it) : ""}</div>`).join("");
   if(g) rows += (it.dlcs || []).filter(d => d.finished).map(d => `<div class="dt-row"><span>${esc(d.name)}: <b>${d.finishedDate && +d.finishedDate.y ? fmtDt(d.finishedDate) : "unknown"}</b></span><button class="btn" onclick="dpOpen('${it.id}','dlc','${d.id}')">Edit</button></div>`).join("");
   return `<div class="log-sec"><div class="log-lab">${it.abandoned ? lab : g ? "Finish dates" : "Watch dates"}</div>${rows}${!it.abandoned && runs.length ? `<div class="hint" style="margin-top:6px">${lab}: ${arcDateText(it, true)}</div>` : ""}</div>`;
 }
@@ -7234,7 +7275,7 @@ function arcCardsHtml(){
   let h = "";
   for(let i = Q.length - 1; i >= 0; i--){
     const q = Q[i], real = (S.archive || []).filter(a => a.label === q.label || a.label.startsWith(q.label + " · "));
-    if(real.length){ real.forEach(a => { used.add(a.id); h += archiveCardHtml(a); }); }
+    if(real.length){ real.forEach(a => { used.add(a.id); h += archiveCardHtml(arcAugment(a, evs[i])); }); }
     else h += archiveCardHtml(arcFakeRecord(q, evs[i]));
   }
   (S.archive || []).forEach(a => { if(!used.has(a.id) && !Q.some(q => a.label === q.label || a.label.startsWith(q.label + " · "))) h += archiveCardHtml(a); });
@@ -7242,7 +7283,7 @@ function arcCardsHtml(){
 }
 
 // §ANALYSIS-LISTS — v2.6.0: Season overview, Library + Archive stats pages (tab "stats"), Archive lists (arcList), phone Back button
-const LIB_TABS = LIB_CATS.concat(["stats"]);
+const LIB_TABS = ["stats","games","movies","shows","manga"];
 const arcList = { games: null, movies: null }; let arcRank = null;
 const fmtH = h => h >= 100 ? Math.round(h).toLocaleString("en-US") + "h" : (Math.round(h * 10) / 10) + "h";
 const anBar = (p, col) => `<div class="an-bar"><i style="width:${Math.max(0, Math.min(100, p))}%;background:${col || "var(--brass)"}"></i></div>`;
@@ -7274,7 +7315,7 @@ function renderOverview(){
     <div class="ov-row" style="margin-top:10px"><span>Content cleared</span><b>${Math.round(pct)}%</b></div>${anBar(pct, good ? "var(--moss)" : "var(--rust)")}
     <div class="ov-pace"><div><b>${c.played > 0 ? fmtHM(Math.ceil(actual)) : "—"}</b><span>per day so far</span></div><div><b>${need ? fmtHM(Math.ceil(need)) : "—"}</b><span>per day needed</span></div></div>
     <div class="pace-status ${good ? "good" : "behind"}">${esc(proj)}</div></section>
-  <section class="an-card"><div class="eyebrow">By category</div>${ALL_CATS.map(k => { const t = categoryTotals(k), p = t.goal > 0 ? t.played / t.goal * 100 : 100;
+  <section class="an-card"><div class="eyebrow">By category</div>${["games","movies","shows","manga"].map(k => { const t = catTot(k), p = t.goal > 0 ? t.played / t.goal * 100 : 100;
     return `<button class="ov-cat" style="--accent:${CAT[k].color}" onclick="switchTab('${k}')"><span class="mono-badge">${iconBadge(k)}</span><div class="ov-cm"><div class="ov-ct"><b>${CAT[k].label}</b><span>${Math.round(p)}%</span></div>${anBar(p, CAT[k].color)}<div class="ov-cs">${t.count} title${t.count === 1 ? "" : "s"} · ${fmtHM(Math.round(Math.max(0, t.goal - t.played)))} left</div></div></button>`; }).join("")}</section>
   <div class="season-grid" style="margin:0 0 14px">${anStat(done, "Finished")}${anStat(fmtN(Math.round(snap.finishedMin / 6) / 10) + "h", "Hours cleared")}${anStat(snap.abandoned.length, "Abandoned")}</div>
   <div class="eyebrow" style="margin:6px 2px 10px">Cleared this season</div>${currentSeasonCardHtml(snap)}`;
@@ -7284,7 +7325,7 @@ function renderOverview(){
 /* ---- Library stats ---- */
 function renderLibraryStats(){
   const cy = new Date().getFullYear(), now = Date.now();
-  const rows = ALL_CATS.map(k => { const l = S.library[k] || []; return { k, l, n: l.length, h: l.reduce((a, x) => a + libRemainingMin(k, x), 0) / 60 }; });
+  const rows = ["games","movies","shows","manga"].map(k => { const l = k === "shows" ? S.library.tv.concat(S.library.anime) : (S.library[k] || []); return { k, l, n: l.length, h: l.reduce((a, x) => a + libRemainingMin(k, x), 0) / 60 }; });
   const totN = rows.reduce((a, r) => a + r.n, 0), totH = rows.reduce((a, r) => a + r.h, 0);
   const rec = (S.archive || []).slice(0, 4).map(a => +a.finishedHours || 0).filter(x => x > 0), pace = rec.length ? rec.reduce((a, b) => a + b, 0) / rec.length : 0;
   const by = {}; let older = 0, up = 0, unk = 0, recent = 0;
@@ -7317,7 +7358,7 @@ function renderArchiveStats(){
   const ys = Object.keys(yr).map(Number).sort((a, b) => a - b), cy = new Date().getFullYear();
   const cols = []; if(ys.length) for(let y = ys[0]; y <= ys[ys.length - 1]; y++) cols.push({ l: "'" + String(y).slice(2), v: yr[y] ? yr[y].h : 0 });
   const totH = cols.reduce((a, x) => a + x.v, 0), best = ys.slice().sort((a, b) => yr[b].h - yr[a].h)[0], avg = cols.length ? totH / cols.length : 0;
-  const cats = ALL_CATS.map(k => { const l = arcView(k), fin = l.filter(x => !x.abandoned), rated = fin.filter(x => x.myRating); return { k, n: fin.length, ab: l.length - fin.length, h: evs.filter(x => x.k === k).reduce((a, x) => a + x.e.h, 0), r: rated.length ? rated.reduce((a, x) => a + x.myRating.s, 0) / rated.length : null }; });
+  const cats = ["games","movies","shows","manga"].map(k => { const l = arcView(k), fin = l.filter(x => !x.abandoned), rated = fin.filter(x => x.myRating); return { k, n: fin.length, ab: l.length - fin.length, h: evs.filter(x => k === "shows" ? isShowCat(x.k) : x.k === k).reduce((a, x) => a + x.e.h, 0), r: rated.length ? rated.reduce((a, x) => a + x.myRating.s, 0) / rated.length : null }; });
   const nAll = cats.reduce((a, c) => a + c.n, 0), abAll = cats.reduce((a, c) => a + c.ab, 0);
   const rated = []; ALL_CATS.forEach(k => arcView(k).forEach(x => { if(x.myRating && !x.abandoned) rated.push({ n: x.name, k, s: x.myRating.s }); }));
   rated.sort((a, b) => b.s - a.s);
@@ -7325,7 +7366,7 @@ function renderArchiveStats(){
   const Q = arcQuarters(), qe = Q.map(() => []);
   ALL_CATS.forEach(k => arcView(k).forEach(it => arcEvents(k, it).forEach(e => { for(let i = Q.length - 1; i >= 0; i--) if(e.ts >= Q[i].s){ if(e.ts <= Q[i].e + 864e5) qe[i].push({ c: k, it, e }); break; } })));
   const recs = [], used = new Set();
-  for(let i = Q.length - 1; i >= 0; i--){ const q = Q[i], real = (S.archive || []).filter(a => a.label === q.label || a.label.startsWith(q.label + " · ")); if(real.length) real.forEach(a => { used.add(a.id); recs.push(a); }); else recs.push(arcFakeRecord(q, qe[i])); }
+  for(let i = Q.length - 1; i >= 0; i--){ const q = Q[i], real = (S.archive || []).filter(a => a.label === q.label || a.label.startsWith(q.label + " · ")); if(real.length) real.forEach(a => { used.add(a.id); recs.push(arcAugment(a, qe[i])); }); else recs.push(arcFakeRecord(q, qe[i])); }
   (S.archive || []).forEach(a => { if(!used.has(a.id) && !recs.includes(a)) recs.push(a); });
   const mx = Math.max(1, ...recs.map(a => +a.finishedHours || 0));
   const qRow = a => { const n = (a.games || []).length + (a.movies || []).length + (a.episodic || []).length + (a.manga || []).length, id = "qx-" + a.id;
@@ -7385,6 +7426,76 @@ function libStampAdded(){   // when a title entered the Library (titles already 
   ALL_CATS.forEach(k => (S.library[k] || []).forEach(it => { if(it.addedAt == null){ it.addedAt = base ? 1 : Date.now(); ch = true; } }));
   if(base && ALL_CATS.some(k => (S.library[k] || []).length)){ S.addedV = Date.now(); ch = true; }
   return ch;
+}
+
+
+/* ---------- v2.6.1 ---------- */
+function lockSync(){ document.body.classList.toggle("det-lock", $("detModal").classList.contains("show")); }
+document.addEventListener("touchmove", e => { if($("detModal").classList.contains("show") && !(e.target.closest && e.target.closest(".modal.show .sheet"))) e.preventDefault(); }, { passive: false });   // the page behind the details menu stays still
+function catTot(k){ if(k !== "shows") return categoryTotals(k); const a = categoryTotals("tv"), b = categoryTotals("anime"); return { goal: a.goal + b.goal, played: a.played + b.played, count: a.count + b.count, done: a.done + b.done }; }
+function detBackdrop(id){ const f = arcFind(id); if(!f) return; if(f.cat === "games") gmBackdrop(id); else openBackdropPicker(id, "movie"); }
+function gmNet(g){ return Math.max(0, (g.played || 0) - (g.replayBase || 0)); }   // playtime of this play-through only (the account keeps the running total)
+function arcRunH(it, i){ if(it.runHours && it.runHours[i] != null) return it.runHours[i]; return (gmPlayInfo(it).hours || 0) / Math.max(1, arcRuns(it).length); }
+function syncRunHours(it){
+  if(!it.runHours) return;
+  const n = arcRuns(it).length;
+  if(it.runHours.length > n) it.runHours = it.runHours.slice(0, n);
+  while(it.runHours.length < n) it.runHours.push(it.runHours.length ? it.runHours.reduce((a, b) => a + b, 0) / it.runHours.length : 0);
+}
+function arcReplayBtn(cat, it){
+  const g = cat === "games";
+  return `<button class="btn brass wide" style="margin-top:16px" onclick="arcReplay('${it.id}')">▶ ${g ? "Play again in Season" : "Watch again in Season"}</button><div class="hint" style="margin-top:6px">Sends a copy to Season. When you finish it, it is added here as another ${g ? "play-through" : "watch"}.</div>`;
+}
+function arcReplay(id){
+  const f = arcFind(id); if(!f) return;
+  const { cat, it } = f, g = cat === "games", list = g ? S.games : S.movies;
+  if(list.some(x => x.replayOf === id && !x.folded)) return toast("It is already in Season.");
+  const c = JSON.parse(JSON.stringify(it));
+  ["finishedDate","runs","runHours","plays","myRating","genDates","lastEst","lastActive","abandonedAt","abandonNote","abandonLogIndex","folded","replayOf","replayBase"].forEach(k => delete c[k]);
+  c.id = uid(); c.replayOf = id; c.abandoned = false;
+  if(g){
+    const n = Math.max(1, arcPlays(it)), tot = gmPlayInfo(it).hours || 0;
+    c.replayBase = it.played || 0; c.played = it.played || 0;   // the total stays what the launcher keeps; Season shows only what is played from now on
+    c.goal = tot > 0 ? Math.max(0.5, Math.round(tot / n * 10) / 10) : (c.goal || 10);   // an average play-through: total ÷ number of play-throughs
+    c.finished = false; c.dlcs = []; c.hasDlc = false; c.dlcAsked = true; c.lastPlayed = false;
+  }else c.watched = 0;
+  list.push(c);
+  closeModal("detModal"); persist();
+  toast(g ? "Sent to Season for another play-through." : "Sent to Season for another watch.");
+}
+function foldReplays(){   // a finished replay becomes another run of its original Archive title
+  let ch = false;
+  [["games", S.games], ["movies", S.movies]].forEach(([cat, list]) => list.forEach(it => {
+    if(!it.replayOf || it.folded) return;
+    const done = cat === "games" ? (it.finished && !it.abandoned) : finMovieDone(it);
+    if(!done || !(it.finishedDate && +it.finishedDate.y)) return;
+    const orig = (S.vault[cat] || []).find(x => x.id === it.replayOf);
+    if(!orig){ delete it.replayOf; ch = true; return; }
+    const runs = arcRuns(orig).slice(), n0 = Math.max(1, runs.length);
+    if(cat === "games"){
+      const base = it.replayBase || 0, net = Math.max(0, (it.played || 0) - base);
+      const rh = (orig.runHours && orig.runHours.length === runs.length) ? orig.runHours.slice() : runs.map(() => base / n0);
+      rh.push(net); orig.runHours = rh;
+      orig.played = Math.max(orig.played || 0, it.played || 0);
+    }
+    runs.push({ ...it.finishedDate }); orig.runs = runs; orig.plays = runs.length;
+    orig.lastActive = dtTs(it.finishedDate); delete orig.lastEst;
+    if(orig.abandoned){ orig.abandoned = false; delete orig.abandonedAt; }
+    it.folded = true; ch = true;
+    if(cat === "games") lpPushMeta(orig);
+  }));
+  return ch;
+}
+// quarter cards that come from a real season record: add the play-throughs / watches that the record does not list yet
+function arcAugment(a, evs){
+  const by = {}, add = { games: [], movies: [] }; let extraH = 0;
+  (evs || []).forEach(x => { if((x.c !== "games" && x.c !== "movies") || x.it.abandoned) return; (by[x.c + "|" + x.it.id] = by[x.c + "|" + x.it.id] || { c: x.c, it: x.it, list: [] }).list.push(x.e); });
+  Object.values(by).forEach(o => {
+    const nm = o.it.name, have = (a[o.c] || []).filter(r => r.name === nm || String(r.name).indexOf(nm + " · ") === 0).length;
+    if(o.list.length > have) o.list.sort((p, q) => p.ts - q.ts).slice(have).forEach(e => { add[o.c].push({ name: nm + (e.t || "") }); extraH += e.h; });
+  });
+  if(!add.games.length && !add.movies.length) return a;
+  return { ...a, games: (a.games || []).concat(add.games), movies: (a.movies || []).concat(add.movies), finishedHours: Math.round(((+a.finishedHours || 0) + extraH) * 10) / 10 };
 }
 
 $("verTag").textContent = "v" + APP_VERSION;
@@ -7573,7 +7684,7 @@ window.__cloudPlaytimeWrite = async function(map){
   const col = collection(db, "users", auth.currentUser.uid, "launcherPlaytime"), ids = Object.keys(map);
   for(let i = 0; i < ids.length; i += 400){
     const b = writeBatch(db);
-    ids.slice(i, i + 400).forEach(id => { const v = map[id], r = doc(col, id); if(v.del) b.delete(r); else b.set(r, { ...(v.h != null ? { playedHours: v.h } : {}), ...(v.n != null ? { plays: v.n } : {}), ...(v.l ? { lastPlayed: v.l } : {}), src: v.s || "", updatedAt: Date.now() }, { merge: true }); });
+    ids.slice(i, i + 400).forEach(id => { const v = map[id], r = doc(col, id); if(v.del) b.delete(r); else b.set(r, { ...(v.h != null ? { playedHours: v.h } : {}), ...(v.l ? { lastPlayed: v.l } : {}), src: v.s || "", updatedAt: Date.now() }, { merge: true }); });
     await b.commit();
   }
 };
