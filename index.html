@@ -780,15 +780,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .myr small{font:600 7.5px "IBM Plex Mono",monospace;letter-spacing:.14em;color:var(--rcx)}
 .myr b{font-size:24px;line-height:1.05;color:var(--rcx)}
 .myr-none{font-size:12px;color:var(--muted-dim)}
-.myr-live{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;margin-top:10px;background:#141b17;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
-.myr-live b{font-size:30px;line-height:1}
-.myr-live b[class*="rc-"]{color:var(--rcx)}
-.myr-q{margin-top:14px}
-.myr-qh{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px}
-.myr-qh em{font:500 10.5px "IBM Plex Mono",monospace;font-style:normal;color:var(--muted-dim)}
-.myr-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.myr-opts button{padding:9px 0;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:11.5px;font-family:inherit;cursor:pointer}
-.myr-opts button.on{border-color:var(--brass);background:rgba(217,162,86,.16);color:var(--brass);font-weight:600}
 
 /* v2.4.0 — Archive book */
 .myr-c{position:absolute;top:5px;right:5px;z-index:3;min-width:0;padding:2px 7px;border-radius:5px 11px 5px 11px;cursor:pointer;background:var(--rc);border:0;box-shadow:0 1px 4px rgba(0,0,0,.55)}
@@ -823,30 +814,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 #bdBody>.tvc-note,#gmBdBody>.tvc-note{flex:none}
 .bd-prev{flex:none}
 /* v2.4.2 — rating menu with a fixed top, split-add sheet */
-#myrModal .sheet{display:flex;flex-direction:column;overflow:hidden;padding:12px 14px calc(12px + env(safe-area-inset-bottom))}
-.myr-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:14px;border:1px solid var(--brass-dim);background:linear-gradient(135deg,#1f2a22,#161e19);flex:none}
-.myr-top-l{min-width:0}
-.myr-top-l small{font:600 8.5px "IBM Plex Mono",monospace;letter-spacing:.16em;color:var(--brass)}
-.myr-name{font-size:16px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.myr-big{min-width:74px;padding:3px 12px 5px}
-.myr-big b{font-size:30px}
-.myr-tw{position:relative;flex:none;margin:10px 0 12px;border-radius:14px;background:#0a0f0c;border:1px solid var(--line-soft);box-shadow:inset 0 3px 10px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,255,255,.04)}
-.myr-themes{display:flex;gap:6px;overflow-x:auto;padding:9px 12px;scrollbar-width:none}
-.myr-themes::-webkit-scrollbar{display:none}
-.myr-tw::before,.myr-tw::after{content:"";position:absolute;top:1px;bottom:1px;width:30px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:1;display:flex;align-items:center;font-size:11px;color:var(--muted)}
-.myr-tw::before{content:"‹";left:1px;border-radius:13px 0 0 13px;background:linear-gradient(to right,#0a0f0c 25%,transparent);padding-left:6px}
-.myr-tw::after{content:"›";right:1px;border-radius:0 13px 13px 0;background:linear-gradient(to left,#0a0f0c 25%,transparent);justify-content:flex-end;padding-right:6px}
-.myr-tw.sc-l::before,.myr-tw.sc-r::after{opacity:1}
-.myr-well{position:relative;flex:1;min-height:0;overflow:hidden;border-radius:14px;background:#0a0f0c;border:1px solid var(--line-soft);box-shadow:inset 0 4px 14px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,255,255,.04)}
-.myr-well::before,.myr-well::after{content:"";position:absolute;left:0;right:0;height:34px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:1;display:flex;justify-content:center;font-size:11px;color:var(--muted)}
-.myr-well::before{content:"▴";top:0;background:linear-gradient(to bottom,#0a0f0c 30%,transparent);align-items:flex-start;padding-top:3px}
-.myr-well::after{content:"▾";bottom:0;background:linear-gradient(to top,#0a0f0c 30%,transparent);align-items:flex-end;padding-bottom:3px}
-.myr-well.sc-t::before,.myr-well.sc-b::after{opacity:1}
-.myr-desc{margin-top:12px;font-size:12px;line-height:1.45;color:var(--muted)}
-.myr-themes .rate-chip{flex:none;padding:5px 10px;font-size:11.5px}
-#myrBody{height:100%;overflow-y:auto;padding:2px 14px 22px;scrollbar-width:none}
-#myrBody::-webkit-scrollbar{display:none}
-#myrModal .actions{flex:none;margin-top:10px}
 .split-list{max-height:46vh;overflow-y:auto;margin-top:10px;border:1px solid var(--line);border-radius:12px}
 .split-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid var(--line-soft);cursor:pointer}
 .split-row:last-child{border-bottom:0}
@@ -885,10 +852,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .det-desc{margin-top:12px;font-size:13px;line-height:1.55;color:var(--ink);white-space:pre-line}
 .det-sec{margin-top:12px}
 /* the rating menu gets a fixed height so its question list can scroll on its own */
-#myrModal .sheet{height:min(88vh,calc(var(--vvh,100vh) - 24px - env(safe-area-inset-top,0px)));max-height:none}
-.myr-well{display:flex;flex-direction:column}
-#myrBody{flex:1 1 auto;min-height:0;height:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
-.myr-sl{display:flex;align-items:center;gap:12px}.myr-sl input{flex:1;padding:0;border:0;background:none;accent-color:var(--brass);height:30px}.myr-sl b{min-width:44px;text-align:right;font:600 13px "IBM Plex Mono",monospace;color:var(--brass)}
 .dp-cols{display:grid;grid-template-columns:1.2fr 1.4fr 1fr;gap:10px;margin-top:14px}.dp-col{display:flex;flex-direction:column;gap:6px}.dp-col .btn{padding:8px 0}.dp-val{font:600 18px "IBM Plex Mono",monospace}
 .dp-list{max-height:150px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.dp-list div{padding:9px;text-align:center;cursor:pointer;font-size:14px}.dp-list div.on{background:rgba(217,162,86,.18);color:var(--brass)}
 .dt-row{display:flex;align-items:center;gap:8px;margin-top:8px}.dt-row>span{flex:1;font-size:13px}.dt-row .btn{padding:6px 10px;font-size:12px}
@@ -905,7 +868,6 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .ov-cm{flex:1;min-width:0}.ov-ct{display:flex;justify-content:space-between;font-size:13.5px}.ov-ct span{font:600 13px "IBM Plex Mono",monospace;color:var(--accent)}.ov-cm .an-bar{margin:5px 0 4px}.ov-cs{font-size:11px;color:var(--muted)}
 .an-cols{display:flex;gap:4px;height:130px;align-items:stretch}.an-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center}.an-cv{font:500 8px "IBM Plex Mono",monospace;color:var(--muted);height:11px}.an-cbw{flex:1;width:100%;display:flex;align-items:flex-end}.an-cb{width:100%;border-radius:4px 4px 0 0;transition:height .4s}.an-cl{font:500 8.5px "IBM Plex Mono",monospace;color:var(--muted-dim);margin-top:4px;white-space:nowrap}
 .an-li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line-soft);font-size:13px}.an-li:first-of-type{border-top:0}.an-li span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.an-li em{font:500 11px "IBM Plex Mono",monospace;font-style:normal;color:var(--muted);white-space:nowrap}.an-li em[class*="rc-"]{color:var(--rcx)}
-.qrow{padding:11px 0;border-top:1px solid var(--line-soft);cursor:pointer}.qrow:first-of-type{border-top:0}.qr-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.qr-top b{font-size:15px}.qr-top span{font-size:11px;color:var(--muted)}.qrow .an-bar{margin:6px 0 0}
 .lc{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:10px;background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px;cursor:pointer;position:relative;overflow:hidden}.lc:active{border-color:var(--lc)}
 .lc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--lc)}
 .lc-books{position:relative;height:118px}.lc-b{position:absolute;top:0;width:78px;aspect-ratio:2/3;border-radius:5px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);box-shadow:4px 0 10px rgba(0,0,0,.55)}.lc-b img{width:100%;height:100%;object-fit:cover;display:block}.lc-b span{display:flex;align-items:center;justify-content:center;height:100%;padding:4px;text-align:center;font-size:9px;color:var(--muted)}.lc-empty{color:var(--muted-dim);font-size:12px;padding:30px 0}
@@ -926,14 +888,28 @@ body.det-lock{overflow:hidden}
 .arc-mini.t1 .pposter{border-color:#f0cf6b;box-shadow:0 0 0 1px #f0cf6b,0 0 18px 2px rgba(240,207,107,.6)}
 .arc-mini.t2 .pposter{border-color:#d3dae0;box-shadow:0 0 0 1px #d3dae0,0 0 14px 1px rgba(211,218,224,.45)}
 .arc-mini.t3 .pposter{border-color:#d1925a;box-shadow:0 0 0 1px #d1925a,0 0 14px 1px rgba(209,146,90,.45)}
-.arc-mini.t4 .pposter,.arc-mini.t5 .pposter{border-color:var(--brass);box-shadow:0 0 10px -1px rgba(217,162,86,.4)}
+.arc-mini.t4 .pposter{border-color:var(--brass);box-shadow:0 0 10px -1px rgba(217,162,86,.4)}
 .arc-mini.t1 .pinfo{background:linear-gradient(135deg,#f0cf6b,#c9962f);border-color:#f0cf6b;color:#241703;font-weight:600}
 .arc-mini.t2 .pinfo{background:linear-gradient(135deg,#e4e9ed,#a9b3bb);border-color:#d3dae0;color:#1a2024;font-weight:600}
 .arc-mini.t3 .pinfo{background:linear-gradient(135deg,#e0a672,#a8672f);border-color:#d1925a;color:#231205;font-weight:600}
-.arc-mini.t4 .pinfo,.arc-mini.t5 .pinfo{border-color:var(--brass);color:var(--brass);font-weight:600}
-.arc-mini.t1 .pposter::after,.arc-mini.t2 .pposter::after,.arc-mini.t3 .pposter::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.28) 50%,transparent 62%);background-size:250% 100%;animation:arcShine 3.4s ease-in-out infinite}
+.arc-mini.t4 .pinfo{border-color:var(--brass);color:var(--brass);font-weight:600}
+.arc-mini.t1 .pposter::after,.arc-mini.t2 .pposter::after,.arc-mini.t3 .pposter::after,.arc-mini.t4 .pposter::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.28) 50%,transparent 62%);background-size:250% 100%;animation:arcShine 3.4s ease-in-out infinite}
 @keyframes arcShine{0%{background-position:150% 0}60%,100%{background-position:-50% 0}}
 @media (prefers-reduced-motion:reduce){.arc-mini .pposter::after{animation:none!important}}
+/* v2.7.0 */
+.arc-btns.pd-enter{animation:arcFade .3s .16s both ease-out}
+@keyframes arcFade{from{opacity:0}to{opacity:1}}
+.arc-shelf.c4{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 8px}
+.arc-shelf.top{padding:12px 8px 6px;border-radius:18px;border:1px solid rgba(240,207,107,.28);background:radial-gradient(120% 60% at 50% 0%,rgba(240,207,107,.12),transparent 60%),linear-gradient(180deg,rgba(24,32,25,.9),rgba(13,19,16,.6));box-shadow:0 0 34px -14px rgba(240,207,107,.45)}
+.arc-shelf.top .arc-mini:not(.t1):not(.t2):not(.t3):not(.t4) .pinfo{border-color:rgba(240,207,107,.35);color:#e6c86f;font-weight:600}
+.ls-name.gold{background:linear-gradient(90deg,#f6dc86,#d9a256 50%,#f6dc86);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.02em}
+.top-sub{margin:-4px 2px 12px;font:600 10px "IBM Plex Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:#c9a54a}
+.lc.gold{border-color:rgba(240,207,107,.5);box-shadow:0 0 28px -10px rgba(240,207,107,.5)}
+.yr-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.yr-tabs button{padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:600 12px inherit;font-family:inherit;cursor:pointer}
+.yr-tabs button b{display:block;font:600 15px "IBM Plex Mono",monospace;color:var(--ink)}
+.yr-tabs button.on{border-color:var(--brass);background:rgba(217,162,86,.14);color:var(--brass)}
+.yr-tabs button.on b{color:var(--brass)}
 </style>
 </head>
 <body>
@@ -1177,12 +1153,7 @@ body.det-lock{overflow:hidden}
 <div class="modal" id="detModal"><div class="sheet"><div id="detBody"></div><div class="actions"><button class="btn" onclick="closeModal('detModal')">Close</button></div></div></div>
 <div class="modal" id="playModal"><div class="sheet"><h2 class="serif">Playtime</h2><div class="hint" id="playName"></div><div class="row2"><div><label>Hours</label><input id="playH" type="number" min="0" inputmode="numeric"></div><div><label>Minutes</label><input id="playM" type="number" min="0" max="59" inputmode="numeric"></div></div><div class="hint" style="margin-top:10px">Saved to your account: the launcher shows it and adds the time you play on top.</div><div class="actions"><button class="btn" onclick="closeModal('playModal')">Cancel</button><button class="btn" id="playReset" onclick="gmPlayReset()">IGDB estimate</button><button class="btn brass" onclick="gmPlaySave()">Save</button></div></div></div>
 <!-- series modal (v1.7.0) — one named list per category, one named list per category -->
-<div class="modal" id="myrModal"><div class="sheet myr-sheet">
-  <div class="myr-top"><div class="myr-top-l"><small>MY SCORE</small><div class="myr-name serif" id="myrName"></div></div><div class="myr myr-big" id="myrTotalBox"><small>TOTAL</small><b class="serif" id="myrTotal"></b></div></div>
-  <div class="myr-tw" id="myrTw"><div class="myr-themes" id="myrThemes" onscroll="myrScState()"></div></div>
-  <div class="myr-well" id="myrWell"><div id="myrBody" onscroll="myrScState()"></div></div>
-  <div class="actions"><button class="btn" onclick="closeModal('myrModal')">Cancel</button><button class="btn danger" id="myrClear" onclick="myrClear()">Clear</button><button class="btn brass" onclick="myrSave()">Save</button></div>
-</div></div>
+<div class="modal" id="myrModal"><div class="sheet"><h2 class="serif" id="myrName"></h2><div class="hint" id="myrHint"></div><input id="myrIn" type="number" inputmode="decimal" min="0" placeholder="Score" onkeydown="if(event.key==='Enter'){event.preventDefault();myrSave();}"><div class="actions"><button class="btn" onclick="closeModal('myrModal')">Cancel</button><button class="btn danger" id="myrClear" onclick="myrClear()">Clear</button><button class="btn brass" onclick="myrSave()">Save</button></div></div></div>
 <div class="modal" id="splitModal"><div class="sheet"><h2 class="serif" id="splitTitle">How much did you finish?</h2><div class="hint" id="splitHint"></div><div id="splitBody"></div><div class="actions"><button class="btn" onclick="closeModal('splitModal')">Cancel</button><button class="btn brass" onclick="splitOk()">Add</button></div></div></div>
 <div class="modal" id="dpModal"><div class="sheet"><h2 class="serif" id="dpTitle">Date</h2><div class="hint" id="dpHint"></div><div id="dpBody"></div><div class="actions"><button class="btn" onclick="closeModal('dpModal')">Cancel</button><button class="btn brass" onclick="dpSave()">Save</button></div></div></div>
 <div class="toast" id="toast"></div>
@@ -1283,12 +1254,12 @@ SECTIONS:
      libSort, libSortDir, setLibSort, toggleLibSortDir, libSortValue, libCompare, renderLibraryTab
  §SWIPE-PWA — swipe tabs, service worker, modal backdrop close
      movieById, allMovies, posterViewerOpen
- §MY-SCORE — aspect-based rating (MYR, MYRS), myrOpen/Save
-     MYR_SHARE, myrTh, MYR, myrQ, myrScore, myrFind, myrEligible, myrRow, myrCtx, myrSet, myrTarget, myrPartialManga, myrOpen, myrRender, myrScState, myrTotal, myrTheme, myrPick, myrSave, myrClear
+ §MY-SCORE — v2.7.0 plain number rating: titles 0-100 {s}; show seasons 0-10 {s,n:10}; a show's score = average of its seasons (myS100 gives any title on 0-100)
+     myS100, rateMig, myrFind, myrEligible, myrRow, myrCtx, myrTarget, myrOpen, myrSave, myrClear
  §ARCHIVE-BOOK — vault helpers: vaultAdd, vaultImport, arc date text, myrCorner
      libBook, inVault, MON3, arcDateText, arcYearsText, arcFinShort, arcFinLong, arcDateKey, myrCorner, vaultAdd, vaultImport
- §MISC-2.4 — viewport sync, srchRank, MYRS, season rating row
-     vvSync, srchRank, mgSearchRank, gmLibInfo, MYRS, seasonRateRow
+ §MISC-2.4 — viewport sync, srchRank, season rating row
+     vvSync, srchRank, mgSearchRank, gmLibInfo, seasonRateRow
  §ARCHIVE-ADD — split dialog when adding TV/anime/manga to the Archive
      splitCtx, splitOpen, splitRender, splitSet, splitTap, splitOk, mgConfirmArchive
  §PLAYTIME — v2.5.0 account playtime is a shared running total: Expedition sets it (Library/Archive), the launcher adds the time it records
@@ -1299,13 +1270,15 @@ SECTIONS:
      arcOpen, arcFind, arcImgFb, arcGameImg, arcMini, arcBtns, arcShelfHtml, arcShelfBlock, arcToggle
  §LOG-DETAILS — v2.5.0 Archive Log menu (rating, playtime, play-throughs, last played), Details menu, Remove
      logId, arcLog, logRender, arcPlaysSet, arcDetails, detRender, arcRemove
+ §YEARS — v2.7.0 Archive: arcShowsPage (shows page, 4 per row), logShows/logManga, Years tab (yrData, renderYears, yrTab/yrOpenYear/yrClose)
+     catOfShow, arcPartial, arcShowsPage, logShows, arcGrpPlays, logManga, yrOpen, yrCat, yrSort, yrDir, YR_TABS, YR_SORTS, yrVal, yrCmp, yrCard, renderYears
  §FIREBASE-MODULE — module script: Firebase init, __fs2 (cloud v2), playtime listener/write, targets, sign-in
      firebaseConfig, auth, docRefFor, fsUnsubs, fs2Stop, stateDoc, __fs2, watchPlaytime, __cloudSignIn, __cloudTargets, __cloudPlaytimeWrite, __cloudSignOut
 ===== END CODEMAP ===== */
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "2.6.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.7.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1318,6 +1291,7 @@ const CAT = {
   shows:   {color:"#6f8fc1", text:"#0b1220", label:"Shows"},
   manga:   {color:"#8f7fc4", text:"#140f22", label:"Manga"},
   stats:   {color:"#d9a256", text:"#1a1006", label:"Stats"},
+  years:   {color:"#d9a256", text:"#1a1006", label:"Years"},
 };
 const ALL_CATS = ["games","movies","tv","anime","manga"]; // single source of truth for "every media category"
 const ICON_SVG = {
@@ -1332,6 +1306,7 @@ const ICON_SVG = {
   library:  `<path d="M3.3 4.2h2.8v12.6H3.3zM7.3 3h2.8v13.8H7.3zM11.3 5.4h2.8v11.4h-2.8zM15.3 3.8h2.8v13H15.3z"/>`,
 };
 ICON_SVG.shows = ICON_SVG.tv; ICON_SVG.overview = ICON_SVG.stats;
+ICON_SVG.years = `<path d="M5 3h10M5 17h10M6 3c0 4 4 4 4 7s-4 3-4 7M14 3c0 4-4 4-4 7s4 3 4 7"/>`;
 function iconBadge(cat){
   return `<svg viewBox="0 0 20 20" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${ICON_SVG[cat]}</svg>`;
 }
@@ -1458,7 +1433,7 @@ function normalizeState(raw){
     delete o.hype; delete o.tags; delete o.timerStart;
     // v2.1.0 — a rating you typed yourself is kept as "your own" and stays the pick for that game until you change it
     if(o.ratingCustom && o.rating != null){ if(o.ownRating == null) o.ownRating = o.rating; if(!o.ratingSrc) o.ratingSrc = "own"; }
-    return o;
+    return rateMig(o, "games");
   });
   const normSimple = (list, cat) => (list||[]).map(x => {
     const item = {...x, id:x.id||uid(), originGroupId:x.originGroupId||null, ...withExtras(x,cat)};
@@ -1469,7 +1444,7 @@ function normalizeState(raw){
     if((cat==="tv"||cat==="anime") && Array.isArray(item.groups) && item.groups.some(g=>g.order==null)){
       item.groups = item.groups.map((g,i)=>({...g, order:i}));
     }
-    return item;
+    return rateMig(item, cat);
   });
   const rawLib = raw.library || {};
   const rawV = raw.vault || {}, V0 = {};
@@ -2046,7 +2021,7 @@ function switchMode(m){
   gmReset();
   gmOpen = null; gmGoalEdit = null;
   fltSave();
-  mode = m; arcList.games = arcList.movies = null;
+  mode = m; arcList.games = arcList.movies = null; yrOpen = null; libTabsSync();
   fltLoad();
   localStorage.setItem("expedition-mode", m);
   libOpenMovie = null; tvOpen = null; tvOpenSeason = null; mgOpen = null; arcOpen = null;
@@ -2060,7 +2035,7 @@ function switchLibTab(t){
   const oldIdx = LIB_TABS.indexOf(libTab);
   const newIdx = LIB_TABS.indexOf(t);
   gmOpen = null; gmGoalEdit = null;
-  libTab = t; arcList.games = arcList.movies = null;
+  libTab = t; arcList.games = arcList.movies = null; yrOpen = null;
   localStorage.setItem("expedition-libtab", t);
   libSearchQ = "";
   tvOpen = null; tvOpenSeason = null; mgOpen = null; arcOpen = null;
@@ -3703,7 +3678,7 @@ function heroFill(m){
 function miniPosterCard(m, idx, gone){
   const open = libOpenMovie === m.id;
   return `<div class="sf-mini${open?" open":""}"${open ? "" : ` data-pid="${m.id}"`} onclick="pdToggle('${m.id}')">
-    <div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, idx, "w342")}${gone ? '<div class="sf-check" style="background:var(--rust)">✕</div>' : '<div class="sf-check">✓</div>'}${m.myRating ? myrCorner(m) : ""}</div>
+    <div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, idx, "w342")}${gone ? '<div class="sf-check" style="background:var(--rust)">✕</div>' : '<div class="sf-check">✓</div>'}${myrCorner(m)}</div>
   </div>`;
 }
 function pdSfMove(id){ libOpenMovie = null; moveItem("movies", id, "season", "library"); }
@@ -4715,7 +4690,7 @@ function gmBdSave(){
 // §LIBRARY-LIST — libraryList (dispatch per category + archive shelf)
 function libraryList(category, items){
   if(mode === "archive" && (category === "games" || category === "movies")) return arcShelfBlock(category, items);
-  if(isShowCat(category)) return `<div class="tv-list">${items.map(tvCard).join("")}</div>`;
+  if(isShowCat(category)) return mode === "archive" ? arcShowsPage(items) : `<div class="tv-list">${items.map(tvCard).join("")}</div>`;
   if(category==="manga") return mgShelf(items);
   if(category==="games") return gmLibraryHtml(items);
   return posterGridHtml(items, (it, i, enter) => movieDetailBlock(it, i, enter,
@@ -5114,7 +5089,7 @@ function ratingPick(k){
 // §SORT-MENU — SORT_CTX, sort modal
 /* ---------- v1.9.1 — custom sort menu (Library Movies + Season Movies) ---------- */
 const SORT_OPTS = [["name","Name"],["date","Date"],["rating","Rating"],["length","Length"]];
-const SORT_DIR_LABELS = { name:["A → Z","Z → A"], date:["Oldest first","Newest first"], rating:["Lowest first","Highest first"], length:["Shortest first","Longest first"], release:["Oldest first","Newest first"] };
+const SORT_DIR_LABELS = { name:["A → Z","Z → A"], date:["Oldest first","Newest first"], rating:["Lowest first","Highest first"], length:["Shortest first","Longest first"], release:["Oldest first","Newest first"], finish:["Earliest first","Latest first"], global:["Lowest first","Highest first"] };
 const SORT_ICON = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5v13M6 16.5l-2.6-2.6M6 16.5l2.6-2.6M14 16.5v-13M14 3.5l-2.6 2.6M14 3.5l2.6 2.6"/></svg>`;
 const DATA_ICON = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="5" rx="6" ry="2.5"/><path d="M4 5v10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V5M4 10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5"/></svg>`;
 let sfSort = localStorage.getItem("expedition-sfsort") || "length";        // Season Movies — default keeps the old "most remaining first"
@@ -5130,10 +5105,11 @@ const SORT_CTX = {
     get:() => ({ key:sfSort, dir:sfSortDir }),
     set(k, d){ sfSort = k; sfSortDir = d; localStorage.setItem("expedition-sfsort", k); localStorage.setItem("expedition-sfsortdir", d); render(); } },
 };
+SORT_CTX.year = { title:"Sort this year", hint:"Finish date = the first time you finished it that year.", opts:() => YR_SORTS, get:() => ({ key:yrSort, dir:yrDir }), set(k, d){ yrSort = k; yrDir = d; try{ localStorage.setItem("expedition-yrsort", k); localStorage.setItem("expedition-yrdir", d); }catch(e){} render(); } };
 let sortCtxName = "lib";
 function sortBtnHtml(which){
   const cur = SORT_CTX[which].get();
-  const lab = sortLab(SORT_OPTS.concat([["release","Release date"]]).find(o => o[0] === cur.key) || [0, ""]);
+  const lab = sortLab((SORT_CTX[which].opts ? SORT_CTX[which].opts() : SORT_OPTS).concat([["release","Release date"]]).find(o => o[0] === cur.key) || [0, ""]);
   return `<button class="lib-tags-btn" onclick="openSortMenu('${which}')" title="Sort">${SORT_ICON} Sort <span class="sort-cur">· ${lab} ${cur.dir === "asc" ? "↑" : "↓"}</span></button>`;
 }
 function openSortMenu(which){ sortCtxName = which; renderSortModal(); $("sortModal").classList.add("show"); }
@@ -5496,7 +5472,7 @@ function tvSeasonsHtml(item, entry){
     const poster = (r.s && r.s.poster) || item.posterPath;
     const avg = r.n != null && entry && entry.eps[r.n] ? tvSeasonAvg(entry.eps[r.n], item) : null;
     const grp = r.gid ? (item.groups || []).find(x => x.id === r.gid) : null, seen = !!(grp && grp.total > 0 && grp.watched >= grp.total);
-    return `<div class="tvs${tvOpenSeason === r.key ? " on" : ""}${seen ? " done" : ""}" onclick="tvPickSeason('${r.key}')"><div class="tvs-p">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : esc(r.short)}${seen ? `<span class="tvs-ok">✓</span>` : ""}</div><div class="tvs-l${r.arc ? " arc" : ""}"><b>${esc(r.short)}</b>${(grp && grp.myRating) ? ` <em class="${ratingClass(grp.myRating.s)}">${grp.myRating.s}</em>` : avg != null ? ` <em class="${ratingClass(avg)}">${avg}</em>` : ""}</div></div>`;
+    return `<div class="tvs${tvOpenSeason === r.key ? " on" : ""}${seen ? " done" : ""}" onclick="tvPickSeason('${r.key}')"><div class="tvs-p">${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w185${poster}" onerror="this.remove()">` : esc(r.short)}${seen ? `<span class="tvs-ok">✓</span>` : ""}</div><div class="tvs-l${r.arc ? " arc" : ""}"><b>${esc(r.short)}</b>${(grp && grp.myRating) ? ` <em class="${ratingClass(grp.myRating.s * 10)}">${grp.myRating.s}</em>` : avg != null ? ` <em class="${ratingClass(avg)}">${avg}</em>` : ""}</div></div>`;
   }).join("");
   const sel = rows.find(r => r.key === tvOpenSeason);
   let panel = "";
@@ -5815,7 +5791,7 @@ function sxSeasonCard(item, row, g, entry, isNext, finished){
 function sxDoneRow(item, row, g, entry){
   const open = sxDoneOpen.has(g.id);
   const eps = (row.n != null && entry && entry.eps[row.n]) || [], avg = tvSeasonAvg(eps, item);
-  const head = `<div class="sx-done" onclick="sxToggleDone('${g.id}')"><span class="ok">✓</span><span><b>${esc(row.label)}</b> · ${g.watched}/${g.total}</span><span class="sp"></span>${g.myRating ? `<span>mine <em class="${ratingClass(g.myRating.s)}">${g.myRating.s}</em></span>` : ""}${avg != null ? `<span>avg <em class="${ratingClass(avg)}">${avg}</em></span>` : ""}</div>`;
+  const head = `<div class="sx-done" onclick="sxToggleDone('${g.id}')"><span class="ok">✓</span><span><b>${esc(row.label)}</b> · ${g.watched}/${g.total}</span><span class="sp"></span>${g.myRating ? `<span>mine <em class="${ratingClass(g.myRating.s * 10)}">${g.myRating.s}</em></span>` : ""}${avg != null ? `<span>avg <em class="${ratingClass(avg)}">${avg}</em></span>` : ""}</div>`;
   return open ? head + sxSeasonCard(item, row, g, entry, false, true) : head;
 }
 function sxShowHtml(item, nextGid, isHero){
@@ -5858,7 +5834,7 @@ function renderSeasonTv(){
   if(pick) order.unshift(pick);
   order.forEach(it => { sxCat = showCatOf(it.id); html += sxShowHtml(it, it === pick ? sxNextGid(it) : null, it === pick); });
   if(completed.length){
-    html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check">✓</div>${m.myRating ? myrCorner(m) : ""}</div></div>`).join("")}</div>`;
+    html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check">✓</div>${myrCorner(m)}</div></div>`).join("")}</div>`;
     const open = completed.find(m => m.id === sxShelfOpen);
     if(open){
       const entry = tvEntry(open), eps = Object.values((entry && entry.eps) || {}).flat();
@@ -6299,7 +6275,7 @@ const fltStore = () => FLT_STORE[fltCat];
 function fltDefs(cat){
   return {
     y: { label:"Release year", get: i => { const y = +(i.releaseDate && i.releaseDate.y); return y > 0 ? y : null; }, fmt: v => String(v) },
-    r: { label:"Rating",       get: i => mode === "archive" ? (i.myRating ? i.myRating.s : null) : itemRating(i), fmt: v => String(v) },
+    r: { label:"Rating",       get: i => mode === "archive" ? myS100(i) : itemRating(i), fmt: v => String(v) },
     l: { label:"Length",       get: i => { const m = mode === "archive" ? arcMinutes(cat, i) : libRemainingMin(cat, i); return m > 0 ? m : null; }, fmt: v => fmtHrMin(v) },
   };
 }
@@ -6514,7 +6490,7 @@ if(libSort === "hype") libSort = "rating";   // v1.14.0 — old saved choice
 function setLibSort(v){ libSort=v; localStorage.setItem("expedition-libsort",v); renderLibraryTab(libTab); }
 function toggleLibSortDir(){ libSortDir = libSortDir==="asc"?"desc":"asc"; localStorage.setItem("expedition-libsortdir",libSortDir); renderLibraryTab(libTab); }
 function libSortValue(category, item, key){
-  if(mode === "archive"){ if(key === "rating") return item.myRating ? item.myRating.s : -1; if(key === "length") return arcMinutes(category, item); if(key === "date") return arcDateKey(item); }
+  if(mode === "archive"){ if(key === "rating") { const s = myS100(item); return s == null ? -1 : s; } if(key === "length") return arcMinutes(category, item); if(key === "date") return arcDateKey(item); }
   if(key==="rating"){
     if(category==="manga") return (item.anilistId && item.rating != null) ? item.rating : -1;
     return itemRating(item)==null ? -1 : itemRating(item);   // games have no rating, so they all tie
@@ -6533,6 +6509,7 @@ function libCompare(category, a, b, key, dir){
   return dir==="desc" ? -cmp : cmp;
 }
 function renderLibraryTab(category){
+  if(category === "years") return renderYears();
   if(category === "stats") return mode === "archive" ? renderArchiveStats() : renderLibraryStats();
   const meta = CAT[category];
   let list = libBook(category);
@@ -6651,32 +6628,22 @@ document.querySelectorAll(".modal").forEach(function(m){
   m.addEventListener("click", function(e){ if(e.target === m) closeModal(m.id); });
 });
 
-// §MY-SCORE — aspect-based rating (MYR, MYRS), myrOpen/Save
-/* ---------- v2.3.0 — My score: rate a finished title by aspects ----------
-   Each category has 10 questions; a theme gives every question a weight (normalised to 100 when scoring).
-   Answer shares: Bad 0 · Weak 30% · Mid 55% · Good 80% · Peak 100%. Untouched = Mid. Stored on the item as myRating {t, a, s}. */
-const MYR_SHARE = [0, .30, .55, .80, 1], MYR_ANS = ["Bad","Weak","Mid","Good","Peak"];
-const myrTh = (base, list) => { const o = { balanced: ["Balanced", base] }; list.forEach(([id, name, m]) => { o[id] = [name, base.map((x, i) => x * m[i])]; }); return o; };
-const MYR = {
-  games: { q: [["story","Story & events"],["chars","Characters"],["lore","Lore & world"],["play","Core gameplay & controls"],["level","Level design"],["prog","Progression & unlocks"],["art","Art direction & graphics"],["audio","Music & sound design"],["fun","How much fun I had"]],
-    th: {
-      balanced: ["Balanced", [10,8,6,16,10,8,10,14,18], [["story","Story & events"],["chars","Characters"],["lore","Lore & world"],["play","Core gameplay & controls"],["level","Level design"],["prog","Progression & unlocks"],["art","Art direction & graphics"],["audio","Music & sound design"],["fun","How much fun I had"]], "Story and gameplay matter about equally."],
-      story: ["Story", [22,22,12,14,8,8,14], [["story","Story & narrative"],["chars","Characters & writing"],["lore","Lore & world-building"],["play","Gameplay"],["art","Art direction & graphics"],["audio","Music & sound design"],["fun","How much fun I had"]], "The story and narrative come first."],
-      gameplay: ["Gameplay", [24,14,12,8,8,10,24], [["play","Core mechanics & controls"],["level","Level / encounter design"],["prog","Progression & unlocks"],["story","Overall story & events"],["art","Art direction & graphics"],["audio","Music & sound design"],["fun","How much fun I had"]], "The mechanics come first: shooting, exploring, platforming and so on."],
-    } },
-  movies: { q: [["story","Story & plot"],["chars","Characters & acting"],["dial","Dialogue"],["dir","Direction & pacing"],["vis","Visuals & cinematography"],["score","Score"],["sound","Sound design"],["design","Production design & setting"],["orig","Originality"],["end","Ending"]],
-    th: myrTh([14,14,8,12,10,9,6,8,9,10], [["drama","Drama",[1.2,1.2,1.2,1,.8,1,.7,1,1,1.3]],["action","Action",[1,1,.6,1.3,1.3,1,1.5,1,1,.7]],["horror","Horror",[1,1,.6,1.4,1,1.3,1.5,1,1,1]],["comedy","Comedy",[1,1.3,1.6,1,.7,.9,.8,.7,1,1]]]) },
-  tv: { q: [["story","Story & arcs"],["chars","Characters"],["write","Writing"],["pace","Pacing across episodes"],["cons","Consistency across seasons"],["fin","Finale / ending"],["act","Acting"],["vis","Visuals & production"],["music","Music"],["orig","Originality"]],
-    th: myrTh([14,14,8,10,10,12,8,8,8,8], [["drama","Drama",[1,1.3,1.3,1,1,1,1.3,.7,1,1]],["historical","Historical",[1.2,1.2,1.2,1,1,1,1.2,1.4,1,.6]],["mystery","Mystery / thriller",[1.1,.8,1,1.4,1,1.4,1,1,1,1]]]) },
-  anime: { q: [["story","Story & arcs"],["chars","Characters"],["fight","Fight & action sequences"],["anim","Animation quality"],["dir","Direction & pacing"],["music","Music, openings & endings"],["voice","Voice acting"],["world","World-building"],["cons","Consistency across seasons"],["end","Ending"]],
-    th: myrTh([12,14,10,12,8,8,8,8,10,10], [["shonen","Shonen / action",[1,1,1.6,1.4,1,1,1,.6,1,1]],["slice","Slice of life",[1,1.4,.3,1,1.4,1.4,1,1,1,1]],["mystery","Mystery / psychological",[1.4,1,.5,.7,1.4,1,1,1,1,1.4]]]) },
-  manga: { q: [["story","Story"],["chars","Characters"],["art","Art & linework"],["layout","Layout & panel pacing"],["lore","Lore & world"],["write","Writing & dialogue"],["end","Ending"],["cons","Consistency across volumes"],["orig","Originality"],["emo","Emotional impact"]],
-    th: myrTh([13,13,12,10,9,8,9,6,10,10], [["story","Story-driven",[1.4,1,.7,.7,1.4,1,1.4,1,1,1]],["art","Art-driven",[.8,1,1.5,1.5,.6,1,1,1,1,1.4]]]) },
-};
-const myrQ = (c, t) => (c.th[t] && c.th[t][2]) || c.q;   // a theme may carry its own questions (games)
-function myrScore(cat, t, a, season){
-  const c = (season ? MYRS : MYR)[cat], w = c.th[t][1], sum = w.reduce((x, y) => x + y, 0);
-  return Math.round(myrQ(c, t).reduce((s, [id], i) => s + w[i] / sum * 100 * (a[id] == null ? 50 : a[id]) / 100, 0));
+// §MY-SCORE — plain number rating (v2.7.0), myrOpen/Save
+/* ---------- v2.7.0 — My score: a plain number you type ----------
+   Games, movies, manga: myRating = {s} out of 100. Shows: only seasons/arcs are rated, group.myRating = {s, n:10} out of 10;
+   a show's own score is the average of its rated seasons. myS100 gives every title's score on a 0-100 scale (sorting, colours, lists). */
+function myS100(it){
+  if(Array.isArray(it.groups)){
+    const v = it.groups.map(g => g.myRating ? +g.myRating.s : null).filter(x => x != null);
+    if(v.length) return Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10);
+  }
+  return it.myRating ? +it.myRating.s : null;
+}
+function rateMig(it, cat){   // old aspect ratings become plain numbers; old season ratings (0-100) become 0-10; a show with seasons keeps no title-level score
+  const r = it.myRating;
+  if(r){ if((cat === "tv" || cat === "anime") && (it.groups || []).length) delete it.myRating; else if(r.t !== undefined || r.a !== undefined || r.v !== undefined) it.myRating = { s: r.s }; }
+  (it.groups || []).forEach(g => { const q = g.myRating; if(q && q.n !== 10) g.myRating = { s: Math.round(q.s / 10 * 2) / 2, n: 10 }; });
+  return it;
 }
 function myrFind(id){
   for(const cat of ALL_CATS){ const it = (S[cat] || []).concat(S.library[cat] || [], S.vault[cat] || []).find(x => x.id === id); if(it) return { cat, it }; }
@@ -6692,52 +6659,35 @@ function myrEligible(cat, it){   // only finished titles can be rated
 }
 function myrRow(it){
   const f = myrFind(it.id); if(!f || !myrEligible(f.cat, it)) return "";
+  if(isShowCat(f.cat)){   // shows are rated per season: the title only shows the average
+    const s = myS100(it);
+    return `<div class="myr-row">${s != null ? `<div class="myr ${ratingClass(s)}"><small>AVERAGE</small><b class="serif">${(s / 10).toFixed(1)}</b></div>` : `<span class="myr-none">Rate a season to get a score</span>`}</div>`;
+  }
   const r = it.myRating;
   return `<div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s)}"><small>MY SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">Not rated yet</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="myrOpen('${it.id}')">${r ? "Edit score" : "Rate it"}</button></div>`;
 }
 let myrCtx = null;
-const myrSet = x => (x.gid ? MYRS : MYR)[x.cat];
 function myrTarget(x){ const f = myrFind(x.id); if(!f) return null; return x.gid ? (f.it.groups || []).find(g => g.id === x.gid) || null : f.it; }
-function myrPartialManga(it){ const t = Math.max(0, (it.toVol || 0) - (it.fromVol || 0) + 1); return !(!it.ongoing && finMangaRead(it) >= t); }
 function myrOpen(id, gid){
   const f = myrFind(id); if(!f) return;
-  const g = gid ? (f.it.groups || []).find(x => x.id === gid) : null; if(gid && !g) return;
-  const r = (g || f.it).myRating, c = (gid ? MYRS : MYR)[f.cat];
-  myrCtx = { cat: f.cat, id, gid: gid || null, t: r && c.th[r.t] ? r.t : "balanced", a: myrAns(r) };
-  myrRender(); $("myrModal").classList.add("show"); setTimeout(myrScState, 60);
+  const c = { id, gid: gid || null }, tg = myrTarget(c); if(!tg) return;
+  myrCtx = c;
+  const mx = gid ? 10 : 100, inp = $("myrIn");
+  $("myrName").textContent = f.it.name + (gid ? " — " + tg.name : "");
+  $("myrHint").textContent = "Your score from 0 to " + mx + (gid ? " (decimals allowed)." : ".");
+  inp.max = mx; inp.step = gid ? "0.1" : "1"; inp.value = tg.myRating ? tg.myRating.s : "";
+  $("myrClear").style.display = tg.myRating ? "" : "none";
+  $("myrModal").classList.add("show"); setTimeout(() => inp.focus(), 60);
 }
-function myrAns(r){ if(!r) return {}; if(r.v === 2) return { ...r.a }; const o = {}; Object.keys(r.a || {}).forEach(k => { o[k] = [0,30,60,80,100][r.a[k]] ?? 50; }); return o; }
-function myrRender(){
-  const x = myrCtx, c = myrSet(x), f = myrFind(x.id), tg = myrTarget(x), w = c.th[x.t][1], sum = w.reduce((p, q) => p + q, 0), themes = Object.keys(c.th);
-  const part = !x.gid && x.cat === "manga" && f && myrPartialManga(f.it);
-  $("myrName").textContent = f ? f.it.name + (x.gid && tg ? " — " + tg.name : "") : "";
-  $("myrClear").style.display = tg && tg.myRating ? "" : "none";
-  $("myrTw").style.display = themes.length > 1 ? "" : "none";
-  $("myrThemes").innerHTML = themes.map(k => `<button class="rate-chip${k === x.t ? " on" : ""}" onclick="myrTheme('${k}')">${c.th[k][0]}</button>`).join("");
-  $("myrBody").innerHTML = (c.th[x.t][3] ? `<div class="myr-desc">${c.th[x.t][3]}</div>` : "") + (part ? `<div class="hint" style="margin-top:8px">Not finished yet, so the ending question is replaced by where the story is heading.</div>` : "") +
-    myrQ(c, x.t).map(([id, lab], i) => `<div class="myr-q"><div class="myr-qh"><span>${part && id === "end" ? "Where it's heading" : lab}</span><em id="myrPts_${id}">${Math.round(w[i] / sum * 100 * (x.a[id] == null ? 50 : x.a[id])) / 100} / ${Math.round(w[i] / sum * 100)} pts</em></div><div class="myr-sl"><input type="range" min="0" max="100" step="10" value="${x.a[id] == null ? 50 : x.a[id]}" oninput="myrPick('${id}',this.value,this)"><b>${x.a[id] == null ? 50 : x.a[id]}%</b></div></div>`).join("") +
-    `<div class="hint" style="margin-top:14px">Anything you don't touch counts as 50%.</div>`;
-  myrTotal();
-  requestAnimationFrame(myrScState);
-}
-function myrScState(){   // shows the soft edge fades only on the sides that still have more to scroll
-  const b = $("myrBody"), w = $("myrWell"), t = $("myrThemes"), tw = $("myrTw"); if(!b || !w || !t || !tw) return;
-  w.classList.toggle("sc-t", b.scrollTop > 4);
-  w.classList.toggle("sc-b", b.scrollTop + b.clientHeight < b.scrollHeight - 4);
-  tw.classList.toggle("sc-l", t.scrollLeft > 4);
-  tw.classList.toggle("sc-r", t.scrollLeft + t.clientWidth < t.scrollWidth - 4);
-}
-function myrTotal(){ const x = myrCtx, v = myrScore(x.cat, x.t, x.a, !!x.gid); $("myrTotal").textContent = v; $("myrTotalBox").className = "myr myr-big " + ratingClass(v); }
-function myrTheme(k){ myrCtx.t = k; myrRender(); }
-function myrPick(id, v, el){ v = +v; myrCtx.a[id] = v; const x = myrCtx, c = myrSet(x), w = c.th[x.t][1], sum = w.reduce((p, q) => p + q, 0), i = myrQ(c, x.t).findIndex(q => q[0] === id), pts = w[i] / sum * 100; el.parentNode.querySelector("b").textContent = v + "%"; $("myrPts_" + id).textContent = Math.round(pts * v) / 100 + " / " + Math.round(pts) + " pts"; myrTotal(); }
 function myrSave(){
-  const x = myrCtx, tg = myrTarget(x); if(!tg) return closeModal("myrModal");
-  const a = {}; myrQ(myrSet(x), x.t).forEach(([id]) => { a[id] = x.a[id] == null ? 50 : x.a[id]; });
-  tg.myRating = { t: x.t, a, v: 2, s: myrScore(x.cat, x.t, a, !!x.gid) };
-  closeModal("myrModal"); persist(); toast("My score: " + tg.myRating.s);
+  const x = myrCtx, tg = x && myrTarget(x); if(!tg) return closeModal("myrModal");
+  const v = parseFloat($("myrIn").value), mx = x.gid ? 10 : 100;
+  if(!(v >= 0 && v <= mx)) return toast("Enter a number from 0 to " + mx + ".");
+  tg.myRating = x.gid ? { s: Math.round(v * 10) / 10, n: 10 } : { s: Math.round(v) };
+  closeModal("myrModal"); persist(); toast("Saved.");
 }
 function myrClear(){
-  const tg = myrTarget(myrCtx); if(!tg || !confirm("Remove your score?")) return;
+  const tg = myrCtx && myrTarget(myrCtx); if(!tg || !confirm("Remove your score?")) return;
   delete tg.myRating; closeModal("myrModal"); persist();
 }
 
@@ -6760,8 +6710,9 @@ const arcFinShort = (cat, it) => arcDateText(it, false);
 const arcFinLong = (cat, it) => arcDateText(it, true);
 function arcDateKey(it){ return it.lastActive > 0 ? it.lastActive : 0; }
 function myrCorner(it, extra){   // the score plate on a cover (Archive)
-  const r = it.myRating; if(!r) return "";
-  return `<div class="myr myr-c ${ratingClass(r.s)}${extra ? " " + extra : ""}" onclick="event.stopPropagation();myrOpen('${it.id}')"><b class="serif">${r.s}</b></div>`;
+  const s = myS100(it); if(s == null) return "";
+  const tv = Array.isArray(it.groups);   // shows: the average of the seasons, out of 10; a tap just opens the card
+  return `<div class="myr myr-c ${ratingClass(s)}${extra ? " " + extra : ""}"${tv ? "" : ` onclick="event.stopPropagation();myrOpen('${it.id}')"`}><b class="serif">${tv ? (s / 10).toFixed(1) : s}</b></div>`;
 }
 function vaultAdd(cat, it){
   const V = S.vault[cat];
@@ -6806,7 +6757,7 @@ function vaultImport(V, archive){
   });
 }
 
-// §MISC-2.4 — viewport sync, srchRank, MYRS, season rating row
+// §MISC-2.4 — viewport sync, srchRank, season rating row
 /* ---------- v2.4.1 ---------- */
 // modals follow the part of the screen that is really visible (above the keyboard)
 function vvSync(){
@@ -6845,20 +6796,10 @@ function gmLibInfo(g){   // under each Library cover: release year · time left 
   const y = g.releaseDate && g.releaseDate.y, m = libRemainingMin("games", g);
   return [y || "TBA", m > 0 ? fmtHrMin(m) : ""].filter(Boolean).join(" · ");
 }
-// per-season (TV) / per-arc (anime) score: 6 short questions about what changes from season to season
-const MYRS = {
-  tv: { q: [["story","Plot & story progression"],["chars","Character arcs"],["write","Writing & dialogue"],["pace","Pacing & consistency"],["fin","Season finale"],["fresh","Freshness vs earlier seasons"]], th: { balanced: ["Balanced", [20,18,16,16,18,12]] } },
-  anime: { q: [["story","Plot & story progression"],["chars","Character arcs"],["fight","Fights & animation"],["pace","Pacing & consistency"],["fin","Arc / season finale"],["fresh","Freshness vs earlier seasons"]], th: { balanced: ["Balanced", [20,18,16,14,18,14]] } },
-};
-[MYR, MYRS].forEach(set => Object.keys(set).forEach(cat => {
-  const c = set[cat]; if(set === MYR && cat === "games") return;   // games carry it in their own lists
-  c.q.push(["fun", "How much fun I had"]);
-  Object.keys(c.th).forEach(k => { const w = c.th[k][1], sum = w.reduce((a, b) => a + b, 0); w.push(Math.round(sum * 0.22 * 10) / 10); });
-}));
 function seasonRateRow(it, g){
   if(!g || (!(g.total > 0 && g.watched >= g.total) && mode !== "archive")) return "";
   const r = g.myRating, w = groupsWord(it.groups || []);
-  return `<div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s)}"><small>${w.toUpperCase()} SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">${w === "arc" ? "Arc" : "Season"} not rated</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="event.stopPropagation();myrOpen('${it.id}','${g.id}')">${r ? "Edit" : "Rate " + w}</button></div>`;
+  return `<div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s * 10)}"><small>${w.toUpperCase()} SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">${w === "arc" ? "Arc" : "Season"} not rated</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="event.stopPropagation();myrOpen('${it.id}','${g.id}')">${r ? "Edit" : "Rate " + w}</button></div>`;
 }
 
 // §ARCHIVE-ADD — split dialog when adding TV/anime/manga to the Archive
@@ -7012,18 +6953,19 @@ function arcGameImg(g, idx){
   return `<img alt="" class="${posterSeen.has(chain[0]) ? "seen" : ""}" ${idx < 15 ? 'fetchpriority="high"' : 'loading="lazy"'} src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onload="this.classList.add('in');posterSeen.add(this.src)" onerror="arcImgFb(this)">`;
 }
 function arcMini(cat, it, idx){
-  const img = cat === "games" ? arcGameImg(it, idx) : posterImgHtml(it, idx, "w342"), rk = arcRank && arcRank[it.id];
-  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}${rk && rk <= 5 ? " t" + rk : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${it.myRating ? myrCorner(it) : ""}</div>${rk ? `<div class="pinfo">${rk <= 5 ? "♛ " : ""}#${rk}</div>` : ""}</div>`;
+  const img = cat === "games" ? arcGameImg(it, idx) : cat === "manga" ? (it.coverUrl ? `<img alt="" loading="lazy" src="${esc(it.coverUrl)}" onload="this.classList.add('in')" onerror="this.remove()">` : "") : posterImgHtml(it, idx, "w342"), rk = arcRank && arcRank[it.id];
+  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}${rk && rk <= 4 ? " t" + rk : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${myrCorner(it)}</div>${rk ? `<div class="pinfo">${rk <= 4 ? "♛ " : ""}#${rk}</div>` : ""}</div>`;
 }
 function arcBtns(it, enter){
   return `<div class="arc-btns${enter}"><button class="btn small" onclick="arcLog('${it.id}')">Log</button><button class="btn small" onclick="arcDetails('${it.id}')">Details</button><button class="btn small danger" onclick="arcRemove('${it.id}')">Remove</button></div>`;
 }
-function arcShelfHtml(cat, items, start){
+function arcShelfHtml(cat, items, start, cols){
+  cols = cols || 5;
   const enter = pdAnimateIn ? " pd-enter" : "";
   const parts = items.map((it, i) => ({ it, i })), oi = items.findIndex(x => x.id === arcOpen);
-  if(oi >= 0){ if(oi % 5 === 4 && oi > 0) parts.splice(oi - 1, 2, { btn: 1 }, parts[oi], parts[oi - 1]); else parts.splice(oi + 1, 0, { btn: 1 }); }   // buttons sit right of the poster (left of it in the last column); the poster never moves
+  if(oi >= 0){ if(oi % cols === cols - 1 && oi > 0) parts.splice(oi - 1, 2, { btn: 1 }, parts[oi], parts[oi - 1]); else parts.splice(oi + 1, 0, { btn: 1 }); }   // buttons sit right of the poster (left of it in the last column); the poster never moves
   const h = parts.map(p => p.btn ? arcBtns(items[oi], enter) : arcMini(cat, p.it, start + p.i)).join("");
-  return `<div class="arc-shelf">${h}</div>`;
+  return `<div class="arc-shelf${cols === 4 ? " c4" : ""}${arcRank ? " top" : ""}">${h}</div>`;
 }
 function arcShelfBlock(cat, items){
   const fin = items.filter(x => !x.abandoned), gone = items.filter(x => x.abandoned);
@@ -7036,10 +6978,10 @@ function arcToggle(id){
   const wasOpen = arcOpen != null;
   const go = () => {
     const closing = arcOpen === id, sel = `[data-pid="${id}"]`;
-    gmSetPad(gmPad + 700);   // spare room so the page is never clamped (and jerked) while the shelf is rebuilt
-    vf(closing ? ".arc-btns" : sel, closing ? sel : ".arc-btns", null);
     arcOpen = closing ? null : id;
     pdAnimateIn = !!arcOpen;
+    const roomy = document.documentElement.scrollHeight - gmPad > innerHeight + 60;   // only follow when the page really scrolls
+    vfNext = { top: null, after: null, focus: roomy ? (closing ? [sel] : [".arc-btns"]) : null };   // no hold, no spare room: nothing pushes the grid around
     render();
     pdAnimateIn = false; pdBusy = false;
   };
@@ -7055,7 +6997,10 @@ let logId = null, detId = null;
 function arcLog(id){ logId = id; logRender(); $("logModal").classList.add("show"); }
 function logRender(){
   const f = arcFind(logId); if(!f){ closeModal("logModal"); return; }
-  const { cat, it } = f, g = cat === "games", n = arcPlays(it), pi = g ? gmPlayInfo(it) : null;
+  const { cat, it } = f;
+  if(isShowCat(cat)) return logShows(it);
+  if(cat === "manga") return logManga(it);
+  const g = cat === "games", n = arcPlays(it), pi = g ? gmPlayInfo(it) : null;
   const hint = n === 0 ? "At 0 this counts as abandoned (tried)." : (g && pi.src === "igdb" ? "While the playtime is IGDB's estimate, each extra play-through adds 70% of it." : "");
   $("logBody").innerHTML = `<h2 class="serif">${esc(it.name)}</h2><div class="hint">${g ? "Your play log" : "Your watch log"}</div>
     <div class="log-sec"><div class="log-lab">My rating</div>${myrRow(it)}</div>
@@ -7066,13 +7011,29 @@ function logRender(){
 function arcDetails(id){
   detId = id; detRender(); $("detModal").classList.add("show"); lockSync();
   const f = arcFind(id);
+  if(f && isShowCat(f.cat)) tvEnsure(f.it);
+  if(f && f.cat === "manga") mgEnsureDetails(f.it);
   if(f && f.cat === "movies" && f.it.tmdbId) pdLoadExtras(f.it).then(() => { if(detId === id && $("detModal").classList.contains("show")) detRender(); });
 }
 function detRender(){
   const f = arcFind(detId); if(!f){ closeModal("detModal"); return; }
   const { cat, it } = f, r = itemRating(it);
   let src = "", ph = false, by = null, meta = "", body = "";
-  if(cat === "movies"){
+  if(isShowCat(cat)){
+    const e = tvEntry(it), gs = (it.groups || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), eps = gs.reduce((a, g) => a + (g.watched || 0), 0), hrs = eps * (it.epLen || 0) / 60, sc = myS100(it);
+    const bp = it.backdropPath || (e && e.backdrop) || ""; src = bp ? `${TMDB_IMG}w780${bp}` : (it.posterPath ? `${TMDB_IMG}w342${it.posterPath}` : ""); ph = !bp; by = it.backdropY;
+    meta = [gs.length + " " + groupsWord(gs) + (gs.length === 1 ? "" : "s"), eps + " episodes", sc != null ? "★ " + (sc / 10).toFixed(1) + " / 10" : ""].filter(Boolean).join(" · ");
+    body = `<div class="season-grid" style="margin-top:14px">${anStat(gs.filter(finGroupDone).length + "/" + gs.length, "Seasons done")}${anStat(eps, "Episodes")}${anStat(fmtH(hrs), "Watched")}</div>` +
+      (e && e.overview ? `<div class="det-desc">${esc(e.overview)}</div>` : (it.tmdbId ? `<div class="det-desc" style="color:var(--muted)">Loading…</div>` : "")) +
+      (gs.some(g => g.myRating) ? `<div class="det-sec"><div class="pd-lab">Season scores</div>${gs.map(g => { const v = g.myRating ? g.myRating.s : null; return `<div class="ov-row" style="margin-top:6px"><span>${esc(g.name)}</span><b>${v != null ? v + " / 10" : "—"}</b></div><div class="an-bar"><i class="${v != null ? ratingClass(v * 10) : ""}" style="width:${(v || 0) * 10}%;background:var(--rc,var(--line))"></i></div>`; }).join("")}</div>` : "") +
+      (e && e.creators && e.creators.length ? `<div class="det-sec"><div class="pd-lab">Created by</div><div class="pd-val">${esc(e.creators.join(", "))}</div></div>` : "") +
+      (e && e.cast && e.cast.length ? `<div class="det-sec"><div class="pd-lab">Starring</div><div class="pd-val">${esc(e.cast.join(", "))}</div></div>` : "");
+  } else if(cat === "manga"){
+    const d = mgDetail(it), i = mgInfo(it);
+    src = it.bannerUrl || it.coverUrl || ""; ph = !it.bannerUrl;
+    meta = [mgRange(it), Math.min(it.volsRead || 0, i.total) + " volumes read", r != null ? "★ " + r : ""].filter(Boolean).join(" · ");
+    body = (d && d.authors && d.authors.length ? `<div class="gm-meta" style="margin-top:12px"><b>${esc(d.authors.join(", "))}</b></div>` : "") + `<div class="det-desc">${d && d.desc ? esc(d.desc) : `<span style="color:var(--muted)">${it.anilistId ? "Loading…" : "Not linked to AniList yet."}</span>`}</div>`;
+  } else if(cat === "movies"){
     const ex = it.tmdbId ? pdCache["m:" + it.tmdbId] : null, bp = it.backdropPath || (ex && ex.backdrop) || "", b = pdBodies(it), y = it.releaseDate && it.releaseDate.y;
     src = bp ? `${TMDB_IMG}w780${bp}` : (it.posterPath ? `${TMDB_IMG}w342${it.posterPath}` : ""); ph = !bp; by = it.backdropY;
     meta = [y, it.length > 0 ? fmtHrMin(it.length) : "", r != null ? "★ " + r : ""].filter(Boolean).join(" · ");
@@ -7088,7 +7049,7 @@ function detRender(){
       (it.description ? `<div class="det-desc">${esc(it.description)}</div>` : `<div class="det-desc" style="color:var(--muted)">${it.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet."}</div>`) +
       (dlcs.length ? `<div class="det-sec"><div class="pd-lab">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="pd-val" style="margin-top:3px">${esc(d.name)}${d.kind ? ` <span class="gm-hint">${esc(d.kind)}</span>` : ""}</div>`).join("")}</div>` : "");
   }
-  $("detBody").innerHTML = `<div class="det-bd" style="cursor:pointer" onclick="detBackdrop('${it.id}')">${src ? `<img class="${ph ? "ph" : ""}" alt="" src="${esc(src)}"${!ph && by != null ? ` style="object-position:50% ${by}%"` : ""} onerror="this.remove()">` : ""}<div class="det-shade"></div></div><h2 class="serif det-title">${esc(it.name)}</h2>${meta ? `<div class="det-meta">${esc(meta)}</div>` : ""}${body}${arcReplayBtn(cat, it)}`;
+  $("detBody").innerHTML = `<div class="det-bd" style="cursor:pointer" onclick="detBackdrop('${it.id}')">${src ? `<img class="${ph ? "ph" : ""}" alt="" src="${esc(src)}"${!ph && by != null ? ` style="object-position:50% ${by}%"` : ""} onerror="this.remove()">` : ""}<div class="det-shade"></div></div><h2 class="serif det-title">${esc(it.name)}</h2>${meta ? `<div class="det-meta">${esc(meta)}</div>` : ""}${body}${cat === "games" || cat === "movies" ? arcReplayBtn(cat, it) : ""}`;
 }
 function arcRemove(id){
   const f = arcFind(id); if(!f) return;
@@ -7096,7 +7057,8 @@ function arcRemove(id){
   if(!confirm(`Remove “${it.name}” from Expedition entirely?\n\nThis permanently deletes it and everything stored with it (${cat === "games" ? "playtime, last played, your rating, play-throughs" : "last watched, your rating, times watched"}). This can't be undone.`)) return;
   arcOpen = null; closeModal("logModal"); closeModal("detModal");
   if(cat === "games"){ S.vault.games = S.vault.games.filter(x => x.id !== id); S.games = S.games.filter(x => x.id !== id && x.replayOf !== id); lpForget(it); }
-  else{ S.vault.movies = S.vault.movies.filter(x => x.id !== id); S.movies = S.movies.filter(x => x.id !== id && x.replayOf !== id); }
+  else if(cat === "movies"){ S.vault.movies = S.vault.movies.filter(x => x.id !== id); S.movies = S.movies.filter(x => x.id !== id && x.replayOf !== id); }
+  else{ S.vault[cat] = S.vault[cat].filter(x => x.id !== id); S[cat] = S[cat].filter(x => x.id !== id); }
   persist(); toast("Removed.");
 }
 
@@ -7255,35 +7217,10 @@ function dpSave(){
   closeModal("dpModal"); persist();
 }
 // Overview: one card per quarter from 2016 Q1 up to the quarter before the live season. Real season records stay as they are; empty quarters are generated from the titles' dates
-function arcFakeRecord(q, evs){
-  const games = [], movies = [], ep = {}, mg = {}, ab = []; let hrs = 0;
-  evs.forEach(({ c, it, e }) => {
-    hrs += e.h;
-    if(it.abandoned){ ab.push({ name: it.name, note: "tried" }); return; }
-    if(c === "games") games.push({ name: it.name + (e.t || "") });
-    else if(c === "movies") movies.push({ name: it.name + (e.t || "") });
-    else if(c === "manga"){ const o = mg[it.id] || (mg[it.id] = { name: it.name, vols: [], units: 0 }); if(e.v) o.vols.push(e.v); o.units++; }
-    else { const o = ep[it.id] || (ep[it.id] = { name: it.name, category: c, names: [], units: 0 }); if(e.t) o.names.push(e.t.slice(3)); o.units++; }
-  });
-  const episodic = Object.values(ep).map(o => ({ name: o.name, category: o.category, rangeLabel: o.names.join(", "), units: o.units }));
-  const manga = Object.values(mg).map(o => { const v = o.vols.sort((a, b) => a - b); return { name: o.name, rangeLabel: v.length ? "Vol " + v[0] + (v.length > 1 ? "–" + v[v.length - 1] : "") : "", units: o.units }; });
-  return { id: "gq" + q.label.replace(/\s/g, ""), label: q.label, days: Math.round((q.e - q.s) / 864e5) + 1, finishedHours: Math.round(hrs * 10) / 10, games, movies, episodic, manga, abandoned: ab };
-}
-function arcCardsHtml(){
-  const Q = arcQuarters(), evs = Q.map(() => []), used = new Set();
-  ALL_CATS.forEach(c => arcView(c).forEach(it => arcEvents(c, it).forEach(e => { for(let i = Q.length - 1; i >= 0; i--) if(e.ts >= Q[i].s){ if(e.ts <= Q[i].e + 864e5) evs[i].push({ c, it, e }); break; } })));
-  let h = "";
-  for(let i = Q.length - 1; i >= 0; i--){
-    const q = Q[i], real = (S.archive || []).filter(a => a.label === q.label || a.label.startsWith(q.label + " · "));
-    if(real.length){ real.forEach(a => { used.add(a.id); h += archiveCardHtml(arcAugment(a, evs[i])); }); }
-    else h += archiveCardHtml(arcFakeRecord(q, evs[i]));
-  }
-  (S.archive || []).forEach(a => { if(!used.has(a.id) && !Q.some(q => a.label === q.label || a.label.startsWith(q.label + " · "))) h += archiveCardHtml(a); });
-  return h;
-}
 
 // §ANALYSIS-LISTS — v2.6.0: Season overview, Library + Archive stats pages (tab "stats"), Archive lists (arcList), phone Back button
-const LIB_TABS = ["stats","games","movies","shows","manga"];
+const LIB_TABS = [];
+function libTabsSync(){ LIB_TABS.length = 0; LIB_TABS.push("stats"); if(mode === "archive") LIB_TABS.push("years"); LIB_TABS.push("games", "movies", "shows", "manga"); if(!LIB_TABS.includes(libTab)) libTab = "games"; }
 const arcList = { games: null, movies: null }; let arcRank = null;
 const fmtH = h => h >= 100 ? Math.round(h).toLocaleString("en-US") + "h" : (Math.round(h * 10) / 10) + "h";
 const anBar = (p, col) => `<div class="an-bar"><i style="width:${Math.max(0, Math.min(100, p))}%;background:${col || "var(--brass)"}"></i></div>`;
@@ -7358,24 +7295,15 @@ function renderArchiveStats(){
   const ys = Object.keys(yr).map(Number).sort((a, b) => a - b), cy = new Date().getFullYear();
   const cols = []; if(ys.length) for(let y = ys[0]; y <= ys[ys.length - 1]; y++) cols.push({ l: "'" + String(y).slice(2), v: yr[y] ? yr[y].h : 0 });
   const totH = cols.reduce((a, x) => a + x.v, 0), best = ys.slice().sort((a, b) => yr[b].h - yr[a].h)[0], avg = cols.length ? totH / cols.length : 0;
-  const cats = ["games","movies","shows","manga"].map(k => { const l = arcView(k), fin = l.filter(x => !x.abandoned), rated = fin.filter(x => x.myRating); return { k, n: fin.length, ab: l.length - fin.length, h: evs.filter(x => k === "shows" ? isShowCat(x.k) : x.k === k).reduce((a, x) => a + x.e.h, 0), r: rated.length ? rated.reduce((a, x) => a + x.myRating.s, 0) / rated.length : null }; });
+  const cats = ["games","movies","shows","manga"].map(k => { const l = arcView(k), fin = l.filter(x => !x.abandoned), rated = fin.filter(x => myS100(x) != null); return { k, n: fin.length, ab: l.length - fin.length, h: evs.filter(x => k === "shows" ? isShowCat(x.k) : x.k === k).reduce((a, x) => a + x.e.h, 0), r: rated.length ? rated.reduce((a, x) => a + myS100(x), 0) / rated.length : null }; });
   const nAll = cats.reduce((a, c) => a + c.n, 0), abAll = cats.reduce((a, c) => a + c.ab, 0);
-  const rated = []; ALL_CATS.forEach(k => arcView(k).forEach(x => { if(x.myRating && !x.abandoned) rated.push({ n: x.name, k, s: x.myRating.s }); }));
+  const rated = []; ALL_CATS.forEach(k => arcView(k).forEach(x => { if(myS100(x) != null && !x.abandoned) rated.push({ n: x.name, k, s: myS100(x) }); }));
   rated.sort((a, b) => b.s - a.s);
   const thisY = yr[cy] ? yr[cy].h : 0, lastY = yr[cy - 1] ? yr[cy - 1].h : 0;
-  const Q = arcQuarters(), qe = Q.map(() => []);
-  ALL_CATS.forEach(k => arcView(k).forEach(it => arcEvents(k, it).forEach(e => { for(let i = Q.length - 1; i >= 0; i--) if(e.ts >= Q[i].s){ if(e.ts <= Q[i].e + 864e5) qe[i].push({ c: k, it, e }); break; } })));
-  const recs = [], used = new Set();
-  for(let i = Q.length - 1; i >= 0; i--){ const q = Q[i], real = (S.archive || []).filter(a => a.label === q.label || a.label.startsWith(q.label + " · ")); if(real.length) real.forEach(a => { used.add(a.id); recs.push(arcAugment(a, qe[i])); }); else recs.push(arcFakeRecord(q, qe[i])); }
-  (S.archive || []).forEach(a => { if(!used.has(a.id) && !recs.includes(a)) recs.push(a); });
-  const mx = Math.max(1, ...recs.map(a => +a.finishedHours || 0));
-  const qRow = a => { const n = (a.games || []).length + (a.movies || []).length + (a.episodic || []).length + (a.manga || []).length, id = "qx-" + a.id;
-    return `<div class="qrow" onclick="toggleArchiveExpand('${id}')"><div class="qr-top"><b class="serif">${esc(a.label)}</b><span class="mono">${n} title${n === 1 ? "" : "s"} · ${fmtH(+a.finishedHours || 0)}</span></div>${anBar((+a.finishedHours || 0) / mx * 100)}<div class="archive-expand" id="${id}">${archiveDetailHtml(a.games || [], a.movies || [], a.episodic || [], a.manga || [], a.abandoned || [])}</div></div>`; };
   $("app").innerHTML = `<section class="ov-hero arc"><div class="ov-side" style="flex:1"><div class="eyebrow">Everything you finished</div><div class="ov-big serif">${nAll} titles</div><div class="ov-sub"><b>${fmtH(totH)}</b> over ${cols.length || 0} year${cols.length === 1 ? "" : "s"}${abAll ? ` · ${abAll} abandoned` : ""}</div>${best ? `<div class="ov-sub">Busiest year: <b>${best}</b> (${fmtH(yr[best].h)}, ${yr[best].ids.size} titles)</div>` : ""}</div></section>
   ${anSec("Hours finished per year", cols.length ? anCols(cols) : "<div class='an-note'>Nothing finished yet.</div>", cols.length ? `Average ${fmtH(avg)} a year. ${cy}: ${fmtH(thisY)}${lastY ? ` vs ${cy - 1}: ${fmtH(lastY)}` : ""}. Dates of titles added straight to the Archive are generated, so these are estimates.` : "")}
   ${anSec("By category", cats.map(c => `<div class="ov-row"><span>${CAT[c.k].label} · ${c.n}${c.ab ? ` (+${c.ab} abandoned)` : ""}</span><b>${fmtH(c.h)}${c.r != null ? ` · avg ${Math.round(c.r)}` : ""}</b></div>${anBar(totH ? c.h / totH * 100 : 0, CAT[c.k].color)}`).join(""))}
-  ${rated.length ? anSec("Your top rated", rated.slice(0, 5).map((x, i) => `<div class="an-li"><span>${i + 1}. ${esc(x.n)}</span><em class="${ratingClass(x.s)}">${CAT[x.k].label} · ${x.s}</em></div>`).join("")) : ""}
-  <section class="an-card"><div class="eyebrow">Quarter by quarter</div>${recs.map(qRow).join("")}</section>`;
+  ${rated.length ? anSec("Your top rated", rated.slice(0, 5).map((x, i) => `<div class="an-li"><span>${i + 1}. ${esc(x.n)}</span><em class="${ratingClass(x.s)}">${CAT[x.k].label} · ${x.s}</em></div>`).join("")) : ""}`;
 }
 
 /* ---- Archive lists (games + movies) ---- */
@@ -7385,30 +7313,24 @@ function arcListItems(cat, key){
   const all = arcView(cat);
   if(key === "abandoned") return all.filter(x => x.abandoned);
   const fin = all.filter(x => !x.abandoned);
-  if(key === "top") return fin.filter(x => x.myRating).sort((a, b) => (b.myRating.s - a.myRating.s) || ((itemRating(b) || 0) - (itemRating(a) || 0)) || (a.name || "").localeCompare(b.name || "")).slice(0, 100);
+  if(key === "top") return fin.filter(x => myS100(x) != null).sort((a, b) => (myS100(b) - myS100(a)) || ((itemRating(b) || 0) - (itemRating(a) || 0)) || (a.name || "").localeCompare(b.name || "")).slice(0, 100);
   return fin;
 }
 function arcListStats(cat, items){
-  const r = items.filter(x => x.myRating), h = items.reduce((a, x) => a + arcMinutes(cat, x), 0) / 60;
-  return { n: items.length, h, avg: r.length ? Math.round(r.reduce((a, x) => a + x.myRating.s, 0) / r.length) : null };
+  const r = items.filter(x => myS100(x) != null), h = items.reduce((a, x) => a + arcMinutes(cat, x), 0) / 60;
+  return { n: items.length, h, avg: r.length ? Math.round(r.reduce((a, x) => a + myS100(x), 0) / r.length) : null };
 }
-function arcCoverUrl(cat, it){ return cat === "games" ? (igdbImg(it.coverId, "cover_big") || igdbImg(it.backdropId, "screenshot_big")) : (it.posterPath ? TMDB_IMG + "w185" + it.posterPath : ""); }
-function arcListCard(cat, key){
-  const items = arcListItems(cat, key), st = arcListStats(cat, items), cov = (key === "top" ? items : items.slice().sort(byActive)).slice(0, 5);
-  const books = cov.length ? cov.map((it, i) => { const u = arcCoverUrl(cat, it); return `<div class="lc-b" style="left:${i * 25}px;z-index:${9 - i}">${u ? `<img alt="" loading="lazy" src="${esc(u)}" onerror="this.remove()">` : `<span>${esc(it.name)}</span>`}</div>`; }).join("") : `<div class="lc-empty">Empty</div>`;
-  return `<div class="lc" style="--lc:${CAT[cat].color}" onclick="arcListOpen('${cat}','${key}')"><div class="lc-l"><div class="lc-books">${books}</div><div class="lc-name serif">${arcListName(cat, key)}</div></div>
-    <div class="lc-r"><div class="lc-n serif">${st.n}</div><div class="lc-s">${key === "top" ? "of 100" : "titles"}</div><div class="lc-m">${fmtH(st.h)} of content</div>${st.avg != null ? `<div class="lc-m">avg score ${st.avg}</div>` : ""}</div></div>`;
-}
+function arcCoverUrl(cat, it){ return cat === "games" ? (igdbImg(it.coverId, "cover_big") || igdbImg(it.backdropId, "screenshot_big")) : cat === "manga" ? (it.coverUrl || "") : (it.posterPath ? TMDB_IMG + "w185" + it.posterPath : ""); }
 function arcListsPage(cat){
   $("app").innerHTML = `<div class="lib-head"><b>${arcView(cat).length}</b> titles in ${CAT[cat].label} · pick a list</div><div class="btn-row" style="margin-bottom:14px"><button class="btn accent wide" style="--accent:${CAT[cat].color};--accent-text:${CAT[cat].text}" onclick="${libraryOpenFn(cat)}">${cat === "games" ? "+ Add Game" : "+ Add Movie"}</button></div>` + ARC_LISTS[cat].map(x => arcListCard(cat, x[0])).join("");
 }
 function arcListHead(cat, key, items){
   const st = arcListStats(cat, items);
-  return `<div class="ls-top"><button class="btn small" onclick="arcListClose()">← Lists</button><div class="ls-name serif">${arcListName(cat, key)}</div></div><div class="ls-stats"><div><b>${st.n}</b><span>titles</span></div><div><b>${fmtH(st.h)}</b><span>of content</span></div><div><b>${st.avg != null ? st.avg : "—"}</b><span>avg score</span></div></div>`;
+  return `<div class="ls-top"><button class="btn small" onclick="arcListClose()">← Lists</button><div class="ls-name serif${key === "top" ? " gold" : ""}">${arcListName(cat, key)}</div></div>${key === "top" ? `<div class="top-sub">★ Ranked by your own score</div>` : ""}<div class="ls-stats"><div><b>${st.n}</b><span>titles</span></div><div><b>${fmtH(st.h)}</b><span>of content</span></div><div><b>${st.avg != null ? st.avg : "—"}</b><span>avg score</span></div></div>`;
 }
 function arcTopPage(cat, items){
   arcRank = {}; items.forEach((x, i) => { arcRank[x.id] = i + 1; });
-  $("app").innerHTML = arcListHead(cat, "top", items) + (items.length ? arcShelfHtml(cat, items, 0) : `<div class="empty"><span class="serif">No rated titles yet</span>Rate finished titles (Log → My rating) and the best 100 appear here, ranked by your score.</div>`);
+  $("app").innerHTML = arcListHead(cat, "top", items) + (items.length ? arcShelfHtml(cat, items, 0, 4) : `<div class="empty"><span class="serif">No rated titles yet</span>Rate finished titles (Log → My rating) and the best 100 appear here, ranked by your score.</div>`);
   arcRank = null;
 }
 function arcListOpen(cat, key){
@@ -7420,7 +7342,105 @@ function arcListClose(){
   if(history.state && history.state.arcList){ history.back(); return; }
   arcList.games = arcList.movies = null; arcOpen = null; render(); window.scrollTo(0, 0);
 }
-window.addEventListener("popstate", () => { if(arcList.games || arcList.movies){ arcList.games = arcList.movies = null; arcOpen = null; render(); window.scrollTo(0, 0); } });   // the phone's Back button leaves the list
+window.addEventListener("popstate", () => { if(arcList.games || arcList.movies || yrOpen != null){ arcList.games = arcList.movies = null; yrOpen = null; arcOpen = null; render(); window.scrollTo(0, 0); } });   // the phone's Back button leaves the list
+/* ---- v2.7.0: Archive shows page, show/manga log, Years page ---- */
+const catOfShow = it => SHOW_CATS.find(c => (S.vault[c] || []).includes(it) || (S[c] || []).includes(it)) || "tv";
+function arcPartial(it){   // some seasons are in the Archive but the rest of the show still waits in the Library or Season
+  if(!it.originGroupId) return false;
+  const c = catOfShow(it);
+  return (S.library[c] || []).concat(S[c] || []).some(x => x !== it && x.originGroupId === it.originGroupId && !x.abandoned && !inVault(c, x) && !isSeasonItemDone(c, x));
+}
+function arcShowsPage(items){
+  const live = items.filter(x => !x.abandoned), gone = items.filter(x => x.abandoned);
+  const top = live.filter(x => myS100(x) != null).slice().sort((a, b) => (myS100(b) - myS100(a)) || (a.name || "").localeCompare(b.name || "")).slice(0, 4);
+  const rest = live.filter(x => !top.includes(x)), part = rest.filter(arcPartial), fin = rest.filter(x => !part.includes(x));
+  let h = "";
+  const one = (label, list, rank) => {
+    if(!list.length) return;
+    arcRank = null; if(rank){ arcRank = {}; list.forEach((x, i) => { arcRank[x.id] = i + 1; }); }
+    h += `<div class="marginalia${h ? " sf-sec" : ""}">${label}</div>${arcShelfHtml("shows", list, 0, 4)}`;
+    arcRank = null;
+  };
+  one("top 4 of all time", top, true);
+  one(`finished · ${fin.length}${top.length ? " (top 4 shown above)" : ""}`, fin);
+  one(`started · not finished yet · ${part.length}`, part);
+  one(`abandoned · ${gone.length}`, gone);
+  return h;
+}
+function logShows(it){
+  const gs = (it.groups || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const rows = gs.map(g => {
+    const done = g.total > 0 && g.watched >= g.total, t = grpTs(g), n = g.plays == null ? (done ? 1 : 0) : g.plays;
+    return `<div class="log-sec"><div class="log-lab">${esc(g.name)}${done ? "" : ` · ${g.watched || 0}/${g.total || 0} ep`}</div>
+      <div class="dt-row"><span>Finished: <b>${t ? fmtDt(tsDt(t)) : (done ? "unknown" : "not finished")}</b></span>${done ? `<button class="btn" onclick="dpOpen('${it.id}','grp','${g.id}')">Edit</button>` : ""}</div>
+      <div class="dt-row"><span>Times watched: <b>${n}</b></span><button class="btn" onclick="arcGrpPlays('${it.id}','${g.id}',-1)">−</button><button class="btn" onclick="arcGrpPlays('${it.id}','${g.id}',1)">+</button></div>
+      ${seasonRateRow(it, g)}</div>`;
+  }).join("");
+  $("logBody").innerHTML = `<h2 class="serif">${esc(it.name)}</h2><div class="hint">Seasons in your Archive</div><div class="log-sec"><div class="log-lab">Show score</div>${myrRow(it)}</div>${rows || `<div class="hint">No seasons are recorded for this title.</div>`}`;
+}
+function arcGrpPlays(id, gid, d){
+  const f = arcFind(id), g = f && (f.it.groups || []).find(x => x.id === gid); if(!g) return;
+  const done = g.total > 0 && g.watched >= g.total, cur = g.plays == null ? (done ? 1 : 0) : g.plays;
+  g.plays = Math.max(done ? 1 : 0, Math.min(99, cur + d)); persist();
+}
+function logManga(it){
+  $("logBody").innerHTML = `<h2 class="serif">${esc(it.name)}</h2><div class="hint">Your reading log</div><div class="log-sec"><div class="log-lab">My rating</div>${myrRow(it)}</div>${arcDatesHtml("manga", it)}`;
+}
+
+let yrOpen = null, yrCat = localStorage.getItem("expedition-yrcat") || "games", yrSort = localStorage.getItem("expedition-yrsort") || "finish", yrDir = localStorage.getItem("expedition-yrdir") || "asc";
+const YR_TABS = [["games", "Games"], ["movies", "Movies"], ["shows", "Shows"], ["manga", "Manga"]];
+const YR_SORTS = [["finish", "Finish date"], ["release", "Release date"], ["rating", "My rating"], ["global", "Global rating"], ["name", "Name"], ["length", "Length"]];
+function yrData(){   // year → what was finished in it, per tab
+  const Y = {};
+  ALL_CATS.forEach(c => arcView(c).forEach(it => {
+    if(it.abandoned) return;
+    const per = {};
+    arcEvents(c, it).forEach(e => { const y = new Date(e.ts).getFullYear(), o = per[y] || (per[y] = { ts: e.ts, h: 0 }); o.ts = Math.min(o.ts, e.ts); o.h += e.h; });
+    const key = isShowCat(c) ? "shows" : c;
+    Object.keys(per).forEach(y => { const D = Y[y] || (Y[y] = { games: [], movies: [], shows: [], manga: [], h: 0 }); D[key].push({ it, c, ts: per[y].ts, h: per[y].h }); D.h += per[y].h; });
+  }));
+  return Y;
+}
+function yrVal(e){
+  const it = e.it;
+  if(yrSort === "finish") return e.ts;
+  if(yrSort === "release") return arcRelTs(it) || 0;
+  if(yrSort === "rating"){ const s = myS100(it); return s == null ? -1 : s; }
+  if(yrSort === "global"){ const v = e.c === "manga" ? (it.anilistId ? it.rating : null) : itemRating(it); return v == null ? -1 : v; }
+  if(yrSort === "length") return arcMinutes(e.c, it);
+  return (it.name || "").toLowerCase();
+}
+function yrCmp(a, b){ const x = yrVal(a), y = yrVal(b), c = typeof x === "string" ? x.localeCompare(y) : x - y; return (yrDir === "desc" ? -c : c) || (a.ts - b.ts); }
+function yrCard(y, D){
+  const all = [].concat(D.games, D.movies, D.shows, D.manga);
+  const cov = all.filter(e => myS100(e.it) != null).sort((a, b) => myS100(b.it) - myS100(a.it)).concat(all).filter((e, i, a) => a.indexOf(e) === i).slice(0, 5);
+  const books = cov.map((e, i) => { const u = arcCoverUrl(e.c, e.it); return `<div class="lc-b" style="left:${i * 25}px;z-index:${9 - i}">${u ? `<img alt="" loading="lazy" src="${esc(u)}" onerror="this.remove()">` : `<span>${esc(e.it.name)}</span>`}</div>`; }).join("");
+  const counts = YR_TABS.filter(t => D[t[0]].length).map(t => D[t[0]].length + " " + t[1].toLowerCase()).join(" · ");
+  return `<div class="lc" style="--lc:var(--brass)" onclick="yrOpenYear(${y})"><div class="lc-l"><div class="lc-books">${books}</div><div class="lc-name serif">${y}</div></div>
+    <div class="lc-r"><div class="lc-n serif">${all.length}</div><div class="lc-s">titles</div><div class="lc-m">${fmtH(D.h)} of content</div><div class="lc-m">${counts}</div></div></div>`;
+}
+function renderYears(){
+  const Y = yrData();
+  if(yrOpen == null){
+    const ys = Object.keys(Y).map(Number).sort((a, b) => b - a);
+    $("app").innerHTML = ys.length ? `<div class="lib-head"><b>${ys.length}</b> year${ys.length === 1 ? "" : "s"} of finished titles · pick a year</div>` + ys.map(y => yrCard(y, Y[y])).join("") + `<div class="an-note" style="text-align:center">Dates of titles added straight to the Archive are generated, so older years are estimates.</div>`
+      : `<div class="empty"><span class="serif">No years yet</span>Finish titles and they show up here, one list per year.</div>`;
+    return;
+  }
+  const D = Y[yrOpen] || { games: [], movies: [], shows: [], manga: [], h: 0 };
+  const n = YR_TABS.reduce((a, t) => a + D[t[0]].length, 0), list = D[yrCat].slice().sort(yrCmp), items = list.map(e => e.it);
+  $("app").innerHTML = `<div class="ls-top"><button class="btn small" onclick="yrClose()">← Years</button><div class="ls-name serif">${yrOpen}</div></div>
+    <div class="ls-stats"><div><b>${n}</b><span>titles</span></div><div><b>${fmtH(D.h)}</b><span>of content</span></div><div><b>${list.length}</b><span>${YR_TABS.find(t => t[0] === yrCat)[1]}</span></div></div>
+    <div class="yr-tabs">${YR_TABS.map(t => `<button class="${t[0] === yrCat ? "on" : ""}" onclick="yrTab('${t[0]}')"><b>${D[t[0]].length}</b>${t[1]}</button>`).join("")}</div>
+    <div class="list-head"><b>${list.length} title${list.length === 1 ? "" : "s"}</b>${sortBtnHtml("year")}</div>
+    ${items.length ? arcShelfHtml(yrCat, items, 0, 5) : `<div class="empty"><span class="serif">Nothing here</span>Nothing in this category was finished in ${yrOpen}.</div>`}`;
+}
+function yrTab(k){ yrCat = k; try{ localStorage.setItem("expedition-yrcat", k); }catch(e){} arcOpen = null; render(); }
+function yrOpenYear(y){ yrOpen = y; arcOpen = null; try{ history.pushState({ yr: 1 }, ""); }catch(e){} window.scrollTo(0, 0); render(); }
+function yrClose(){
+  if(history.state && history.state.yr){ history.back(); return; }
+  yrOpen = null; arcOpen = null; render(); window.scrollTo(0, 0);
+}
 function libStampAdded(){   // when a title entered the Library (titles already there when this version first ran count as "unknown")
   let ch = false; const base = !S.addedV;
   ALL_CATS.forEach(k => (S.library[k] || []).forEach(it => { if(it.addedAt == null){ it.addedAt = base ? 1 : Date.now(); ch = true; } }));
@@ -7487,16 +7507,6 @@ function foldReplays(){   // a finished replay becomes another run of its origin
   return ch;
 }
 // quarter cards that come from a real season record: add the play-throughs / watches that the record does not list yet
-function arcAugment(a, evs){
-  const by = {}, add = { games: [], movies: [] }; let extraH = 0;
-  (evs || []).forEach(x => { if((x.c !== "games" && x.c !== "movies") || x.it.abandoned) return; (by[x.c + "|" + x.it.id] = by[x.c + "|" + x.it.id] || { c: x.c, it: x.it, list: [] }).list.push(x.e); });
-  Object.values(by).forEach(o => {
-    const nm = o.it.name, have = (a[o.c] || []).filter(r => r.name === nm || String(r.name).indexOf(nm + " · ") === 0).length;
-    if(o.list.length > have) o.list.sort((p, q) => p.ts - q.ts).slice(have).forEach(e => { add[o.c].push({ name: nm + (e.t || "") }); extraH += e.h; });
-  });
-  if(!add.games.length && !add.movies.length) return a;
-  return { ...a, games: (a.games || []).concat(add.games), movies: (a.movies || []).concat(add.movies), finishedHours: Math.round(((+a.finishedHours || 0) + extraH) * 10) / 10 };
-}
 
 $("verTag").textContent = "v" + APP_VERSION;
 setTimeout(() => { try{ ocBackfill(false); }catch(e){} }, 9000);
@@ -7514,7 +7524,7 @@ setTimeout(() => bkRun(false), 12000); setInterval(() => bkRun(false), 3600000);
   };
   window.addEventListener("scroll", () => { if(!tick){ tick = true; requestAnimationFrame(run); } }, { passive: true });
 })();
-seedLastActive(); arcStampLast(); libStampAdded(); lpApplyAll(); stateSave(); fltLoad();
+seedLastActive(); arcStampLast(); libStampAdded(); lpApplyAll(); stateSave(); fltLoad(); libTabsSync();
 render();
 setTimeout(purgeUnlinked, 400);
 </script>
