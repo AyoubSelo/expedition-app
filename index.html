@@ -690,6 +690,13 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .toast{position:fixed;bottom:78px;left:50%;transform:translate(-50%,16px);opacity:0;background:#1c241f;border:1px solid var(--line);color:var(--ink);padding:10px 16px;border-radius:10px;font-size:13px;transition:.2s;z-index:60;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* v2.8.0 — the Add button rides on the fixed layer above the tab bar, so it is always in reach */
+.add-fab{position:fixed;right:14px;bottom:calc(80px + env(safe-area-inset-bottom));z-index:14;display:none;align-items:center;padding:11px 18px;border-radius:999px;border:1px solid rgba(0,0,0,.25);background:var(--accent,var(--brass));color:var(--accent-text,#10150f);font:600 13px/1 inherit;font-family:inherit;box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06) inset;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s,opacity .2s}
+.add-fab.show{display:inline-flex}.add-fab:active{transform:scale(.95)}
+/* v2.8.0 — small marks on posters */
+.vnum{max-width:calc(100% - 34px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:absolute;left:4px;top:4px;z-index:3;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:rgba(10,14,12,.82);border:1px solid var(--brass);color:var(--brass);font:700 10.5px/16px "IBM Plex Mono",monospace;text-align:center}
+.mark{position:absolute;left:4px;bottom:4px;z-index:3;height:18px;padding:0 6px;border-radius:9px;background:var(--brass);color:#10150f;font:700 10px/18px "IBM Plex Mono",monospace;box-shadow:0 1px 4px rgba(0,0,0,.55);white-space:nowrap}
+.mult{position:absolute;left:4px;bottom:4px;z-index:3;height:18px;padding:0 6px;border-radius:9px;background:rgba(10,14,12,.86);border:1px solid var(--brass);color:var(--brass);font:700 10px/16px "IBM Plex Mono",monospace;white-space:nowrap}
 /* tab bar */
 .tabbar{
   position:fixed;bottom:0;left:0;right:0;background:#121815;border-top:1px solid var(--line);
@@ -731,7 +738,11 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .gm-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 .gm-chipx{font:600 10.5px "IBM Plex Mono",monospace;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
 .gm-desc{font-size:13px;line-height:1.55;color:var(--ink);margin-top:8px;white-space:pre-line}
-.gm-desc.clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.gm-desc.clamp{display:block}
+/* v2.8.0 — every description has its own maximum height and scrolls inside itself */
+.gm-desc,.det-desc{max-height:150px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:9px 10px;background:var(--panel2);border:1px solid var(--line-soft);border-radius:10px;font-size:12.5px;line-height:1.5}
+.gm-more{display:none}
+.pd-desc,.tvc-desc{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .gm-more{background:none;border:0;color:var(--brass);padding:4px 0;font-size:12px}
 .gm-goal{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px}
 .gm-goal>span{flex:1}.gm-goal input{width:90px;height:34px}
@@ -853,7 +864,7 @@ input:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
 .det-sec{margin-top:12px}
 /* the rating menu gets a fixed height so its question list can scroll on its own */
 .dp-cols{display:grid;grid-template-columns:1.2fr 1.4fr 1fr;gap:10px;margin-top:14px}.dp-col{display:flex;flex-direction:column;gap:6px}.dp-col .btn{padding:8px 0}.dp-val{font:600 18px "IBM Plex Mono",monospace}
-.dp-list{max-height:150px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.dp-list div{padding:9px;text-align:center;cursor:pointer;font-size:14px}.dp-list div.on{background:rgba(217,162,86,.18);color:var(--brass)}
+.dp-wheel{position:relative;max-height:168px;overscroll-behavior:contain}.dp-wheel div{padding:10px 4px;font:600 16px "IBM Plex Mono",monospace}.dp-list{max-height:150px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.dp-list div{padding:9px;text-align:center;cursor:pointer;font-size:14px}.dp-list div.on{background:rgba(217,162,86,.18);color:var(--brass)}
 .dt-row{display:flex;align-items:center;gap:8px;margin-top:8px}.dt-row>span{flex:1;font-size:13px}.dt-row .btn{padding:6px 10px;font-size:12px}
 .ov-hero{display:flex;align-items:center;gap:16px;background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--brass-dim);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;box-shadow:0 0 30px -10px rgba(217,162,86,.35)}
 .ov-ring{width:132px;height:132px;flex:none}.rg-bg{fill:none;stroke:var(--line);stroke-width:10}.rg-fg{fill:none;stroke:var(--brass);stroke-width:10;stroke-linecap:round;transition:stroke-dasharray .5s}.rg-t{fill:var(--ink);font:600 26px "Fraunces",serif}.rg-s{fill:var(--muted);font:600 8px "IBM Plex Mono",monospace;letter-spacing:.14em}
@@ -939,6 +950,7 @@ body.det-lock{overflow:hidden}
   <div id="gmSpacer"></div>
 </div>
 
+<button class="add-fab" id="addFab" type="button" onclick="addFabGo()"></button>
 <nav class="tabbar" id="tabbar"></nav>
 
 <!-- game modal -->
@@ -1278,7 +1290,7 @@ SECTIONS:
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "2.7.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "2.8.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1392,6 +1404,7 @@ function finWalk(st, mode){
       }
       Object.keys(vy).forEach(v => { const n = +v; if(n < from || n >= from + read){ delete vy[v]; if(x.volDates) delete x.volDates[v]; ch = true; } });   // un-read volumes lose their year
       if(Object.keys(vy).length){ x.volYears = vy; } else if(x.volYears){ delete x.volYears; ch = true; }
+      if(x.volRatings){ Object.keys(x.volRatings).forEach(v => { const n = +v; if(n < from || n >= from + read){ delete x.volRatings[v]; ch = true; } }); if(!Object.keys(x.volRatings).length) delete x.volRatings; }
     }
   });
   return ch;
@@ -1428,7 +1441,7 @@ function normalizeState(raw){
   });
   // v1.16.0 — games: no timers; DLC only exists as IGDB-linked children (hand-typed DLC from before is dropped)
   const normGames = list => (list||[]).map(g => {
-    const dlcs = (g.dlcs||[]).filter(d => d && d.igdbId).map(d => ({ id:d.id||uid(), igdbId:d.igdbId, name:d.name||"", type:"time", goal:+d.goal||0, played:+d.played||0, finished:!!d.finished, kind:d.kind||"" }));
+    const dlcs = (g.dlcs||[]).filter(d => d && d.igdbId).map(d => ({ ...d, id:d.id||uid(), igdbId:d.igdbId, name:d.name||"", type:"time", goal:+d.goal||0, played:+d.played||0, finished:!!d.finished, kind:d.kind||"" }));   // v2.8.0 — keeps finishedDate / playSrc too
     const o = {...g, id:g.id||uid(), dlcs, hasDlc:dlcs.length>0, finished:!!g.finished, dlcAsked:!!g.dlcAsked, ...withExtras(g,"games")};
     delete o.hype; delete o.tags; delete o.timerStart;
     // v2.1.0 — a rating you typed yourself is kept as "your own" and stays the pick for that game until you change it
@@ -1471,7 +1484,7 @@ function normalizeState(raw){
       manga: normSimple(rawLib.manga,"manga"),
     },
     settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), igdbProxy: String((raw.settings && raw.settings.igdbProxy) || ""), ocProxy: String((raw.settings && raw.settings.ocProxy) || "") },
-    finishDatesV: raw.finishDatesV || 0, dateGenV: raw.dateGenV || 0, addedV: raw.addedV || 0,
+    finishDatesV: raw.finishDatesV || 0, dateGenV: raw.dateGenV || 0, addedV: raw.addedV || 0, dupV: raw.dupV || 0, arcDlcV: raw.arcDlcV || 0,
     updatedAt: raw.updatedAt || 0,
   });
 }
@@ -1666,6 +1679,7 @@ function ensureSeason(){
 }
 function persist(){
   stampFinishDates();
+  try{ mergeReplayDupes(); }catch(e){}
   foldReplays();
   ensureSeason();
   scrubFinishedSeasonItems();
@@ -2184,7 +2198,35 @@ async function mgEnsureExtras(){   // Season titles: pull the AniList banner and
 
 // §SEASON-MANGA — Season manga page
 /* ============ MANGA — Season page (v1.14.0) ============ */
-let mgSOpen = null;
+let mgSOpen = null, mgSVolOpen = null;
+// v2.8.0 — a finished volume leaves the title's card and lands on the cleared shelf with its own poster, number and score
+function mgSVolEntries(){
+  const out = [];
+  S.manga.filter(m => !m.abandoned).forEach(m => mgVolList(m).forEach(v => { const d = m.volDates && m.volDates[v]; out.push({ m, v, ts: d && +d.y ? dtTs(d) : 0 }); }));
+  return out.sort((a, b) => (b.ts - a.ts) || (b.v - a.v));
+}
+function mgSVolKey(m, v){ return m.id + ":" + v; }
+function mgSVolToggle(id, v){
+  const key = id + ":" + v, sel = `.sf-mini[onclick="mgSVolToggle('${id}',${v})"]`;
+  vf(sel, sel, mgSVolOpen === key ? [sel] : [sel, ".sx-panel"]);
+  mgSVolOpen = mgSVolOpen === key ? null : key; render();
+}
+function mgSUndo(id, v){ const m = S.manga.find(x => x.id === id); if(!m) return; const k = v - mgInfo(m).from + 1; mgSVolOpen = null; mgTap(id, k); }
+function mgSClearedHtml(){
+  const list = mgSVolEntries(); if(!list.length) return "";
+  let h = `<div class="marginalia sf-sec">cleared · ${list.length} volume${list.length === 1 ? "" : "s"}</div><div class="sf-shelf">` + list.map(({ m, v }) => {
+    const cv = mgVolCover(m, v), r = (m.volRatings || {})[v];
+    return `<div class="sf-mini${mgSVolOpen === mgSVolKey(m, v) ? " open" : ""}" onclick="mgSVolToggle('${m.id}',${v})"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${cv ? `<img alt="" loading="lazy" src="${esc(cv)}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}<div class="vnum">${v}</div><div class="sf-check">✓</div>${r ? `<div class="myr myr-c ${ratingClass(r.s * 10)}"><b class="serif">${r.s}</b></div>` : ""}</div></div>`;
+  }).join("") + `</div>`;
+  const open = list.find(x => mgSVolKey(x.m, x.v) === mgSVolOpen);
+  if(open){
+    const { m, v } = open, r = (m.volRatings || {})[v], d = m.volDates && m.volDates[v], last = v === mgInfo(m).from + Math.min(m.volsRead || 0, mgInfo(m).total) - 1;
+    h += `<div class="sx-panel"><div class="pn serif">${esc(m.name)} · Vol ${v}</div><div class="ps">Finished ${d && +d.y ? fmtDt(d) : "recently"}</div>
+      <div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s * 10)}"><small>VOLUME SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">Volume not rated</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="myrOpen('${m.id}',null,${v})">${r ? "Edit" : "Rate volume"}</button></div>
+      ${last ? `<div class="sf-links"><button onclick="mgSUndo('${m.id}',${v})">Mark as unread</button></div>` : ""}</div>`;
+  }
+  return h;
+}
 const mgSDone = m => { const t = mangaMin(m); return t.goal > 0 && t.played >= t.goal; };
 function mgHeroPick(list){   // the one you read last; if none yet, a started one, then rating
   return list.slice().sort((a, b) => byActive(a, b) || ((b.volsRead > 0) - (a.volsRead > 0)) || ((b.rating || 0) - (a.rating || 0)) || (a.name || "").localeCompare(b.name || ""))[0] || null;
@@ -2217,7 +2259,7 @@ function mgHeroHtml(m){
       <div class="sx-hero-shade"></div>
       <div class="sx-hero-tag">Read next</div>
       <div class="sx-hero-row">
-        <div class="sx-hero-poster" onclick="mgViewCover('${m.id}')">${cv ? `<img alt="" src="${cv}" ${mgImgErr(m, cv)}>` : `<div class="mgc-ph" style="font-size:11px;padding:6px">${esc(m.name)}</div>`}${mgRateBadge(m)}</div>
+        <div class="sx-hero-poster" onclick="mgViewCover('${m.id}')">${cv ? `<img alt="" src="${cv}" ${mgImgErr(m, cv)}>` : `<div class="mgc-ph" style="font-size:11px;padding:6px">${esc(m.name)}</div>`}<div class="vnum">${cur}</div>${mgRateBadge(m)}</div>
         <div class="sx-hero-info"><div class="t serif">${esc(m.name)}</div><div class="n"><b>Vol ${cur}</b> · ${r} of ${i.total} read</div><div class="s">${mgRange(m)} · ${i.left} left</div></div>
       </div>
     </div>
@@ -2227,7 +2269,7 @@ function mgHeroHtml(m){
 function mgSCardHtml(m){
   const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total), done = mgSDone(m), cv = mgVolCover(m, i.from + Math.min(r, i.total - 1));
   return `<div class="mgc${mgSOpen === m.id ? " sel" : ""}${done || m.abandoned ? " mgc-done" : ""}" onclick="mgSToggle('${m.id}')">
-    <div class="mgc-cover"><div class="mgc-ph">${esc(m.name)}</div>${cv ? `<img alt="" loading="lazy" src="${esc(cv)}" onload="this.classList.add('in')" ${mgImgErr(m, cv)}>` : ""}${mgRateBadge(m)}</div>
+    <div class="mgc-cover"><div class="mgc-ph">${esc(m.name)}</div>${cv ? `<img alt="" loading="lazy" src="${esc(cv)}" onload="this.classList.add('in')" ${mgImgErr(m, cv)}>` : ""}<div class="vnum">${i.from + Math.min(r, i.total - 1)}</div>${mgRateBadge(m)}</div>
     <div class="mgc-title serif">${esc(m.name)}</div>
     <div class="mgc-sub">${mgRange(m)} · ${m.abandoned ? "abandoned" : done ? "read" : i.left + " left"}</div>
     <div class="mgm mgm-c">${r ? `<i class="mgm-lib" style="width:${r / i.total * 100}%"></i>` : ""}</div>
@@ -2267,10 +2309,9 @@ function renderManga(){
   const byName = (a, b) => (a.name || "").localeCompare(b.name || "");
   const todo = live.filter(x => !mgSDone(x)), pick = mgHeroPick(todo);
   const rest = todo.filter(x => x !== pick).sort((a, b) => ((b.volsRead > 0) - (a.volsRead > 0)) || byName(a, b));
-  const cleared = live.filter(mgSDone).sort(byName);
   if(pick) html += `<div style="margin-bottom:22px">${mgHeroHtml(pick)}</div>`;
   if(rest.length) html += mgSGrid(rest);
-  if(cleared.length) html += `<div class="marginalia sf-sec">cleared</div>${mgSGrid(cleared)}`;
+  html += mgSClearedHtml();   // v2.8.0 — finished volumes, one poster each
   const gone = S.manga.filter(m => m.abandoned);
   if(gone.length){ html += `<div class="marginalia">abandoned</div>`; html += mgSGrid(gone); }
   $("app").innerHTML = html;
@@ -2900,6 +2941,11 @@ window.__cloudOnPlaytime = function(list){
   lpSaveCache();
   if(lpApplyAll()) lpFlush();
 };
+window.__lpSeasonIds = function(){   // v2.8.0 — only games in Season (and their DLC) are watched live
+  const ids = new Set();
+  S.games.forEach(g => { if(g.igdbId) ids.add(g.igdbId); (g.dlcs || []).forEach(d => { if(d.igdbId) ids.add(d.igdbId); }); });
+  return [...ids];
+};
 window.__cloudOnPlaytimeGone = function(ids){ ids.forEach(id => { if(!lpOut[id]) delete lpCache[id]; }); lpSaveCache(); };
 window.__cloudPlaytimeReady = function(){ lpSnapReady = true; if(lpMaterialize()) lpFlush(); };
 function buildTargets(){
@@ -2936,6 +2982,7 @@ function pushToCloud(){
   cloudSyncState = "syncing";
   lpSend();
   if(c2.started) c2Schedule();   // v2.2.0 — only what changed is sent, one document per item
+  if(window.__cloudRewatchPlay) window.__cloudRewatchPlay();   // Season changed? watch the right games
   if(window.__cloudTargets) window.__cloudTargets(buildTargets());
 }
 function cloudSignIn(){
@@ -2967,11 +3014,11 @@ function c2Hash(str){   // 53-bit string hash (cyrb53)
   return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
 }
 const c2Key = uid => "expedition-sync2-" + uid;
-function c2LoadKnown(uid){ try{ const o = JSON.parse(localStorage.getItem(c2Key(uid)) || "null"); if(o && o.v === 1 && o.docs) return { docs: o.docs, core: o.core || null, since: +o.since || 0 }; }catch(e){} return null; }
+function c2LoadKnown(uid){ try{ const o = JSON.parse(localStorage.getItem(c2Key(uid)) || "null"); if(o && o.v === 1 && o.docs) return { docs: o.docs, core: o.core || null, since: +o.since || 0, dsince: +o.dsince || 0 }; }catch(e){} return null; }
 function c2SaveKnown(){
   if(!c2.uid) return;
   if(c2.syncedAt) c2.known.since = Math.max(c2.known.since || 0, c2.syncedAt - C2_OVERLAP);
-  try{ localStorage.setItem(c2Key(c2.uid), JSON.stringify({ v: 1, since: c2.known.since, core: c2.known.core, docs: c2.known.docs })); }catch(e){}
+  try{ localStorage.setItem(c2Key(c2.uid), JSON.stringify({ v: 1, since: c2.known.since, dsince: c2.known.dsince || 0, core: c2.known.core, docs: c2.known.docs })); }catch(e){}
 }
 // keeps each list's order without rewriting everything: a title keeps its old place number while the numbers still ascend,
 // anything new or moved gets a number between its neighbours
@@ -3123,11 +3170,29 @@ function c2OnWatch(ev){
     if(c2.resend){ c2.resend = false; c2Schedule(); }
   }catch(e){ console.error("Applying cloud changes failed", e); }
 }
+// v2.8.0 — fewer reads: Season titles are watched live; the rest of the cloud is checked once a day (only what changed since the last check)
+let c2DailyTimer = null;
+async function c2Catchup(force){
+  if(!c2.started || !c2.uid || c2.catching) return;
+  const last = c2.known.dsince || 0;
+  if(!force && last && Date.now() - last < 864e5) return;
+  c2.catching = true;
+  const t0 = Date.now();
+  try{
+    const all = await window.__fs2.getAll(c2.uid, last || c2.known.since || 0);
+    if(c2ApplyRemote(all.items, all.core)){ cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); render(); }
+    if(c2.resend){ c2.resend = false; c2.known.dsince = t0 - C2_OVERLAP; c2SaveKnown(); c2Schedule(); }
+    c2.known.dsince = t0 - C2_OVERLAP; c2SaveKnown();
+  }catch(e){ console.error("Daily cloud check failed", e); }
+  c2.catching = false;
+}
 async function c2Start(){
   c2.started = true; c2.state = "ready";
-  window.__fs2.watch(c2.uid, c2.known.since || 0, c2OnWatch);
+  window.__fs2.watch(c2.uid, 0, c2OnWatch);   // Season items + the small core document only
   c2Schedule();   // anything changed while this device was offline goes up now
   c2LegacyCheck();
+  c2Catchup(false);
+  clearInterval(c2DailyTimer); c2DailyTimer = setInterval(() => c2Catchup(false), 3600000);
 }
 async function c2LegacyCheck(){   // an old version of the app on another device still writes the OLD document, which nothing reads any more
   try{
@@ -3193,7 +3258,8 @@ async function c2Resync(){   // Re-sync button: send what is waiting, then take 
     await c2Push(false);
     const all = await window.__fs2.getAll(c2.uid, 0);
     const ch = c2ApplyRemote(all.items, all.core, { force: true });
-    c2.syncedAt = Date.now(); c2SaveKnown();
+    c2.syncedAt = Date.now(); c2.known.dsince = Date.now() - C2_OVERLAP; c2SaveKnown();
+    try{ if(window.__cloudTargetsReset) window.__cloudTargetsReset(); }catch(e){}
     cloudSyncState = "synced"; cloudLastSyncedAt = Date.now(); cloudSyncErrorCode = null;
     toast(ch ? "Re-synced: changes from the cloud applied." : "Re-synced: everything already matches.");
     render();
@@ -3281,7 +3347,7 @@ function cloudStatusHtml(){
     : cloudSyncState==="error" ? "Sync error" + (cloudSyncErrorCode?` (${cloudSyncErrorCode})`:"") + " — will retry"
     : cloudLastSyncedAt ? "Synced "+timeAgo(cloudLastSyncedAt)
     : "Signed in";
-  return `<div class="cloud-box"><span class="entry-meta2">☁ ${esc(cloudUser.email||cloudUser.displayName||"Signed in")} · ${label}</span><button class="btn small ghost" onclick="c2Resync()">Re-sync</button><button class="btn small ghost" onclick="cloudSignOut()">Sign out</button></div>`;
+  return `<div class="cloud-box"><span class="entry-meta2">☁ ${esc(cloudUser.email||cloudUser.displayName||"Signed in")} · ${label}<br><small>Season syncs live · everything else is checked once a day</small></span><button class="btn small ghost" onclick="c2Resync()">Re-sync</button><button class="btn small ghost" onclick="cloudSignOut()">Sign out</button></div>`;
 }
 // v1.4.0 — account button lives in the header now (top-right, same line as the
 // title): a circle with the Google profile photo (or the first letter of the
@@ -3744,6 +3810,19 @@ function renderEpisodicTab(category){   // v1.12.0 — TV and anime share one Se
 // v1.9.0 — every re-render now animates posters from where they were to where they land
 // (see pdCaptureRects / pdPlayFlip), so sorting, filtering, marking watched, moving a
 // title between books, etc. all slide instead of jumping.
+
+// §ADD-FAB — v2.8.0 the page's "+ Add …" button is shown as one floating button above the tab bar
+function addFabSrc(){ let src = null; document.querySelectorAll("#app .btn-row .btn.accent.wide").forEach(b => { if(!src && /^\+\s*Add/.test(b.textContent.trim())) src = b; }); return src; }
+function updateAddFab(){
+  const fab = $("addFab"); if(!fab) return;
+  const src = addFabSrc();
+  if(!src){ fab.classList.remove("show"); return; }
+  const row = src.closest(".btn-row"); if(row) row.style.display = "none";
+  fab.textContent = src.textContent.trim();
+  ["--accent", "--accent-text"].forEach(k => { const v = src.style.getPropertyValue(k); if(v) fab.style.setProperty(k, v); });
+  fab.classList.add("show");
+}
+function addFabGo(){ const b = addFabSrc(); if(b) b.click(); }
 // §RENDER — render(), renderCore(), restoreScroll
 function render(){
   if(gmBusy){ gmRenderPending = true; return; }   // v2.4.3 — never rebuild the page in the middle of a game open/close animation
@@ -3756,6 +3835,7 @@ function render(){
   if(v && v.focus) vfFollow(v.focus);
   if($("logModal").classList.contains("show")) logRender();
   if($("detModal").classList.contains("show")) detRender();
+  updateAddFab();
 }
 function renderCore(){
   const scrollY = window.scrollY;
@@ -4108,7 +4188,7 @@ async function igdbDlcs(id){
   }catch(e){ if(["no-proxy", "bad-auth", "limit"].includes(e && e.message)) throw e; }
   return out.sort((a, b) => (a.sec || 9e12) - (b.sec || 9e12));
 }
-let gmDlcCtx = null, gmDlcQueue = [], gmDlcEdit = null;
+let gmDlcCtx = null, gmDlcQueue = [], gmDlcEdit = null, gmDlcManual = false;
 async function gmDlcNext(){
   while(gmDlcQueue.length){
     const gid = gmDlcQueue.shift(), g = gmAllGames().find(x => x.id === gid);
@@ -4117,11 +4197,11 @@ async function gmDlcNext(){
     const have = gmHave().ids, mine = new Set((g.dlcs || []).map(d => d.igdbId));
     list = list.filter(x => !have.has(x.igdbId) && !mine.has(x.igdbId));
     g.dlcAsked = true;
-    if(!list.length) continue;
+    if(!list.length){ if(gmDlcManual) toast("No new DLC or expansions found on IGDB."); continue; }
     gmDlcCtx = { gid, list, sel: new Set() }; gmDlcRender(); $("gmDlcModal").classList.add("show");
     persist(); return;
   }
-  persist(); if($("gmDataModal").classList.contains("show")) gmDataRender();
+  gmDlcManual = false; persist(); if($("gmDataModal").classList.contains("show")) gmDataRender();
 }
 function gmDlcRender(){
   const c = gmDlcCtx; if(!c) return;
@@ -4136,7 +4216,8 @@ function gmDlcDone(){
   const c = gmDlcCtx; if(!c) return closeModal("gmDlcModal");
   const g = gmAllGames().find(x => x.id === c.gid);
   if(g){
-    c.list.forEach((x, i) => { if(c.sel.has(i)) (g.dlcs = g.dlcs || []).push({ id: uid(), igdbId: x.igdbId, name: x.name, type: "time", goal: x.hours || 0, played: 0, finished: false, kind: x.kind }); });
+    const arch = inVault("games", g);   // v2.8.0 — a DLC of an Archive game is finished: it gets a date and IGDB's time (you can change both)
+    c.list.forEach((x, i) => { if(c.sel.has(i)){ const d = { id: uid(), igdbId: x.igdbId, name: x.name, type: "time", goal: x.hours || 0, played: arch ? (x.hours || 0) : 0, finished: arch, kind: x.kind }; if(arch){ d.playSrc = "igdb"; d.finishedDate = arcDlcDate(g, d); } (g.dlcs = g.dlcs || []).push(d); } });
     g.hasDlc = (g.dlcs || []).length > 0; lpApplyTo(g);
   }
   gmDlcCtx = null; closeModal("gmDlcModal");
@@ -4690,6 +4771,7 @@ function gmBdSave(){
 // §LIBRARY-LIST — libraryList (dispatch per category + archive shelf)
 function libraryList(category, items){
   if(mode === "archive" && (category === "games" || category === "movies")) return arcShelfBlock(category, items);
+  if(mode === "archive" && category === "manga") return arcShowsPage(items, "manga");   // v2.8.0 — the Archive manga page works exactly like shows
   if(isShowCat(category)) return mode === "archive" ? arcShowsPage(items) : `<div class="tv-list">${items.map(tvCard).join("")}</div>`;
   if(category==="manga") return mgShelf(items);
   if(category==="games") return gmLibraryHtml(items);
@@ -5794,15 +5876,37 @@ function sxDoneRow(item, row, g, entry){
   const head = `<div class="sx-done" onclick="sxToggleDone('${g.id}')"><span class="ok">✓</span><span><b>${esc(row.label)}</b> · ${g.watched}/${g.total}</span><span class="sp"></span>${g.myRating ? `<span>mine <em class="${ratingClass(g.myRating.s * 10)}">${g.myRating.s}</em></span>` : ""}${avg != null ? `<span>avg <em class="${ratingClass(avg)}">${avg}</em></span>` : ""}</div>`;
   return open ? head + sxSeasonCard(item, row, g, entry, false, true) : head;
 }
+// v2.8.0 — finished seasons/arcs, one poster each (a fully watched show is simply all its seasons here)
+function sxClearedEntries(){
+  const out = [];
+  S.tv.concat(S.anime).filter(x => !x.abandoned).forEach(it => {
+    const rows = tvSeasonRows(it, tvEntry(it));
+    (it.groups || []).forEach(g => { if(g.total > 0 && g.watched >= g.total) out.push({ it, g, row: rows.find(r => r.gid === g.id), ts: grpTs(g) }); });
+  });
+  return out.sort((a, b) => b.ts - a.ts);
+}
+function sxClearedHtml(){
+  const list = sxClearedEntries(); if(!list.length) return "";
+  let h = `<div class="marginalia sf-sec">cleared · ${list.length} ${list.some(x => x.row && x.row.arc) ? "arc" : "season"}${list.length === 1 ? "" : "s"}</div><div class="sf-shelf">` + list.map(({ it, g, row }) => {
+    const poster = (row && row.s && row.s.poster) || it.posterPath, lab = row && row.n != null ? "S" + row.n : String(g.name || "").slice(0, 9);
+    return `<div class="sf-mini${sxShelfOpen === g.id ? " open" : ""}" onclick="sxShelfToggle('${g.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${poster ? `<img alt="" loading="lazy" src="${TMDB_IMG}w342${poster}" onload="this.classList.add('in')" onerror="this.remove()">` : ""}<div class="vnum">${esc(lab)}</div><div class="sf-check">✓</div>${g.myRating ? `<div class="myr myr-c ${ratingClass(g.myRating.s * 10)}"><b class="serif">${g.myRating.s}</b></div>` : ""}</div></div>`;
+  }).join("") + `</div>`;
+  const open = list.find(x => x.g.id === sxShelfOpen);
+  if(open){
+    const { it, g, row } = open, entry = tvEntry(it), eps = (row && row.n != null && entry && entry.eps[row.n]) || [], avg = tvSeasonAvg(eps, it), t = grpTs(g);
+    h += `<div class="sx-panel"><div class="pn serif">${esc(it.name)} · ${esc(row ? row.label : g.name)}</div><div class="ps">Cleared · ${g.total} episode${g.total === 1 ? "" : "s"}${t ? " · " + fmtDt(tsDt(t)) : ""}${avg != null ? ` · avg ${avg}` : ""}</div>${seasonRateRow(it, g)}</div>`;
+  }
+  return h;
+}
 function sxShowHtml(item, nextGid, isHero){
   const entry = tvEntry(item), rows = tvSeasonRows(item, entry), open = sxShowOpen.has(item.id);
   let body = "";
   if(open){
-    const list = rows.map(r => ({ r, g: (item.groups || []).find(x => x.id === r.gid) })).filter(x => x.g);
+    const list = rows.map(r => ({ r, g: (item.groups || []).find(x => x.id === r.gid) })).filter(x => x.g && !(x.g.total > 0 && x.g.watched >= x.g.total));   // v2.8.0 — finished seasons wait on the cleared shelf instead
     const inner = list.length
       ? list.map((x, i) => {
-          const fin = x.g.total > 0 && x.g.watched >= x.g.total, isNext = !fin && x.g.id === nextGid;
-          return `<div class="sxn${fin ? " dn" : ""}${isNext ? " next" : ""}${i === list.length - 1 ? " last" : ""}">${fin ? sxDoneRow(item, x.r, x.g, entry) : sxSeasonCard(item, x.r, x.g, entry, isNext, false)}</div>`;
+          const isNext = x.g.id === nextGid;
+          return `<div class="sxn${isNext ? " next" : ""}${i === list.length - 1 ? " last" : ""}">${sxSeasonCard(item, x.r, x.g, entry, isNext, false)}</div>`;
         }).join("")
       : `<div class="tvc-note" style="padding:12px 0">TMDB has no season info for this show yet. Try ↻ Refresh all in the Data menu later.</div>`;
     body = `<div class="sx-body${sxAnim === "s:" + item.id ? " sx-in" : ""}">
@@ -5833,16 +5937,7 @@ function renderSeasonTv(){
   const order = incomplete.filter(x => x !== pick).sort((a, b) => ((episodicMin(b).played > 0) - (episodicMin(a).played > 0)) || (a.name || "").localeCompare(b.name || ""));
   if(pick) order.unshift(pick);
   order.forEach(it => { sxCat = showCatOf(it.id); html += sxShowHtml(it, it === pick ? sxNextGid(it) : null, it === pick); });
-  if(completed.length){
-    html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check">✓</div>${myrCorner(m)}</div></div>`).join("")}</div>`;
-    const open = completed.find(m => m.id === sxShelfOpen);
-    if(open){
-      const entry = tvEntry(open), eps = Object.values((entry && entry.eps) || {}).flat();
-      const avg = tvSeasonAvg(eps, open), n = (open.groups || []).length;
-      html += `<div class="sx-panel"><div class="pn serif">${esc(open.name)}</div><div class="ps">Cleared · ${n} season${n === 1 ? "" : "s"}${avg != null ? ` · avg ${avg}` : ""}</div>
-        ${myrRow(open)}<div class="sf-links"><button onclick="pdView('${open.id}')">View poster</button></div></div>`;
-    }
-  }
+  html += sxClearedHtml();   // v2.8.0 — every finished season is its own poster on the cleared shelf
   const ab = all.filter(x => x.abandoned);
   if(ab.length){
     html += `<div class="marginalia sf-sec">abandoned</div><div class="sf-shelf">${ab.map((m, i) => `<div class="sf-mini${sxShelfOpen === m.id ? " open" : ""}" onclick="sxShelfToggle('${m.id}')"><div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, i, "w342")}<div class="sf-check" style="background:var(--rust)">✕</div></div></div>`).join("")}</div>`;
@@ -6593,6 +6688,12 @@ function posterViewerOpen(){ const o = document.getElementById("posterViewer"); 
     const t = e.changedTouches[0];
     const dx = t.clientX - sx, dy = t.clientY - sy;
     if(Math.abs(dx) < MIN_DIST || Math.abs(dy) > Math.abs(dx)*MAX_SLOPE) return;
+    if(mode==="archive" && (arcList.games || arcList.movies)) return;   // v2.8.0 — inside an opened list a swipe never changes the page
+    if(mode==="archive" && libTab === "years" && yrOpen != null){   // v2.8.0 — inside a year the swipe moves between its own tabs
+      const k = YR_TABS.findIndex(t => t[0] === yrCat), n = dx < 0 ? k + 1 : k - 1;
+      if(n >= 0 && n < YR_TABS.length) yrTab(YR_TABS[n][0]);
+      return;
+    }
     if(mode==="library"||mode==="archive"){
       const idx = LIB_TABS.indexOf(libTab);
       if(dx < 0 && idx < LIB_TABS.length-1) switchLibTab(LIB_TABS[idx+1]);
@@ -6637,12 +6738,15 @@ function myS100(it){
     const v = it.groups.map(g => g.myRating ? +g.myRating.s : null).filter(x => x != null);
     if(v.length) return Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10);
   }
+  if(it.volRatings){ const a = mgVolAvg(it); if(a != null) return a; }   // v2.8.0 — manga: the average of the rated volumes
   return it.myRating ? +it.myRating.s : null;
 }
+function mgVolList(it){ const i = mgInfo(it), r = Math.min(it.volsRead || 0, i.total), out = []; for(let k = 0; k < r; k++) out.push(i.from + k); return out; }   // the volumes read, by number
+function mgVolAvg(it){ const vr = it.volRatings || {}, v = mgVolList(it).map(n => vr[n] ? +vr[n].s : null).filter(x => x != null); return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length * 10) : null; }
 function rateMig(it, cat){   // old aspect ratings become plain numbers; old season ratings (0-100) become 0-10; a show with seasons keeps no title-level score
   const r = it.myRating;
   if(r){ if((cat === "tv" || cat === "anime") && (it.groups || []).length) delete it.myRating; else if(r.t !== undefined || r.a !== undefined || r.v !== undefined) it.myRating = { s: r.s }; }
-  (it.groups || []).forEach(g => { const q = g.myRating; if(q && q.n !== 10) g.myRating = { s: Math.round(q.s / 10 * 2) / 2, n: 10 }; });
+  (it.groups || []).forEach(g => { const q = g.myRating; if(q && q.n !== 10) g.myRating = { s: Math.round(q.s / 10), n: 10 }; else if(q && q.s !== Math.round(q.s)) g.myRating = { s: Math.round(q.s), n: 10 }; });   // v2.8.0 — whole numbers only
   return it;
 }
 function myrFind(id){
@@ -6654,41 +6758,68 @@ function myrEligible(cat, it){   // only finished titles can be rated
   if(it.abandoned) return false;
   if(cat === "games") return !!it.finished;
   if(cat === "movies") return finMovieDone(it);
-  if(cat === "manga"){ const t = Math.max(0, (it.toVol || 0) - (it.fromVol || 0) + 1); const rd = finMangaRead(it); return (t > 0 && !it.ongoing && rd >= t) || rd >= 10; }
+  if(cat === "manga") return finMangaRead(it) >= 1;   // v2.8.0 — volumes are rated one by one
   return (it.groups || []).length > 0 && it.groups.every(finGroupDone);
 }
 function myrRow(it){
   const f = myrFind(it.id); if(!f || !myrEligible(f.cat, it)) return "";
   if(isShowCat(f.cat)){   // shows are rated per season: the title only shows the average
     const s = myS100(it);
-    return `<div class="myr-row">${s != null ? `<div class="myr ${ratingClass(s)}"><small>AVERAGE</small><b class="serif">${(s / 10).toFixed(1)}</b></div>` : `<span class="myr-none">Rate a season to get a score</span>`}</div>`;
+    return `<div class="myr-row">${s != null ? `<div class="myr ${ratingClass(s)}"><small>AVERAGE</small><b class="serif">${s}</b></div>` : `<span class="myr-none">Rate a season to get a score</span>`}</div>`;
+  }
+  if(f.cat === "manga"){   // v2.8.0 — manga is rated per volume: the title only shows the average
+    const s = myS100(it);
+    return `<div class="myr-row">${s != null ? `<div class="myr ${ratingClass(s)}"><small>${it.volRatings && mgVolAvg(it) != null ? "AVERAGE" : "MY SCORE"}</small><b class="serif">${s}</b></div>` : `<span class="myr-none">Rate a volume to get a score</span>`}</div>`;
   }
   const r = it.myRating;
   return `<div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s)}"><small>MY SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">Not rated yet</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="myrOpen('${it.id}')">${r ? "Edit score" : "Rate it"}</button></div>`;
 }
 let myrCtx = null;
-function myrTarget(x){ const f = myrFind(x.id); if(!f) return null; return x.gid ? (f.it.groups || []).find(g => g.id === x.gid) || null : f.it; }
-function myrOpen(id, gid){
+function myrGet(c){   // the rating object a context points at: a title, a season (gid) or a manga volume (vol); undefined when it is gone
+  const f = myrFind(c.id); if(!f) return undefined;
+  if(c.vol != null) return (f.it.volRatings || {})[c.vol] || null;
+  const tg = c.gid ? (f.it.groups || []).find(g => g.id === c.gid) : f.it;
+  return tg ? (tg.myRating || null) : undefined;
+}
+function myrOpen(id, gid, vol){
   const f = myrFind(id); if(!f) return;
-  const c = { id, gid: gid || null }, tg = myrTarget(c); if(!tg) return;
+  const c = { id, gid: gid || null, vol: vol == null ? null : +vol }, cur = myrGet(c); if(cur === undefined) return;
   myrCtx = c;
-  const mx = gid ? 10 : 100, inp = $("myrIn");
-  $("myrName").textContent = f.it.name + (gid ? " — " + tg.name : "");
-  $("myrHint").textContent = "Your score from 0 to " + mx + (gid ? " (decimals allowed)." : ".");
-  inp.max = mx; inp.step = gid ? "0.1" : "1"; inp.value = tg.myRating ? tg.myRating.s : "";
-  $("myrClear").style.display = tg.myRating ? "" : "none";
+  const small = !!(c.gid || c.vol != null), mx = small ? 10 : 100, inp = $("myrIn");
+  let nm = f.it.name; if(c.gid){ const g = (f.it.groups || []).find(x => x.id === c.gid); nm += " — " + (g ? g.name : ""); } if(c.vol != null) nm += " — Vol " + c.vol;
+  $("myrName").textContent = nm;
+  $("myrHint").textContent = "Your score from 0 to " + mx + (small ? " (whole numbers only)." : ".");
+  inp.max = mx; inp.step = "1"; inp.setAttribute("inputmode", "numeric"); inp.value = cur ? cur.s : "";
+  $("myrClear").style.display = cur ? "" : "none";
   $("myrModal").classList.add("show"); setTimeout(() => inp.focus(), 60);
 }
 function myrSave(){
-  const x = myrCtx, tg = x && myrTarget(x); if(!tg) return closeModal("myrModal");
-  const v = parseFloat($("myrIn").value), mx = x.gid ? 10 : 100;
+  const x = myrCtx, f = x && myrFind(x.id); if(!f) return closeModal("myrModal");
+  const small = !!(x.gid || x.vol != null), mx = small ? 10 : 100, raw = String($("myrIn").value).trim(), v = parseFloat(raw);
   if(!(v >= 0 && v <= mx)) return toast("Enter a number from 0 to " + mx + ".");
-  tg.myRating = x.gid ? { s: Math.round(v * 10) / 10, n: 10 } : { s: Math.round(v) };
+  if(small && (!/^\d+$/.test(raw))) return toast("Whole numbers only, from 0 to 10.");
+  if(x.vol != null){ (f.it.volRatings = f.it.volRatings || {})[x.vol] = { s: Math.round(v) }; }
+  else{
+    const tg = x.gid ? (f.it.groups || []).find(g => g.id === x.gid) : f.it; if(!tg) return closeModal("myrModal");
+    tg.myRating = x.gid ? { s: Math.round(v), n: 10 } : { s: Math.round(v) };
+  }
   closeModal("myrModal"); persist(); toast("Saved.");
 }
 function myrClear(){
-  const tg = myrCtx && myrTarget(myrCtx); if(!tg || !confirm("Remove your score?")) return;
-  delete tg.myRating; closeModal("myrModal"); persist();
+  const x = myrCtx, f = x && myrFind(x.id); if(!f || !confirm("Remove your score?")) return;
+  if(x.vol != null){ if(f.it.volRatings){ delete f.it.volRatings[x.vol]; if(!Object.keys(f.it.volRatings).length) delete f.it.volRatings; } }
+  else{ const tg = x.gid ? (f.it.groups || []).find(g => g.id === x.gid) : f.it; if(tg) delete tg.myRating; }
+  closeModal("myrModal"); persist();
+}
+// v2.8.0 — manga volumes: finish date + score for each volume read (Archive Log menu)
+function mgVolRows(it){
+  const vs = mgVolList(it); if(!vs.length) return `<div class="hint">No volumes read yet.</div>`;
+  return vs.map(v => {
+    const r = (it.volRatings || {})[v], d = it.volDates && it.volDates[v], t = d && +d.y ? dtTs(d) : 0;
+    return `<div class="log-sec"><div class="log-lab">Volume ${v}</div>
+      <div class="dt-row"><span>Finished: <b>${t ? fmtDt(tsDt(t)) : "unknown"}</b></span><button class="btn" onclick="dpOpen('${it.id}','vol',${v})">Edit</button></div>
+      <div class="myr-row">${r ? `<div class="myr ${ratingClass(r.s * 10)}"><small>VOLUME SCORE</small><b class="serif">${r.s}</b></div>` : `<span class="myr-none">Volume not rated</span>`}<button class="btn small ${r ? "ghost" : "brass"}" onclick="myrOpen('${it.id}',null,${v})">${r ? "Edit" : "Rate volume"}</button></div></div>`;
+  }).join("");
 }
 
 // §ARCHIVE-BOOK — vault helpers: vaultAdd, vaultImport, arc date text, myrCorner
@@ -6710,9 +6841,11 @@ const arcFinShort = (cat, it) => arcDateText(it, false);
 const arcFinLong = (cat, it) => arcDateText(it, true);
 function arcDateKey(it){ return it.lastActive > 0 ? it.lastActive : 0; }
 function myrCorner(it, extra){   // the score plate on a cover (Archive)
+  if(it._rate !== undefined){ const q = it._rate; return q == null ? "" : `<div class="myr myr-c ${ratingClass(q * 10)}${extra ? " " + extra : ""}"><b class="serif">${q}</b></div>`; }   // a season or a volume shown on its own: its own score out of 10
   const s = myS100(it); if(s == null) return "";
-  const tv = Array.isArray(it.groups);   // shows: the average of the seasons, out of 10; a tap just opens the card
-  return `<div class="myr myr-c ${ratingClass(s)}${extra ? " " + extra : ""}"${tv ? "" : ` onclick="event.stopPropagation();myrOpen('${it.id}')"`}><b class="serif">${tv ? (s / 10).toFixed(1) : s}</b></div>`;
+  const fixed = Array.isArray(it.groups) || it.fromVol != null;   // shows and manga: the average of the seasons / volumes, out of 100; a tap just opens the card
+  const rid = it._src ? it._src.id : it.id;
+  return `<div class="myr myr-c ${ratingClass(s)}${extra ? " " + extra : ""}"${fixed ? "" : ` onclick="event.stopPropagation();myrOpen('${rid}')"`}><b class="serif">${s}</b></div>`;
 }
 function vaultAdd(cat, it){
   const V = S.vault[cat];
@@ -6903,7 +7036,7 @@ function lpMaterialize(){
 let playId = null;
 function gmPlayEdit(id){
   const g = gmAllGames().find(x => x.id === id); if(!g) return;
-  playId = id;
+  playId = id; playDlc = null;
   const h = g.played > 0 ? g.played : (S.vault.games.includes(g) ? gmBaseHours(g) : 0);
   let hh = Math.floor(h), mm = Math.round((h - hh) * 60); if(mm >= 60){ hh++; mm = 0; }
   $("playName").textContent = g.name; $("playH").value = hh; $("playM").value = mm;
@@ -6914,10 +7047,12 @@ function gmPlaySave(){
   const g = gmAllGames().find(x => x.id === playId); if(!g) return closeModal("playModal");
   const h = Math.max(0, +$("playH").value || 0) + Math.min(59, Math.max(0, +$("playM").value || 0)) / 60;
   if(!(h > 0)) return toast("Enter a time above 0, or use the IGDB estimate.");
+  if(playDlc){ const d = (g.dlcs || []).find(x => x.id === playDlc); if(d){ d.played = Math.round(h * 100) / 100; d.playSrc = "manual"; } playDlc = null; closeModal("playModal"); persist(); toast("Playtime saved."); return; }
   gmSetPlay(g, h, "manual"); closeModal("playModal"); persist(); toast("Playtime saved.");
 }
 function gmPlayReset(){
   const g = gmAllGames().find(x => x.id === playId); if(!g) return closeModal("playModal");
+  if(playDlc){ const d = (g.dlcs || []).find(x => x.id === playDlc); if(d && d.goal > 0){ d.played = d.goal; d.playSrc = "igdb"; } playDlc = null; closeModal("playModal"); persist(); toast("Back to the IGDB estimate."); return; }
   const b = gmBaseHours(g); if(!(b > 0)) return;
   gmSetPlay(g, b * (1 + 0.7 * (Math.max(1, arcPlays(g)) - 1)), "igdb"); closeModal("playModal"); persist(); toast("Back to the IGDB estimate.");
 }
@@ -6954,10 +7089,14 @@ function arcGameImg(g, idx){
 }
 function arcMini(cat, it, idx){
   const img = cat === "games" ? arcGameImg(it, idx) : cat === "manga" ? (it.coverUrl ? `<img alt="" loading="lazy" src="${esc(it.coverUrl)}" onload="this.classList.add('in')" onerror="this.remove()">` : "") : posterImgHtml(it, idx, "w342"), rk = arcRank && arcRank[it.id];
-  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}${rk && rk <= 4 ? " t" + rk : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${myrCorner(it)}</div>${rk ? `<div class="pinfo">${rk <= 4 ? "♛ " : ""}#${rk}</div>` : ""}</div>`;
+  const pl = !it._src && (cat === "games" || cat === "movies") ? arcPlays(it) : 0;   // v2.8.0 — a title played/watched again stays ONE poster, with a small count
+  const mark = it._mark ? `<div class="mark" title="${it._mark} ${cat === "games" ? "play-through" : "watch"}">↻ ${it._mark}</div>` : pl > 1 ? `<div class="mult" title="${pl} ${cat === "games" ? "play-throughs" : "watches"}">↻ ×${pl}</div>` : "";
+  const num = it._vol != null ? `<div class="vnum">${it._vol}</div>` : it._label ? `<div class="vnum">${esc(it._label)}</div>` : "";
+  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}${rk && rk <= 4 ? " t" + rk : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${num}${mark}${myrCorner(it)}</div>${rk ? `<div class="pinfo">${rk <= 4 ? "♛ " : ""}#${rk}</div>` : ""}</div>`;
 }
 function arcBtns(it, enter){
-  return `<div class="arc-btns${enter}"><button class="btn small" onclick="arcLog('${it.id}')">Log</button><button class="btn small" onclick="arcDetails('${it.id}')">Details</button><button class="btn small danger" onclick="arcRemove('${it.id}')">Remove</button></div>`;
+  const rid = it._src ? it._src.id : it.id;   // Years list entries are views of the real title: Rate replaces Log there
+  return `<div class="arc-btns${enter}"><button class="btn small" onclick="${it._src ? `yrRate('${it.id}')` : `arcLog('${rid}')`}">${it._src ? "Rate" : "Log"}</button><button class="btn small" onclick="arcDetails('${rid}'${it._src ? `,'${it.id}'` : ""})">Details</button><button class="btn small danger" onclick="arcRemove('${rid}')">Remove</button></div>`;
 }
 function arcShelfHtml(cat, items, start, cols){
   cols = cols || 5;
@@ -7008,7 +7147,9 @@ function logRender(){
     <div class="log-sec"><div class="log-lab">${g ? "Play-throughs" : "Times watched"}</div><div class="log-step"><button class="btn" onclick="arcPlaysSet('${it.id}',-1)"${n <= 0 ? " disabled" : ""}>−</button><b class="serif">${n}</b><button class="btn" onclick="arcPlaysSet('${it.id}',1)">+</button></div>${hint ? `<div class="hint" style="text-align:center;margin:8px 0 0">${hint}</div>` : ""}</div>
     ${arcDatesHtml(cat, it)}`;
 }
-function arcDetails(id){
+let detFin = null;
+function arcDetails(id, wid){
+  detFin = wid && yrWrapMap[wid] ? { ts: yrWrapMap[wid]._ts, label: yrWrapMap[wid]._fin || "" } : null;
   detId = id; detRender(); $("detModal").classList.add("show"); lockSync();
   const f = arcFind(id);
   if(f && isShowCat(f.cat)) tvEnsure(f.it);
@@ -7022,7 +7163,7 @@ function detRender(){
   if(isShowCat(cat)){
     const e = tvEntry(it), gs = (it.groups || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), eps = gs.reduce((a, g) => a + (g.watched || 0), 0), hrs = eps * (it.epLen || 0) / 60, sc = myS100(it);
     const bp = it.backdropPath || (e && e.backdrop) || ""; src = bp ? `${TMDB_IMG}w780${bp}` : (it.posterPath ? `${TMDB_IMG}w342${it.posterPath}` : ""); ph = !bp; by = it.backdropY;
-    meta = [gs.length + " " + groupsWord(gs) + (gs.length === 1 ? "" : "s"), eps + " episodes", sc != null ? "★ " + (sc / 10).toFixed(1) + " / 10" : ""].filter(Boolean).join(" · ");
+    meta = [gs.length + " " + groupsWord(gs) + (gs.length === 1 ? "" : "s"), eps + " episodes", sc != null ? "★ " + sc : ""].filter(Boolean).join(" · ");
     body = `<div class="season-grid" style="margin-top:14px">${anStat(gs.filter(finGroupDone).length + "/" + gs.length, "Seasons done")}${anStat(eps, "Episodes")}${anStat(fmtH(hrs), "Watched")}</div>` +
       (e && e.overview ? `<div class="det-desc">${esc(e.overview)}</div>` : (it.tmdbId ? `<div class="det-desc" style="color:var(--muted)">Loading…</div>` : "")) +
       (gs.some(g => g.myRating) ? `<div class="det-sec"><div class="pd-lab">Season scores</div>${gs.map(g => { const v = g.myRating ? g.myRating.s : null; return `<div class="ov-row" style="margin-top:6px"><span>${esc(g.name)}</span><b>${v != null ? v + " / 10" : "—"}</b></div><div class="an-bar"><i class="${v != null ? ratingClass(v * 10) : ""}" style="width:${(v || 0) * 10}%;background:var(--rc,var(--line))"></i></div>`; }).join("")}</div>` : "") +
@@ -7047,9 +7188,9 @@ function detRender(){
     body = (who || date ? `<div class="gm-meta" style="margin-top:12px">${who}${who && date ? "<br>" : ""}${date}</div>` : "") +
       ((it.genres || []).length ? `<div class="gm-chips">${it.genres.slice(0, 6).map(x => `<span class="gm-chipx">${esc(x)}</span>`).join("")}</div>` : "") +
       (it.description ? `<div class="det-desc">${esc(it.description)}</div>` : `<div class="det-desc" style="color:var(--muted)">${it.igdbId ? "IGDB has no description for this one." : "Not matched to IGDB yet."}</div>`) +
-      (dlcs.length ? `<div class="det-sec"><div class="pd-lab">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="pd-val" style="margin-top:3px">${esc(d.name)}${d.kind ? ` <span class="gm-hint">${esc(d.kind)}</span>` : ""}</div>`).join("")}</div>` : "");
+      (dlcs.length ? `<div class="det-sec"><div class="pd-lab">Expansions &amp; DLC</div>${dlcs.map(d => `<div class="pd-val" style="margin-top:3px">${esc(d.name)}${d.kind ? ` <span class="gm-hint">${esc(d.kind)}</span>` : ""}${d.finished ? ` <span class="gm-hint">· ${d.finishedDate && +d.finishedDate.y ? fmtDt(d.finishedDate) : "finished"}${d.played > 0 ? " · " + fmtH(d.played) : ""}</span>` : ""}</div>`).join("")}</div>` : "");
   }
-  $("detBody").innerHTML = `<div class="det-bd" style="cursor:pointer" onclick="detBackdrop('${it.id}')">${src ? `<img class="${ph ? "ph" : ""}" alt="" src="${esc(src)}"${!ph && by != null ? ` style="object-position:50% ${by}%"` : ""} onerror="this.remove()">` : ""}<div class="det-shade"></div></div><h2 class="serif det-title">${esc(it.name)}</h2>${meta ? `<div class="det-meta">${esc(meta)}</div>` : ""}${body}${cat === "games" || cat === "movies" ? arcReplayBtn(cat, it) : ""}`;
+  $("detBody").innerHTML = `<div class="det-bd" style="cursor:pointer" onclick="detBackdrop('${it.id}')">${src ? `<img class="${ph ? "ph" : ""}" alt="" src="${esc(src)}"${!ph && by != null ? ` style="object-position:50% ${by}%"` : ""} onerror="this.remove()">` : ""}<div class="det-shade"></div></div><h2 class="serif det-title">${esc(it.name)}</h2>${meta ? `<div class="det-meta">${esc(meta)}</div>` : ""}${detFin && detFin.ts ? `<div class="det-meta" style="margin-top:3px;color:var(--ink)">Finished ${fmtDt(tsDt(detFin.ts))}${esc(detFin.label)}</div>` : ""}${body}${cat === "games" || cat === "movies" ? arcReplayBtn(cat, it) : ""}`;
 }
 function arcRemove(id){
   const f = arcFind(id); if(!f) return;
@@ -7085,11 +7226,11 @@ function arcEvents(cat, it){
   const ev = [], H = arcHours(cat, it);
   if(it.abandoned){ if(it.lastActive > 0) ev.push({ ts: it.lastActive, h: arcPlayedH(cat, it) || 1, t: "" }); return ev; }
   if(cat === "games" || cat === "movies"){
-    arcRuns(it).forEach((r, i) => ev.push({ ts: dtTs(r), h: cat === "games" ? (arcRunH(it, i) || H) : H, t: i ? " · " + ordn(i + 1) + (cat === "games" ? " play-through" : " watch") : "" }));
-    if(cat === "games") (it.dlcs || []).forEach(d => { if(d.finishedDate && +d.finishedDate.y) ev.push({ ts: dtTs(d.finishedDate), h: d.goal || 3, t: " · DLC: " + d.name }); });
+    arcRuns(it).forEach((r, i) => ev.push({ ts: dtTs(r), i, h: cat === "games" ? (arcRunH(it, i) || H) : H, t: i ? " · " + ordn(i + 1) + (cat === "games" ? " play-through" : " watch") : "" }));
+    if(cat === "games") (it.dlcs || []).forEach(d => { if(d.finishedDate && +d.finishedDate.y) ev.push({ ts: dtTs(d.finishedDate), dlc: true, h: d.played || d.goal || 3, t: " · DLC: " + d.name }); });
   }else if(cat === "manga"){
     Object.keys(it.volDates || {}).forEach(v => { const d = it.volDates[v]; if(d && +d.y) ev.push({ ts: dtTs(d), h: 1, v: +v, t: "" }); });
-  }else (it.groups || []).forEach(g => { const t = grpTs(g); if(t) ev.push({ ts: t, h: (g.total || 0) * (it.epLen || 0) / 60 || 8, t: " · " + g.name }); });
+  }else (it.groups || []).forEach(g => { const t = grpTs(g); if(t) ev.push({ ts: t, gid: g.id, h: (g.total || 0) * (it.epLen || 0) / 60 || 8, t: " · " + g.name }); });
   if(!ev.length && it.lastActive > 0) ev.push({ ts: it.lastActive, h: H, t: "" });
   return ev;
 }
@@ -7148,6 +7289,35 @@ function arcStampLast(){   // runs on every save: gives dates to titles that hav
   return ch;
 }
 function arcRegen(id){ const f = arcFind(id); if(!f) return; const keep = arcRuns(f.it).length; if(f.cat === "games" || f.cat === "movies") f.it.plays = Math.max(1, arcPlays(f.it)); arcGenFor([f]); persist(); toast("New dates generated."); }
+function arcDlcDate(g, d){   // a generated finish date for a DLC: a while after the game's first finish
+  const r0 = arcRuns(g)[0], base = r0 ? dtTs(r0) : (g.lastActive > 0 ? g.lastActive : Date.now() - 30 * 864e5), lo = base + 864e5, hi = Math.max(lo, Math.min(Date.now(), lo + 180 * 864e5));
+  const x = new Date(Math.min(Date.now(), lo + hash01(d.id) * (hi - lo))); x.setHours(12, 0, 0, 0); return tsDt(x.getTime());
+}
+let playDlc = null;
+function dlcPlayEdit(id, did){
+  const g = gmAllGames().find(x => x.id === id), d = g && (g.dlcs || []).find(x => x.id === did); if(!d) return;
+  playId = id; playDlc = did;
+  const h = d.played > 0 ? d.played : (d.goal || 0); let hh = Math.floor(h), mm = Math.round((h - hh) * 60); if(mm >= 60){ hh++; mm = 0; }
+  $("playName").textContent = g.name + " — " + d.name; $("playH").value = hh; $("playM").value = mm;
+  $("playReset").style.display = d.goal > 0 ? "" : "none";
+  $("playModal").classList.add("show");
+}
+function dlcDrop(id, did){
+  const g = gmAllGames().find(x => x.id === id), d = g && (g.dlcs || []).find(x => x.id === did); if(!d || !confirm("Remove “" + d.name + "” from this game?")) return;
+  g.dlcs = g.dlcs.filter(x => x.id !== did); g.hasDlc = g.dlcs.length > 0; persist();
+}
+function arcDlcFind(id){
+  const g = gmAllGames().find(x => x.id === id); if(!g) return;
+  if(!g.igdbId) return toast("Match this game to IGDB first.");
+  closeModal("logModal"); gmDlcManual = true; gmDlcQueue = [id]; gmDlcNext();
+}
+function arcDlcOnce(){   // v2.8.0 — once: Archive games get checked for DLC, and you choose which ones to keep
+  if(S.arcDlcV === 1) return;
+  const vg = (S.vault.games || []).filter(g => g.igdbId); if(!vg.length || typeof igdbBase !== "function" || !igdbBase()) return;
+  S.arcDlcV = 1; vg.forEach(g => { g.dlcAsked = false; }); persist();
+  if(confirm("Archive games can keep their DLC and expansions now.\n\nCheck IGDB for the DLC of your " + vg.length + " Archive games? You pick which ones to add.\n\nOK starts. Cancel leaves it for later (Games → Data → Find DLC).")) gmDlcScan();
+}
+setTimeout(arcDlcOnce, 5000);
 function arcPlaysSet(id, d){
   const f = arcFind(id); if(!f) return;
   const { cat, it } = f, cur = arcPlays(it), next = Math.max(0, Math.min(99, cur + d));
@@ -7173,7 +7343,7 @@ function arcDatesHtml(cat, it){
   let rows;
   if(it.abandoned || !runs.length) rows = `<div class="dt-row"><span>${lab}: <b>${arcDateText(it, true)}</b></span><button class="btn" onclick="dpOpen('${it.id}','last')">Edit</button>${regenBtn(it)}</div>`;
   else rows = runs.map((r, i) => `<div class="dt-row"><span>${i ? ordn(i + 1) + " " + (g ? "play-through" : "watch") : "Finished"}: <b>${fmtDt(r)}</b>${g && arcRunH(it, i) > 0 ? ` · ${fmtH(arcRunH(it, i))}` : ""}</span><button class="btn" onclick="dpOpen('${it.id}','run',${i})">Edit</button>${i === 0 ? regenBtn(it) : ""}</div>`).join("");
-  if(g) rows += (it.dlcs || []).filter(d => d.finished).map(d => `<div class="dt-row"><span>${esc(d.name)}: <b>${d.finishedDate && +d.finishedDate.y ? fmtDt(d.finishedDate) : "unknown"}</b></span><button class="btn" onclick="dpOpen('${it.id}','dlc','${d.id}')">Edit</button></div>`).join("");
+  if(g) rows += (it.dlcs || []).filter(d => d.finished).map(d => `<div class="dt-row"><span>${esc(d.name)}: <b>${d.finishedDate && +d.finishedDate.y ? fmtDt(d.finishedDate) : "unknown"}</b></span><button class="btn" onclick="dpOpen('${it.id}','dlc','${d.id}')">Edit</button></div><div class="dt-row"><span>Playtime: <b>${d.played > 0 ? fmtHM(Math.round(d.played * 60)) : "not set"}</b> <small>${d.playSrc === "manual" ? "set by you" : d.playSrc === "igdb" ? "IGDB average" : "launcher"}</small></span><button class="btn" onclick="dlcPlayEdit('${it.id}','${d.id}')">Edit</button><button class="btn" onclick="dlcDrop('${it.id}','${d.id}')" title="Remove this DLC">✕</button></div>`).join("") + `<div class="dt-row"><button class="btn small ghost" onclick="arcDlcFind('${it.id}')">+ Find DLC &amp; expansions</button></div>`;
   return `<div class="log-sec"><div class="log-lab">${it.abandoned ? lab : g ? "Finish dates" : "Watch dates"}</div>${rows}${!it.abandoned && runs.length ? `<div class="hint" style="margin-top:6px">${lab}: ${arcDateText(it, true)}</div>` : ""}</div>`;
 }
 function arcItemDateRow(it){ const f = arcFind(it.id); if(!f) return ""; return `<div class="dt-row"><span>${arcLastLabel(f.cat)}: <b>${arcDateText(it, true)}</b></span><button class="btn" onclick="dpOpen('${it.id}','last')">Edit</button>${regenBtn(it)}</div>`; }
@@ -7185,6 +7355,7 @@ function dpOpen(id, kind, idx){
   let lo = arcRelTs(it), hi = Date.now(), cur = 0;
   if(kind === "run"){ const rs = arcRuns(it); cur = dtTs(rs[idx]); if(idx > 0) lo = Math.max(lo, dtTs(rs[idx - 1]) + 864e5); if(rs[idx + 1]) hi = Math.min(hi, dtTs(rs[idx + 1]) - 864e5); }
   else if(kind === "grp"){ const gs = (it.groups || []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), k = gs.findIndex(g => g.id === idx); cur = grpTs(gs[k]); if(k > 0 && grpTs(gs[k - 1])) lo = Math.max(lo, grpTs(gs[k - 1])); if(gs[k + 1] && grpTs(gs[k + 1])) hi = Math.min(hi, grpTs(gs[k + 1])); }
+  else if(kind === "vol"){ const vd = it.volDates || {}, vs = mgVolList(it), k = vs.indexOf(+idx); cur = vd[idx] ? dtTs(vd[idx]) : 0; if(k > 0 && vd[vs[k - 1]]) lo = Math.max(lo, dtTs(vd[vs[k - 1]])); if(vs[k + 1] != null && vd[vs[k + 1]]) hi = Math.min(hi, dtTs(vd[vs[k + 1]])); }
   else if(kind === "dlc"){ const d = (it.dlcs || []).find(x => x.id === idx); cur = dtTs(d && d.finishedDate); const r0 = arcRuns(it)[0]; if(r0) lo = Math.max(lo, dtTs(r0)); }
   else cur = it.lastActive || 0;
   hi = Math.max(lo, hi); if(!(cur > 0)) cur = Math.min(hi, Date.now()); cur = Math.min(Math.max(cur, lo), hi);
@@ -7195,11 +7366,11 @@ function dpOpen(id, kind, idx){
 function dpRender(){
   const c = dpCtx, y0 = new Date(c.lo).getFullYear(), y1 = new Date(c.hi).getFullYear(), dim = new Date(c.y, c.m, 0).getDate();
   $("dpTitle").textContent = "Set date";
-  $("dpHint").textContent = "Always after the release date" + (c.kind === "run" && c.idx > 0 ? " and the previous finish" : "") + ". Tap a value for a list.";
-  const col = (k, val, txt, opts) => `<div class="dp-col"><button class="btn" onclick="dpStep('${k}',1)">▲</button><button class="btn dp-val" onclick="dpList('${k}')">${txt}</button>${c.col === k ? `<div class="dp-list" id="dpList">${opts.map(([v, t]) => `<div class="${v === val ? "on" : ""}" onclick="dpPick('${k}',${v})">${t}</div>`).join("")}</div>` : ""}<button class="btn" onclick="dpStep('${k}',-1)">▼</button></div>`;
+  $("dpHint").textContent = "Always after the release date" + (c.kind === "run" && c.idx > 0 ? " and the previous finish" : "") + ". Scroll each column and tap the value.";
+  const col = (k, val, txt, opts) => `<div class="dp-col"><div class="dp-list dp-wheel" data-k="${k}">${opts.map(([v, t]) => `<div class="${v === val ? "on" : ""}" onclick="dpPick('${k}',${v})">${t}</div>`).join("")}</div></div>`;
   const ys = []; for(let v = y1; v >= y0; v--) ys.push([v, v]);
   $("dpBody").innerHTML = `<div class="dp-cols">${col("y", c.y, c.y, ys)}${col("m", c.m, MON3[c.m - 1], MON3.map((t, i) => [i + 1, t]))}${col("d", c.d, c.d, Array.from({ length: dim }, (_, i) => [i + 1, i + 1]))}</div>`;
-  const el = document.querySelector("#dpList .on"), l = $("dpList"); if(el && l) l.scrollTop = el.offsetTop - 60;
+  document.querySelectorAll("#dpBody .dp-wheel").forEach(l => { const el = l.querySelector(".on"); if(el) l.scrollTop = el.offsetTop - l.clientHeight / 2 + el.offsetHeight / 2; });
 }
 function dpFix(){ const c = dpCtx, y0 = new Date(c.lo).getFullYear(), y1 = new Date(c.hi).getFullYear(); c.y = Math.max(y0, Math.min(y1, c.y)); c.d = Math.min(c.d, new Date(c.y, c.m, 0).getDate()); }
 function dpStep(k, dir){ const c = dpCtx; if(k === "m") c.m = (c.m + dir + 11) % 12 + 1; else if(k === "d"){ const n = new Date(c.y, c.m, 0).getDate(); c.d = (c.d + dir + n - 1) % n + 1; } else c.y += dir; dpFix(); dpRender(); }
@@ -7211,6 +7382,7 @@ function dpSave(){
   const dt = tsDt(ts);
   if(c.kind === "run"){ const rs = arcRuns(it).slice(); rs[c.idx] = dt; it.runs = rs; it.finishedDate = rs[0]; it.lastActive = dtTs(rs[rs.length - 1]); }
   else if(c.kind === "grp"){ const g = (it.groups || []).find(x => x.id === c.idx); if(g){ g.finishedDate = dt; g.finishedYear = +dt.y; it.lastActive = Math.max(...it.groups.map(grpTs)); } }
+  else if(c.kind === "vol"){ it.volDates = it.volDates || {}; it.volDates[c.idx] = dt; it.volYears = it.volYears || {}; it.volYears[c.idx] = +dt.y; it.lastActive = Math.max(...Object.values(it.volDates).map(dtTs)); }
   else if(c.kind === "dlc"){ const d = (it.dlcs || []).find(x => x.id === c.idx); if(d) d.finishedDate = dt; }
   else it.lastActive = ts;
   delete it.lastEst; if(cat === "games") lpPushMeta(it);
@@ -7351,12 +7523,13 @@ function arcListClose(){
 window.addEventListener("popstate", () => { if(arcList.games || arcList.movies || yrOpen != null){ arcList.games = arcList.movies = null; yrOpen = null; arcOpen = null; render(); window.scrollTo(0, 0); } });   // the phone's Back button leaves the list
 /* ---- v2.7.0: Archive shows page, show/manga log, Years page ---- */
 const catOfShow = it => SHOW_CATS.find(c => (S.vault[c] || []).includes(it) || (S[c] || []).includes(it)) || "tv";
-function arcPartial(it){   // some seasons are in the Archive but the rest of the show still waits in the Library or Season
+function arcPartial(it){   // some seasons (or volumes) are in the Archive but the rest still waits in the Library or Season
   if(!it.originGroupId) return false;
-  const c = catOfShow(it);
+  const c = it.fromVol != null && !Array.isArray(it.groups) ? "manga" : catOfShow(it);
   return (S.library[c] || []).concat(S[c] || []).some(x => x !== it && x.originGroupId === it.originGroupId && !x.abandoned && !inVault(c, x) && !isSeasonItemDone(c, x));
 }
-function arcShowsPage(items){
+function arcShowsPage(items, cat){
+  cat = cat || "shows";
   const live = items.filter(x => !x.abandoned), gone = items.filter(x => x.abandoned);
   const top = live.filter(x => myS100(x) != null).slice().sort((a, b) => (myS100(b) - myS100(a)) || (a.name || "").localeCompare(b.name || "")).slice(0, 4);
   const rest = live.filter(x => !top.includes(x)), part = rest.filter(arcPartial), fin = rest.filter(x => !part.includes(x));
@@ -7364,7 +7537,7 @@ function arcShowsPage(items){
   const one = (label, list, rank) => {
     if(!list.length) return;
     arcRank = null; if(rank){ arcRank = {}; list.forEach((x, i) => { arcRank[x.id] = i + 1; }); }
-    h += `<div class="marginalia${h ? " sf-sec" : ""}">${label}</div>${arcShelfHtml("shows", list, 0, 4)}`;
+    h += `<div class="marginalia${h ? " sf-sec" : ""}">${label}</div>${arcShelfHtml(cat, list, 0, 4)}`;
     arcRank = null;
   };
   one("top 4 of all time", top, true);
@@ -7390,28 +7563,54 @@ function arcGrpPlays(id, gid, d){
   g.plays = Math.max(done ? 1 : 0, Math.min(99, cur + d)); persist();
 }
 function logManga(it){
-  $("logBody").innerHTML = `<h2 class="serif">${esc(it.name)}</h2><div class="hint">Your reading log</div><div class="log-sec"><div class="log-lab">My rating</div>${myrRow(it)}</div>${arcDatesHtml("manga", it)}`;
+  $("logBody").innerHTML = `<h2 class="serif">${esc(it.name)}</h2><div class="hint">Volumes in your Archive</div><div class="log-sec"><div class="log-lab">Manga score</div>${myrRow(it)}</div>${mgVolRows(it)}`;
 }
 
 let yrOpen = null, yrCat = localStorage.getItem("expedition-yrcat") || "games", yrSort = localStorage.getItem("expedition-yrsort") || "finish", yrDir = localStorage.getItem("expedition-yrdir") || "asc";
 const YR_TABS = [["games", "Games"], ["movies", "Movies"], ["shows", "Shows"], ["manga", "Manga"]];
 const YR_SORTS = [["finish", "Finish date"], ["release", "Release date"], ["rating", "My rating"], ["global", "Global rating"], ["name", "Name"], ["length", "Length"]];
-function yrData(){   // year → what was finished in it, per tab
+let yrWrapMap = {}, yrEns = new Set();
+function yrData(){   // year → what was finished in it, per tab. Every play/watch, season and volume is its own entry.
   const Y = {};
   ALL_CATS.forEach(c => arcView(c).forEach(it => {
     if(it.abandoned) return;
-    const per = {};
-    arcEvents(c, it).forEach(e => { const y = new Date(e.ts).getFullYear(), o = per[y] || (per[y] = { ts: e.ts, h: 0 }); o.ts = Math.min(o.ts, e.ts); o.h += e.h; });
     const key = isShowCat(c) ? "shows" : c;
-    Object.keys(per).forEach(y => { const D = Y[y] || (Y[y] = { games: [], movies: [], shows: [], manga: [], h: 0 }); D[key].push({ it, c, ts: per[y].ts, h: per[y].h }); D.h += per[y].h; });
+    arcEvents(c, it).forEach(e => {
+      const y = new Date(e.ts).getFullYear(), D = Y[y] || (Y[y] = { games: [], movies: [], shows: [], manga: [], h: 0 });
+      D.h += e.h;
+      if(e.dlc) return;   // a DLC adds its hours to the year but is not a poster of its own
+      D[key].push({ it, c, ts: e.ts, h: e.h, i: e.i, gid: e.gid, v: e.v });
+    });
   }));
   return Y;
+}
+function yrWrap(e, rc){   // a view of the real title for one entry: same data and rating, its own id, poster, mark and score
+  const it = e.it, kind = e.gid != null ? "g" + e.gid : e.v != null ? "v" + e.v : "r" + (e.i || 0);
+  const w = Object.create(it); w.id = it.id + "~" + kind; w._src = it; w._ts = e.ts; w._fin = "";
+  if(e.i > 0){ w._mark = ordn(e.i + 1); w._fin = " · " + ordn(e.i + 1) + (e.c === "games" ? " play-through" : " watch"); }
+  if(e.gid != null){
+    const g = (it.groups || []).find(x => x.id === e.gid);
+    if(g){
+      const rows = rc[it.id] || (rc[it.id] = tvSeasonRows(it, tvEntry(it))), row = rows.find(r => r.gid === g.id);
+      w.posterPath = (row && row.s && row.s.poster) || it.posterPath; w._rate = g.myRating ? +g.myRating.s : null;
+      w._label = row && row.n != null ? "S" + row.n : String(g.name || "").slice(0, 9); w._fin = " · " + (row ? row.label : g.name); w._g = g;
+    }
+  }
+  if(e.v != null){ w.coverUrl = mgVolCover(it, e.v) || it.coverUrl; w._vol = e.v; w._rate = it.volRatings && it.volRatings[e.v] ? +it.volRatings[e.v].s : null; w._fin = " · Volume " + e.v; }
+  yrWrapMap[w.id] = w; return w;
+}
+function yrRate(wid){
+  const w = yrWrapMap[wid]; if(!w) return; const it = w._src;
+  if(w._g) return myrOpen(it.id, w._g.id);
+  if(w._vol != null) return myrOpen(it.id, null, w._vol);
+  if(Array.isArray(it.groups)) return toast("Shows are rated one season at a time.");
+  myrOpen(it.id);
 }
 function yrVal(e){
   const it = e.it;
   if(yrSort === "finish") return e.ts;
   if(yrSort === "release") return arcRelTs(it) || 0;
-  if(yrSort === "rating"){ const s = myS100(it); return s == null ? -1 : s; }
+  if(yrSort === "rating"){ const q = e.w && e.w._rate !== undefined ? (e.w._rate == null ? null : e.w._rate * 10) : myS100(it); return q == null ? -1 : q; }
   if(yrSort === "global"){ const v = e.c === "manga" ? (it.anilistId ? it.rating : null) : itemRating(it); return v == null ? -1 : v; }
   if(yrSort === "length") return arcMinutes(e.c, it);
   return (it.name || "").toLowerCase();
@@ -7434,12 +7633,15 @@ function renderYears(){
     return;
   }
   const D = Y[yrOpen] || { games: [], movies: [], shows: [], manga: [], h: 0 };
-  const n = YR_TABS.reduce((a, t) => a + D[t[0]].length, 0), list = D[yrCat].slice().sort(yrCmp), items = list.map(e => e.it);
+  const n = YR_TABS.reduce((a, t) => a + D[t[0]].length, 0), rc = {}; yrWrapMap = {};
+  const list = D[yrCat].map(e => ({ ...e, w: yrWrap(e, rc) })).sort(yrCmp), items = list.map(e => e.w);
   $("app").innerHTML = `<div class="ls-top"><button class="btn small" onclick="yrClose()">← Years</button><div class="ls-name serif">${yrOpen}</div></div>
     <div class="ls-stats"><div><b>${n}</b><span>titles</span></div><div><b>${fmtH(D.h)}</b><span>of content</span></div><div><b>${list.length}</b><span>${YR_TABS.find(t => t[0] === yrCat)[1]}</span></div></div>
     <div class="yr-tabs">${YR_TABS.map(t => `<button class="${t[0] === yrCat ? "on" : ""}" onclick="yrTab('${t[0]}')"><b>${D[t[0]].length}</b>${t[1]}</button>`).join("")}</div>
     <div class="list-head"><b>${list.length} title${list.length === 1 ? "" : "s"}</b>${sortBtnHtml("year")}</div>
     ${items.length ? arcShelfHtml(yrCat, items, 0, 5) : `<div class="empty"><span class="serif">Nothing here</span>Nothing in this category was finished in ${yrOpen}.</div>`}`;
+  if(yrCat === "shows") list.forEach(e => { if(e.it.tmdbId && !yrEns.has(e.it.tmdbId)){ yrEns.add(e.it.tmdbId); tvEnsure(e.it); } });
+  if(yrCat === "manga") setTimeout(mgEnsureExtras, 0);
 }
 function yrTab(k){ yrCat = k; try{ localStorage.setItem("expedition-yrcat", k); }catch(e){} arcOpen = null; render(); }
 function yrOpenYear(y){ yrOpen = y; arcOpen = null; try{ history.pushState({ yr: 1 }, ""); }catch(e){} window.scrollTo(0, 0); render(); }
@@ -7489,13 +7691,36 @@ function arcReplay(id){
   closeModal("detModal"); persist();
   toast(g ? "Sent to Season for another play-through." : "Sent to Season for another watch.");
 }
+function mergeReplayDupes(){   // v2.8.0 — a title watched/played again in the same season used to become a second title; they become one title with several runs
+  if(S.dupV === 1) return false;
+  let ch = false;
+  [["games", "igdbId"], ["movies", "tmdbId"]].forEach(([cat, key]) => {
+    const groups = {};
+    arcView(cat).forEach(it => { if(it.abandoned || !it[key]) return; (groups[it[key]] = groups[it[key]] || []).push(it); });
+    Object.keys(groups).forEach(k => {
+      const g = groups[k]; if(g.length < 2) return;
+      const inV = x => (S.vault[cat] || []).includes(x), first = x => { const r = arcRuns(x)[0]; return r ? dtTs(r) : 9e15; };
+      const pri = g.find(inV) || g.slice().sort((a, b) => first(a) - first(b))[0];
+      const runs = []; g.forEach(x => arcRuns(x).forEach(r => runs.push({ ...r })));
+      if(!runs.length) return;
+      runs.sort((a, b) => dtTs(a) - dtTs(b));
+      pri.runs = runs; pri.finishedDate = runs[0]; pri.plays = runs.length; pri.lastActive = dtTs(runs[runs.length - 1]); delete pri.lastEst;
+      if(!pri.myRating){ const o = g.find(x => x !== pri && x.myRating); if(o) pri.myRating = o.myRating; }
+      if(cat === "games"){ pri.played = Math.max(...g.map(x => x.played || 0)); syncRunHours(pri); }
+      g.forEach(x => { if(x === pri) return; if(inV(x)) S.vault[cat] = S.vault[cat].filter(y => y !== x); else S[cat] = S[cat].filter(y => y !== x); });
+      ch = true;
+    });
+  });
+  S.dupV = 1;
+  return ch;
+}
 function foldReplays(){   // a finished replay becomes another run of its original Archive title
   let ch = false;
   [["games", S.games], ["movies", S.movies]].forEach(([cat, list]) => list.forEach(it => {
     if(!it.replayOf || it.folded) return;
     const done = cat === "games" ? (it.finished && !it.abandoned) : finMovieDone(it);
     if(!done || !(it.finishedDate && +it.finishedDate.y)) return;
-    const orig = (S.vault[cat] || []).find(x => x.id === it.replayOf);
+    const orig = (S.vault[cat] || []).find(x => x.id === it.replayOf) || list.find(x => x.id === it.replayOf && x !== it);   // v2.8.0 — the original can still be in Season (finished earlier in the same season)
     if(!orig){ delete it.replayOf; ch = true; return; }
     const runs = arcRuns(orig).slice(), n0 = Math.max(1, runs.length);
     if(cat === "games"){
@@ -7530,6 +7755,7 @@ setTimeout(() => bkRun(false), 12000); setInterval(() => bkRun(false), 3600000);
   };
   window.addEventListener("scroll", () => { if(!tick){ tick = true; requestAnimationFrame(run); } }, { passive: true });
 })();
+{ const _rlt = renderLibraryTab; renderLibraryTab = function(c){ _rlt(c); updateAddFab(); }; }   // typing in the search box redraws the page without render()
 seedLastActive(); arcStampLast(); libStampAdded(); lpApplyAll(); stateSave(); fltLoad(); libTabsSync();
 render();
 setTimeout(purgeUnlinked, 400);
@@ -7546,7 +7772,7 @@ import {
   getRedirectResult, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import {
-  getFirestore, runTransaction, doc, getDoc, setDoc, onSnapshot, collection, getDocs, writeBatch, query, where
+  getFirestore, runTransaction, doc, getDoc, setDoc, onSnapshot, collection, getDocs, writeBatch, query, where, documentId
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -7558,7 +7784,7 @@ const firebaseConfig = {
   appId: "1:1013142560008:web:e1140057ebe4cb6d0420bd"
 };
 
-let auth, db, unsubSnapshot = null, unsubPlay = null, lastKnownUpdatedAt = 0, pushTimer = null, tgtKnown = null, tgtTimer = null;
+let auth, db, unsubSnapshot = null, unsubPlay = [], playKey = "", playReadyFired = false, lastKnownUpdatedAt = 0, pushTimer = null, tgtKnown = null, tgtTimer = null;
 
 try{
   const app = initializeApp(firebaseConfig);
@@ -7616,7 +7842,7 @@ window.__fs2 = {
   watch(uid, since, cb){   // calls cb({items, core, server}) — server is true when the data came from the server, not the device cache
     fs2Stop();
     const col = collection(db, "users", uid, "items");
-    fsUnsubs.push(onSnapshot(since > 0 ? query(col, where("u", ">", since)) : col, snap => {
+    fsUnsubs.push(onSnapshot(query(col, where("book", "==", "season")), snap => {   // v2.8.0 — Season titles only; everything else comes with the daily check
       const items = [];
       snap.docChanges().forEach(ch => { if(ch.type !== "removed" && !ch.doc.metadata.hasPendingWrites) items.push({ id: ch.doc.id, ...ch.doc.data() }); });
       cb({ items, server: !snap.metadata.fromCache });
@@ -7630,25 +7856,53 @@ window.__fs2 = {
 };
 
 // v1.16.0 — the launcher writes users/{uid}/launcherPlaytime/{igdbId} ({playedHours, updatedAt}); the app only listens
-function watchPlaytime(uid){
-  if(unsubPlay) unsubPlay();
-  let first = true;
-  unsubPlay = onSnapshot(collection(db, "users", uid, "launcherPlaytime"), snap => {
-    const list = [], gone = [];
-    snap.docChanges().forEach(ch => { if(ch.type !== "removed") list.push({ id: ch.doc.id, ...ch.doc.data() }); else gone.push(ch.doc.id); });
-    if(list.length && typeof window.__cloudOnPlaytime === "function") window.__cloudOnPlaytime(list);
-    if(gone.length && typeof window.__cloudOnPlaytimeGone === "function") window.__cloudOnPlaytimeGone(gone);
-    if(first && !snap.metadata.fromCache){ first = false; if(typeof window.__cloudPlaytimeReady === "function") window.__cloudPlaytimeReady(); }
-  }, err => console.error("Playtime listener error", err));
+// v2.8.0 — fewer reads: games that are in Season are watched live; all playtime documents are read once a day (and once right after this update)
+const PF = uid => "expedition-play-full-" + uid;
+function stopPlay(){ unsubPlay.forEach(f => { try{ f(); }catch(e){} }); unsubPlay = []; }
+function playMarkReady(){ if(playReadyFired) return; if(!auth || !auth.currentUser || !+localStorage.getItem(PF(auth.currentUser.uid))) return; playReadyFired = true; if(typeof window.__cloudPlaytimeReady === "function") window.__cloudPlaytimeReady(); }
+function playApply(snap){
+  const list = [], gone = [];
+  snap.docChanges().forEach(ch => { if(ch.type !== "removed") list.push({ id: ch.doc.id, ...ch.doc.data() }); else gone.push(ch.doc.id); });
+  if(list.length && typeof window.__cloudOnPlaytime === "function") window.__cloudOnPlaytime(list);
+  if(gone.length && typeof window.__cloudOnPlaytimeGone === "function") window.__cloudOnPlaytimeGone(gone);
 }
+function watchPlaytime(uid){
+  const ids = ((window.__lpSeasonIds && window.__lpSeasonIds()) || []).map(String).sort(), key = ids.join(",");
+  if(key === playKey && unsubPlay.length) return;
+  if(!ids.length && playKey === "" && !unsubPlay.length){ playKey = ""; playMarkReady(); return; }
+  stopPlay(); playKey = key;
+  const col = collection(db, "users", uid, "launcherPlaytime"), chunks = []; for(let i = 0; i < ids.length; i += 30) chunks.push(ids.slice(i, i + 30));
+  if(!chunks.length){ playMarkReady(); return; }
+  let left = chunks.length;
+  chunks.forEach(ch => {
+    let first = true;
+    unsubPlay.push(onSnapshot(query(col, where(documentId(), "in", ch)), snap => {
+      playApply(snap);
+      if(first && !snap.metadata.fromCache){ first = false; left--; if(left <= 0) playMarkReady(); }
+    }, err => console.error("Playtime listener error", err)));
+  });
+}
+async function playFull(uid){   // every playtime document, once a day
+  const snap = await getDocs(collection(db, "users", uid, "launcherPlaytime")), list = [];
+  snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+  if(list.length && typeof window.__cloudOnPlaytime === "function") window.__cloudOnPlaytime(list);
+  try{ localStorage.setItem(PF(uid), String(Date.now())); }catch(e){}
+}
+async function playDaily(uid){
+  const last = +localStorage.getItem(PF(uid)) || 0;
+  if(!last || Date.now() - last > 864e5){ try{ await playFull(uid); }catch(e){ console.error("Playtime read failed", e); } }
+  playMarkReady();
+}
+async function startPlay(uid){ playKey = "\u0000"; playReadyFired = false; stopPlay(); await playDaily(uid); playKey = "\u0001"; watchPlaytime(uid); }
+window.__cloudRewatchPlay = function(){ if(auth && auth.currentUser && playKey !== "\u0000") watchPlaytime(auth.currentUser.uid); };
+setInterval(() => { if(auth && auth.currentUser) playDaily(auth.currentUser.uid); }, 3600000);
 
 if(auth){
   onAuthStateChanged(auth, user => {
     tgtKnown = null;
-    if(user){ watchPlaytime(user.uid); }
+    if(user){ startPlay(user.uid); }
     else{
-      fs2Stop();
-      if(unsubPlay){ unsubPlay(); unsubPlay = null; }
+      fs2Stop(); stopPlay(); playKey = "";
     }
     if(typeof window.__cloudOnAuthChange === "function"){
       window.__cloudOnAuthChange(user ? {uid:user.uid, email:user.email, displayName:user.displayName, photoURL:user.photoURL} : null);
@@ -7679,7 +7933,11 @@ window.__cloudTargets = function(map){
     try{
       const col = collection(db, "users", auth.currentUser.uid, "targets");
       const key = v => JSON.stringify([v.kind, v.name, v.goalHours, v.parentIgdbId == null ? null : v.parentIgdbId, typeof v.finished === "boolean" ? v.finished : null, typeof v.abandoned === "boolean" ? v.abandoned : null]);   // an old document with no finished value counts as changed, so it gets an explicit false
-      if(!tgtKnown){ tgtKnown = new Map(); (await getDocs(col)).forEach(d => tgtKnown.set(d.id, key(d.data()))); }
+      const TK = "expedition-tgt-" + auth.currentUser.uid, saveK = () => { try{ localStorage.setItem(TK, JSON.stringify(Object.fromEntries(tgtKnown))); }catch(e){} };
+      if(!tgtKnown){   // v2.8.0 — kept on this device, so the whole collection is not read again at every start
+        try{ const o = JSON.parse(localStorage.getItem(TK) || "null"); if(o && typeof o === "object") tgtKnown = new Map(Object.entries(o)); }catch(e){}
+      }
+      if(!tgtKnown){ tgtKnown = new Map(); (await getDocs(col)).forEach(d => tgtKnown.set(d.id, key(d.data()))); saveK(); }
       const all = [];
       Object.keys(map).forEach(id => { const k = key(map[id]); if(tgtKnown.get(id) !== k) all.push({ id, v: map[id], k }); });
       let gone = [...tgtKnown.keys()].filter(id => !(id in map));
@@ -7690,6 +7948,7 @@ window.__cloudTargets = function(map){
         part.forEach(o => { if(o.del) b.delete(doc(col, o.id)); else b.set(doc(col, o.id), { ...o.v, igdbId: +o.id, updatedAt: Date.now() }); });
         await b.commit();
         part.forEach(o => { if(o.del) tgtKnown.delete(o.id); else tgtKnown.set(o.id, o.k); });
+        saveK();
       }
     }catch(e){ console.error("Targets sync failed", e); tgtKnown = null; }
   }, 2000);
@@ -7704,6 +7963,7 @@ window.__cloudPlaytimeWrite = async function(map){
     await b.commit();
   }
 };
+window.__cloudTargetsReset = function(){ tgtKnown = null; try{ if(auth && auth.currentUser) localStorage.removeItem("expedition-tgt-" + auth.currentUser.uid); }catch(e){} };
 window.__cloudSignOut = function(){ return signOut(auth); };
 
 </script>
