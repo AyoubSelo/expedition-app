@@ -921,6 +921,90 @@ body.det-lock{overflow:hidden}
 .yr-tabs button b{display:block;font:600 15px "IBM Plex Mono",monospace;color:var(--ink)}
 .yr-tabs button.on{border-color:var(--brass);background:rgba(217,162,86,.14);color:var(--brass)}
 .yr-tabs button.on b{color:var(--brass)}
+
+/* ===== v3.0.0 — Goals (marathon lists) ===== */
+.gl{position:relative;background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px 14px 12px 18px;margin-bottom:12px;cursor:pointer;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.gl::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gc)}
+.gl.mixed::before{background:linear-gradient(180deg,#4f9e8f,#d9a256 50%,#c1614a)}
+.gl:active{border-color:var(--gc)}
+.gl-top{display:flex;align-items:center;gap:12px}
+.gl-ringw{flex:none;width:64px;height:64px}
+.gl-ring{display:block;width:100%;height:100%}
+.gl-mid{flex:1;min-width:0}
+.gl-name{font-size:17px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.gl-sub{font:500 10px "IBM Plex Mono",monospace;color:var(--gc);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.gl-nx{font-size:11.5px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gl-nx b{color:var(--ink);font-weight:600}
+.gl-pw{flex:none;width:54px}
+.gl-poster{position:relative;aspect-ratio:2/3;border-radius:7px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.gl-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.gl-poster span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:4px;text-align:center;font-size:8.5px;color:var(--muted);overflow:hidden}
+.gl-poster i{position:absolute;left:0;right:0;bottom:0;background:rgba(8,12,10,.84);color:var(--gc);font:700 7.5px/14px "IBM Plex Mono",monospace;letter-spacing:.12em;text-align:center;font-style:normal;z-index:1}
+.gl-chips,.gl-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}
+.gl-chips>div,.gl-mini>div{background:var(--bg);border:1px solid var(--line-soft);border-radius:10px;padding:7px 4px;text-align:center;min-width:0}
+.gl-chips b,.gl-mini b{display:block;font:600 14px "IBM Plex Mono",monospace;color:var(--ink);white-space:nowrap}
+.gl-chips span,.gl-mini span{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the list menu */
+#goalModal .sheet{padding:0;display:flex;flex-direction:column;overflow:hidden;max-height:calc(var(--vvh,100vh) - 24px - env(safe-area-inset-top,0px));border-top:3px solid var(--gc,#d9a256);background:#131a16}
+.gl-hd{display:flex;align-items:center;gap:10px;padding:14px 12px 0 14px}
+.gl-hd .gl-ring{width:52px;height:52px;flex:none}
+.gl-hdm{flex:1;min-width:0}
+.gl-hn{font-size:18px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.gl-hs{font:500 10px "IBM Plex Mono",monospace;color:var(--gc);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.gl-nameIn{width:100%;padding:8px 10px;font-size:16px;font-family:"Fraunces",Georgia,serif;font-weight:600;border-radius:9px}
+.gl-x{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:14px;cursor:pointer;font-family:inherit}
+.gl-mini{margin:12px 14px 12px}
+.gl-edit{padding:0 14px 12px;display:flex;flex-direction:column;gap:8px}
+.gl-kinds{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gl-kinds button{padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:600 12px inherit;font-family:inherit;cursor:pointer;transition:opacity .15s}
+.gl-kinds button.on{border-color:var(--kc);color:var(--kc);background:rgba(255,255,255,.05)}
+.gl-kinds button:disabled{opacity:.25;cursor:default}
+.gl-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.gl-field{flex:1;min-height:0;overflow-y:auto;position:relative;margin:0 10px 12px;padding:10px 10px 4px;background:#0a0f0c;border:1px solid var(--line-soft);border-radius:14px;box-shadow:inset 0 4px 16px rgba(0,0,0,.6);overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.gl-lab{display:flex;align-items:center;gap:8px;font:600 9.5px "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dim);margin:2px 2px 8px}
+.gl-lab::after{content:"";flex:1;height:1px;background:var(--line)}
+.gl-row{position:relative;display:flex;gap:11px;align-items:stretch;border:1px solid var(--line-soft);border-radius:12px;padding:8px;margin-bottom:8px;transition:transform .16s ease}
+.gl-row.done{background:linear-gradient(135deg,var(--rca),rgba(255,255,255,.02));border-color:var(--rc)}
+.gl-row.next{border:2px solid var(--rc);padding:7px;background:rgba(255,255,255,.035);box-shadow:0 0 0 3px var(--rca),0 8px 22px -10px var(--rc)}
+.gl-row.todo .gl-rp img{filter:saturate(.75)}
+.gl-row.drag{transition:none;z-index:6;background:#1b2520;box-shadow:0 12px 28px rgba(0,0,0,.65)}
+.gl-rp{position:relative;flex:none;width:54px;aspect-ratio:2/3;border-radius:6px;overflow:hidden;background:var(--panel2);border:1px solid var(--line)}
+.gl-rp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1}
+.gl-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:3px;text-align:center;font-size:8px;color:var(--muted);overflow:hidden}
+.gl-rb{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.gl-tag{align-self:flex-start;font:700 8.5px "IBM Plex Mono",monospace;letter-spacing:.14em;color:#0d1310;background:var(--rc);border-radius:5px;padding:2px 6px}
+.gl-rt{font-size:14px;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.gl-ok{display:inline-block;vertical-align:-2px;margin-left:6px}
+.gl-bar{height:6px;border-radius:4px;background:#0a0f0c;overflow:hidden;border:1px solid var(--line-soft)}
+.gl-bar i{display:block;height:100%;border-radius:4px;background:var(--rc)}
+.gl-meta{display:flex;justify-content:space-between;gap:8px;font:500 11px "IBM Plex Mono",monospace;color:var(--muted)}.gl-meta b{color:var(--ink)}
+.gl-cp{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.gl-cp span{font:500 10.5px "IBM Plex Mono",monospace;color:var(--muted);background:var(--bg);border:1px solid var(--line-soft);border-radius:7px;padding:2px 6px;white-space:nowrap}
+.gl-cp .pr[class*="rc-"]{background:var(--rcbg);color:var(--rcx);border-color:var(--rcbd);font-weight:600}
+.gl-rc{flex:none;display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:6px}
+.gl-rm{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--rust);font-size:13px;cursor:pointer;font-family:inherit;padding:0}
+.gl-hdl{width:30px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--muted);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;border-radius:8px;background:rgba(255,255,255,.04)}
+.gl-add{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;margin:2px 0 8px;padding:16px;border:1.5px dashed var(--line);border-radius:12px;background:transparent;color:var(--muted);font:600 13px inherit;font-family:inherit;cursor:pointer}
+.gl-add b{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--gc,#d9a256);color:var(--gc,#d9a256);display:flex;align-items:center;justify-content:center;font-size:21px;line-height:1;font-weight:400}
+.gl-empty{text-align:center;color:var(--muted);font-size:13px;line-height:1.6;padding:36px 10px}
+/* the add-titles menu */
+#goalPickModal .sheet{padding:0;display:flex;flex-direction:column;overflow:hidden;height:calc(var(--vvh,100vh) - 24px - env(safe-area-inset-top,0px));max-height:none}
+.gp-top{padding:16px 16px 8px}
+.gp-top h2{margin:0 0 10px;font-size:19px}
+#gpBody{flex:1;min-height:0;overflow-y:auto;padding:4px 12px 12px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.gp-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.gp-t{position:relative;aspect-ratio:2/3;padding:0;border:1px solid var(--line);border-radius:7px;background:var(--panel2);overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gp-t img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1}
+.gp-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:3px;text-align:center;font-size:8px;line-height:1.2;color:var(--muted);overflow:hidden;word-break:break-word}
+.gp-t.in{border-color:#d9544a}
+.gp-b{position:absolute;right:3px;top:3px;z-index:2;width:19px;height:19px;border-radius:50%;background:#2fae6a;color:#04140a;display:flex;align-items:center;justify-content:center;font:700 15px/1 -apple-system,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.65)}
+.gp-b::before{content:"+"}
+.gp-t.in .gp-b{background:#d9544a;color:#fff}.gp-t.in .gp-b::before{content:"\2212"}
+.gp-div{display:flex;align-items:center;gap:10px;margin:16px 0 8px;color:var(--c);font:600 10.5px "IBM Plex Mono",monospace;letter-spacing:.16em;text-transform:uppercase}
+.gp-div::before,.gp-div::after{content:"";flex:1;height:1px;background:var(--c);opacity:.55}
+.gp-div:first-child{margin-top:6px}
+.gp-sub{font:600 9.5px "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dim);margin:10px 2px 7px}.gp-sub.arc{color:var(--brass-dim);margin-top:16px}
+.gp-none,.gp-hint{color:var(--muted-dim);font-size:12px;line-height:1.5;padding:10px 4px;text-align:center}
+.gp-foot{padding:10px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#131a16}
 </style>
 </head>
 <body>
@@ -1168,6 +1252,8 @@ body.det-lock{overflow:hidden}
 <div class="modal" id="myrModal"><div class="sheet"><h2 class="serif" id="myrName"></h2><div class="hint" id="myrHint"></div><input id="myrIn" type="number" inputmode="decimal" min="0" placeholder="Score" onkeydown="if(event.key==='Enter'){event.preventDefault();myrSave();}"><div class="actions"><button class="btn" onclick="closeModal('myrModal')">Cancel</button><button class="btn danger" id="myrClear" onclick="myrClear()">Clear</button><button class="btn brass" onclick="myrSave()">Save</button></div></div></div>
 <div class="modal" id="splitModal"><div class="sheet"><h2 class="serif" id="splitTitle">How much did you finish?</h2><div class="hint" id="splitHint"></div><div id="splitBody"></div><div class="actions"><button class="btn" onclick="closeModal('splitModal')">Cancel</button><button class="btn brass" onclick="splitOk()">Add</button></div></div></div>
 <div class="modal" id="dpModal"><div class="sheet"><h2 class="serif" id="dpTitle">Date</h2><div class="hint" id="dpHint"></div><div id="dpBody"></div><div class="actions"><button class="btn" onclick="closeModal('dpModal')">Cancel</button><button class="btn brass" onclick="dpSave()">Save</button></div></div></div>
+<div class="modal" id="goalModal"><div class="sheet" id="goalSheet"><div id="goalHead"></div><div class="gl-field" id="goalField"></div></div></div>
+<div class="modal" id="goalPickModal"><div class="sheet"><div class="gp-top"><h2 class="serif">Add new titles</h2><input id="gpQ" placeholder="Search titles, or your Archive…" autocomplete="off" oninput="if(gpick){gpick.q=this.value;goalPickRender();}"></div><div id="gpBody"></div><div class="gp-foot"><button class="btn brass wide" onclick="goalPickDone()">Done</button></div></div></div>
 <div class="toast" id="toast"></div>
 
 <!-- move modal (v1.7.0) — partial move of seasons/arcs/volumes between books -->
@@ -1186,7 +1272,7 @@ body.det-lock{overflow:hidden}
 /* ===== CODEMAP — notes for Claude, not for humans =====
 FILE: one index.html = <style> (versioned blocks "/* v2.x.x") · HTML shell + modals (xxxModal / xxxBody ids) · this classic script block (inline onclick needs globals) · the module script block at the end (Firebase; reaches the app only via window.__cloud* / window.__fs2).
 FIND: grep -n "// §" index.html lists every section; the list below gives each section's top-level names (functions, consts). Edit by name, never by line number.
-STATE: S = {games,movies,tv,anime,manga (Season book), library:{cat:[]}, vault:{cat:[]} (Archive book), archive:[] (old season records), settings, sessionLog, seasonStart}. mode = "season"|"library"|"archive"; ALL_CATS / LIB_CATS = the 5 categories. Item defaults live in normalizeState.
+STATE (v3.0.0: a season is a calendar YEAR; S.goals = marathon lists): S = {games,movies,tv,anime,manga (Season book), library:{cat:[]}, vault:{cat:[]} (Archive book), archive:[] (old season records), settings, sessionLog, seasonStart}. mode = "season"|"library"|"archive"; ALL_CATS / LIB_CATS = the 5 categories. Item defaults live in normalizeState.
 FLOW: persist() = stamp dates + save + cloud push + render(); render() -> renderCore() -> per-mode renderer. A re-render rebuilds #app, so open/closed state lives in JS vars (libOpenMovie, tvOpen, mgOpen, gmOpen, arcOpen, ...), never in the DOM. FLIP animation = elements with data-pid.
 GOTCHA: top-level let/const declared later in the file are not usable by code that runs at load (ensureSeason/performRollover run before most of the file). Keep load-time paths free of them.
 LAUNCHER: users/{uid}/launcherPlaytime/{igdbId} = {playedHours, src, updatedAt} shared running total (Expedition sets, launcher adds); users/{uid}/targets/{igdbId} written by buildTargets (launcher reads only).
@@ -1284,13 +1370,15 @@ SECTIONS:
      logId, arcLog, logRender, arcPlaysSet, arcDetails, detRender, arcRemove
  §YEARS — v2.7.0 Archive: arcShowsPage (shows page, 4 per row), logShows/logManga, Years tab (yrData, renderYears, yrTab/yrOpenYear/yrClose)
      catOfShow, arcPartial, arcShowsPage, logShows, arcGrpPlays, logManga, yrOpen, yrCat, yrSort, yrDir, YR_TABS, YR_SORTS, yrVal, yrCmp, yrCard, renderYears
+ §GOALS — v3.0.0 Goals page (Season + Library tab "goals"): S.goals lists of {cat,id} references, list menu (goalModal), add-titles menu (goalPickModal), drag reorder, move between books; also yearMigrate (the one-time move of this year's finished Archive titles into Season, S.yearV)
+     GL_KIND, glCol, glA, goalList, goalFind, goalRefRow, goalMinutes, goalPace, goalStats, goalDaysChip, glRing, goalSave, goalNormOrder, renderGoals, goalCard, goalOpen, goalNew, goalClosed, goalToggleEdit, goalKind, goalRemove, goalDelete, goalMove, goalRowHtml, goalRender, goalDrag, goalReorder, goalAddOpen, goalPickRender, goalToggle, yearMigrate
  §FIREBASE-MODULE — module script: Firebase init, __fs2 (cloud v2), playtime listener/write, targets, sign-in
      firebaseConfig, auth, docRefFor, fsUnsubs, fs2Stop, stateDoc, __fs2, watchPlaytime, __cloudSignIn, __cloudTargets, __cloudPlaytimeWrite, __cloudSignOut
 ===== END CODEMAP ===== */
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "2.8.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "3.0.0"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1304,6 +1392,7 @@ const CAT = {
   manga:   {color:"#8f7fc4", text:"#140f22", label:"Manga"},
   stats:   {color:"#d9a256", text:"#1a1006", label:"Stats"},
   years:   {color:"#d9a256", text:"#1a1006", label:"Years"},
+  goals:   {color:"#e0b867", text:"#1a1006", label:"Goals"},
 };
 const ALL_CATS = ["games","movies","tv","anime","manga"]; // single source of truth for "every media category"
 const ICON_SVG = {
@@ -1319,6 +1408,7 @@ const ICON_SVG = {
 };
 ICON_SVG.shows = ICON_SVG.tv; ICON_SVG.overview = ICON_SVG.stats;
 ICON_SVG.years = `<path d="M5 3h10M5 17h10M6 3c0 4 4 4 4 7s-4 3-4 7M14 3c0 4-4 4-4 7s4 3 4 7"/>`;
+ICON_SVG.goals = `<path d="M5.2 17V3.4M5.2 4.2h9.1l-1.9 3.3 1.9 3.3H5.2"/>`;   // v3.0.0 — flag
 function iconBadge(cat){
   return `<svg viewBox="0 0 20 20" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${ICON_SVG[cat]}</svg>`;
 }
@@ -1417,6 +1507,18 @@ function stampRun(x, mode){ if(mode === "stamp" && x.finishedDate && +x.finished
 const stampFinishDates = () => finWalk(S, "stamp");
 
 // §STATE — normalizeState (item defaults, migration), load, S, Season/Library/Archive containers
+// v3.0.0 — Goals: named marathon lists of games / movies. Items are only references {cat,id}; the titles stay where they are.
+function normGoals(raw){
+  const seen = new Set();
+  return (Array.isArray(raw) ? raw : []).filter(l => l && typeof l === "object").map(l => {
+    const its = [], keys = new Set();
+    (Array.isArray(l.items) ? l.items : []).forEach(i => { if(!i || (i.cat !== "games" && i.cat !== "movies") || !i.id) return; const k = i.cat + ":" + i.id; if(keys.has(k)) return; keys.add(k); its.push({ cat: i.cat, id: i.id }); });
+    let id = l.id || uid(); while(seen.has(id)) id = uid(); seen.add(id);
+    const o = { id, name: String(l.name || "Untitled list"), kind: (l.kind === "games" || l.kind === "movies") ? l.kind : "mixed", book: l.book === "library" ? "library" : "season", items: its, createdAt: +l.createdAt || 0 };
+    if(l.fresh) o.fresh = true;
+    return o;
+  });
+}
 function normalizeState(raw){
   raw = raw || {};
   const withExtras = (x, cat) => ({
@@ -1484,6 +1586,7 @@ function normalizeState(raw){
       manga: normSimple(rawLib.manga,"manga"),
     },
     settings: { tmdbKey: String((raw.settings && raw.settings.tmdbKey) || ""), mdbKey: String((raw.settings && raw.settings.mdbKey) || ""), ratingSrc: String((raw.settings && raw.settings.ratingSrc) || "merged"), omdbKey: String((raw.settings && raw.settings.omdbKey) || ""), mdxProxy: String((raw.settings && raw.settings.mdxProxy) || ""), igdbProxy: String((raw.settings && raw.settings.igdbProxy) || ""), ocProxy: String((raw.settings && raw.settings.ocProxy) || "") },
+    goals: normGoals(raw.goals), yearV: raw.yearV || 0,
     finishDatesV: raw.finishDatesV || 0, dateGenV: raw.dateGenV || 0, addedV: raw.addedV || 0, dupV: raw.dupV || 0, arcDlcV: raw.arcDlcV || 0,
     updatedAt: raw.updatedAt || 0,
   });
@@ -1511,6 +1614,16 @@ function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.get
 function toISODate(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function quarterStartFor(date){ const qm = Math.floor(date.getMonth()/3)*3; return new Date(date.getFullYear(), qm, 1); }
 function quarterEndFor(startDate){ return new Date(startDate.getFullYear(), startDate.getMonth()+3, 0); }
+// v3.0.0 — a season is a whole calendar year now (Jan 1 – Dec 31)
+function yearStartFor(date){ return new Date(date.getFullYear(), 0, 1); }
+function yearEndFor(startDate){ return new Date(startDate.getFullYear(), 11, 31); }
+function seasonLabel(dateStr){ return String((dateStr ? new Date(dateStr+"T00:00:00") : new Date()).getFullYear()); }
+function seasonLabelDedup(startStr){
+  let label = seasonLabel(startStr);
+  const dupes = S.archive.filter(a=>a.label===label || a.label.startsWith(label+" · ")).length;
+  if(dupes>0) label = label + " · " + (dupes+1);
+  return label;
+}
 function quarterLabel(dateStr){
   const d = dateStr ? new Date(dateStr+"T00:00:00") : new Date();
   const q = Math.floor(d.getMonth()/3)+1;
@@ -1652,7 +1765,7 @@ function seasonSnapshot(gamesList, moviesList, tvList, animeList, mangaList){
 }
 function performRollover(newStartStr){
   const oldStart = S.seasonStart;
-  const label = quarterLabelDedup(oldStart);
+  const label = seasonLabelDedup(oldStart);
   const snap = seasonSnapshot(S.games, S.movies, S.tv, S.anime, S.manga);
   const rolloverDate = todayStr();
   const days = Math.max(1, Math.round((new Date(rolloverDate+"T00:00:00")-new Date(oldStart+"T00:00:00"))/86400000)+1);
@@ -1667,15 +1780,11 @@ function performRollover(newStartStr){
   toast(`🎉 "${label}" archived — carrying forward what's still in progress.`);
 }
 function ensureSeason(){
-  const qStartStr = toISODate(quarterStartFor(new Date()));
-  if(!S.seasonStart){ S.seasonStart = qStartStr; return; }
-  const storedQStartStr = toISODate(quarterStartFor(new Date(S.seasonStart+"T00:00:00")));
-  if(storedQStartStr === qStartStr){
-    // Same calendar quarter as before — just realign the stored date, never archive.
-    S.seasonStart = qStartStr;
-    return;
-  }
-  performRollover(qStartStr);
+  // v3.0.0 — one season per calendar year. A start date left over from the quarter days is simply realigned to Jan 1; only a new year archives.
+  const yStr = toISODate(yearStartFor(new Date()));
+  if(!S.seasonStart){ S.seasonStart = yStr; return; }
+  if(new Date(S.seasonStart+"T00:00:00").getFullYear() === new Date().getFullYear()){ S.seasonStart = yStr; return; }
+  performRollover(yStr);
 }
 function persist(){
   stampFinishDates();
@@ -1730,18 +1839,18 @@ function logAction(category, id, name, minutes, action){
   if(S.sessionLog.length > 60) S.sessionLog = S.sessionLog.slice(-60);
   touchItem(category, id);
 }
-function closeModal(id){ $(id).classList.remove("show"); lockSync(); }
+function closeModal(id){ $(id).classList.remove("show"); lockSync(); if(id === "goalModal") goalClosed(); else if(id === "goalPickModal") goalPickClosed(); }
 
 function daysLeft(){
   if(!S.seasonStart) return null;
-  const end = quarterEndFor(new Date(S.seasonStart+"T00:00:00"));
+  const end = yearEndFor(new Date(S.seasonStart+"T00:00:00"));
   const now = new Date(); now.setHours(0,0,0,0);
   return Math.ceil((end - now) / 86400000);
 }
 function seasonLengthDays(){
-  if(!S.seasonStart) return 90;
-  const start = quarterStartFor(new Date(S.seasonStart+"T00:00:00"));
-  const end = quarterEndFor(start);
+  if(!S.seasonStart) return 365;
+  const start = yearStartFor(new Date(S.seasonStart+"T00:00:00"));
+  const end = yearEndFor(start);
   return Math.round((end-start)/86400000) + 1;
 }
 
@@ -1786,6 +1895,7 @@ function isSeasonItemDone(category, item){
   return true;
 }
 function scrubFinishedMeta(item){
+  if(item.keepMeta) return;   // v3.0.0 — titles moved back from the Archive keep their release date
   if(item.partOfSeries || item.seriesId || item.seriesOrder!=null){
     item.partOfSeries = false; item.seriesId = null; item.seriesOrder = null;
   }
@@ -2008,7 +2118,7 @@ function abandonedCard(category, item){
 
 // §TABS-MODES — switchTab/switchMode/switchLibTab, tab bar
 /* ---------- tabs ---------- */
-const TAB_ORDER = ["overview","games","movies","shows","manga"];
+const TAB_ORDER = ["overview","games","movies","shows","manga","goals"];
 function switchTab(t){
   if(t === "tv" || t === "anime") t = "shows";
   gmReset();
@@ -2943,7 +3053,7 @@ window.__cloudOnPlaytime = function(list){
 };
 window.__lpSeasonIds = function(){   // v2.8.0 — only games in Season (and their DLC) are watched live
   const ids = new Set();
-  S.games.forEach(g => { if(g.igdbId) ids.add(g.igdbId); (g.dlcs || []).forEach(d => { if(d.igdbId) ids.add(d.igdbId); }); });
+  S.games.forEach(g => { if(g.abandoned || isSeasonItemDone("games", g)) return; if(g.igdbId) ids.add(g.igdbId); (g.dlcs || []).forEach(d => { if(d.igdbId) ids.add(d.igdbId); }); });   // v3.0.0 — finished titles are covered by the daily full read
   return [...ids];
 };
 window.__cloudOnPlaytimeGone = function(ids){ ids.forEach(id => { if(!lpOut[id]) delete lpCache[id]; }); lpSaveCache(); };
@@ -3812,7 +3922,7 @@ function renderEpisodicTab(category){   // v1.12.0 — TV and anime share one Se
 // title between books, etc. all slide instead of jumping.
 
 // §ADD-FAB — v2.8.0 the page's "+ Add …" button is shown as one floating button above the tab bar
-function addFabSrc(){ let src = null; document.querySelectorAll("#app .btn-row .btn.accent.wide").forEach(b => { if(!src && /^\+\s*Add/.test(b.textContent.trim())) src = b; }); return src; }
+function addFabSrc(){ let src = null; document.querySelectorAll("#app .btn-row .btn.accent.wide").forEach(b => { if(!src && /^\+\s*(Add|New)/.test(b.textContent.trim())) src = b; }); return src; }
 function updateAddFab(){
   const fab = $("addFab"); if(!fab) return;
   const src = addFabSrc();
@@ -3825,7 +3935,8 @@ function updateAddFab(){
 function addFabGo(){ const b = addFabSrc(); if(b) b.click(); }
 // §RENDER — render(), renderCore(), restoreScroll
 function render(){
-  if(gmBusy){ gmRenderPending = true; return; }   // v2.4.3 — never rebuild the page in the middle of a game open/close animation
+  if(gmBusy){ gmRenderPending = true; return; }
+  if(S.yearV !== 1) yearMigrate();   // v3.0.0 — one time: this year's finished titles come back into Season   // v2.4.3 — never rebuild the page in the middle of a game open/close animation
   const before = pdCaptureRects();
   const key = mode + "|" + activeTab + "|" + libTab; if(key !== vfKey){ vfKey = key; gmSetPad(0); }   // a different page starts without leftover room
   renderCore();
@@ -3835,6 +3946,7 @@ function render(){
   if(v && v.focus) vfFollow(v.focus);
   if($("logModal").classList.contains("show")) logRender();
   if($("detModal").classList.contains("show")) detRender();
+  if($("goalModal").classList.contains("show")) goalRender();
   updateAddFab();
 }
 function renderCore(){
@@ -3845,6 +3957,7 @@ function renderCore(){
   renderTabBar();
   if(mode==="library"||mode==="archive"){ renderLibraryTab(libTab); restoreScroll(scrollY); return; }
   if(activeTab==="overview") renderOverview();
+  else if(activeTab==="goals") renderGoals();
   else if(activeTab==="games") renderGames();
   else if(activeTab==="movies") renderMovies();
   else if(activeTab==="manga") renderManga();
@@ -6604,6 +6717,7 @@ function libCompare(category, a, b, key, dir){
   return dir==="desc" ? -cmp : cmp;
 }
 function renderLibraryTab(category){
+  if(category === "goals") return renderGoals();
   if(category === "years") return renderYears();
   if(category === "stats") return mode === "archive" ? renderArchiveStats() : renderLibraryStats();
   const meta = CAT[category];
@@ -7214,11 +7328,11 @@ const arcRuns = it => (it.runs && it.runs.length ? it.runs : (it.finishedDate &&
 function arcView(c){ if(c === "shows") return arcView("tv").concat(arcView("anime")); return (S.vault[c] || []).concat((S[c] || []).filter(x => (x.abandoned || isSeasonItemDone(c, x)) && !x.replayOf)); }   // Archive = vault + finished/abandoned Season titles (the same objects, so they act as one)
 function arcPlayedH(cat, it){ if(cat === "games") return gmPlayInfo(it).hours || 0; if(cat === "movies") return (it.watched || it.length || 0) / 60; const m = itemMinutes(cat, it); return (m.played || m.total || 0) / 60; }
 function arcHours(cat, it){ return Math.max(.5, arcPlayedH(cat, it) || (cat === "games" ? 10 : cat === "movies" ? 2 : 10)); }
-function arcQuarters(){
-  const out = [], end = quarterStartFor(new Date((S.seasonStart || toISODate(new Date())) + "T00:00:00"));
+function arcQuarters(upto){   // upto (Date) = last quarter start to stop before; default = the live season's start
+  const out = [], end = upto || quarterStartFor(new Date((S.seasonStart || toISODate(new Date())) + "T00:00:00"));
   for(let d = new Date(2016, 0, 1); d < end; d = new Date(d.getFullYear(), d.getMonth() + 3, 1)){
     const label = quarterLabel(toISODate(d));
-    out.push({ label, s: d.getTime(), e: new Date(d.getFullYear(), d.getMonth() + 3, 0, 12).getTime(), real: (S.archive || []).some(a => a.label === label || a.label.startsWith(label + " · ")) });
+    out.push({ label, s: d.getTime(), e: new Date(d.getFullYear(), d.getMonth() + 3, 0, 12).getTime(), real: (S.archive || []).some(a => a.label === label || a.label.startsWith(label + " · ") || (a.start && a.end && new Date(a.start + "T00:00:00").getTime() <= d.getTime() && new Date(a.end + "T00:00:00").getTime() >= new Date(d.getFullYear(), d.getMonth() + 3, 0).getTime())) });
   }
   return out;
 }
@@ -7392,7 +7506,7 @@ function dpSave(){
 
 // §ANALYSIS-LISTS — v2.6.0: Season overview, Library + Archive stats pages (tab "stats"), Archive lists (arcList), phone Back button
 const LIB_TABS = [];
-function libTabsSync(){ LIB_TABS.length = 0; LIB_TABS.push("stats"); if(mode === "archive") LIB_TABS.push("years"); LIB_TABS.push("games", "movies", "shows", "manga"); if(!LIB_TABS.includes(libTab)) libTab = "games"; }
+function libTabsSync(){ LIB_TABS.length = 0; LIB_TABS.push("stats"); if(mode === "archive") LIB_TABS.push("years"); LIB_TABS.push("games", "movies", "shows", "manga"); if(mode === "library") LIB_TABS.push("goals"); if(!LIB_TABS.includes(libTab)) libTab = "games"; }
 const arcList = { games: null, movies: null }; let arcRank = null;
 const fmtH = h => h >= 100 ? Math.round(h).toLocaleString("en-US") + "h" : (Math.round(h * 10) / 10) + "h";
 const anBar = (p, col) => `<div class="an-bar"><i style="width:${Math.max(0, Math.min(100, p))}%;background:${col || "var(--brass)"}"></i></div>`;
@@ -7418,7 +7532,7 @@ function renderOverview(){
   const done = snap.games.length + snap.movies.length + snap.episodic.reduce((a, e) => a + e.units, 0) + snap.manga.reduce((a, e) => a + e.units, 0);
   const R = 54, C = 2 * Math.PI * R, total = ALL_CATS.reduce((a, k) => a + categoryTotals(k).count, 0);
   let h = `<section class="ov-hero"><svg viewBox="0 0 130 130" class="ov-ring"><circle cx="65" cy="65" r="${R}" class="rg-bg"/><circle cx="65" cy="65" r="${R}" class="rg-fg" stroke-dasharray="${C * Math.min(100, pct) / 100} ${C}" transform="rotate(-90 65 65)"/><text x="65" y="68" text-anchor="middle" class="rg-t">${Math.round(pct)}%</text><text x="65" y="86" text-anchor="middle" class="rg-s">CLEARED</text></svg>
-    <div class="ov-side"><div class="eyebrow">${esc(quarterLabel(S.seasonStart))}</div><div class="ov-big serif">${d == null ? "—" : d < 0 ? "Past due" : left + " days"}</div><div class="ov-sub">left in this season</div><div class="ov-sub"><b>${fmtHM(Math.round(remain))}</b> still to go · ${total} titles</div></div></section>
+    <div class="ov-side"><div class="eyebrow">${esc(seasonLabel(S.seasonStart))}</div><div class="ov-big serif">${d == null ? "—" : d < 0 ? "Past due" : left + " days"}</div><div class="ov-sub">left in this season</div><div class="ov-sub"><b>${fmtHM(Math.round(remain))}</b> still to go · ${total} titles</div></div></section>
   <section class="an-card"><div class="eyebrow">Season clock</div>
     <div class="ov-row"><span>Time passed</span><b>${Math.round(tPct)}%</b></div>${anBar(tPct, "var(--muted-dim)")}
     <div class="ov-row" style="margin-top:10px"><span>Content cleared</span><b>${Math.round(pct)}%</b></div>${anBar(pct, good ? "var(--moss)" : "var(--rust)")}
@@ -7426,8 +7540,7 @@ function renderOverview(){
     <div class="pace-status ${good ? "good" : "behind"}">${esc(proj)}</div></section>
   <section class="an-card"><div class="eyebrow">By category</div>${["games","movies","shows","manga"].map(k => { const t = catTot(k), p = t.goal > 0 ? t.played / t.goal * 100 : 100;
     return `<button class="ov-cat" style="--accent:${CAT[k].color}" onclick="switchTab('${k}')"><span class="mono-badge">${iconBadge(k)}</span><div class="ov-cm"><div class="ov-ct"><b>${CAT[k].label}</b><span>${Math.round(p)}%</span></div>${anBar(p, CAT[k].color)}<div class="ov-cs">${t.count} title${t.count === 1 ? "" : "s"} · ${fmtHM(Math.round(Math.max(0, t.goal - t.played)))} left</div></div></button>`; }).join("")}</section>
-  <div class="season-grid" style="margin:0 0 14px">${anStat(done, "Finished")}${anStat(fmtN(Math.round(snap.finishedMin / 6) / 10) + "h", "Hours cleared")}${anStat(snap.abandoned.length, "Abandoned")}</div>
-  <div class="eyebrow" style="margin:6px 2px 10px">Cleared this season</div>${currentSeasonCardHtml(snap)}`;
+  <div class="season-grid" style="margin:0 0 14px">${anStat(done, "Finished")}${anStat(fmtN(Math.round(snap.finishedMin / 6) / 10) + "h", "Hours cleared")}${anStat(snap.abandoned.length, "Abandoned")}</div>`;
   $("app").innerHTML = h;
 }
 
@@ -7436,7 +7549,7 @@ function renderLibraryStats(){
   const cy = new Date().getFullYear(), now = Date.now();
   const rows = ["games","movies","shows","manga"].map(k => { const l = k === "shows" ? S.library.tv.concat(S.library.anime) : (S.library[k] || []); return { k, l, n: l.length, h: l.reduce((a, x) => a + libRemainingMin(k, x), 0) / 60 }; });
   const totN = rows.reduce((a, r) => a + r.n, 0), totH = rows.reduce((a, r) => a + r.h, 0);
-  const rec = (S.archive || []).slice(0, 4).map(a => +a.finishedHours || 0).filter(x => x > 0), pace = rec.length ? rec.reduce((a, b) => a + b, 0) / rec.length : 0;
+  const rec = (S.archive || []).slice(0, 4).filter(a => +a.finishedHours > 0 && +a.days > 0), pace = rec.length ? rec.reduce((a, r) => a + (+r.finishedHours), 0) / rec.reduce((a, r) => a + (+r.days), 0) * 365 : 0;   // v3.0.0 — hours per year, from the last records
   const by = {}; let older = 0, up = 0, unk = 0, recent = 0;
   for(let y = cy - 11; y <= cy; y++) by[y] = 0;
   rows.forEach(r => r.l.forEach(x => { const h = libRemainingMin(r.k, x) / 60, y = +(x.releaseDate && x.releaseDate.y), ts = arcRelTs(x);
@@ -7445,11 +7558,11 @@ function renderLibraryStats(){
   const yc = [{ l: "old", v: older }].concat(Object.keys(by).map(y => ({ l: "'" + String(y).slice(2), v: by[y] }))).concat([{ l: "soon", v: up, c: "var(--teal)" }]);
   const mo = []; for(let i = 5; i >= 0; i--){ const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i); mo.push({ s: d.getTime(), e: new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime(), l: MON3[d.getMonth()], v: 0 }); }
   let tracked = 0; rows.forEach(r => r.l.forEach(x => { if(x.addedAt > 1){ tracked++; const m = mo.find(q => x.addedAt >= q.s && x.addedAt < q.e); if(m) m.v += libRemainingMin(r.k, x) / 60; } }));
-  const Q = arcQuarters().slice(-6), qv = Q.map(q => ({ l: q.label.replace(" ", "\u00a0"), v: 0, c: "var(--moss)" }));
+  const Q = arcQuarters(quarterStartFor(new Date())).slice(-6), qv = Q.map(q => ({ l: q.label.replace(" ", "\u00a0"), v: 0, c: "var(--moss)" }));
   ALL_CATS.forEach(k => arcView(k).forEach(it => { if(!it.abandoned) arcEvents(k, it).forEach(e => { const i = Q.findIndex(q => e.ts >= q.s && e.ts <= q.e + 864e5); if(i >= 0) qv[i].v += e.h; }); }));
   const all = []; rows.forEach(r => r.l.forEach(x => { const m = libRemainingMin(r.k, x) / 60; if(m > 0) all.push({ n: x.name, k: r.k, h: m }); }));
   const short = all.slice().sort((a, b) => a.h - b.h).slice(0, 5), big = all.slice().sort((a, b) => b.h - a.h).slice(0, 3), li = x => `<div class="an-li"><span>${esc(x.n)}</span><em>${CAT[x.k].label} · ${fmtH(x.h)}</em></div>`;
-  let h = `<section class="ov-hero lib"><div class="ov-side" style="flex:1"><div class="eyebrow">Backlog stock</div><div class="ov-big serif">${fmtH(totH)}</div><div class="ov-sub">across <b>${totN}</b> titles in your Library</div>${pace > 0 ? `<div class="ov-sub">≈ <b>${(totH / pace).toFixed(1)}</b> seasons at your recent pace of ${fmtH(pace)} per season</div>` : `<div class="ov-sub">Finish a season to see how long this would take.</div>`}</div></section>
+  let h = `<section class="ov-hero lib"><div class="ov-side" style="flex:1"><div class="eyebrow">Backlog stock</div><div class="ov-big serif">${fmtH(totH)}</div><div class="ov-sub">across <b>${totN}</b> titles in your Library</div>${pace > 0 ? `<div class="ov-sub">≈ <b>${(totH / pace).toFixed(1)}</b> years at your recent pace of ${fmtH(pace)} per year</div>` : `<div class="ov-sub">Finish a few titles to see how long this would take.</div>`}</div></section>
   ${anSec("Where the hours are", rows.map(r => `<div class="ov-row"><span>${CAT[r.k].label} · ${r.n}</span><b>${fmtH(r.h)}</b></div>${anBar(totH ? r.h / totH * 100 : 0, CAT[r.k].color)}`).join(""))}
   ${anSec("Backlog by release year (hours left)", anCols(yc), totH ? `${Math.round(recent / totH * 100)}% of it came out in the last 3 years · "soon" = unreleased or no date yet.` : "")}
   ${anSec("Added to the Library (hours, last 6 months)", anCols(mo), tracked ? "Counts titles still in your Library." : "Tracking started with this version. This chart fills in as you add titles.")}
@@ -7616,10 +7729,16 @@ function yrVal(e){
   return (it.name || "").toLowerCase();
 }
 function yrCmp(a, b){ const x = yrVal(a), y = yrVal(b), c = typeof x === "string" ? x.localeCompare(y) : x - y; return (yrDir === "desc" ? -c : c) || (a.ts - b.ts); }
+function yrBest(e){   // a season's or a volume's own score (out of 10); -1 when it has none
+  const r = e.gid != null ? ((e.it.groups || []).find(g => g.id === e.gid) || {}).myRating : e.v != null ? (e.it.volRatings || {})[e.v] : null;
+  return r && r.s != null ? +r.s : -1;
+}
 function yrCard(y, D){
-  const all = [].concat(D.games, D.movies, D.shows, D.manga);
-  const cov = all.filter(e => myS100(e.it) != null).sort((a, b) => myS100(b.it) - myS100(a.it)).concat(all).filter((e, i, a) => a.indexOf(e) === i).slice(0, 5);
-  const books = cov.map((e, i) => { const u = arcCoverUrl(e.c, e.it); return `<div class="lc-b" style="left:${i * 25}px;z-index:${9 - i}">${u ? `<img alt="" loading="lazy" src="${esc(u)}" onerror="this.remove()">` : `<span>${esc(e.it.name)}</span>`}</div>`; }).join("");
+  const all = [].concat(D.games, D.movies, D.shows, D.manga), byTitle = new Map(), rc = {};
+  all.forEach(e => { const c = byTitle.get(e.it); if(!c || yrBest(e) > yrBest(c)) byTitle.set(e.it, e); });   // v3.0.0 — every title once; a show or manga is shown with its best-rated season / volume
+  const sc = e => { const v = myS100(e.it); return v == null ? -1 : v; };   // ranked by the score of the whole title, not by one lucky season
+  const cov = Array.from(byTitle.values()).map((e, i) => ({ e, i })).sort((a, b) => (sc(b.e) - sc(a.e)) || (a.i - b.i)).map(x => x.e).slice(0, 5);
+  const books = cov.map((e, i) => { const w = (e.gid != null || e.v != null) ? yrWrap(e, rc) : e.it, u = arcCoverUrl(e.c, w); return `<div class="lc-b" style="left:${i * 25}px;z-index:${9 - i}">${u ? `<img alt="" loading="lazy" src="${esc(u)}" onerror="this.remove()">` : `<span>${esc(e.it.name)}</span>`}</div>`; }).join("");
   const counts = YR_TABS.filter(t => D[t[0]].length).map(t => D[t[0]].length + " " + t[1].toLowerCase()).join(" · ");
   return `<div class="lc" style="--lc:var(--brass)" onclick="yrOpenYear(${y})"><div class="lc-l"><div class="lc-books">${books}</div><div class="lc-name serif">${y}</div></div>
     <div class="lc-r"><div class="lc-n serif">${all.length}</div><div class="lc-s">titles</div><div class="lc-m">${fmtH(D.h)} of content</div><div class="lc-m">${counts}</div></div></div>`;
@@ -7738,6 +7857,305 @@ function foldReplays(){   // a finished replay becomes another run of its origin
   return ch;
 }
 // quarter cards that come from a real season record: add the play-throughs / watches that the record does not list yet
+
+// §GOALS — v3.0.0 Goals page (marathon lists of games / movies) in Season and Library; list menu, add-titles menu, drag reorder, move between books
+/* S.goals = [{id, name, kind:"games"|"movies"|"mixed", book:"season"|"library", items:[{cat,id}], createdAt, fresh?}]. Items are references: the titles stay in their own book,
+   a title is "finished" when it is in the Archive vault, abandoned, or a finished Season title. Titles added from the Archive never change any book's stats.
+   The finished titles always sit above the unfinished ones; reordering happens inside each group only. Days to finish = hours left / the Season clock's "per day so far". */
+const GL_KIND = { games: { c: "#4f9e8f", t: "#0c1613", label: "Games" }, movies: { c: "#c1614a", t: "#1c0d09", label: "Movies" }, mixed: { c: "#d9a256", t: "#1a1006", label: "Mixed" } };
+const glCol = cat => cat === "games" ? "#4f9e8f" : "#c1614a";
+const glA = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+const GL_CHECK = `<svg viewBox="0 0 20 20" width="15" height="15" class="gl-ok"><circle cx="10" cy="10" r="8.6" fill="#2fae6a"/><path d="M6 10.3l2.8 2.8L14.2 7.6" fill="none" stroke="#06150c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+let goalOpenId = null, goalEditOn = false, gpick = null, gdrag = null;
+const goalList = id => (S.goals || []).find(l => l.id === id) || null;
+function goalFind(cat, id){
+  const a = (S.library[cat] || []).find(x => x.id === id); if(a) return { it: a, where: "library" };
+  const b = (S[cat] || []).find(x => x.id === id); if(b) return { it: b, where: "season" };
+  const c = (S.vault[cat] || []).find(x => x.id === id); if(c) return { it: c, where: "vault" };
+  return null;
+}
+function goalRefRow(ref){
+  const w = goalFind(ref.cat, ref.id); if(!w) return null;
+  const done = w.where === "vault" || !!w.it.abandoned || (w.where === "season" && isSeasonItemDone(ref.cat, w.it));
+  return { cat: ref.cat, it: w.it, where: w.where, done };
+}
+function goalMinutes(r){   // {total, played, left} in minutes
+  const it = r.it;
+  if(r.cat === "games"){
+    const gm = gameMin(it), dm = dlcMin(it), goal = gm.goal + dm.goal, played = gm.played + dm.played, tot = Math.max(goal, played);
+    if(r.done){ const h = (r.where === "vault" ? (gmPlayInfo(it).hours || 0) * 60 : played) || tot; return { total: h, played: h, left: 0 }; }
+    return { total: tot, played: Math.min(played, tot), left: Math.max(0, goal - played) };
+  }
+  const m = itemMinutes("movies", it);
+  if(r.done){ const h = m.total || m.played; return { total: h, played: h, left: 0 }; }
+  return { total: m.total, played: Math.min(m.played, m.total), left: Math.max(0, m.total - m.played) };
+}
+function goalPace(){   // minutes per day so far, the same number as the Season clock
+  const c = combinedTotals(), d = daysLeft(), len = seasonLengthDays(), lf = d == null ? len : Math.max(0, d), el = Math.max(1, len - lf);
+  return c.played / el;
+}
+function goalStats(l){
+  const rows = l.items.map(goalRefRow).filter(Boolean), done = rows.filter(r => r.done), todo = rows.filter(r => !r.done);
+  let tot = 0, got = 0, left = 0;
+  rows.forEach(r => { r.m = goalMinutes(r); tot += r.m.total; got += r.m.played; left += r.m.left; });
+  const pct = rows.length ? (tot > 0 ? got / tot * 100 : done.length / rows.length * 100) : 0, pace = goalPace();
+  return { rows, done, todo, pct, left, pace, days: left > 0 && pace > 0 ? Math.ceil(left / pace) : null };
+}
+function goalDaysChip(st){
+  if(!st.rows.length) return { v: "—", l: "to finish" };
+  if(!st.todo.length) return { v: "✓", l: "all done" };
+  if(st.left <= 0) return { v: "—", l: "no length yet" };
+  if(st.days == null) return { v: "—", l: "no pace yet" };
+  const d = st.days;
+  if(d < 100) return { v: String(d), l: d === 1 ? "day to finish" : "days to finish" };
+  if(d <= 540) return { v: "~" + Math.round(d / 30.4), l: "months to finish" };
+  return { v: "~" + (d / 365).toFixed(1), l: "years to finish" };
+}
+function glRing(pct, size, col, sw){
+  const r = (size - sw) / 2, C = 2 * Math.PI * r, c = size / 2, p = Math.max(0, Math.min(100, pct));
+  return `<svg class="gl-ring" viewBox="0 0 ${size} ${size}"><circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#26312b" stroke-width="${sw}"/><circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${C * p / 100} ${C}" transform="rotate(-90 ${c} ${c})"/><text x="${c}" y="${c + size * .07}" text-anchor="middle" fill="#eef1ec" font-family="Fraunces,serif" font-weight="600" font-size="${size * .27}">${Math.round(p)}%</text></svg>`;
+}
+const goalImg = (cat, it) => arcCoverUrl(cat, it);
+const glPoster = (cat, it) => { const u = goalImg(cat, it); return u ? `<img alt="" loading="lazy" src="${esc(u)}" onerror="this.remove()">` : ""; };
+function goalSave(){
+  S.updatedAt = Date.now();
+  const sv = stateSave();
+  if(sv === "stale"){ toast("This copy of Expedition is out of date. Close it and reopen the app."); return; }
+  if(cloudUser) pushToCloud();
+}
+function goalNormOrder(l){   // finished first, then the rest, each group keeping its own order; references to removed titles are dropped
+  const rows = l.items.map(goalRefRow).filter(Boolean);
+  l.items = rows.filter(r => r.done).concat(rows.filter(r => !r.done)).map(r => ({ cat: r.cat, id: r.it.id }));
+}
+
+/* ---- the page ---- */
+function renderGoals(){
+  const book = mode === "library" ? "library" : "season", lists = (S.goals || []).filter(l => l.book === book), k = CAT.goals;
+  const pace = goalPace();
+  let h = `<div class="lib-head"><b>${lists.length}</b> list${lists.length === 1 ? "" : "s"} in ${book === "library" ? "your Library" : "this season"}${pace > 0 ? ` · pace <b>${fmtHM(Math.round(pace))}</b>/day` : ""}</div>
+    <div class="btn-row" style="margin-bottom:12px"><button class="btn accent wide" style="--accent:${k.color};--accent-text:${k.text}" onclick="goalNew()">+ New List</button></div>`;
+  h += lists.length ? lists.map(goalCard).join("") : `<div class="empty"><span class="serif">No lists yet</span>Make a marathon: pick games or movies, put them in order, and watch the percentage climb. The days to finish come from your Season pace.</div>`;
+  $("app").innerHTML = h;
+}
+function goalCard(l){
+  const st = goalStats(l), k = GL_KIND[l.kind], n = st.rows.length, nxt = st.todo[0] || st.done[st.done.length - 1], d = goalDaysChip(st);
+  const poster = nxt ? `<div class="gl-pw"><div class="gl-poster">${glPoster(nxt.cat, nxt.it) || `<span>${esc(nxt.it.name)}</span>`}<i>${st.todo.length ? "NEXT" : "DONE"}</i></div></div>` : "";
+  return `<div class="gl ${l.kind}" style="--gc:${k.c}" onclick="goalOpen('${l.id}')">
+    <div class="gl-top"><div class="gl-ringw">${glRing(st.pct, 64, k.c, 7)}</div>
+      <div class="gl-mid"><div class="gl-name serif">${esc(l.name)}</div><div class="gl-sub">${k.label} · ${n} title${n === 1 ? "" : "s"}${n ? ` · ${st.done.length} finished` : ""}</div>
+      <div class="gl-nx">${nxt ? `${st.todo.length ? "Next" : "Last"}: <b>${esc(nxt.it.name)}</b>` : "Empty · tap to add titles"}</div></div>${poster}</div>
+    <div class="gl-chips"><div><b>${fmtH(st.left / 60)}</b><span>hours left</span></div><div><b>${st.todo.length}</b><span>titles left</span></div><div><b>${d.v}</b><span>${d.l}</span></div></div></div>`;
+}
+
+/* ---- list menu ---- */
+function goalOpen(id){ goalOpenId = id; goalEditOn = false; $("goalModal").classList.add("show"); lockSync(); goalRender(); }
+function goalNew(){
+  const l = { id: uid(), name: "New list", kind: "mixed", book: mode === "library" ? "library" : "season", items: [], createdAt: Date.now(), fresh: true };
+  S.goals.push(l); goalSave();
+  goalOpenId = l.id; goalEditOn = true; $("goalModal").classList.add("show"); lockSync(); goalRender(); render();
+}
+function goalClosed(){   // closing a list that was just made and never touched removes it, so a stray tap leaves nothing behind
+  const l = goalList(goalOpenId);
+  if(l && l.fresh && !l.items.length) S.goals = S.goals.filter(x => x !== l);
+  else if(l && !String(l.name).trim()) l.name = "Untitled list";
+  if(l) goalSave();
+  goalOpenId = null; goalEditOn = false; gpick = null; render();
+}
+function goalPickClosed(){ gpick = null; if(goalOpenId) goalRender(); render(); }
+function goalToggleEdit(){
+  const l = goalList(goalOpenId); if(!l) return;
+  if(goalEditOn){ const ni = $("goalName"); if(ni){ const v = ni.value.trim(); l.name = v || l.name || "Untitled list"; } goalSave(); }
+  goalEditOn = !goalEditOn; goalRender(); render();
+}
+function goalNameSet(v){ const l = goalList(goalOpenId); if(!l) return; l.name = v; delete l.fresh; }   // saved when the field loses focus, on Done, or on close
+function goalNameBlur(){ const l = goalList(goalOpenId); if(l && !String(l.name).trim()) l.name = "Untitled list"; goalSave(); goalRender(); render(); }
+function goalKindState(l){ const g = l.items.some(i => i.cat === "games"), m = l.items.some(i => i.cat === "movies"); return { games: !m, movies: !g, mixed: true }; }
+function goalKind(k){
+  const l = goalList(goalOpenId); if(!l || !goalKindState(l)[k]) return;
+  l.kind = k; delete l.fresh; goalSave(); goalRender(); render();
+}
+function goalRemove(cat, id){
+  const l = goalList(goalOpenId); if(!l) return;
+  l.items = l.items.filter(i => !(i.cat === cat && i.id === id)); goalNormOrder(l); goalSave(); goalRender(); render();
+}
+function goalDelete(){
+  const l = goalList(goalOpenId); if(!l) return;
+  if(!confirm(`Delete the list "${l.name}"? The titles in it are not touched.`)) return;
+  S.goals = S.goals.filter(x => x !== l); goalSave(); goalOpenId = null; closeModal("goalModal");
+}
+function goalMove(){   // the list and the unfinished titles in it move to the other book; finished ones stay where they are
+  const l = goalList(goalOpenId); if(!l) return;
+  const to = l.book === "library" ? "season" : "library", from = l.book, mv = [];
+  l.items.forEach(i => { const w = goalFind(i.cat, i.id), r = goalRefRow(i); if(w && r && !r.done && w.where === from) mv.push({ i, w }); });
+  if(!confirm(`Move "${l.name}" to ${to === "library" ? "the Library" : "Season"}${mv.length ? ` with its ${mv.length} unfinished title${mv.length === 1 ? "" : "s"}` : ""}? Finished titles stay where they are.`)) return;
+  mv.forEach(({ i, w }) => {
+    const src = from === "library" ? S.library[i.cat] : S[i.cat], dst = to === "library" ? S.library[i.cat] : S[i.cat], ix = src.indexOf(w.it);
+    if(ix >= 0){ src.splice(ix, 1); dst.push(w.it); }
+  });
+  l.book = to; goalSave();
+  goalOpenId = null; closeModal("goalModal");
+  persist(); toast(to === "library" ? "List moved to Library." : "List moved to Season.");
+}
+function goalRowHtml(r, isNext, edit){
+  const it = r.it, c = glCol(r.cat), m = r.m, cls = r.done ? "done" : isNext ? "next" : "todo";
+  let body;
+  if(r.cat === "games"){
+    const pct = r.done ? 100 : (m.total > 0 ? Math.round(m.played / m.total * 100) : 0);
+    body = `<div class="gl-bar"><i style="width:${pct}%"></i></div><div class="gl-meta"><span><b>${pct}%</b></span><span>${r.done ? `Completed · ${fmtH(m.total / 60)}` : (m.total > 0 ? `${fmtH(m.left / 60)} left` : "no length yet")}</span></div>`;
+  }else{
+    const y = it.releaseDate && it.releaseDate.y, gr = itemRating(it), my = r.done ? myS100(it) : null;
+    body = `<div class="gl-cp"><span>${m.total > 0 ? fmtHrMin(m.total) : "no runtime"}</span>${y ? `<span>${esc(y)}</span>` : ""}${gr != null ? `<span class="pr ${ratingClass(gr)}">${gr}</span>` : ""}${my != null ? `<span class="pr mine ${ratingClass(my)}">mine ${my}</span>` : ""}</div><div class="gl-meta"><span>${r.done ? (it.abandoned ? "Dropped" : "Watched") : (m.played > 0 ? `${fmtHrMin(m.left)} left` : "Not watched yet")}</span></div>`;
+  }
+  const ctl = edit ? `<div class="gl-rc"><button class="gl-rm" onclick="goalRemove('${r.cat}','${it.id}')" aria-label="Remove">✕</button><span class="gl-hdl" onpointerdown="goalDrag(event)" aria-label="Drag to reorder"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 7h10M5 10h10M5 13h10"/></svg></span></div>` : "";
+  return `<div class="gl-row ${cls}" data-g="${r.done ? "d" : "r"}" style="--rc:${c};--rca:${glA(c, .22)}">
+    <div class="gl-rp">${glPoster(r.cat, it)}<span class="gl-ph">${esc(it.name)}</span></div>
+    <div class="gl-rb">${isNext ? `<div class="gl-tag">NEXT UP</div>` : ""}<div class="gl-rt">${esc(it.name)}${r.done ? GL_CHECK : ""}</div>${body}</div>${ctl}</div>`;
+}
+function goalRender(){
+  const l = goalList(goalOpenId); if(!l){ if($("goalModal").classList.contains("show")) closeModal("goalModal"); return; }
+  const ni = $("goalName"); if(ni && document.activeElement === ni) return;   // never rebuild while the name is being typed
+  const st = goalStats(l), k = GL_KIND[l.kind], d = goalDaysChip(st), n = st.rows.length, edit = goalEditOn, oldF = $("goalField"), sc = oldF ? oldF.scrollTop : 0;
+  $("goalSheet").style.setProperty("--gc", k.c);
+  const ks = goalKindState(l), other = l.book === "library" ? "Season" : "Library";
+  let head = `<div class="gl-hd">${glRing(st.pct, 52, k.c, 6)}<div class="gl-hdm">${edit ? `<input id="goalName" class="gl-nameIn" value="${esc(l.name)}" maxlength="60" placeholder="List name" oninput="goalNameSet(this.value)" onblur="goalNameBlur()">` : `<div class="gl-hn serif">${esc(l.name)}</div>`}<div class="gl-hs">${k.label} · ${n} title${n === 1 ? "" : "s"} · ${st.done.length} finished</div></div>
+    <button class="btn small${edit ? " brass" : ""}" onclick="goalToggleEdit()">${edit ? "Done" : "Edit"}</button><button class="gl-x" onclick="closeModal('goalModal')" aria-label="Close">✕</button></div>
+    <div class="gl-mini"><div><b>${fmtH(st.left / 60)}</b><span>hours left</span></div><div><b>${st.todo.length}</b><span>titles left</span></div><div><b>${d.v}</b><span>${d.l}</span></div></div>`;
+  if(edit){
+    head += `<div class="gl-edit"><div class="gl-kinds">${["games", "movies", "mixed"].map(x => `<button class="${l.kind === x ? "on" : ""}" style="--kc:${GL_KIND[x].c}" ${ks[x] ? "" : "disabled"} onclick="goalKind('${x}')">${GL_KIND[x].label}</button>`).join("")}</div>
+      <div class="gl-acts"><button class="btn small" onclick="goalMove()">Move to ${other}</button><button class="btn small danger" onclick="goalDelete()">Delete list</button></div></div>`;
+  }
+  let body = "";
+  if(st.done.length) body += `<div class="gl-lab">Finished · ${st.done.length}</div>` + st.done.map(r => goalRowHtml(r, false, edit)).join("");
+  if(st.todo.length) body += `<div class="gl-lab">${st.done.length ? "Still to go" : "Up next"} · ${st.todo.length}</div>` + st.todo.map((r, i) => goalRowHtml(r, i === 0, edit)).join("");
+  if(edit) body += `<button class="gl-add" onclick="goalAddOpen()"><b>+</b><span>Add new titles</span></button>`;
+  else if(!n) body = `<div class="gl-empty">Nothing in this list yet.<br>Tap <b>Edit</b> to add titles.</div>`;
+  $("goalHead").innerHTML = head; $("goalField").innerHTML = body; $("goalField").scrollTop = sc;
+}
+
+/* ---- drag to reorder (inside a group only) ---- */
+function goalDrag(e){
+  e.preventDefault(); e.stopPropagation();
+  const h = e.currentTarget, row = h.closest(".gl-row"), field = $("goalField"), g = row.dataset.g;
+  const rows = Array.from(field.querySelectorAll(`.gl-row[data-g="${g}"]`)), i0 = rows.indexOf(row);
+  const pos = rows.map(r => ({ top: r.offsetTop, h: r.offsetHeight })), fr = field.getBoundingClientRect();
+  gdrag = { row, rows, pos, i0, idx: i0, y0: e.clientY, s0: field.scrollTop, g };
+  row.classList.add("drag");
+  try{ h.setPointerCapture(e.pointerId); }catch(_){}
+  const move = ev => {
+    if(!gdrag) return;
+    if(ev.clientY < fr.top + 46) field.scrollTop -= 12; else if(ev.clientY > fr.bottom - 46) field.scrollTop += 12;
+    const dy = (ev.clientY - gdrag.y0) + (field.scrollTop - gdrag.s0);
+    row.style.transform = `translateY(${dy}px)`;
+    const cur = pos[i0].top + dy + pos[i0].h / 2; let idx = i0;
+    for(let j = 0; j < rows.length; j++){ if(j === i0) continue; const mid = pos[j].top + pos[j].h / 2; if(j < i0 && cur < mid) idx = Math.min(idx, j); if(j > i0 && cur > mid) idx = Math.max(idx, j); }
+    gdrag.idx = idx;
+    const sh = pos[i0].h + 8;
+    rows.forEach((r, j) => { if(j === i0) return; r.style.transform = (idx > i0 && j > i0 && j <= idx) ? `translateY(${-sh}px)` : (idx < i0 && j < i0 && j >= idx) ? `translateY(${sh}px)` : ""; });
+  };
+  const end = () => {
+    h.removeEventListener("pointermove", move); h.removeEventListener("pointerup", end); h.removeEventListener("pointercancel", end);
+    if(!gdrag) return; const d = gdrag; gdrag = null;
+    d.rows.forEach(r => { r.style.transform = ""; r.classList.remove("drag"); });
+    if(d.idx !== d.i0) goalReorder(d.g, d.i0, d.idx); else goalRender();
+  };
+  h.addEventListener("pointermove", move); h.addEventListener("pointerup", end); h.addEventListener("pointercancel", end);
+}
+function goalReorder(g, from, to){
+  const l = goalList(goalOpenId); if(!l) return;
+  const st = goalStats(l), grp = (g === "d" ? st.done : st.todo).slice(), [m] = grp.splice(from, 1); grp.splice(to, 0, m);
+  const rest = g === "d" ? st.todo : st.done;
+  l.items = (g === "d" ? grp.concat(rest) : rest.concat(grp)).map(r => ({ cat: r.cat, id: r.it.id }));
+  goalSave(); goalRender(); render();
+}
+
+/* ---- add titles menu ---- */
+function goalAddOpen(){
+  const l = goalList(goalOpenId); if(!l) return;
+  gpick = { id: l.id, q: "" }; $("gpQ").value = "";
+  $("goalPickModal").classList.add("show"); lockSync(); goalPickRender();
+}
+function goalPickRender(){
+  if(!gpick) return; const l = goalList(gpick.id); if(!l) return;
+  const body = $("gpBody"), sc = body.scrollTop, cats = l.kind === "games" ? ["games"] : l.kind === "movies" ? ["movies"] : ["games", "movies"];
+  const inList = new Set(l.items.map(i => i.cat + ":" + i.id)), q = (gpick.q || "").trim().toLowerCase(), hit = x => !q || (x.name || "").toLowerCase().includes(q);
+  const byName = (a, b) => (a.name || "").localeCompare(b.name || "");
+  const tile = (cat, it) => `<button class="gp-t${inList.has(cat + ":" + it.id) ? " in" : ""}" data-k="${cat}:${it.id}" onclick="goalToggle('${cat}','${it.id}')">${glPoster(cat, it)}<span class="gp-ph">${esc(it.name)}</span><i class="gp-b"></i></button>`;
+  const grid = (cat, arr) => `<div class="gp-grid">${arr.map(x => tile(cat, x)).join("")}</div>`;
+  let h = "";
+  cats.forEach(cat => {
+    const label = CAT[cat].label, bookArr = (l.book === "library" ? S.library[cat] : S[cat]) || [];
+    const book = bookArr.filter(x => !x.abandoned && hit(x)).sort(byName), ids = new Set(bookArr.map(x => x.id));
+    if(cats.length > 1) h += `<div class="gp-div" style="--c:${glCol(cat)}"><span>${label}</span></div>`;
+    h += `<div class="gp-sub">${l.book === "library" ? "In your Library" : "In this season"}</div>`;
+    h += book.length ? grid(cat, book) : `<div class="gp-none">${q ? `No ${label.toLowerCase()} match “${esc(gpick.q.trim())}”` : `No ${label.toLowerCase()} in ${l.book === "library" ? "your Library" : "this season"} yet`}</div>`;
+    if(q){
+      const arc = arcView(cat).filter(x => !x.abandoned && !ids.has(x.id) && hit(x)).sort(byName);
+      if(arc.length) h += `<div class="gp-sub arc">From your Archive · already finished</div>` + grid(cat, arc);
+    }
+  });
+  if(!q) h += `<div class="gp-hint">Type a name to add titles from your Archive as already finished.</div>`;
+  body.innerHTML = h; body.scrollTop = sc;
+}
+function goalToggle(cat, id){
+  const l = goalList(gpick && gpick.id); if(!l) return;
+  const ix = l.items.findIndex(x => x.cat === cat && x.id === id), now = ix < 0;
+  if(now) l.items.push({ cat, id }); else l.items.splice(ix, 1);
+  delete l.fresh; goalNormOrder(l); goalSave();
+  document.querySelectorAll(`#gpBody [data-k="${cat}:${id}"]`).forEach(t => t.classList.toggle("in", now));
+}
+function goalPickDone(){ closeModal("goalPickModal"); }
+
+/* ---- v3.0.0 — the year season: finished titles of this year move back into Season (one time) ---- */
+function yearMigrate(){
+  if(S.yearV === 1) return false;
+  S.yearV = 1;
+  try{
+    const cy = new Date().getFullYear(), yOf = ts => ts > 0 ? new Date(ts).getFullYear() : 0;
+    const clone = o => JSON.parse(JSON.stringify(o));
+    ["games", "movies"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
+      if(isGen(it) || it.replayOf) return;
+      const ts = it.abandoned ? (it.lastActive > 0 ? [it.lastActive] : []) : (arcRuns(it).length ? arcRuns(it).map(dtTs) : (it.lastActive > 0 ? [it.lastActive] : []));
+      if(!ts.length || !ts.every(t => yOf(t) === cy)) return;
+      if(!it.abandoned && !isSeasonItemDone(cat, it)) return;   // it would not show as finished in Season, so it stays in the Archive
+      if(!it.abandoned && !(it.finishedDate && +it.finishedDate.y) && arcRuns(it).length) it.finishedDate = { ...arcRuns(it)[0] };
+      S.vault[cat] = S.vault[cat].filter(x => x !== it); it.keepMeta = true; S[cat].push(it);
+    }));
+    ["tv", "anime"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
+      if(isGen(it)) return;
+      const gs = it.groups || [];
+      if(it.abandoned){ if(yOf(it.lastActive) === cy){ S.vault[cat] = S.vault[cat].filter(x => x !== it); it.keepMeta = true; S[cat].push(it); } return; }
+      const mine = gs.filter(g => g.total > 0 && g.watched >= g.total && yOf(grpTs(g)) === cy);
+      if(!mine.length) return;
+      if(mine.length === gs.length){ if(!isSeasonItemDone(cat, it)) return; gs.forEach(g => { if(g.finishedYear === undefined) g.finishedYear = cy; }); S.vault[cat] = S.vault[cat].filter(x => x !== it); it.keepMeta = true; S[cat].push(it); return; }
+      if(!it.originGroupId) it.originGroupId = uid();
+      const part = clone(it); part.id = uid(); part.groups = clone(mine); part.keepMeta = true;
+      if(!isSeasonItemDone(cat, part)) return;
+      part.groups.forEach(g => { if(g.finishedYear === undefined) g.finishedYear = cy; });
+      it.groups = gs.filter(g => !mine.includes(g)); S[cat].push(part);
+    }));
+    (S.vault.manga || []).slice().forEach(it => {
+      if(isGen(it)) return;
+      if(it.abandoned){ if(yOf(it.lastActive) === cy){ S.vault.manga = S.vault.manga.filter(x => x !== it); it.keepMeta = true; S.manga.push(it); } return; }
+      const dd = it.volDates || {}, from = it.fromVol || 1, to = it.toVol || 0, total = Math.max(0, to - from + 1);
+      if(total <= 0 || (it.volsRead || 0) < total) return;
+      let k = to + 1; while(k - 1 >= from && dd[k - 1] && +dd[k - 1].y === cy) k--;   // the last volumes, all dated this year
+      if(k > to) return;
+      const anyEarlier = Object.keys(dd).some(v => +v < k && dd[v] && +dd[v].y === cy);
+      const stampY = o => { o.volYears = o.volYears || {}; for(let v = from; v <= to; v++){ if(o.volYears[v] === undefined) o.volYears[v] = dd[v] && +dd[v].y ? +dd[v].y : null; } };
+      if(k === from){ if(anyEarlier) return; stampY(it); S.vault.manga = S.vault.manga.filter(x => x !== it); it.keepMeta = true; S.manga.push(it); return; }
+      if(anyEarlier) return;
+      if(!it.originGroupId) it.originGroupId = uid();
+      stampY(it);
+      const part = clone(it), n = to - k + 1; part.id = uid(); part.fromVol = k; part.toVol = to; part.volsRead = n; part.keepMeta = true;
+      part.volDates = {}; part.volRatings = it.volRatings ? {} : it.volRatings;
+      for(let v = k; v <= to; v++){ if(dd[v]) part.volDates[v] = clone(dd[v]); if(it.volRatings && it.volRatings[v]) part.volRatings[v] = clone(it.volRatings[v]); }
+      for(let v = k; v <= to; v++){ delete it.volDates[v]; if(it.volYears) delete it.volYears[v]; if(it.volRatings) delete it.volRatings[v]; }
+      it.toVol = k - 1; it.volsRead = Math.max(0, (it.volsRead || 0) - n); S.manga.push(part);
+    });
+  }catch(e){ console.error("yearMigrate", e); }
+  S.updatedAt = Date.now(); stateSave(); if(cloudUser) pushToCloud();
+  return true;
+}
 
 $("verTag").textContent = "v" + APP_VERSION;
 setTimeout(() => { try{ ocBackfill(false); }catch(e){} }, 9000);
