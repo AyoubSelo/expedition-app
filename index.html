@@ -1378,7 +1378,7 @@ SECTIONS:
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "3.0.0"; // single source of truth for the version tag in the header
+const APP_VERSION = "3.0.1"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -3936,7 +3936,7 @@ function addFabGo(){ const b = addFabSrc(); if(b) b.click(); }
 // §RENDER — render(), renderCore(), restoreScroll
 function render(){
   if(gmBusy){ gmRenderPending = true; return; }
-  if(S.yearV !== 1) yearMigrate();   // v3.0.0 — one time: this year's finished titles come back into Season   // v2.4.3 — never rebuild the page in the middle of a game open/close animation
+  if((S.yearV || 0) < 2) yearMigrate();   // v3.0.0 — one time: this year's finished titles come back into Season   // v2.4.3 — never rebuild the page in the middle of a game open/close animation
   const before = pdCaptureRects();
   const key = mode + "|" + activeTab + "|" + libTab; if(key !== vfKey){ vfKey = key; gmSetPad(0); }   // a different page starts without leftover room
   renderCore();
@@ -8107,13 +8107,13 @@ function goalPickDone(){ closeModal("goalPickModal"); }
 
 /* ---- v3.0.0 — the year season: finished titles of this year move back into Season (one time) ---- */
 function yearMigrate(){
-  if(S.yearV === 1) return false;
-  S.yearV = 1;
+  if((S.yearV || 0) >= 2) return false;   // v3.0.1 — runs once more: titles added straight to the Archive with a 2026 date come too
+  S.yearV = 2;
   try{
     const cy = new Date().getFullYear(), yOf = ts => ts > 0 ? new Date(ts).getFullYear() : 0;
     const clone = o => JSON.parse(JSON.stringify(o));
     ["games", "movies"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
-      if(isGen(it) || it.replayOf) return;
+      if(it.replayOf) return;
       const ts = it.abandoned ? (it.lastActive > 0 ? [it.lastActive] : []) : (arcRuns(it).length ? arcRuns(it).map(dtTs) : (it.lastActive > 0 ? [it.lastActive] : []));
       if(!ts.length || !ts.every(t => yOf(t) === cy)) return;
       if(!it.abandoned && !isSeasonItemDone(cat, it)) return;   // it would not show as finished in Season, so it stays in the Archive
@@ -8121,7 +8121,6 @@ function yearMigrate(){
       S.vault[cat] = S.vault[cat].filter(x => x !== it); it.keepMeta = true; S[cat].push(it);
     }));
     ["tv", "anime"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
-      if(isGen(it)) return;
       const gs = it.groups || [];
       if(it.abandoned){ if(yOf(it.lastActive) === cy){ S.vault[cat] = S.vault[cat].filter(x => x !== it); it.keepMeta = true; S[cat].push(it); } return; }
       const mine = gs.filter(g => g.total > 0 && g.watched >= g.total && yOf(grpTs(g)) === cy);
@@ -8134,7 +8133,6 @@ function yearMigrate(){
       it.groups = gs.filter(g => !mine.includes(g)); S[cat].push(part);
     }));
     (S.vault.manga || []).slice().forEach(it => {
-      if(isGen(it)) return;
       if(it.abandoned){ if(yOf(it.lastActive) === cy){ S.vault.manga = S.vault.manga.filter(x => x !== it); it.keepMeta = true; S.manga.push(it); } return; }
       const dd = it.volDates || {}, from = it.fromVol || 1, to = it.toVol || 0, total = Math.max(0, to - from + 1);
       if(total <= 0 || (it.volsRead || 0) < total) return;
