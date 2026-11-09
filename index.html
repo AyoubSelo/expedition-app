@@ -1005,6 +1005,30 @@ body.det-lock{overflow:hidden}
 .gp-sub{font:600 9.5px "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dim);margin:10px 2px 7px}.gp-sub.arc{color:var(--brass-dim);margin-top:16px}
 .gp-none,.gp-hint{color:var(--muted-dim);font-size:12px;line-height:1.5;padding:10px 4px;text-align:center}
 .gp-foot{padding:10px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#131a16}
+
+/* ===== v3.0.2 ===== */
+.sf-bar{display:flex;height:26px;border-radius:13px;overflow:hidden;background:var(--bg);border:1px solid var(--line-soft);margin:10px 0 0}
+.sf-bar-f{flex:0 0 auto;max-width:calc(100% - 74px);background:var(--accent);color:var(--accent-text);display:flex;align-items:center;padding:0 10px;font:700 11.5px "IBM Plex Mono",monospace;border-radius:13px 0 0 13px;transition:width .35s ease}
+.sf-bar-e{flex:1;min-width:0;display:flex;align-items:center;padding:0 10px;font:600 11.5px "IBM Plex Mono",monospace;color:var(--muted);white-space:nowrap;overflow:hidden}
+.sf-prog-t b{color:var(--ink);font-weight:600}
+.miss{position:absolute;left:4px;top:4px;z-index:4;width:18px;height:18px;border-radius:50%;background:var(--rust);color:#fff;font:800 12px/18px "IBM Plex Mono",monospace;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
+.rd{border:1px solid var(--line-soft);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--bg);cursor:pointer}
+.rd.top{border-color:var(--brass)}
+.rd-top{display:flex;align-items:center;gap:10px}
+.rd-top b{width:52px;font-size:15px;flex:none}
+.rd-top>span{flex:none;font:500 10.5px "IBM Plex Mono",monospace;color:var(--muted);min-width:78px;text-align:right}
+.rd-bar{flex:1;height:14px;border-radius:7px;background:#0a0f0c;overflow:hidden}
+.rd-fill{height:100%;display:flex;border-radius:7px;overflow:hidden}.rd-fill i{display:block;height:100%}
+.rd-yrs{display:none;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:12px}
+.rd.open .rd-yrs{display:grid}
+.rd-y{display:flex;flex-direction:column;align-items:center;min-width:0}
+.rd-yv{font:600 9px "IBM Plex Mono",monospace;color:var(--muted);height:12px}
+.rd-yb{width:100%;height:56px;display:flex;align-items:flex-end;background:rgba(255,255,255,.03);border-radius:4px;overflow:hidden}
+.rd-yb i{display:block;width:100%;background:var(--brass);border-radius:3px 3px 0 0}
+.rd-yl{font:500 8.5px "IBM Plex Mono",monospace;color:var(--muted-dim);margin-top:4px}
+.rd-yn{font:600 9px "IBM Plex Mono",monospace;color:var(--brass);height:11px}
+.rd-key{display:flex;flex-wrap:wrap;gap:4px 12px;margin:0 0 10px;font:500 10px "IBM Plex Mono",monospace;color:var(--muted)}
+.rd-key i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
 </style>
 </head>
 <body>
@@ -1370,15 +1394,15 @@ SECTIONS:
      logId, arcLog, logRender, arcPlaysSet, arcDetails, detRender, arcRemove
  §YEARS — v2.7.0 Archive: arcShowsPage (shows page, 4 per row), logShows/logManga, Years tab (yrData, renderYears, yrTab/yrOpenYear/yrClose)
      catOfShow, arcPartial, arcShowsPage, logShows, arcGrpPlays, logManga, yrOpen, yrCat, yrSort, yrDir, YR_TABS, YR_SORTS, yrVal, yrCmp, yrCard, renderYears
- §GOALS — v3.0.0 Goals page (Season + Library tab "goals"): S.goals lists of {cat,id} references, list menu (goalModal), add-titles menu (goalPickModal), drag reorder, move between books; also yearMigrate (the one-time move of this year's finished Archive titles into Season, S.yearV)
-     GL_KIND, glCol, glA, goalList, goalFind, goalRefRow, goalMinutes, goalPace, goalStats, goalDaysChip, glRing, goalSave, goalNormOrder, renderGoals, goalCard, goalOpen, goalNew, goalClosed, goalToggleEdit, goalKind, goalRemove, goalDelete, goalMove, goalRowHtml, goalRender, goalDrag, goalReorder, goalAddOpen, goalPickRender, goalToggle, yearMigrate
+ §GOALS — v3.0.0 Goals page (Season + Library tab "goals"): S.goals lists of {cat,id} references, list menu (goalModal), add-titles menu (goalPickModal), drag reorder, move between books; also yearSync (the one-time move of this year's finished Archive titles into Season, S.yearV)
+     GL_KIND, glCol, glA, goalList, goalFind, goalRefRow, goalMinutes, goalPace, goalStats, goalDaysChip, glRing, goalSave, goalNormOrder, renderGoals, goalCard, goalOpen, goalNew, goalClosed, goalToggleEdit, goalKind, goalRemove, goalDelete, goalMove, goalRowHtml, goalRender, goalDrag, goalReorder, goalAddOpen, goalPickRender, goalToggle, yearSync
  §FIREBASE-MODULE — module script: Firebase init, __fs2 (cloud v2), playtime listener/write, targets, sign-in
      firebaseConfig, auth, docRefFor, fsUnsubs, fs2Stop, stateDoc, __fs2, watchPlaytime, __cloudSignIn, __cloudTargets, __cloudPlaytimeWrite, __cloudSignOut
 ===== END CODEMAP ===== */
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "3.0.1"; // single source of truth for the version tag in the header
+const APP_VERSION = "3.0.2"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -1458,7 +1482,7 @@ function normalizeNamedList(raw){
    The date is stamped by persist() the moment the finish is saved, so it is the day you finished it. */
 const finDateNow = () => { const d = new Date(); return { y: String(d.getFullYear()), m: String(d.getMonth() + 1), d: String(d.getDate()) }; };
 const finGameDone = g => !!g.finished && !g.abandoned;
-const finMovieDone = m => !m.abandoned && m.length > 0 && m.watched >= m.length;
+const finMovieDone = m => !m.abandoned && ((m.length > 0 && m.watched >= m.length) || !!m.arcDone);
 const finGroupDone = g => g.total > 0 && g.watched >= g.total;
 const finMangaRead = m => Math.max(0, Math.min(m.volsRead || 0, (m.toVol || 0) - (m.fromVol || 0) + 1));
 function finEachItem(st, fn){
@@ -1791,6 +1815,7 @@ function persist(){
   try{ mergeReplayDupes(); }catch(e){}
   foldReplays();
   ensureSeason();
+  yearSync();   // v3.0.2 — a date edited to this year in the Archive brings the title into Season
   scrubFinishedSeasonItems();
   arcStampLast(); libStampAdded(); lpMaterialize();
   S.updatedAt = Date.now();
@@ -1886,6 +1911,7 @@ const MIN_FN = { games:gameMin, movies:movieMin, tv:episodicMin, anime:episodicM
    rather than carrying them around dead until the next quarter rollover. */
 function isSeasonItemDone(category, item){
   if(item.abandoned) return false;
+  if(item.arcDone) return true;   // v3.0.2 — came back from the Archive as finished, with or without a stored length
   const {goal, played} = MIN_FN[category](item);
   if(!(goal>0 && played>=goal)) return false;
   if(category==="games"){
@@ -1899,9 +1925,7 @@ function scrubFinishedMeta(item){
   if(item.partOfSeries || item.seriesId || item.seriesOrder!=null){
     item.partOfSeries = false; item.seriesId = null; item.seriesOrder = null;
   }
-  if(item.releaseDate && (item.releaseDate.y||item.releaseDate.m||item.releaseDate.d)){
-    item.releaseDate = { y:null, m:null, d:null };
-  }
+  // v3.0.2 — the release date now stays on finished titles (it shows in their info and in the Archive details)
 }
 function scrubFinishedSeasonItems(){
   ["games","movies","tv","anime","manga"].forEach(cat=>{
@@ -2196,7 +2220,7 @@ function finishGameEarly(id){   // target jumps to the playtime the launcher rep
   const g = S.games.find(x=>x.id===id); if(!g) return;
   g.goal = Math.max(0.01, Math.ceil(Math.max(0, (g.played||0) - (g.replayBase||0))*100)/100);
   g.finished = true; g.lastPlayed = false;
-  persist(); toast(`Marked finished — target set to ${fmtN(g.goal)}h.`);
+  persist(); toast(`Marked finished — target set to ${fmtN(g.goal)}h.`); rateSoon(id);
 }
 // games use an *estimated* target, so playing past it never finishes a game on its own — the target
 // stretches by 2h instead, and only the Finished button clears it.
@@ -2244,7 +2268,7 @@ function markWatched(id){
   const delta = m.length - m.watched;
   m.watched = m.length;
   logAction("movies", m.id, m.name, delta, "watched");
-  persist(); toast("Marked watched 🎬");
+  persist(); toast("Marked watched 🎬"); rateSoon(id);
 }
 
 /* ============ MANGA ============ */
@@ -2337,7 +2361,7 @@ function mgSClearedHtml(){
   }
   return h;
 }
-const mgSDone = m => { const t = mangaMin(m); return t.goal > 0 && t.played >= t.goal; };
+const mgSDone = m => { if(m.arcDone) return true; const t = mangaMin(m); return t.goal > 0 && t.played >= t.goal; };
 function mgHeroPick(list){   // the one you read last; if none yet, a started one, then rating
   return list.slice().sort((a, b) => byActive(a, b) || ((b.volsRead > 0) - (a.volsRead > 0)) || ((b.rating || 0) - (a.rating || 0)) || (a.name || "").localeCompare(b.name || ""))[0] || null;
 }
@@ -2347,6 +2371,7 @@ function mgTap(id, k){   // tap a volume: read up to it, or (if already read) st
   m.volsRead = k <= before ? k - 1 : k;
   if(m.volsRead > before) logAction("manga", m.id, m.name, (m.volsRead - before) * 60, "volume");
   persist();
+  if(m.volsRead > before){ const vs = mgVolList(m); if(vs.length) rateSoon(m.id, null, vs[vs.length - 1]); }   // v3.0.2 — volume finished: rate it
 }
 function mgSStrip(m){
   const i = mgInfo(m), r = Math.min(m.volsRead || 0, i.total);
@@ -3535,7 +3560,7 @@ function splitSorted(cat, list, fn){
   const sort = localStorage.getItem("expedition-sort-"+cat) || "rdesc";
   const withStats = list.filter(x=>!x.abandoned).map(item=>{
     const {goal,played}=fn(item);
-    const done = goal>0 && played>=goal;
+    const done = (goal>0 && played>=goal) || !!item.arcDone;
     return {item, remain:goal-played, pct: goal?played/goal:0, done};
   });
   const cmp = (a,b)=>{
@@ -3658,7 +3683,7 @@ function archiveCardHtml(a){
    Same look as the Library cover wall (same animations): a progress header, "+ Add Game", a hero, and one wall of covers
    in sections (in progress, DLC pending, up next, cleared). No sort, filter or Data here: those stay in the Library. */
 const GHERO_KEY = "expedition-hero-games";
-const gmDone = g => { const m = gameMin(g); return m.goal > 0 && m.played >= m.goal; };
+const gmDone = g => { if(g.arcDone) return true; const m = gameMin(g); return m.goal > 0 && m.played >= m.goal; };
 function pickGameHero(open){
   if(!open.length) return null;
   const last = open.filter(g => g.lastPlayed).sort(byActive)[0]; if(last) return last;                       // the one you played last
@@ -3705,7 +3730,7 @@ function gmHeroHtml(g){
     </div>
     <div class="sf-body">
       ${tag ? `<div class="sf-tag">${esc(tag)}</div>` : ""}
-      ${m.played > 0 ? `<div class="sf-prog" style="${accent}"><div class="gauge"><div class="gauge-fill" style="width:${pct}%"></div></div><div class="sf-prog-t">${fmtHM(Math.round(Math.max(0, m.goal - m.played)))} left · ${pct.toFixed(0)}% played</div></div>` : ""}
+      ${m.played > 0 ? `<div class="sf-prog" style="${accent}"><div class="sf-bar"><div class="sf-bar-f" style="width:max(${pct}%,46px)"><span>${pct.toFixed(0)}%</span></div><div class="sf-bar-e"><span>${fmtHM(Math.round(Math.max(0, m.goal - m.played)))} left</span></div></div><div class="sf-prog-t">Played <b>${fmtHM(Math.round(m.played))}</b> so far</div></div>` : ""}
       <div class="sf-btns" style="${accent}">
         <button class="btn accent" onclick="gmSeasonFinish('${g.id}')">✓ Finished</button>
         <button class="btn" onclick="gmHeroToggle('${g.id}')">${open ? "Hide details" : "Details"}</button>
@@ -3742,7 +3767,7 @@ function renderGames(){
   const inProg = rest.filter(g => gmNet(g) > 0).sort((a, b) => byActive(a, b) || pctOf(b) - pctOf(a) || byName(a, b));
   const upNext = rest.filter(g => !(gmNet(g) > 0)).sort(byName);
   const done = live.filter(gmDone), pending = g => (g.dlcs || []).length > 0 && !allDlcCleared(g);
-  const dlcPending = done.filter(pending).sort(byName), cleared = done.filter(g => !pending(g)).sort(byName);
+  const dlcPending = done.filter(pending).sort(byName), cleared = seasonRunsExpand(done.filter(g => !pending(g)).sort(byName));
   const secs = [{ label: "in progress", items: inProg }, { label: "main cleared · dlc pending", items: dlcPending }, { label: "up next", items: upNext }, { label: "cleared", items: cleared }, { label: "abandoned", items: S.games.filter(g => g.abandoned).sort(byName) }].filter(x => x.items.length);
   if(hero) html += gmHeroHtml(hero);
   if(secs.length) html += gmWallHtml(secs);
@@ -3854,7 +3879,7 @@ function heroFill(m){
 function miniPosterCard(m, idx, gone){
   const open = libOpenMovie === m.id;
   return `<div class="sf-mini${open?" open":""}"${open ? "" : ` data-pid="${m.id}"`} onclick="pdToggle('${m.id}')">
-    <div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, idx, "w342")}${gone ? '<div class="sf-check" style="background:var(--rust)">✕</div>' : '<div class="sf-check">✓</div>'}${myrCorner(m)}</div>
+    <div class="pposter"><div class="pph"><span>${esc(m.name)}</span></div>${posterImgHtml(m, idx, "w342")}${m._mark ? `<div class="mark" title="${m._mark} watch">↻ ${m._mark}</div>` : ""}${gone ? '<div class="sf-check" style="background:var(--rust)">✕</div>' : '<div class="sf-check">✓</div>'}${myrCorner(m)}</div>
   </div>`;
 }
 function pdSfMove(id){ libOpenMovie = null; moveItem("movies", id, "season", "library"); }
@@ -3895,7 +3920,7 @@ function renderMovies(){
     html += `<div class="list-head sf-sec"><b>UP NEXT</b>${sortBtnHtml("season")}</div>` + posterGridHtml(upNext, seasonBlock, { progress:true });
   }
   if(completed.length){
-    html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${completed.map((m,i)=>miniPosterCard(m,i)).join("")}</div>`;
+    html += `<div class="marginalia sf-sec">cleared</div><div class="sf-shelf">${seasonRunsExpand(completed).map((m,i)=>miniPosterCard(m,i)).join("")}</div>`;
     const open = completed.find(m => m.id === libOpenMovie);
     if(open){
       const enter = pdAnimateIn ? " pd-enter" : "";
@@ -3936,7 +3961,7 @@ function addFabGo(){ const b = addFabSrc(); if(b) b.click(); }
 // §RENDER — render(), renderCore(), restoreScroll
 function render(){
   if(gmBusy){ gmRenderPending = true; return; }
-  if((S.yearV || 0) < 2) yearMigrate();   // v3.0.0 — one time: this year's finished titles come back into Season   // v2.4.3 — never rebuild the page in the middle of a game open/close animation
+  if(!ySyncOnce){ ySyncOnce = true; if(yearSync()){ S.updatedAt = Date.now(); stateSave(); if(cloudUser) pushToCloud(); } }   // v3.0.2 — this year's finished Archive titles are in Season   // v2.4.3 — never rebuild the page in the middle of a game open/close animation
   const before = pdCaptureRects();
   const key = mode + "|" + activeTab + "|" + libTab; if(key !== vfKey){ vfKey = key; gmSetPad(0); }   // a different page starts without leftover room
   renderCore();
@@ -4432,6 +4457,12 @@ function gmFb(img){   // cover failed to load: try the next source, last resort 
   if(l.length === 1 && cell) cell.classList.add("named");
 }
 let gmAnchor = {};   // game id → letter, set on the first game of each letter so the A–Z rail can jump there
+function gmPlate(g, extra){   // v3.0.2 — the score plate on a game cover: your own score once finished, the global one only while it's still unfinished
+  if(g.abandoned) return "";
+  if(mode === "archive" || (g.finished && g.myRating)) return myrCorner(g, extra);
+  if(g.finished || isSeasonItemDone("games", g)) return "";
+  const r = itemRating(g); return r != null ? `<div class="prate${extra ? " " + extra : ""} ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : "";
+}
 function gmCellHtml(g, i, hidden){
   const r = itemRating(g), len = g.goal ? fmtN(g.goal) + "h" : "", n = (g.dlcs || []).length;
   const sea = mode !== "archive" && S.games.includes(g), m = sea ? gameMin(g) : null, done = !!m && m.goal > 0 && m.played >= m.goal, pct = m && m.goal ? Math.min(100, m.played / m.goal * 100) : 0;
@@ -4439,11 +4470,11 @@ function gmCellHtml(g, i, hidden){
   const left = mode === "archive" ? "" : (sea && g.abandoned) ? "Abandoned" : sea ? (done ? "✓" : (m.played > 0 ? Math.max(1, Math.round(pct)) + "%" : (up ? "Upcoming" : len))) : (up ? "Upcoming" : "");   // Library covers show the time left, Season covers how far you are; a game that isn't out yet says so
   const box = sea ? "" : `<div class="pinfo">${esc(mode === "archive" ? arcFinShort("games", g) : gmLibInfo(g))}</div>`;
   const chain = [igdbImg(g.coverId, "cover_big"), igdbImg(g.backdropId, "screenshot_big")].filter(Boolean);
-  return `<div class="gm-cell${g.coverId ? "" : " named"}${hidden ? " gm-hid" : ""}${done ? " gm-done" : ""}" data-pid="${g.id}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')"><div class="gm-cv">
+  return `<div class="gm-cell${g.coverId ? "" : " named"}${hidden ? " gm-hid" : ""}${done ? " gm-done" : ""}" data-pid="${g.id}"${gmAnchor[g.id] ? ` id="gmL_${gmAnchor[g.id]}"` : ""} onclick="gmToggle('${g.id}')"><div class="gm-cv">${g._mark ? `<div class="mark" style="z-index:4" title="${g._mark} play-through">↻ ${g._mark}</div>` : ""}${mode === "archive" && !(g.played > 0) ? `<div class="miss" title="No play time yet. Open it and tap Log to add it.">!</div>` : ""}
     <div class="gm-ph">${esc(g.name)}</div>
     ${chain.length ? `<img alt="" loading="${i > 29 ? "lazy" : "eager"}" src="${esc(chain[0])}" data-fb="${esc(chain.slice(1).join("|"))}" onerror="gmFb(this)">` : ""}
     <div class="gm-shade"></div><div class="gm-name">${esc(g.name)}</div>
-    ${(mode === "archive" || (g.finished && g.myRating)) ? myrCorner(g) : r != null ? `<div class="prate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
+    ${gmPlate(g, "")}
     ${left ? `<div class="gm-chip l${left === "Upcoming" ? " up" : ""}">${left}</div>` : ""}${n ? `<div class="gm-chip r">+${n}</div>` : ""}
     ${sea && pct > 0 ? `<div class="gm-prog"><i style="width:${pct}%"></i></div>` : ""}</div>${box}
   </div>`;
@@ -4453,7 +4484,7 @@ function gmBackdropHtml(g){
   return `<div class="gm-bd" onclick="gmToggle('${g.id}')">
     ${bd ? `<img alt="" src="${esc(bd)}"${g.backdropY != null ? ` style="object-position:50% ${g.backdropY}%"` : ""} onerror="this.remove()">` : (cv ? `<img class="blur" alt="" src="${esc(cv)}" onerror="this.remove()">` : "")}
     <div class="gm-bd-shade"></div>
-    ${(mode === "archive" || (g.finished && g.myRating)) ? myrCorner(g, "tvc-rate") : r != null ? `<div class="prate tvc-rate ${ratingClass(r)}" onclick="event.stopPropagation();gmRate('${g.id}')">${r}</div>` : ""}
+    ${gmPlate(g, "tvc-rate")}
     <div class="gm-bd-t"><div class="n serif">${esc(g.name)}</div>${y ? `<div class="s">${y}${g.goal ? " · " + fmtN(g.goal) + "h" : ""}</div>` : ""}</div>
   </div>`;
 }
@@ -4637,6 +4668,7 @@ function gmSwitch(id){   // another game while one is open: close the old one at
   gmOpen = null; gmOpenAnim(id);
 }
 function gmToggle(id){
+  id = String(id).split("~")[0];   // a second finish of the same title is a cell with id "x~1"
   if(gmBusy) return;
   const wall = gmWallEl(); if(!wall) return;
   if(gmOpen === id && wall.querySelector(".gm-open")) gmCloseAnim();
@@ -4925,6 +4957,7 @@ function pdPlayFlip(before){
 }
 function pdWithFlip(fn){ fn(); }   // render() animates by itself now
 function pdToggle(id){
+  id = String(id).split("~")[0];
   if(pdBusy) return;
   const wasOpen = libOpenMovie != null;
   const go = () => {
@@ -5114,7 +5147,8 @@ function ratingFor(item){
   return autoRating(item);
 }
 function itemRating(item){ if(gmIsGame(item)) return gmRatingInfo(item).value; const v = ratingFor(item); return v != null ? v : (item.rating == null ? null : item.rating); }
-function rateBadge(item, extra){ if(mode === "archive") return myrCorner(item, extra);
+function ratingHidden(item){ if(item.abandoned) return true; for(const c of ALL_CATS){ if((S[c] || []).includes(item)) return isSeasonItemDone(c, item); } return false; }   // v3.0.2 — finished and abandoned titles show no global score
+function rateBadge(item, extra){ if(mode === "archive" || ratingHidden(item)) return myrCorner(item, extra);
   const r = itemRating(item);
   return r != null ? `<div class="prate ${ratingClass(r)}${extra ? " " + extra : ""}" onclick="event.stopPropagation();openRatingMenu('${item.id}')" title="Choose rating source">${r}</div>` : "";
 }
@@ -6039,7 +6073,7 @@ function renderSeasonTv(){
     $("app").innerHTML = html; return;
   }
   const live = all.filter(x => !x.abandoned);
-  const done = x => { const m = episodicMin(x); return m.goal > 0 && m.played >= m.goal; };
+  const done = x => { if(x.arcDone) return true; const m = episodicMin(x); return m.goal > 0 && m.played >= m.goal; };
   const incomplete = live.filter(x => !done(x)), completed = live.filter(done).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
   const pick = sxPickShow(incomplete);
   if(!sxInit){
@@ -6079,6 +6113,7 @@ function sxTap(id, gid, e){
   sxPop = gid + ":" + e;
   persist();
   sxPop = null;
+  if(g.total > 0 && before < g.total && g.watched >= g.total) rateSoon(it.id, gid);   // v3.0.2 — season finished: rate it
 }
 function sxWatched(id, gid){
   sxCat = showCatOf(id);
@@ -6298,7 +6333,7 @@ function mgMapHtml(it, compact){
 }
 
 /* ----- the shelf ----- */
-function mgRateBadge(it){ if(mode === "archive" || it.myRating) return myrCorner(it); return it.anilistId && it.rating != null ? `<div class="prate ${ratingClass(it.rating)}">${it.rating}</div>` : ""; }
+function mgRateBadge(it){ if(mode === "archive" || it.myRating || ratingHidden(it)) return myrCorner(it); return it.anilistId && it.rating != null ? `<div class="prate ${ratingClass(it.rating)}">${it.rating}</div>` : ""; }
 function mgCardHtml(it){
   const i = mgInfo(it), sel = mgOpen === it.id;
   return `<div class="mgc${sel ? " sel" : ""}" data-pid="${it.id}" onclick="mgToggle('${it.id}')">
@@ -6868,8 +6903,8 @@ function myrFind(id){
   return null;
 }
 function myrEligible(cat, it){   // only finished titles can be rated
-  if(mode === "archive") return true;   // everything in the Archive is finished
-  if(it.abandoned) return false;
+  if(it.abandoned) return false;   // v3.0.2 — you didn't finish it, so no score
+  if(mode === "archive") return true;   // everything else in the Archive is finished
   if(cat === "games") return !!it.finished;
   if(cat === "movies") return finMovieDone(it);
   if(cat === "manga") return finMangaRead(it) >= 1;   // v2.8.0 — volumes are rated one by one
@@ -6955,6 +6990,7 @@ const arcFinShort = (cat, it) => arcDateText(it, false);
 const arcFinLong = (cat, it) => arcDateText(it, true);
 function arcDateKey(it){ return it.lastActive > 0 ? it.lastActive : 0; }
 function myrCorner(it, extra){   // the score plate on a cover (Archive)
+  if(it.abandoned) return "";
   if(it._rate !== undefined){ const q = it._rate; return q == null ? "" : `<div class="myr myr-c ${ratingClass(q * 10)}${extra ? " " + extra : ""}"><b class="serif">${q}</b></div>`; }   // a season or a volume shown on its own: its own score out of 10
   const s = myS100(it); if(s == null) return "";
   const fixed = Array.isArray(it.groups) || it.fromVol != null;   // shows and manga: the average of the seasons / volumes, out of 100; a tap just opens the card
@@ -7206,7 +7242,8 @@ function arcMini(cat, it, idx){
   const pl = !it._src && (cat === "games" || cat === "movies") ? arcPlays(it) : 0;   // v2.8.0 — a title played/watched again stays ONE poster, with a small count
   const mark = it._mark ? `<div class="mark" title="${it._mark} ${cat === "games" ? "play-through" : "watch"}">↻ ${it._mark}</div>` : pl > 1 ? `<div class="mult" title="${pl} ${cat === "games" ? "play-throughs" : "watches"}">↻ ×${pl}</div>` : "";
   const num = it._vol != null ? `<div class="vnum">${it._vol}</div>` : it._label ? `<div class="vnum">${esc(it._label)}</div>` : "";
-  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}${rk && rk <= 4 ? " t" + rk : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${num}${mark}${myrCorner(it)}</div>${rk ? `<div class="pinfo">${rk <= 4 ? "♛ " : ""}#${rk}</div>` : ""}</div>`;
+  const miss = cat === "games" && !(it.played > 0) ? `<div class="miss" title="No play time yet. Open it and tap Log to add it.">!</div>` : "";
+  return `<div class="arc-mini${arcOpen === it.id ? " open" : ""}${it.abandoned ? " gone" : ""}${rk && rk <= 4 ? " t" + rk : ""}" data-pid="${it.id}" onclick="arcToggle('${it.id}')"><div class="pposter"><div class="pph"><span>${esc(it.name)}</span></div>${img}${num}${mark}${miss}${myrCorner(it)}</div>${rk ? `<div class="pinfo">${rk <= 4 ? "♛ " : ""}#${rk}</div>` : ""}</div>`;
 }
 function arcBtns(it, enter){
   const rid = it._src ? it._src.id : it.id;   // Years list entries are views of the real title: Rate replaces Log there
@@ -7286,18 +7323,18 @@ function detRender(){
   } else if(cat === "manga"){
     const d = mgDetail(it), i = mgInfo(it);
     src = it.bannerUrl || it.coverUrl || ""; ph = !it.bannerUrl;
-    meta = [mgRange(it), Math.min(it.volsRead || 0, i.total) + " volumes read", r != null ? "★ " + r : ""].filter(Boolean).join(" · ");
+    meta = [mgRange(it), Math.min(it.volsRead || 0, i.total) + " volumes read", myS100(it) != null ? "★ " + myS100(it) : ""].filter(Boolean).join(" · ");
     body = (d && d.authors && d.authors.length ? `<div class="gm-meta" style="margin-top:12px"><b>${esc(d.authors.join(", "))}</b></div>` : "") + `<div class="det-desc">${d && d.desc ? esc(d.desc) : `<span style="color:var(--muted)">${it.anilistId ? "Loading…" : "Not linked to AniList yet."}</span>`}</div>`;
   } else if(cat === "movies"){
     const ex = it.tmdbId ? pdCache["m:" + it.tmdbId] : null, bp = it.backdropPath || (ex && ex.backdrop) || "", b = pdBodies(it), y = it.releaseDate && it.releaseDate.y;
     src = bp ? `${TMDB_IMG}w780${bp}` : (it.posterPath ? `${TMDB_IMG}w342${it.posterPath}` : ""); ph = !bp; by = it.backdropY;
-    meta = [y, it.length > 0 ? fmtHrMin(it.length) : "", r != null ? "★ " + r : ""].filter(Boolean).join(" · ");
+    meta = [y, it.length > 0 ? fmtHrMin(it.length) : "", myS100(it) != null ? "★ " + myS100(it) : ""].filter(Boolean).join(" · ");
     body = (ex && ex.tagline ? `<div class="det-desc" style="font-style:italic;color:var(--muted)">${esc(ex.tagline)}</div>` : "") + `<div class="det-desc">${b.desc}</div>
       <div class="det-sec"><div class="pd-lab">Director</div><div class="pd-val">${b.dir}</div></div><div class="det-sec"><div class="pd-lab">Starring</div><div class="pd-val">${b.cast}</div></div>`;
   } else {
     const bd = igdbImg(it.backdropId, "screenshot_big"), cv = igdbImg(it.coverId, "cover_big"), dlcs = it.dlcs || [], date = gmFmtDate(it.releaseDate);
     src = bd || cv; ph = !bd; by = it.backdropY;
-    meta = [it.releaseDate && it.releaseDate.y, it.igdbHours ? fmtN(it.igdbHours) + "h average" : "", r != null ? "★ " + r : ""].filter(Boolean).join(" · ");
+    meta = [it.releaseDate && it.releaseDate.y, it.igdbHours ? fmtN(it.igdbHours) + "h average" : "", myS100(it) != null ? "★ " + myS100(it) : ""].filter(Boolean).join(" · ");
     const who = [it.developer ? `<b>${esc(it.developer)}</b>` : "", it.publisher && it.publisher !== it.developer ? `published by ${esc(it.publisher)}` : ""].filter(Boolean).join(" · ");
     body = (who || date ? `<div class="gm-meta" style="margin-top:12px">${who}${who && date ? "<br>" : ""}${date}</div>` : "") +
       ((it.genres || []).length ? `<div class="gm-chips">${it.genres.slice(0, 6).map(x => `<span class="gm-chipx">${esc(x)}</span>`).join("")}</div>` : "") +
@@ -7561,18 +7598,43 @@ function renderLibraryStats(){
   const Q = arcQuarters(quarterStartFor(new Date())).slice(-6), qv = Q.map(q => ({ l: q.label.replace(" ", "\u00a0"), v: 0, c: "var(--moss)" }));
   ALL_CATS.forEach(k => arcView(k).forEach(it => { if(!it.abandoned) arcEvents(k, it).forEach(e => { const i = Q.findIndex(q => e.ts >= q.s && e.ts <= q.e + 864e5); if(i >= 0) qv[i].v += e.h; }); }));
   const all = []; rows.forEach(r => r.l.forEach(x => { const m = libRemainingMin(r.k, x) / 60; if(m > 0) all.push({ n: x.name, k: r.k, h: m }); }));
-  const short = all.slice().sort((a, b) => a.h - b.h).slice(0, 5), big = all.slice().sort((a, b) => b.h - a.h).slice(0, 3), li = x => `<div class="an-li"><span>${esc(x.n)}</span><em>${CAT[x.k].label} · ${fmtH(x.h)}</em></div>`;
+  const short = ["games", "movies", "shows", "manga"].map(k => all.filter(x => x.k === k).sort((a, b) => a.h - b.h)[0]).filter(Boolean), big = all.slice().sort((a, b) => b.h - a.h).slice(0, 3), li = x => `<div class="an-li"><span>${esc(x.n)}</span><em>${CAT[x.k].label} · ${fmtH(x.h)}</em></div>`;
   let h = `<section class="ov-hero lib"><div class="ov-side" style="flex:1"><div class="eyebrow">Backlog stock</div><div class="ov-big serif">${fmtH(totH)}</div><div class="ov-sub">across <b>${totN}</b> titles in your Library</div>${pace > 0 ? `<div class="ov-sub">≈ <b>${(totH / pace).toFixed(1)}</b> years at your recent pace of ${fmtH(pace)} per year</div>` : `<div class="ov-sub">Finish a few titles to see how long this would take.</div>`}</div></section>
   ${anSec("Where the hours are", rows.map(r => `<div class="ov-row"><span>${CAT[r.k].label} · ${r.n}</span><b>${fmtH(r.h)}</b></div>${anBar(totH ? r.h / totH * 100 : 0, CAT[r.k].color)}`).join(""))}
   ${anSec("Backlog by release year (hours left)", anCols(yc), totH ? `${Math.round(recent / totH * 100)}% of it came out in the last 3 years · "soon" = unreleased or no date yet.` : "")}
   ${anSec("Added to the Library (hours, last 6 months)", anCols(mo), tracked ? "Counts titles still in your Library." : "Tracking started with this version. This chart fills in as you add titles.")}
   ${anSec("Finished per quarter (hours)", Q.length ? anCols(qv) : "<div class='an-note'>No finished seasons yet.</div>", "Dates of titles added straight to the Archive are generated, so older bars are estimates.")}
-  ${anSec("Quick wins", short.length ? short.map(li).join("") : "<div class='an-note'>Nothing with a known length.</div>")}
+  ${anSec("Quick wins", short.length ? short.map(li).join("") : "<div class='an-note'>Nothing with a known length.</div>", "The shortest title left in each category, counting what you already played.")}
   ${anSec("Biggest commitments", big.length ? big.map(li).join("") : "<div class='an-note'>Nothing yet.</div>")}`;
   $("app").innerHTML = h;
 }
 
 /* ---- Archive stats ---- */
+// v3.0.2 — finished titles by the year they CAME OUT: decades as stacked bars (hours per category), tap a decade to see its years
+function archiveReleaseCard(){
+  const RC = { games: "#4f9e8f", movies: "#c1614a", shows: "#7d8fd1", manga: "#d9a256" }, by = {}; let known = 0, unk = 0;
+  ALL_CATS.forEach(k => arcView(k).forEach(it => {
+    if(it.abandoned) return;
+    const y = +(it.releaseDate && it.releaseDate.y); if(!(y > 1850 && y < 2200)){ unk++; return; }
+    const h = arcEvents(k, it).reduce((a, e) => a + e.h, 0), g = isShowCat(k) ? "shows" : k, o = by[y] || (by[y] = { n: 0, h: 0, c: {} });
+    o.n++; o.h += h; (o.c[g] = o.c[g] || { n: 0, h: 0 }); o.c[g].n++; o.c[g].h += h; known++;
+  }));
+  if(!known) return anSec("Finished by release year", "<div class='an-note'>No release years yet. Games and movies fill them in as their dates load.</div>");
+  const ys = Object.keys(by).map(Number).sort((a, b) => a - b), dec = {};
+  ys.forEach(y => { const d = Math.floor(y / 10) * 10, o = dec[d] || (dec[d] = { n: 0, h: 0, c: {}, ys: [] }); o.n += by[y].n; o.h += by[y].h; o.ys.push(y); Object.keys(by[y].c).forEach(g => { (o.c[g] = o.c[g] || { n: 0, h: 0 }); o.c[g].n += by[y].c[g].n; o.c[g].h += by[y].c[g].h; }); });
+  const ds = Object.keys(dec).map(Number).sort((a, b) => b - a), maxH = Math.max(...ds.map(d => dec[d].h), 1), maxY = Math.max(...ys.map(y => by[y].h), 1);
+  const topN = ys.slice().sort((a, b) => by[b].n - by[a].n || by[b].h - by[a].h)[0], topH = ys.slice().sort((a, b) => by[b].h - by[a].h)[0];
+  const topD = ds.slice().sort((a, b) => dec[b].h - dec[a].h)[0], oldest = ys[0];
+  const stats = `<div class="season-grid" style="margin:4px 0 14px">${anStat(topN, "Most titles · " + by[topN].n)}${anStat(topH, "Most hours · " + fmtH(by[topH].h))}${anStat(oldest, "Oldest release")}</div>`;
+  const rows = ds.map(d => {
+    const o = dec[d], seg = ["games", "movies", "shows", "manga"].filter(g => o.c[g] && o.c[g].h > 0).map(g => `<i style="width:${o.c[g].h / o.h * 100}%;background:${RC[g]}"></i>`).join("");
+    const yrs = []; for(let y = d; y < d + 10; y++) yrs.push(y);
+    const cols = yrs.map(y => { const v = by[y] ? by[y].h : 0; return `<div class="rd-y"><div class="rd-yv">${v > 0 ? Math.round(v) : ""}</div><div class="rd-yb"><i style="height:${v > 0 ? Math.max(4, v / maxY * 100) : 0}%"></i></div><div class="rd-yl">'${String(y).slice(2)}</div><div class="rd-yn">${by[y] ? by[y].n : ""}</div></div>`; }).join("");
+    return `<div class="rd${d === topD ? " top" : ""}" onclick="this.classList.toggle('open')"><div class="rd-top"><b class="serif">${d}s</b><div class="rd-bar"><div class="rd-fill" style="width:${Math.max(3, o.h / maxH * 100)}%">${seg}</div></div><span>${o.n} · ${fmtH(o.h)}</span></div><div class="rd-yrs">${cols}</div></div>`;
+  }).join("");
+  const key = Object.keys(RC).map(g => `<span><i style="background:${RC[g]}"></i>${CAT[g] ? CAT[g].label : g}</span>`).join("");
+  return anSec("Finished by release year", stats + `<div class="rd-key">${key}</div>` + rows, `${known} title${known === 1 ? "" : "s"} counted${unk ? ` · ${unk} without a release year are left out` : ""}. Bars are hours; the number is titles · hours. Tap a decade to see its years (titles under each year).`);
+}
 function renderArchiveStats(){
   const evs = [], yr = {};
   ALL_CATS.forEach(k => arcView(k).forEach(it => { if(!it.abandoned) arcEvents(k, it).forEach(e => evs.push({ k, it, e })); }));
@@ -7585,8 +7647,10 @@ function renderArchiveStats(){
   const rated = []; ALL_CATS.forEach(k => arcView(k).forEach(x => { if(myS100(x) != null && !x.abandoned) rated.push({ n: x.name, k, s: myS100(x) }); }));
   rated.sort((a, b) => b.s - a.s);
   const thisY = yr[cy] ? yr[cy].h : 0, lastY = yr[cy - 1] ? yr[cy - 1].h : 0;
+  const relCard = archiveReleaseCard();
   $("app").innerHTML = `<section class="ov-hero arc"><div class="ov-side" style="flex:1"><div class="eyebrow">Everything you finished</div><div class="ov-big serif">${nAll} titles</div><div class="ov-sub"><b>${fmtH(totH)}</b> over ${cols.length || 0} year${cols.length === 1 ? "" : "s"}${abAll ? ` · ${abAll} abandoned` : ""}</div>${best ? `<div class="ov-sub">Busiest year: <b>${best}</b> (${fmtH(yr[best].h)}, ${yr[best].ids.size} titles)</div>` : ""}</div></section>
   ${anSec("Hours finished per year", cols.length ? anCols(cols) : "<div class='an-note'>Nothing finished yet.</div>", cols.length ? `Average ${fmtH(avg)} a year. ${cy}: ${fmtH(thisY)}${lastY ? ` vs ${cy - 1}: ${fmtH(lastY)}` : ""}. Dates of titles added straight to the Archive are generated, so these are estimates.` : "")}
+  ${relCard}
   ${anSec("By category", cats.map(c => `<div class="ov-row"><span>${CAT[c.k].label} · ${c.n}${c.ab ? ` (+${c.ab} abandoned)` : ""}</span><b>${fmtH(c.h)}${c.r != null ? ` · avg ${Math.round(c.r)}` : ""}</b></div>${anBar(totH ? c.h / totH * 100 : 0, CAT[c.k].color)}`).join(""))}
   ${rated.length ? anSec("Your top rated", rated.slice(0, 5).map((x, i) => `<div class="an-li"><span>${i + 1}. ${esc(x.n)}</span><em class="${ratingClass(x.s)}">${CAT[x.k].label} · ${x.s}</em></div>`).join("")) : ""}`;
 }
@@ -8105,54 +8169,96 @@ function goalToggle(cat, id){
 }
 function goalPickDone(){ closeModal("goalPickModal"); }
 
-/* ---- v3.0.0 — the year season: finished titles of this year move back into Season (one time) ---- */
-function yearMigrate(){
-  if((S.yearV || 0) >= 2) return false;   // v3.0.1 — runs once more: titles added straight to the Archive with a 2026 date come too
-  S.yearV = 2;
+/* ---- v3.0.2 — the year season: every Archive title with a finish date in this year is in Season, always (not just once) ---- */
+let ySyncOnce = false;
+function yearSync(){
+  let n = 0;
   try{
     const cy = new Date().getFullYear(), yOf = ts => ts > 0 ? new Date(ts).getFullYear() : 0;
-    const clone = o => JSON.parse(JSON.stringify(o));
+    const clone = o => JSON.parse(JSON.stringify(o)), sure = it => !(it.genDates || it.lastEst || /^v_/.test(it.id || ""));   // generated dates are estimates, they stay in the Archive
+    const flag = it => { it.keepMeta = true; it.arcDone = true; };
+    const mv = (cat, it) => { S.vault[cat] = S.vault[cat].filter(x => x !== it); flag(it); S[cat].push(it); n++; };
     ["games", "movies"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
-      if(it.replayOf) return;
-      const ts = it.abandoned ? (it.lastActive > 0 ? [it.lastActive] : []) : (arcRuns(it).length ? arcRuns(it).map(dtTs) : (it.lastActive > 0 ? [it.lastActive] : []));
-      if(!ts.length || !ts.every(t => yOf(t) === cy)) return;
-      if(!it.abandoned && !isSeasonItemDone(cat, it)) return;   // it would not show as finished in Season, so it stays in the Archive
-      if(!it.abandoned && !(it.finishedDate && +it.finishedDate.y) && arcRuns(it).length) it.finishedDate = { ...arcRuns(it)[0] };
-      S.vault[cat] = S.vault[cat].filter(x => x !== it); it.keepMeta = true; S[cat].push(it);
+      if(it.replayOf || !sure(it)) return;
+      const runs = arcRuns(it), ts = it.abandoned ? (it.lastActive > 0 ? [it.lastActive] : []) : (runs.length ? runs.map(dtTs) : (it.lastActive > 0 ? [it.lastActive] : []));
+      if(!ts.some(t => yOf(t) === cy)) return;   // even one finish this year is enough
+      if(!it.abandoned && !(it.finishedDate && +it.finishedDate.y) && runs.length) it.finishedDate = { ...runs[0] };
+      mv(cat, it);
     }));
     ["tv", "anime"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
+      if(!sure(it)) return;
       const gs = it.groups || [];
-      if(it.abandoned){ if(yOf(it.lastActive) === cy){ S.vault[cat] = S.vault[cat].filter(x => x !== it); it.keepMeta = true; S[cat].push(it); } return; }
+      if(it.abandoned){ if(yOf(it.lastActive) === cy) mv(cat, it); return; }
       const mine = gs.filter(g => g.total > 0 && g.watched >= g.total && yOf(grpTs(g)) === cy);
       if(!mine.length) return;
-      if(mine.length === gs.length){ if(!isSeasonItemDone(cat, it)) return; gs.forEach(g => { if(g.finishedYear === undefined) g.finishedYear = cy; }); S.vault[cat] = S.vault[cat].filter(x => x !== it); it.keepMeta = true; S[cat].push(it); return; }
+      if(mine.length === gs.length){ gs.forEach(g => { if(g.finishedYear === undefined) g.finishedYear = cy; }); mv(cat, it); return; }
       if(!it.originGroupId) it.originGroupId = uid();
-      const part = clone(it); part.id = uid(); part.groups = clone(mine); part.keepMeta = true;
-      if(!isSeasonItemDone(cat, part)) return;
+      const part = clone(it); part.id = uid(); part.groups = clone(mine); flag(part);
       part.groups.forEach(g => { if(g.finishedYear === undefined) g.finishedYear = cy; });
-      it.groups = gs.filter(g => !mine.includes(g)); S[cat].push(part);
+      it.groups = gs.filter(g => !mine.includes(g)); S[cat].push(part); n++;
     }));
     (S.vault.manga || []).slice().forEach(it => {
-      if(it.abandoned){ if(yOf(it.lastActive) === cy){ S.vault.manga = S.vault.manga.filter(x => x !== it); it.keepMeta = true; S.manga.push(it); } return; }
+      if(!sure(it)) return;
+      if(it.abandoned){ if(yOf(it.lastActive) === cy) mv("manga", it); return; }
       const dd = it.volDates || {}, from = it.fromVol || 1, to = it.toVol || 0, total = Math.max(0, to - from + 1);
       if(total <= 0 || (it.volsRead || 0) < total) return;
       let k = to + 1; while(k - 1 >= from && dd[k - 1] && +dd[k - 1].y === cy) k--;   // the last volumes, all dated this year
       if(k > to) return;
-      const anyEarlier = Object.keys(dd).some(v => +v < k && dd[v] && +dd[v].y === cy);
+      if(Object.keys(dd).some(v => +v < k && dd[v] && +dd[v].y === cy)) return;
       const stampY = o => { o.volYears = o.volYears || {}; for(let v = from; v <= to; v++){ if(o.volYears[v] === undefined) o.volYears[v] = dd[v] && +dd[v].y ? +dd[v].y : null; } };
-      if(k === from){ if(anyEarlier) return; stampY(it); S.vault.manga = S.vault.manga.filter(x => x !== it); it.keepMeta = true; S.manga.push(it); return; }
-      if(anyEarlier) return;
+      if(k === from){ stampY(it); mv("manga", it); return; }
       if(!it.originGroupId) it.originGroupId = uid();
       stampY(it);
-      const part = clone(it), n = to - k + 1; part.id = uid(); part.fromVol = k; part.toVol = to; part.volsRead = n; part.keepMeta = true;
+      const part = clone(it), c = to - k + 1; part.id = uid(); part.fromVol = k; part.toVol = to; part.volsRead = c; flag(part);
       part.volDates = {}; part.volRatings = it.volRatings ? {} : it.volRatings;
       for(let v = k; v <= to; v++){ if(dd[v]) part.volDates[v] = clone(dd[v]); if(it.volRatings && it.volRatings[v]) part.volRatings[v] = clone(it.volRatings[v]); }
       for(let v = k; v <= to; v++){ delete it.volDates[v]; if(it.volYears) delete it.volYears[v]; if(it.volRatings) delete it.volRatings[v]; }
-      it.toVol = k - 1; it.volsRead = Math.max(0, (it.volsRead || 0) - n); S.manga.push(part);
+      it.toVol = k - 1; it.volsRead = Math.max(0, (it.volsRead || 0) - c); S.manga.push(part); n++;
     });
-  }catch(e){ console.error("yearMigrate", e); }
-  S.updatedAt = Date.now(); stateSave(); if(cloudUser) pushToCloud();
-  return true;
+  }catch(e){ console.error("yearSync", e); }
+  if(n) S.yearV = 3;
+  return n;
+}
+
+/* ---- v3.0.2 — release dates that the old "finished" clean-up wiped come back from IGDB / TMDB, a few per session ---- */
+let relBusy = false;
+async function relBackfill(){
+  if(relBusy) return; relBusy = true;
+  try{
+    const miss = x => !(x.releaseDate && +x.releaseDate.y);
+    const gl = S.games.filter(g => g.igdbId && miss(g) && !g.replayOf && (g.abandoned || isSeasonItemDone("games", g))).concat(S.vault.games.filter(g => g.igdbId && miss(g)));
+    let ch = 0;
+    if(gl.length && typeof igdbBase === "function" && igdbBase()){
+      for(let i = 0; i < Math.min(gl.length, 100); i += 50){
+        const part = gl.slice(i, i + 50), rs = await igdbApi("games", `fields first_release_date; where id = (${part.map(g => +g.igdbId).join(",")}); limit 50;`);
+        (rs || []).forEach(r => { if(!r.first_release_date) return; part.filter(g => +g.igdbId === +r.id).forEach(g => { g.releaseDate = igdbDateParts(r.first_release_date); ch++; }); });
+      }
+    }
+    const ml = S.movies.filter(m => m.tmdbId && miss(m) && (m.abandoned || isSeasonItemDone("movies", m))).concat(S.vault.movies.filter(m => m.tmdbId && miss(m))).slice(0, 12);
+    for(const m of ml){
+      try{ const d = await MediaDB.providers.tmdb.api("/movie/" + m.tmdbId, {}); if(d && d.release_date){ const [y, mo, da] = String(d.release_date).split("-"); if(y){ m.releaseDate = { y, m: String(+mo || ""), d: String(+da || "") }; ch++; } } }catch(e){ break; }
+    }
+    if(ch){ S.updatedAt = Date.now(); stateSave(); if(cloudUser) pushToCloud(); render(); }
+  }catch(e){ /* offline or no worker: try again next session */ }
+  relBusy = false;
+}
+setTimeout(() => { try{ relBackfill(); }catch(e){} }, 6000);
+
+// v3.0.2 — after a title is marked finished, its score menu opens straight away
+function rateSoon(id, gid, vol){ setTimeout(() => { try{ if(myrFind(id)) myrOpen(id, gid || null, vol == null ? null : vol); }catch(e){} }, 280); }
+
+// v3.0.2 — a title finished more than once this season shows once per finish (↻ 2nd, ↻ 3rd …), like the Archive years lists
+function seasonRunsExpand(list){
+  const cy = new Date((S.seasonStart || todayStr()) + "T00:00:00").getFullYear(), out = [];
+  list.forEach(it => {
+    const rs = arcRuns(it).map((r, i) => ({ i, y: new Date(dtTs(r)).getFullYear() })).filter(x => x.y === cy);
+    if(!rs.length){ out.push(it); return; }
+    rs.forEach((x, k) => {
+      if(k === 0 && x.i === 0){ out.push(it); return; }
+      const w = Object.create(it); if(k > 0) w.id = it.id + "~" + x.i; w._src = it; w._mark = ordn(x.i + 1); out.push(w);
+    });
+  });
+  return out;
 }
 
 $("verTag").textContent = "v" + APP_VERSION;
