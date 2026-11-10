@@ -1405,7 +1405,7 @@ SECTIONS:
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "3.0.3"; // single source of truth for the version tag in the header
+const APP_VERSION = "3.0.4"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -8182,6 +8182,15 @@ function yearSync(){
     const cy = new Date().getFullYear(), yOf = ts => ts > 0 ? new Date(ts).getFullYear() : 0;
     const clone = o => JSON.parse(JSON.stringify(o));
     const flag = it => { it.keepMeta = true; it.arcDone = true; };
+    // v3.0.4 — it goes both ways: a title that came from the Archive and no longer has a finish date in this year goes back, so Season always matches this year's Years list
+    ["games", "movies", "tv", "anime", "manga"].forEach(cat => (S[cat] || []).slice().forEach(it => {
+      if(!(it.arcDone || it.keepMeta) || it.replayOf) return;
+      if(arcEvents(cat, it).some(e => !e.dlc && yOf(e.ts) === cy)) return;
+      S[cat] = S[cat].filter(x => x !== it); delete it.arcDone; delete it.keepMeta;
+      const ex = (cat === "tv" || cat === "anime") && it.tmdbId ? (S.vault[cat] || []).find(x => x.tmdbId === it.tmdbId) : null;
+      if(ex) ex.groups = (ex.groups || []).concat(it.groups || []); else S.vault[cat].push(it);
+      n++;
+    }));
     const mv = (cat, it) => { S.vault[cat] = S.vault[cat].filter(x => x !== it); flag(it); S[cat].push(it); n++; };
     ["games", "movies"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
       if(it.replayOf) return;
