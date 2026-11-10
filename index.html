@@ -1029,6 +1029,9 @@ body.det-lock{overflow:hidden}
 .rd-yn{font:600 9px "IBM Plex Mono",monospace;color:var(--brass);height:11px}
 .rd-key{display:flex;flex-wrap:wrap;gap:4px 12px;margin:0 0 10px;font:500 10px "IBM Plex Mono",monospace;color:var(--muted)}
 .rd-key i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}
+
+.yr-ab{display:flex;align-items:center;gap:10px;margin:22px 2px 12px;color:var(--rust);font:600 10.5px "IBM Plex Mono",monospace;letter-spacing:.16em;text-transform:uppercase}
+.yr-ab::before,.yr-ab::after{content:"";flex:1;height:1px;background:var(--rust);opacity:.5}
 </style>
 </head>
 <body>
@@ -1402,7 +1405,7 @@ SECTIONS:
 // §CORE — constants, categories, icons, tiny helpers (uid, esc, fmt)
 const KEY = "expedition-log-v1";
 const VER_KEY = "expedition-written-by"; // v2.4.3 — which app version last saved the data on this device
-const APP_VERSION = "3.0.2"; // single source of truth for the version tag in the header
+const APP_VERSION = "3.0.3"; // single source of truth for the version tag in the header
 const LIB_CATS = ["games","movies","tv","anime","manga"]; // categories available inside the Library book
 // line-icons for Series (replacing the emoji so they match the rest)
 const SERIES_ICON_SVG = `<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.4c-1.4-1.1-3.2-1.6-5.8-1.6v10.8c2.6 0 4.4.5 5.8 1.6 1.4-1.1 3.2-1.6 5.8-1.6V3.8c-2.6 0-4.4.5-5.8 1.6z"/><path d="M10 5.4v10.8"/></svg>`;
@@ -7750,10 +7753,10 @@ let yrWrapMap = {}, yrEns = new Set();
 function yrData(){   // year → what was finished in it, per tab. Every play/watch, season and volume is its own entry.
   const Y = {};
   ALL_CATS.forEach(c => arcView(c).forEach(it => {
-    if(it.abandoned) return;
     const key = isShowCat(c) ? "shows" : c;
     arcEvents(c, it).forEach(e => {
-      const y = new Date(e.ts).getFullYear(), D = Y[y] || (Y[y] = { games: [], movies: [], shows: [], manga: [], h: 0 });
+      const y = new Date(e.ts).getFullYear(), D = Y[y] || (Y[y] = { games: [], movies: [], shows: [], manga: [], h: 0, ab: { games: [], movies: [], shows: [], manga: [] } });
+      if(it.abandoned){ D.ab[key].push({ it, c, ts: e.ts, h: e.h }); return; }   // v3.0.3 — abandoned titles are listed under the finished ones
       D.h += e.h;
       if(e.dlc) return;   // a DLC adds its hours to the year but is not a poster of its own
       D[key].push({ it, c, ts: e.ts, h: e.h, i: e.i, gid: e.gid, v: e.v });
@@ -7815,15 +7818,17 @@ function renderYears(){
       : `<div class="empty"><span class="serif">No years yet</span>Finish titles and they show up here, one list per year.</div>`;
     return;
   }
-  const D = Y[yrOpen] || { games: [], movies: [], shows: [], manga: [], h: 0 };
+  const D = Y[yrOpen] || { games: [], movies: [], shows: [], manga: [], h: 0, ab: { games: [], movies: [], shows: [], manga: [] } };
   const n = YR_TABS.reduce((a, t) => a + D[t[0]].length, 0), rc = {}; yrWrapMap = {};
   const list = D[yrCat].map(e => ({ ...e, w: yrWrap(e, rc) })).sort(yrCmp), items = list.map(e => e.w);
+  const abl = D.ab[yrCat].map(e => ({ ...e, w: yrWrap(e, rc) })).sort(yrCmp), abItems = abl.map(e => e.w);
   $("app").innerHTML = `<div class="ls-top"><button class="btn small" onclick="yrClose()">← Years</button><div class="ls-name serif">${yrOpen}</div></div>
     <div class="ls-stats"><div><b>${n}</b><span>titles</span></div><div><b>${fmtH(D.h)}</b><span>of content</span></div><div><b>${list.length}</b><span>${YR_TABS.find(t => t[0] === yrCat)[1]}</span></div></div>
     <div class="yr-tabs">${YR_TABS.map(t => `<button class="${t[0] === yrCat ? "on" : ""}" onclick="yrTab('${t[0]}')"><b>${D[t[0]].length}</b>${t[1]}</button>`).join("")}</div>
     <div class="list-head"><b>${list.length} title${list.length === 1 ? "" : "s"}</b>${sortBtnHtml("year")}</div>
-    ${items.length ? arcShelfHtml(yrCat, items, 0, 5) : `<div class="empty"><span class="serif">Nothing here</span>Nothing in this category was finished in ${yrOpen}.</div>`}`;
-  if(yrCat === "shows") list.forEach(e => { if(e.it.tmdbId && !yrEns.has(e.it.tmdbId)){ yrEns.add(e.it.tmdbId); tvEnsure(e.it); } });
+    ${items.length ? arcShelfHtml(yrCat, items, 0, 5) : (abItems.length ? "" : `<div class="empty"><span class="serif">Nothing here</span>Nothing in this category was finished in ${yrOpen}.</div>`)}
+    ${abItems.length ? `<div class="yr-ab"><span>Abandoned · ${abItems.length}</span></div>` + arcShelfHtml(yrCat, abItems, items.length, 5) : ""}`;
+  if(yrCat === "shows") list.concat(abl).forEach(e => { if(e.it.tmdbId && !yrEns.has(e.it.tmdbId)){ yrEns.add(e.it.tmdbId); tvEnsure(e.it); } });
   if(yrCat === "manga") setTimeout(mgEnsureExtras, 0);
 }
 function yrTab(k){ yrCat = k; try{ localStorage.setItem("expedition-yrcat", k); }catch(e){} arcOpen = null; render(); }
@@ -8175,18 +8180,18 @@ function yearSync(){
   let n = 0;
   try{
     const cy = new Date().getFullYear(), yOf = ts => ts > 0 ? new Date(ts).getFullYear() : 0;
-    const clone = o => JSON.parse(JSON.stringify(o)), sure = it => !(it.genDates || it.lastEst || /^v_/.test(it.id || ""));   // generated dates are estimates, they stay in the Archive
+    const clone = o => JSON.parse(JSON.stringify(o));
     const flag = it => { it.keepMeta = true; it.arcDone = true; };
     const mv = (cat, it) => { S.vault[cat] = S.vault[cat].filter(x => x !== it); flag(it); S[cat].push(it); n++; };
     ["games", "movies"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
-      if(it.replayOf || !sure(it)) return;
-      const runs = arcRuns(it), ts = it.abandoned ? (it.lastActive > 0 ? [it.lastActive] : []) : (runs.length ? runs.map(dtTs) : (it.lastActive > 0 ? [it.lastActive] : []));
-      if(!ts.some(t => yOf(t) === cy)) return;   // even one finish this year is enough
-      if(!it.abandoned && !(it.finishedDate && +it.finishedDate.y) && runs.length) it.finishedDate = { ...runs[0] };
+      if(it.replayOf) return;
+      const ev = arcEvents(cat, it);   // exactly what the Years list uses
+      if(!ev.some(e => !e.dlc && yOf(e.ts) === cy)) return;   // even one finish (or abandon) this year is enough
+      const runs = arcRuns(it);
+      if(!it.abandoned && !(it.finishedDate && +it.finishedDate.y)){ if(runs.length) it.finishedDate = { ...runs[0] }; else if(it.lastActive > 0){ const d = new Date(it.lastActive); it.finishedDate = { y: String(d.getFullYear()), m: String(d.getMonth() + 1), d: String(d.getDate()) }; } }
       mv(cat, it);
     }));
     ["tv", "anime"].forEach(cat => (S.vault[cat] || []).slice().forEach(it => {
-      if(!sure(it)) return;
       const gs = it.groups || [];
       if(it.abandoned){ if(yOf(it.lastActive) === cy) mv(cat, it); return; }
       const mine = gs.filter(g => g.total > 0 && g.watched >= g.total && yOf(grpTs(g)) === cy);
@@ -8198,7 +8203,6 @@ function yearSync(){
       it.groups = gs.filter(g => !mine.includes(g)); S[cat].push(part); n++;
     }));
     (S.vault.manga || []).slice().forEach(it => {
-      if(!sure(it)) return;
       if(it.abandoned){ if(yOf(it.lastActive) === cy) mv("manga", it); return; }
       const dd = it.volDates || {}, from = it.fromVol || 1, to = it.toVol || 0, total = Math.max(0, to - from + 1);
       if(total <= 0 || (it.volsRead || 0) < total) return;
